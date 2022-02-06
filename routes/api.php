@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\UserExceptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +17,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+//*****UserExceptionController***** */
+
+Route::group([
+    'prefix' => 'userexception',
+    'as' => 'userexception.'
+],function(){
+    
+Route::post('/create',[UserExceptionController::class,'store'])->name('create');
+
+
 });
