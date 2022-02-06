@@ -24,8 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group([
     'prefix' => 'userexception',
     'as' => 'userexception.'
-],function(){
-    
+], function(){
+
 Route::post('/create',[UserExceptionController::class,'store'])->name('create');
 
 

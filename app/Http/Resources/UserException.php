@@ -15,7 +15,14 @@ class UserException extends JsonResource
     public function toArray($request)
     {
         return [
-            
+            'week_id' => $this->week->id,
+            'reason' => $this->reason,
+            'type' => $this->type,
+            'duration' => $this->duration,
+            'status' => $this->status,
+            'start_at' => $this->start_at,
+            'leader_note' => $this->leader_note,
+            'advisor_note' => $this->advisor_note
         ];
     }
 }
