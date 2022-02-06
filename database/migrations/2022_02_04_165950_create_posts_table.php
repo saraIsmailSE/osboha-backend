@@ -16,7 +16,6 @@ class CreatePostsTable extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->integer('media_id');
             $table->integer('timeline_id');
             $table->string('type');
             $table->boolean('allow_comments')->default(1);
