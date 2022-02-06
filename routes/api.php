@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//*****UserExceptionController***** */
+//***** Route for UserExceptionController ***** */
 
 Route::group([
     'prefix' => 'userexception',
