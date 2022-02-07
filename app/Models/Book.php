@@ -20,6 +20,7 @@ class Book extends Model
         'type',
         'picture',
         'level',
+        'post_id',
     ];
 }
 

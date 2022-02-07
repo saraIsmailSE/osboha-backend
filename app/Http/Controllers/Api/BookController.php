@@ -89,13 +89,14 @@ class BookController extends Controller
             'type' => 'required',
             'picture' => 'required',
             'level' => 'required',
+            'book_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         if(Auth::user()->can('edit book')){
-            $book = Book::find($request->section_id);
+            $book = Book::find($request->book_id);
             $book->update($request->all());
             return $this->jsonResponseWithoutMessage("Book Updated Successfully", 'data', 200);
         }
@@ -105,17 +106,23 @@ class BookController extends Controller
         
     }
 
-    public function destroy(Request $request)
+    public function delete(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'book_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }  
 
         if(Auth::user()->can('delete book')){
-            $section = Book::find($request->section_id);
-            $section->delete();
+            $book = Book::find($request->book_id);
+            $book->delete();
             return $this->jsonResponseWithoutMessage("Book Deleted Successfully", 'data', 200);
         }
         else{
             //throw new NotAuthorized;
-    
         }
     }
 }
