@@ -148,33 +148,39 @@ class PermissionsSeeder extends Seeder
 
 
         // create demo users
+        $password = bcrypt('password123');
         $user = \App\Models\User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
+            'password' =>$password,
         ]);
         $user->assignRole($role1);
 
         $user = \App\Models\User::factory()->create([
             'name' => 'Advisor User',
             'email' => 'advisor@example.com',
+            'password' =>$password,
         ]);
         $user->assignRole($role2);
 
         $user = \App\Models\User::factory()->create([
             'name' => 'Supervisor User',
             'email' => 'supervisor@example.com',
+            'password' =>$password,
         ]);
         $user->assignRole($role3);
 
         $user = \App\Models\User::factory()->create([
             'name' => 'Leader User',
             'email' => 'leader@example.com',
+            'password' =>$password,
         ]);
         $user->assignRole($role4);
 
         $user = \App\Models\User::factory()->create([
             'name' => 'Ambassador User',
             'email' => 'ambassador@example.com',
+            'password' =>$password,
         ]);
         $user->assignRole($role5);
     }

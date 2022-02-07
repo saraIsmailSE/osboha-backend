@@ -16,12 +16,4 @@ Trait ResponseJson{
         $responseJson[$responseKey]=$responseObject;
         return response($responseJson,$statusCode);
     }
-
-    function jsonResponseCartWithSubTotal($responseObject,$responseKey, $statusCode,$subtotal){
-        $responseJson['statusCode']=$statusCode;
-        $responseJson['subtotal']=$subtotal;
-        $responseJson[$responseKey]=$responseObject;
-        return response($responseJson,$statusCode);
-    }
-
 }
