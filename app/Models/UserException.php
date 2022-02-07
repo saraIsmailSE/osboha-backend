@@ -14,19 +14,19 @@ class UserException extends Model
         'week_id',
         'reason',
         'type',
-        'duration,',
+        'duration',
         'status',
         'start_at',
         'leader_note',
         'advisor_note'
     ];
 
-    public function user()
+    public function User()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function week()
+    public function Week()
     {
         return $this->belongsTo(Week::class);
     }

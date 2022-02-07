@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserExceptionController;
+use App\Http\Resources\UserException;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,15 +20,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-/***** Route Group for UserExceptionController ******/
-Route::group([
-    'prefix' => 'userexception',
-    'as' => 'userexception.'
- ], function(){
+############ UserException ############
 
-    Route::get('/',[UserExceptionController::class,'index'])->name('index');
-    Route::post('/create',[UserExceptionController::class,'store'])->name('create');
+Route::group(['prefix' => 'userexception'], function(){
+    Route::get('/',[UserExceptionController::class,'index']);
+    Route::post('/create',[UserExceptionController::class,'store']);
+    Route::get('/show/{id}',[UserExceptionController::class,'show']);
+    Route::post('/update/{id}',[UserExceptionController::class,'update']);
+});
 
-
-}); //end of UserExceptionController Route Group
-
+############ End UserException ############
