@@ -19,14 +19,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//***** Route for UserExceptionController ***** */
-
+/***** Route Group for UserExceptionController ******/
 Route::group([
     'prefix' => 'userexception',
     'as' => 'userexception.'
-], function(){
+ ], function(){
 
-Route::post('/create',[UserExceptionController::class,'store'])->name('create');
+    Route::get('/',[UserExceptionController::class,'index'])->name('index');
+    Route::post('/create',[UserExceptionController::class,'store'])->name('create');
 
 
-});
+}); //end of UserExceptionController Route Group
+
