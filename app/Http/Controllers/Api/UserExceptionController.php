@@ -14,14 +14,18 @@ class UserExceptionController extends Controller
 {
     use ResponseJson;
     /**
-     * Display a listing of the resource.
+     * Display a listing of the user exceptions.
      *
      * @return \Illuminate\Http\Response
      */
     
     public function index()
     {
-        //
+        $userException=UserException::all()->where('user_id',Auth::id());
+        return $this->jsonResponse(
+            UserExceptionResources::collection($userException),
+             'data', 200, 'User Exceptions List'
+            );
     }
 
     /**
