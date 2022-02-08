@@ -2,8 +2,15 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+<<<<<<< HEAD
 use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Resources\UserException;
+=======
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\BookController;
+
+
+>>>>>>> 4e3cd04f72e527e0b4f36bb9f3d972fef93067fe
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +23,7 @@ use App\Http\Resources\UserException;
 |
 */
 
+<<<<<<< HEAD
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -30,3 +38,20 @@ Route::group(['prefix' => 'userexception'], function(){
 });
 
 ############ End UserException ############
+=======
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group( function () {
+    Route::get('/logout', [AuthController::class, 'logout']);
+    ########Book########
+    Route::group(['prefix'=>'book'], function(){
+        Route::get('/', [BookController::class, 'index']);
+        Route::post('/create', [BookController::class, 'create']);
+        Route::post('/show', [BookController::class, 'show']);
+        Route::post('/update', [BookController::class, 'update']);
+        Route::post('/delete', [BookController::class, 'delete']);
+
+    });
+    ########End Book########
+});
+>>>>>>> 4e3cd04f72e527e0b4f36bb9f3d972fef93067fe
