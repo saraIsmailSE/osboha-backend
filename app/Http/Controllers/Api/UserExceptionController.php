@@ -50,7 +50,7 @@ class UserExceptionController extends Controller
           return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 422);
         }
 
-        $input['user_id']= Auth::id();
+        $input['user_id']= $request->user_id;
         $userException= UserException::create($input);
         
         return $this->jsonResponse($userException,'data', 200, 'User Exception Created');
