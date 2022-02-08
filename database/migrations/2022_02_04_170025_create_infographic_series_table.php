@@ -17,7 +17,6 @@ class CreateInfographicSeriesTable extends Migration
             $table->id();
             $table->string('title');
             $table->string('section');
-            $table->integer('media_id');
             $table->timestamps();
         });
     }

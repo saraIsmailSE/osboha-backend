@@ -19,6 +19,12 @@ class CreateMediaTable extends Migration
             // type could be (img - vedio - gif)
             $table->string('type');
             $table->integer('user_id');
+            $table->integer('post_id')->nullable();
+            $table->integer('comment_id')->nullable();
+            $table->integer('reaction_id')->nullable();
+            $table->integer('infographic_series_id')->nullable();
+            $table->integer('infographic_id')->nullable();
+            $table->integer('book_id')->nullable();
             $table->timestamps();
         });
     }

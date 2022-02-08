@@ -16,9 +16,8 @@ class CreateReactionsTable extends Migration
         Schema::create('reactions', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->integer('post_id');
-            $table->integer('comment_id');
-            $table->integer('media_id');
+            $table->integer('post_id')->nullable();
+            $table->integer('comment_id')->nullable();
             $table->timestamps();
         });
     }

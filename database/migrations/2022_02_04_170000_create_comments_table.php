@@ -19,7 +19,6 @@ class CreateCommentsTable extends Migration
             $table->integer('user_id');
             $table->integer('post_id');
             $table->integer('comment_id')->default(0);
-            $table->integer('media_id');
             $table->string('type');
             $table->timestamps();
         });

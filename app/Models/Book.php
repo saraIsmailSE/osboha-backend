@@ -18,7 +18,6 @@ class Book extends Model
         'link',
         'section',
         'type',
-        'picture',
         'level',
         'post_id',
     ];
