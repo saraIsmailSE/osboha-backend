@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * UserExceptionController to create exception for user
+ * Description: UserExceptionControlle for user exception
  *
  * Methods:
  *  - CRU only
- *  - Rules for validation
+ *  - rules(): for validation
  */
 
 class UserExceptionController extends Controller
@@ -47,10 +47,9 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, $rules);
         
         if($validator->fails()){
-          return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 422);
+          return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $input['user_id']= $request->user_id;
         $userException= UserException::create($input);
         
         return $this->jsonResponse($userException,'data', 200, 'User Exception Created');
@@ -83,10 +82,9 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, $rules);
 
         if($validator->fails()){
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 422);
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
           }
 
-        $input['user_id']= Auth::id();
         $userException= UserException::findOrFail($request->id);
         $userException->update($input);
 
@@ -96,11 +94,12 @@ class UserExceptionController extends Controller
       /**
      *
      * Method for validation rules
-     * used by store() and update()
+     * used by create() and update()
      */
     public function rules(){
         return [
          'week_id' => 'required',
+         'user_id' => 'required',
          'reason' => 'required|string',
          'type' => 'required|string',
          'duration' => 'required|int',

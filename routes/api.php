@@ -2,15 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-use App\Http\Controllers\Api\UserExceptionController;
-use App\Http\Resources\UserException;
-=======
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\UserExceptionController;
+use App\Http\Controllers\Api\GroupController;
 
-
->>>>>>> 4e3cd04f72e527e0b4f36bb9f3d972fef93067fe
 
 /*
 |--------------------------------------------------------------------------
@@ -23,22 +19,6 @@ use App\Http\Controllers\Api\BookController;
 |
 */
 
-<<<<<<< HEAD
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-############ UserException ############
-
-Route::group(['prefix' => 'userexception'], function(){
-    Route::get('/',[UserExceptionController::class,'index']);
-    Route::post('/create',[UserExceptionController::class,'store']);
-    Route::get('/show/{id}',[UserExceptionController::class,'show']);
-    Route::post('/update/{id}',[UserExceptionController::class,'update']);
-});
-
-############ End UserException ############
-=======
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group( function () {
@@ -54,4 +34,29 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Book########
 });
->>>>>>> 4e3cd04f72e527e0b4f36bb9f3d972fef93067fe
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+############UserException############
+
+Route::group(['prefix' => 'userexception'], function(){
+    Route::get('/',[UserExceptionController::class,'index']);
+    Route::post('/create',[UserExceptionController::class,'create']);
+    Route::get('/show',[UserExceptionController::class,'show']);
+    Route::post('/update',[UserExceptionController::class,'update']);
+});
+
+############End UserException############
+
+############Group############
+
+Route::group(['prefix' => 'group'], function(){
+    Route::get('/',[GroupController::class,'index']);
+    Route::post('/create',[GroupController::class,'create']);
+    Route::get('/show',[GroupController::class,'show']);
+    Route::post('/update',[GroupController::class,'update']);
+    Route::post('/delete',[GroupController::class,'delete']);
+});
+
+############End Group############
