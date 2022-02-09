@@ -45,6 +45,17 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########end socialMedia route########
+
+    ########start timeline route########
+    Route::group(['prefix'=>'timeline'], function(){
+        Route::get('/', [TimelineController::class, 'index']);
+        Route::post('/create', [TimelineController::class, 'create']);
+        Route::post('/show', [TimelineController::class, 'show']);
+        Route::post('/update', [TimelineController::class, 'update']);
+        Route::post('/delete', [TimelineController::class, 'delete']);
+
+    });
+    ########end timeline route########
     
 
 });
