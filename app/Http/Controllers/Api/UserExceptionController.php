@@ -10,11 +10,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * Description: UserExceptionControlle for user exception
+ * UserExceptionController to create exception for user
  *
  * Methods:
  *  - CRU only
- *  - rules(): for validation
  */
 
 class UserExceptionController extends Controller
@@ -30,7 +29,7 @@ class UserExceptionController extends Controller
     public function index()
     { 
         $userException= UserException::all()->where('user_id', Auth::id());
-
+        
         return $this->jsonResponseWithoutMessage($userException,'data', 200);
     }
 
@@ -40,16 +39,24 @@ class UserExceptionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function create(Request $request)
     {
-        $rules=$this->rules();
         $input=$request->all();
-        $validator= Validator::make($input, $rules);
+        $validator= Validator::make($input, [
+            'week_id' => 'required',
+            'reason' => 'required|string',
+            'type' => 'required|string',
+            'duration' => 'required|int',
+            'start_at' => 'required|date',
+            'leader_note' => 'nullable|string',
+            'advisor_note' => 'nullable|string',
+        ]);
         
         if($validator->fails()){
           return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
+        $input['user_id']= Auth::id();
         $userException= UserException::create($input);
         
         return $this->jsonResponse($userException,'data', 200, 'User Exception Created');
@@ -63,7 +70,16 @@ class UserExceptionController extends Controller
      */
     public function show(Request $request)
     {
-        $userException= UserException::findOrFail($request->id);
+        $validator = Validator::make($request->all(), [
+            'exception_id' => 'required',
+        ]);
+
+        
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }  
+
+        $userException= UserException::where('user_id',Auth::id())->findOrFail($request->exception_id);
  
         return $this->jsonResponseWithoutMessage($userException,'data', 200);
     }
@@ -77,36 +93,27 @@ class UserExceptionController extends Controller
      */
     public function update(Request $request)
     {
-        $rules= $this->rules();
         $input=$request->all();
-        $validator= Validator::make($input, $rules);
+        $validator= Validator::make($input, [
+            'exception_id' => 'required',
+            'week_id' => 'required',
+            'reason' => 'required|string',
+            'type' => 'required|string',
+            'duration' => 'required|int',
+            'start_at' => 'required|date',
+            'leader_note' => 'nullable|string',
+            'advisor_note' => 'nullable|string',
+        ]);
 
         if($validator->fails()){
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
           }
 
-        $userException= UserException::findOrFail($request->id);
+        $input['user_id']= Auth::id();
+        $userException= UserException::findOrFail($request->exception_id);
         $userException->update($input);
 
         return $this->jsonResponse($userException,'data', 200, 'User Exception Updated');
-    }
-
-      /**
-     *
-     * Method for validation rules
-     * used by create() and update()
-     */
-    public function rules(){
-        return [
-         'week_id' => 'required',
-         'user_id' => 'required',
-         'reason' => 'required|string',
-         'type' => 'required|string',
-         'duration' => 'required|int',
-         'start_at' => 'required|date',
-         'leader_note' => 'nullable|string',
-         'advisor_note' => 'nullable|string',
-        ];
     }
 
 }
