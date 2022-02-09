@@ -22,6 +22,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/logout', [AuthController::class, 'logout']);
+
     ########Book########
     Route::group(['prefix'=>'book'], function(){
         Route::get('/', [BookController::class, 'index']);
@@ -32,4 +33,21 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Book########
+
+    ########Mark########
+    Route::group(['prefix'=>'mark'], function(){
+        Route::get('/', [MarkController::class, 'index']);
+        Route::post('/show', [MarkController::class, 'show']);
+        Route::post('/update', [MarkController::class, 'update']);
+    });
+    ########End Mark########
+
+    ########RejectedMark########
+    Route::group(['prefix'=>'rejected-mark'], function(){
+        Route::get('/', [RejectedMarkController::class, 'index']);
+        Route::post('/create', [RejectedMarkController::class, 'create']);
+        Route::post('/show', [RejectedMarkController::class, 'show']);
+        Route::post('/update', [RejectedMarkController::class, 'update']);
+    });
+    ########End RejectedMark ########
 });
