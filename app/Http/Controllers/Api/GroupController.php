@@ -15,7 +15,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Description: GroupController for Osboha group .
+ * Description: GroupController for Osboha group.
  *
  * Methods:
  *  - CRUD.
@@ -93,7 +93,7 @@ class GroupController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
         $group=Group::findOrFail($request->group_id);
 

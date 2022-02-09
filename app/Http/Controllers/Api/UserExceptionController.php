@@ -12,8 +12,7 @@ use Illuminate\Support\Facades\Validator;
 /**
  * UserExceptionController to create exception for user
  *
- * Methods:
- *  - CRU only
+ * Methods:CRU only
  */
 
 class UserExceptionController extends Controller
@@ -79,7 +78,7 @@ class UserExceptionController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
 
-        $userException= UserException::where('user_id',Auth::id())->findOrFail($request->exception_id);
+        $userException=UserException::where('user_id',Auth::id())->findOrFail($request->exception_id);
  
         return $this->jsonResponseWithoutMessage($userException,'data', 200);
     }

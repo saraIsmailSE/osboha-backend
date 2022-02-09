@@ -33,30 +33,27 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Book########
+
+    #########UserException########
+    Route::group(['prefix' => 'userexception'], function(){
+        Route::get('/',[UserExceptionController::class,'index']);
+        Route::post('/create',[UserExceptionController::class,'create']);
+        Route::get('/show',[UserExceptionController::class,'show']);
+        Route::post('/update',[UserExceptionController::class,'update']);
+    });
+    ############End UserException########
+
+    ############Group############
+    Route::group(['prefix' => 'group'], function(){
+        Route::get('/',[GroupController::class,'index']);
+        Route::post('/create',[GroupController::class,'create']);
+        Route::get('/show',[GroupController::class,'show']);
+        Route::post('/update',[GroupController::class,'update']);
+        Route::post('/delete',[GroupController::class,'delete']);
+    });
+    ############End Group############
 });
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-############UserException############
-
-Route::group(['prefix' => 'userexception'], function(){
-    Route::get('/',[UserExceptionController::class,'index']);
-    Route::post('/create',[UserExceptionController::class,'create']);
-    Route::get('/show',[UserExceptionController::class,'show']);
-    Route::post('/update',[UserExceptionController::class,'update']);
-});
-
-############End UserException############
-
-############Group############
-
-Route::group(['prefix' => 'group'], function(){
-    Route::get('/',[GroupController::class,'index']);
-    Route::post('/create',[GroupController::class,'create']);
-    Route::get('/show',[GroupController::class,'show']);
-    Route::post('/update',[GroupController::class,'update']);
-    Route::post('/delete',[GroupController::class,'delete']);
-});
-
-############End Group############
