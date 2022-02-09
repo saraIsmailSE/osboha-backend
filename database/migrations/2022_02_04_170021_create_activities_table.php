@@ -17,7 +17,7 @@ class CreateActivitiesTable extends Migration
             $table->id();
             $table->string('name');
             $table->integer('version');
-            $table->integer('post_id');
+            $table->integer('post_id')->nullable();
             $table->timestamps();
         });
     }
