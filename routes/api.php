@@ -44,6 +44,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [SocialMediaController::class, 'delete']);
 
     });
-    ########end timeline route########
+    ########end socialMedia route########
+    
 
 });
+
+   
+
+

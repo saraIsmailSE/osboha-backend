@@ -16,7 +16,6 @@ class SocialMediaController extends Controller
     public function index()
     {
         $socialMedia = SocialMedia::all();
-        return $socialMedia;
         if($socialMedia){
             return $this->jsonResponseWithoutMessage($socialMedia, 'data',200);
         }
@@ -26,18 +25,17 @@ class SocialMediaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
+            'facebook' => 'required_without_all:twitter,instagram',
+            'twitter' => 'required_without_all:facebook,instagram',
+            'instagram' => 'required_without_all:facebook,twitter',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         } 
-        
-        if ($request->facebook == null && $request->twitter == null && $request->instagram == null ) {
-            return $this->jsonResponseWithoutMessage("Enter One Account at least", 'data', 500);
-        }
 
         SocialMedia::create($request->all());
-        return $this->jsonResponseWithoutMessage("Your Accounts are added Successfully", 'data', 200);
+        return $this->jsonResponseWithoutMessage("Your Accounts Are Added Successfully", 'data', 200);
         
     }
 
@@ -45,14 +43,14 @@ class SocialMediaController extends Controller
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required',
+            'socialMedia_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $socialMedia = SocialMedia::find($request->id);
+        $socialMedia = SocialMedia::find($request->socialMedia_id);
         if($socialMedia){
             return $this->jsonResponseWithoutMessage($socialMedia, 'data',200);
         }
@@ -62,7 +60,10 @@ class SocialMediaController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
-            'id' => 'required',
+            'socialMedia_id' => 'required',
+            'facebook' => 'required_without_all:twitter,instagram',
+            'twitter' => 'required_without_all:facebook,instagram',
+            'instagram' => 'required_without_all:facebook,twitter',
 
         ]);
 
@@ -70,11 +71,7 @@ class SocialMediaController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if ($request->facebook == null && $request->twitter == null && $request->instagram == null ) {
-            return $this->jsonResponseWithoutMessage("Enter One Account at least", 'data', 500);
-        }
-
-        $socialMedia = SocialMedia::find($request->id);
+        $socialMedia = SocialMedia::find($request->socialMedia_id);
         $socialMedia->update($request->all());
         return $this->jsonResponseWithoutMessage("Your Accounts Are Updated Successfully", 'data', 200);
     }
@@ -82,14 +79,14 @@ class SocialMediaController extends Controller
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required',
+            'socialMedia_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $socialMedia = SocialMedia::find($request->id);
+        $socialMedia = SocialMedia::find($request->socialMedia_id);
         $socialMedia->delete();
         return $this->jsonResponseWithoutMessage("Your Accounts Are Deleted Successfully", 'data', 200);
     }
