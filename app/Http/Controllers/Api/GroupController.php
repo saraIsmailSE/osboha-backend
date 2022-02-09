@@ -10,14 +10,16 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Description: Controller for Osboha group with operations.
+ * Description: GroupController for Osboha group .
  *
  * Methods:
  *  - CRUD.
- *  - rules() for validation.
- *  - upload() for upload and file validation.
+ *  - upload() for upload file and validate it.
  */
 
 class GroupController extends Controller
@@ -34,7 +36,12 @@ class GroupController extends Controller
     {
         $group= Group::all();
 
-        return $this->jsonResponseWithoutMessage($group,'data', 200);
+        if($group){
+          return $this->jsonResponseWithoutMessage($group,'data', 200);
+        }
+        else{
+          return $this->jsonResponseWithoutMessage("No Result found", 'data', 200);
+        }
     }
 
     /**
@@ -44,9 +51,15 @@ class GroupController extends Controller
      */
     public function create(Request $request)
     {
-        $rules=$this->rules();
+
         $input=$request->all();
-        $validator=Validator::make($input,$rules);
+        $validator=Validator::make($input,[
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'type' => 'required|string',
+            'cover_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'creator_id' => 'required|int'
+        ]);
 
         if($validator->fails()){
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
@@ -58,36 +71,53 @@ class GroupController extends Controller
             $input['cover_picture']=$this->upload($file);
         }
 
-        $group=Group::create($input);
-        
-        return $this->jsonResponse($group,'data', 200, 'Group Created');
-
+        if(Auth::user()->can('create group')){
+         $group=Group::create($input);
+         return $this->jsonResponse($group,'data', 200, 'Group Created');
+        }
+        else{
+         return $this->jsonResponseWithoutMessage("You Are Not Authorized", 'data', 403);
+        }
     }
 
     /**
      * Display the specified group.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'group_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }  
+
+        $group=Group::findOrFail($request->group_id);
+
+        return $this->jsonResponseWithoutMessage($group, 'data', 200);
+
     }
 
     /**
      * Update the specified group.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
-
-        $rules=$this->rules();
         $input=$request->all();
-        $validator=Validator::make($input,$rules);
+        $validator=Validator::make($input,[
+            'group_id' => 'required',
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'type' => 'required|string',
+            'cover_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'creator_id' => 'required|int'
+        ]);
 
         if($validator->fails()){
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
@@ -102,14 +132,20 @@ class GroupController extends Controller
             $input['cover_picture']=$this->upload($file);
         }
 
-        $group=Group::findOrFail($request->id);
-        $group->update($input);
+        if(Auth::user()->can('edit group')){
+          $group=Group::findOrFail($request->group_id);
+          $group->update($input);
 
-        if($oldImage && $oldImage != $group->cover_picture){
+          if($oldImage && $oldImage != $group->cover_picture){
             Storage::disk('public')->delete($oldImage);
+            }
+
+           return $this->jsonResponse($group,'data', 200, 'Group Updated');
+        }//endif Auth
+
+        else{
+         return $this->jsonResponseWithoutMessage("You Are Not Authorized", 'data', 403);
         }
-        
-        return $this->jsonResponse($group,'data', 200, 'Group Updated');
     }
 
     /**
@@ -127,31 +163,21 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
 
-        $group=Group::findOrFail($request->group_id);
-        $group->delete();
+        if(Auth::user()->can('delete group')){
+         $group=Group::findOrFail($request->group_id);
+         $group->delete();
 
         if($group->cover_picture){
             Storage::disk('public')->delete($group->cover_picture);
         }
 
         return $this->jsonResponseWithoutMessage('Group Deleted', 'data', 200);
+        }//endif Auth
 
-    }
+        else {
+         return $this->jsonResponseWithoutMessage("You Are Not Authorized", 'data', 403);
+        }
 
-    /**
-     *
-     * Method for validation rules
-     * used by create() and update()
-     * @return array
-     */
-    public function rules(){
-        return [
-         'name' => 'required',
-         'description' => 'nullable|string',
-         'type' => 'required|string',
-         'cover_picture' => 'nullable|image|mimes:jpg,jpeg,png',
-         'creator_id' => 'required|int'
-        ];
     }
 
     /**
@@ -165,7 +191,7 @@ class GroupController extends Controller
         if($file->isValid()){   
             $fileName=uniqid().'_'.$file->getClientOriginalName();
 
-            return $file->storeAs('group',$fileName,[
+            return $file->storeAs('images',$fileName,[
                 'disk' => 'public'
             ]);
         } 
