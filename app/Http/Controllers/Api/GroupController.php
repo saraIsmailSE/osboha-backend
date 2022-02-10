@@ -17,9 +17,8 @@ use Spatie\Permission\PermissionRegistrar;
 /**
  * Description: GroupController for Osboha group.
  *
- * Methods:
- *  - CRUD.
- *  - upload() for upload file and validate it.
+ * Methods: CRUD.
+ *  
  */
 
 class GroupController extends Controller
@@ -69,13 +68,15 @@ class GroupController extends Controller
         if($request->hasFile('cover_picture'))
         {
             $file=$request->file('cover_picture');
-            $input['cover_picture']=$this->upload($file);
+            $fileName=time().'.'.$file->extension();
+            $file->move(public_path('assets/images'),$fileName);
+            $input['cover_picture']=$fileName;
         }
 
-      if(Auth::user()->can('create group')){
+     if(Auth::user()->can('create group')){
          $group=Group::create($input);
          return $this->jsonResponse($group,'data', 200, 'Group Created');
-       }
+      }
         else{
             //throw new NotAuthorized;   
         }
@@ -138,17 +139,20 @@ class GroupController extends Controller
         if($request->hasFile('cover_picture'))
         {
             $file=$request->file('cover_picture');
-            $input['cover_picture']=$this->upload($file);
+            $fileName=time().'.'.$file->extension();
+            $file->move(public_path('assets/images'),$fileName);
+            $input['cover_picture']=$fileName;
+        
         }
 
-       if(Auth::user()->can('edit group')){
+      if(Auth::user()->can('edit group')){
           $group->update($input);
-
+          
           //delete old image
-          File::delete($oldImage);
+          File::delete('assets/images/'.$oldImage);
 
           return $this->jsonResponse($group,'data', 200, 'Group Updated');
-         }//endif Auth
+        }//endif Auth
 
         else{
             //throw new NotAuthorized;   
@@ -170,12 +174,12 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
 
-       if(Auth::user()->can('delete group')){
+        if(Auth::user()->can('delete group')){
          $group=Group::find($request->group_id);
          $group->delete();
 
         if($group->cover_picture){
-           File::delete($group->cover_picture);
+           File::delete('assets/images/'.$group->cover_picture);
         }
 
         return $this->jsonResponseWithoutMessage('Group Deleted', 'data', 200);
@@ -185,26 +189,6 @@ class GroupController extends Controller
             //throw new NotAuthorized;   
         }
 
-    }
-
-    /**
-     *
-     * Method for upload and validate image file
-     * used by create() and update()
-     * @return object
-     */
-    public function upload(UploadedFile $file)
-    {
-        if($file->isValid()){   
-            
-            $fileName=time().'.'.$file->extension();
-
-            return $file->move(public_path('assets/images'),$fileName);
-        } 
-        else{
-            return $this->jsonResponseWithoutMessage('File Not Valid', 'data', 500);
-        }
-        
     }
 
 }
