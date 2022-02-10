@@ -28,8 +28,13 @@ class UserExceptionController extends Controller
     public function index()
     { 
         $userException= UserException::all()->where('user_id', Auth::id());
-        
-        return $this->jsonResponseWithoutMessage($userException,'data', 200);
+
+        if($userException){
+         return $this->jsonResponseWithoutMessage($userException,'data', 200);
+        }
+        else{
+            // throw new NotFound;
+         }
     }
 
     /**
@@ -64,7 +69,6 @@ class UserExceptionController extends Controller
     /**
      * Display the details of specified user exception
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request)
@@ -78,9 +82,15 @@ class UserExceptionController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
 
-        $userException=UserException::where('user_id',Auth::id())->findOrFail($request->exception_id);
- 
+        $userException=UserException::where('user_id',Auth::id())->find($request->exception_id);
+        
+        if($userException){ 
         return $this->jsonResponseWithoutMessage($userException,'data', 200);
+        }
+
+        else{
+            // throw new NotFound;
+         }
     }
 
     /**
@@ -109,7 +119,7 @@ class UserExceptionController extends Controller
           }
 
         $input['user_id']= Auth::id();
-        $userException= UserException::findOrFail($request->exception_id);
+        $userException= UserException::find($request->exception_id);
         $userException->update($input);
 
         return $this->jsonResponse($userException,'data', 200, 'User Exception Updated');

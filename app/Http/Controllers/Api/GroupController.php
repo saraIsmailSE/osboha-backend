@@ -9,7 +9,7 @@ use App\Traits\ResponseJson;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -40,7 +40,7 @@ class GroupController extends Controller
           return $this->jsonResponseWithoutMessage($group,'data', 200);
         }
         else{
-          return $this->jsonResponseWithoutMessage("No Result found", 'data', 200);
+          // throw new NotFound;
         }
     }
 
@@ -53,6 +53,7 @@ class GroupController extends Controller
     {
 
         $input=$request->all();
+
         $validator=Validator::make($input,[
             'name' => 'required|string',
             'description' => 'nullable|string',
@@ -71,12 +72,12 @@ class GroupController extends Controller
             $input['cover_picture']=$this->upload($file);
         }
 
-        if(Auth::user()->can('create group')){
+      if(Auth::user()->can('create group')){
          $group=Group::create($input);
          return $this->jsonResponse($group,'data', 200, 'Group Created');
-        }
+       }
         else{
-         return $this->jsonResponseWithoutMessage("You Are Not Authorized", 'data', 403);
+            //throw new NotAuthorized;   
         }
     }
 
@@ -94,10 +95,16 @@ class GroupController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+        
+        $group=Group::find($request->group_id);
 
-        $group=Group::findOrFail($request->group_id);
+        if($group){
+         return $this->jsonResponseWithoutMessage($group, 'data', 200);
+        }
 
-        return $this->jsonResponseWithoutMessage($group, 'data', 200);
+        else{
+            // throw new NotFound;
+        }
 
     }
 
@@ -123,8 +130,10 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
           }
 
-        //get old image(before update) to delete it after update 
-        $oldImage=$request->cover_picture;
+        $group=Group::find($request->group_id);  
+
+        //get old image to delete it after update 
+        $oldImage=$group->cover_picture;
 
         if($request->hasFile('cover_picture'))
         {
@@ -132,19 +141,17 @@ class GroupController extends Controller
             $input['cover_picture']=$this->upload($file);
         }
 
-        if(Auth::user()->can('edit group')){
-          $group=Group::findOrFail($request->group_id);
+       if(Auth::user()->can('edit group')){
           $group->update($input);
 
-          if($oldImage && $oldImage != $group->cover_picture){
-            Storage::disk('public')->delete($oldImage);
-            }
+          //delete old image
+          File::delete($oldImage);
 
-           return $this->jsonResponse($group,'data', 200, 'Group Updated');
-        }//endif Auth
+          return $this->jsonResponse($group,'data', 200, 'Group Updated');
+         }//endif Auth
 
         else{
-         return $this->jsonResponseWithoutMessage("You Are Not Authorized", 'data', 403);
+            //throw new NotAuthorized;   
         }
     }
 
@@ -163,19 +170,19 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
 
-        if(Auth::user()->can('delete group')){
-         $group=Group::findOrFail($request->group_id);
+       if(Auth::user()->can('delete group')){
+         $group=Group::find($request->group_id);
          $group->delete();
 
         if($group->cover_picture){
-            Storage::disk('public')->delete($group->cover_picture);
+           File::delete($group->cover_picture);
         }
 
         return $this->jsonResponseWithoutMessage('Group Deleted', 'data', 200);
         }//endif Auth
 
         else {
-         return $this->jsonResponseWithoutMessage("You Are Not Authorized", 'data', 403);
+            //throw new NotAuthorized;   
         }
 
     }
@@ -189,11 +196,10 @@ class GroupController extends Controller
     public function upload(UploadedFile $file)
     {
         if($file->isValid()){   
-            $fileName=uniqid().'_'.$file->getClientOriginalName();
+            
+            $fileName=time().'.'.$file->extension();
 
-            return $file->storeAs('images',$fileName,[
-                'disk' => 'public'
-            ]);
+            return $file->move(public_path('assets/images'),$fileName);
         } 
         else{
             return $this->jsonResponseWithoutMessage('File Not Valid', 'data', 500);

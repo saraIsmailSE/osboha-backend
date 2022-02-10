@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update',[UserExceptionController::class,'update']);
     });
     ############End UserException########
-
+    
     ############Group############
     Route::group(['prefix' => 'group'], function(){
         Route::get('/',[GroupController::class,'index']);
@@ -52,8 +52,10 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete',[GroupController::class,'delete']);
     });
     ############End Group############
+    
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
