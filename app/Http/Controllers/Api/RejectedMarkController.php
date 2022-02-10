@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\RejectedMark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,8 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RejectedMarkController extends Controller
 {
+    use ResponseJson;
+
     public function index()
     {
         $rejected_marks = RejectedMark::all();
@@ -28,13 +31,12 @@ class RejectedMarkController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'rejecter_note' => 'required', 
-            'is_acceptable' => 'required'
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }    
-        if(Auth::user()->can('reject mark' | 'accept mark')){
+        if(Auth::user()->can('reject mark')){
             RejectedMark::create($request->all());
             return $this->jsonResponseWithoutMessage("Rejected Mark Craeted Successfully", 'data', 200);
         }
@@ -62,18 +64,19 @@ class RejectedMarkController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'rejecter_note' => 'required', 
-            'is_acceptable' => 'required'
+            'is_acceptable' => 'required',
+            'rejected_mark_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if(Auth::user()->can('reject mark' | 'accept mark')){
-            $rejected_mark = RejectedMark::find($request->mark_id);
+        if(Auth::user()->can('reject mark')){
+            $rejected_mark = RejectedMark::find($request->rejected_mark_id);
             $rejected_mark->update($request->all());
             return $this->jsonResponseWithoutMessage("Rejected Mark Updated Successfully", 'data', 200);
         }

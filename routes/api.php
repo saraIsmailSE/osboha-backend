@@ -4,8 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
-
-
+use App\Http\Controllers\Api\MarkController;
+use App\Http\Controllers\Api\RejectedMarkController;
 
 /*
 |--------------------------------------------------------------------------
