@@ -17,8 +17,8 @@ class CreateRatesTable extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('rate');
-            $table->integer('comment_id');
-            $table->integer('post_id');
+            $table->integer('comment_id')->nullable();
+            $table->integer('post_id')->nullable();
             $table->timestamps();
         });
     }
