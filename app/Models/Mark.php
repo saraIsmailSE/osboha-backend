@@ -8,4 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 class Mark extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'out_of_90', 
+        'out_of_100', 
+        'total_pages',  
+        'support', 
+        'total_thesis', 
+        'total_screenshot'
+    ];
+
+    public function week()
+    {
+        return $this->belongsTo(Week::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function thesis()
+    {
+        return $this->hasMany(Thesis::class);
+    }
 }
