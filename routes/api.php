@@ -54,7 +54,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update', [RejectedMarkController::class, 'update']);
     });
     ########End RejectedMark ########
-});
+
     ########start socialMedia route########
     Route::group(['prefix'=>'socialMedia'], function(){
         Route::get('/', [SocialMediaController::class, 'index']);
