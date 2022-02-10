@@ -6,6 +6,10 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\MarkController;
 use App\Http\Controllers\Api\RejectedMarkController;
+use App\Http\Controllers\Api\SocialMediaController;
+use App\Http\Controllers\Api\TimelineController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -18,8 +22,8 @@ use App\Http\Controllers\Api\RejectedMarkController;
 |
 */
 
-Route::post('/login', [AuthController::class, 'login']);
-
+//Route::post('/login', [AuthController::class, 'login']);
+Route::post('login', [ 'as' => 'login', 'uses' => 'LoginController@do']);
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 
@@ -51,3 +55,20 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End RejectedMark ########
 });
+    ########start socialMedia route########
+    Route::group(['prefix'=>'socialMedia'], function(){
+        Route::get('/', [SocialMediaController::class, 'index']);
+        Route::post('/create', [SocialMediaController::class, 'create']);
+        Route::post('/show', [SocialMediaController::class, 'show']);
+        Route::post('/update', [SocialMediaController::class, 'update']);
+        Route::post('/delete', [SocialMediaController::class, 'delete']);
+
+    });
+    ########end socialMedia route########
+    
+
+});
+
+   
+
+
