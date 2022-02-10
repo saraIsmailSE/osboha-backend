@@ -31,6 +31,10 @@ class RejectedMarkController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'rejecter_note' => 'required', 
+            'user_id' => 'required',
+            'thesis_id' => 'required', 
+            'week_id' => 'required', 
+            'rejecter_id' => 'required'
         ]);
 
         if ($validator->fails()) {

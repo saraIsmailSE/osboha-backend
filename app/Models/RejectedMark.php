@@ -11,7 +11,11 @@ class RejectedMark extends Model
 
     protected $fillable = [
         'rejecter_note', 
-        'is_acceptable'
+        'is_acceptable',
+        'user_id',
+        'thesis_id', 
+        'week_id', 
+        'rejecter_id'
     ];
 
     public function user()
