@@ -123,8 +123,10 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
           }
 
+        $group=Group::findOrFail($request->group_id);
+
         //get old image(before update) to delete it after update 
-        $oldImage=$request->cover_picture;
+        $oldImage=$group->cover_picture;
 
         if($request->hasFile('cover_picture'))
         {
@@ -133,7 +135,6 @@ class GroupController extends Controller
         }
 
         if(Auth::user()->can('edit group')){
-          $group=Group::findOrFail($request->group_id);
           $group->update($input);
 
           if($oldImage && $oldImage != $group->cover_picture){
