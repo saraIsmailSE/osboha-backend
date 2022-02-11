@@ -37,8 +37,7 @@ class ActivityController extends Controller
         //validate requested data
         $validator = Validator::make($request->all(), [
             'name'    => 'required',
-            'version' => 'required',
-            'post_id' => 'required',
+            'version' => 'required',            
         ]);
 
         //validator errors response
@@ -94,7 +93,6 @@ class ActivityController extends Controller
          $validator = Validator::make($request->all(), [
             'name'        => 'required',
             'version'     => 'required',
-            'post_id'     => 'required',
             'activity_id' => 'required',
         ]);
 
