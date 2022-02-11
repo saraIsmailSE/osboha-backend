@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class SystemIssue extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'reporter_id',
+        'reporter_description',
+        'reviewer_id',
+        'reviewer_note',
+        'status',
+        'solved',
+    ];
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }
