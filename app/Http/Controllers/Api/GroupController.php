@@ -149,7 +149,7 @@ class GroupController extends Controller
           $group->update($input);
           
           //delete old image
-          File::delete('assets/images/'.$oldImage);
+          File::delete(public_path('assets/images/'.$oldImage));
 
           return $this->jsonResponse($group,'data', 200, 'Group Updated');
         }//endif Auth
@@ -179,7 +179,7 @@ class GroupController extends Controller
          $group->delete();
 
         if($group->cover_picture){
-           File::delete('assets/images/'.$group->cover_picture);
+           File::delete(public_path('assets/images/'.$group->cover_picture));
         }
 
         return $this->jsonResponseWithoutMessage('Group Deleted', 'data', 200);
