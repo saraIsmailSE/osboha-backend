@@ -31,7 +31,6 @@ class SystemIssueController extends Controller
             'reporter_description' => 'required',
             'reviewer_id' => 'integer|nullable',
             'reviewer_note' => 'required|string',
-            'status' => 'required|boolean',
             'solved' => 'date|nullable',
         ]);
 
@@ -40,7 +39,7 @@ class SystemIssueController extends Controller
         }
         if(Auth::user()->can('create issue')){
             SystemIssue::create($request->all());
-            return $this->jsonResponseWithoutMessage("System Issue Created Successfully", 'data', 201);
+            return $this->jsonResponseWithoutMessage("System Issue Created Successfully", 'data', 200);
         }
         else{
             //throw new NotAuthorized;

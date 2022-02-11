@@ -13,7 +13,6 @@ class SystemIssue extends Model
         'reporter_description',
         'reviewer_id',
         'reviewer_note',
-        'status',
         'solved',
     ];
 
