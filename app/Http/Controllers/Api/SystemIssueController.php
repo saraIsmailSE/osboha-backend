@@ -31,19 +31,14 @@ class SystemIssueController extends Controller
             'reporter_description' => 'required',
             'reviewer_id' => 'integer|nullable',
             'reviewer_note' => 'required|string',
-            'solved' => 'date|nullable',
+            'solved' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if(Auth::user()->can('create issue')){
-            SystemIssue::create($request->all());
-            return $this->jsonResponseWithoutMessage("System Issue Created Successfully", 'data', 200);
-        }
-        else{
-            //throw new NotAuthorized;
-        }
+        SystemIssue::create($request->all());
+        return $this->jsonResponseWithoutMessage("System Issue Created Successfully", 'data', 200);
     }
 
     public function show(Request $request)
@@ -73,21 +68,15 @@ class SystemIssueController extends Controller
             'reporter_description' => 'required',
             'reviewer_id' => 'integer|nullable',
             'reviewer_note' => 'required|string',
-            'status' => 'required|boolean',
             'solved' => 'date|nullable',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if(Auth::user()->can('edit issue')){
-            $issue = SystemIssue::find($request->issue_id);
-            $issue->update($request->all());
-            return $this->jsonResponseWithoutMessage("System Issue Updated Successfully", 'data', 200);
-        }
-        else{
-            //throw new NotAuthorized;
-        }
 
+        $issue = SystemIssue::find($request->issue_id);
+        $issue->update($request->all());
+        return $this->jsonResponseWithoutMessage("System Issue Updated Successfully", 'data', 200);
     }
 }
