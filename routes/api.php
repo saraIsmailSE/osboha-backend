@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\RateController;
+use App\Http\Controllers\Api\ReactionController;
 
 
 
@@ -32,4 +34,30 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Book########
+});
+Route::middleware('auth:sanctum')->group( function () {
+    Route::get('/logout', [AuthController::class, 'logout']);
+    ########Rate########
+    Route::group(['prefix'=>'rate'], function(){
+        Route::get('/', [RateController::class, 'index']);
+        Route::post('/create', [RateController::class, 'create']);
+        Route::post('/show', [RateController::class, 'show']);
+        Route::post('/update', [RateController::class, 'update']);
+        Route::post('/delete', [RateController::class, 'delete']);
+
+    });
+    ########End Rate########
+});
+Route::middleware('auth:sanctum')->group( function () {
+    Route::get('/logout', [AuthController::class, 'logout']);
+    ########Reaction########
+    Route::group(['prefix'=>'reaction'], function(){
+        Route::get('/', [ReactionController::class, 'index']);
+        Route::post('/create', [ReactionController::class, 'create']);
+        Route::post('/show', [ReactionController::class, 'show']);
+        Route::post('/update', [ReactionController::class, 'update']);
+        Route::post('/delete', [ReactionController::class, 'delete']);
+
+    });
+    ########End Reaction########
 });
