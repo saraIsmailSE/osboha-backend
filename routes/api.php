@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\CommentController;
 
 
 
@@ -32,4 +33,13 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Book########
+
+    ########Comment########
+    Route::group(['prefix'=>'comment'], function(){
+        Route::post('/create', [CommentController::class, 'create']);
+        Route::post('/show', [CommentController::class, 'show']);
+        Route::post('/update', [CommentController::class, 'update']);
+        Route::post('/delete', [CommentController::class, 'delete']);
+    });
+    ########End Comment########
 });
