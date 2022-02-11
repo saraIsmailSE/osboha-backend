@@ -7,10 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    use HasFactory; 
-
-    public function Media()
-    {
-        return $this->hasMany(Media::class,'comment_id');
-    }
+    use HasFactory;
 }

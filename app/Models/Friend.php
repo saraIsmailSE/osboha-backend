@@ -8,12 +8,4 @@ use Illuminate\Database\Eloquent\Model;
 class Friend extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'friend_id' => 'required',
-        'user_id' => 'required',
-    ];
-    public function user()
-    {
-        return $this->belongsTo(User::class ,'user_id');
-    }
 }
