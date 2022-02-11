@@ -8,8 +8,4 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     use HasFactory;
-    public function Media()
-    {
-        return $this->hasMany(Media::class,'post_id');
-    }
 }
