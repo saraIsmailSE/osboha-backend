@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\UserExceptionController;
+use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
-
 
 
 /*
@@ -36,6 +37,25 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Book########
 
+    #########UserException########
+    Route::group(['prefix' => 'userexception'], function(){
+        Route::get('/',[UserExceptionController::class,'index']);
+        Route::post('/create',[UserExceptionController::class,'create']);
+        Route::get('/show',[UserExceptionController::class,'show']);
+        Route::post('/update',[UserExceptionController::class,'update']);
+    });
+    ############End UserException########
+    
+    ############Group############
+    Route::group(['prefix' => 'group'], function(){
+        Route::get('/',[GroupController::class,'index']);
+        Route::post('/create',[GroupController::class,'create']);
+        Route::get('/show',[GroupController::class,'show']);
+        Route::post('/update',[GroupController::class,'update']);
+        Route::post('/delete',[GroupController::class,'delete']);
+    });
+    ############End Group############
+    
     ########Activity########
     Route::group(['prefix'=>'activity'], function(){
         Route::get('/', [ActivityController::class, 'index']);
@@ -56,7 +76,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [ArticleController::class, 'delete']);
     });
     ########End Article########
-      ########start socialMedia route########
+    ########start socialMedia route########
     Route::group(['prefix'=>'socialMedia'], function(){
         Route::get('/', [SocialMediaController::class, 'index']);
         Route::post('/create', [SocialMediaController::class, 'create']);
@@ -79,4 +99,3 @@ Route::middleware('auth:sanctum')->group( function () {
     ########end timeline route########
 });
 
-   
