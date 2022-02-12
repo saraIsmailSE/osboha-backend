@@ -35,7 +35,27 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [BookController::class, 'delete']);
 
     });
-    ########End Book########    
+    ########End Book########
+    ########Start Media########
+    Route::group(['prefix'=>'media'], function(){
+        Route::get('/', [MediaController::class, 'index']);
+        Route::post('/create', [MediaController::class, 'create']);
+        Route::post('/show', [MediaController::class, 'show']);
+        Route::post('/update', [mediaController::class, 'update']);
+        Route::post('/delete', [MediaController::class, 'delete']);
+    });
+  ########End Media route########
+  ########Start Friend route########
+  Route::group(['prefix'=>'friend'], function(){
+      Route::get('/', [FriendController::class, 'index']);
+      Route::post('/create', [FriendController::class, 'create']);
+      Route::post('/show', [FriendController::class, 'show']);
+      Route::post('/update', [FriendController::class, 'update']);
+      Route::post('/delete', [FriendController::class, 'delete']);
+
+  });
+  ########End Friend route########
+  
     ########Mark########
     Route::group(['prefix'=>'mark'], function(){
         Route::get('/', [MarkController::class, 'index']);
@@ -91,7 +111,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [ArticleController::class, 'delete']);
     });
     ########End Article########
-    ########start socialMedia route########
+    ########Start SocialMedia########
     Route::group(['prefix'=>'socialMedia'], function(){
         Route::get('/', [SocialMediaController::class, 'index']);
         Route::post('/create', [SocialMediaController::class, 'create']);
@@ -100,9 +120,9 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [SocialMediaController::class, 'delete']);
 
     });
-    ########end socialMedia route########
+    ########End SocialMedia########
 
-    ########start timeline route########
+    ########Start Timeline ########
     Route::group(['prefix'=>'timeline'], function(){
         Route::get('/', [TimelineController::class, 'index']);
         Route::post('/create', [TimelineController::class, 'create']);
@@ -111,5 +131,5 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [TimelineController::class, 'delete']);
 
     });
-    ########end timeline route########
+    ########End Timeline ########
 });
