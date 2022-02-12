@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\Api\ActivityController;
-use App\Http\Controllers\Api\ArticleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ActivityController;
+use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\SystemIssueController;
+use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\MarkController;
 use App\Http\Controllers\Api\RejectedMarkController;
@@ -37,7 +39,25 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Book########
-    ########Comment########
+    ########SystemIssue########
+    Route::group(['prefix'=>'system-issue'], function(){
+        Route::get('/', [SystemIssueController::class, 'index']);
+        Route::post('/create', [SystemIssueController::class, 'create']);
+        Route::post('/show', [SystemIssueController::class, 'show']);
+        Route::post('/update', [SystemIssueController::class, 'update']);
+    });
+    ########End SystemIssue########
+
+    ########Transaction########
+    Route::group(['prefix'=>'transaction'], function(){
+        Route::get('/', [TransactionController::class, 'index']);
+        Route::post('/create', [TransactionController::class, 'create']);
+        Route::post('/show', [TransactionController::class, 'show']);
+        Route::post('/update', [TransactionController::class, 'update']);
+    });
+    ########End Transaction########
+});
+    ########Start Comment########
     Route::group(['prefix'=>'comment'], function(){
         Route::post('/create', [CommentController::class, 'create']);
         Route::post('/show', [CommentController::class, 'show']);
