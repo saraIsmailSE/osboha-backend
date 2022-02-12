@@ -6,12 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\MarkController;
+use App\Http\Controllers\Api\RejectedMarkController;
 use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
-
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,8 +35,23 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [BookController::class, 'delete']);
 
     });
-    ########End Book########
+    ########End Book########    
+    ########Mark########
+    Route::group(['prefix'=>'mark'], function(){
+        Route::get('/', [MarkController::class, 'index']);
+        Route::post('/show', [MarkController::class, 'show']);
+        Route::post('/update', [MarkController::class, 'update']);
+    });
+    ########End Mark########
 
+    ########RejectedMark########
+    Route::group(['prefix'=>'rejected-mark'], function(){
+        Route::get('/', [RejectedMarkController::class, 'index']);
+        Route::post('/create', [RejectedMarkController::class, 'create']);
+        Route::post('/show', [RejectedMarkController::class, 'show']);
+        Route::post('/update', [RejectedMarkController::class, 'update']);
+    });
+    ########End RejectedMark ########
     #########UserException########
     Route::group(['prefix' => 'userexception'], function(){
         Route::get('/',[UserExceptionController::class,'index']);
@@ -98,4 +113,3 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########end timeline route########
 });
-
