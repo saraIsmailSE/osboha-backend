@@ -94,18 +94,16 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update', [mediaController::class, 'update']);
         Route::post('/delete', [MediaController::class, 'delete']);
     });
-  ########End Media route########
-  ########Start Friend route########
-  Route::group(['prefix'=>'friend'], function(){
-      Route::get('/', [FriendController::class, 'index']);
-      Route::post('/create', [FriendController::class, 'create']);
-      Route::post('/show', [FriendController::class, 'show']);
-      Route::post('/update', [FriendController::class, 'update']);
-      Route::post('/delete', [FriendController::class, 'delete']);
-
-  });
-  ########End Friend route########
-  
+    ########End Media route########
+    ########Start Friend route########
+    Route::group(['prefix' => 'friend'], function () {
+        Route::get('/', [FriendController::class, 'index']);
+        Route::post('/create', [FriendController::class, 'create']);
+        Route::post('/show', [FriendController::class, 'show']);
+        Route::post('/update', [FriendController::class, 'update']);
+        Route::post('/delete', [FriendController::class, 'delete']);
+    });
+    ########End Friend route########
     ########Mark########
     Route::group(['prefix'=>'mark'], function(){
         Route::get('/', [MarkController::class, 'index']);
