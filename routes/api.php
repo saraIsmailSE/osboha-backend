@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\MarkController;
 use App\Http\Controllers\Api\RejectedMarkController;
 use App\Http\Controllers\Api\UserExceptionController;
@@ -36,6 +37,14 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Book########
+    ########Comment########
+    Route::group(['prefix'=>'comment'], function(){
+        Route::post('/create', [CommentController::class, 'create']);
+        Route::post('/show', [CommentController::class, 'show']);
+        Route::post('/update', [CommentController::class, 'update']);
+        Route::post('/delete', [CommentController::class, 'delete']);
+    });
+    ########End Comment########
     ########Start Media########
     Route::group(['prefix'=>'media'], function(){
         Route::get('/', [MediaController::class, 'index']);
