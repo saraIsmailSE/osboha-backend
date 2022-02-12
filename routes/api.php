@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\ActivityController;
+use App\Http\Controllers\Api\ArticleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
@@ -20,8 +22,7 @@ use App\Http\Controllers\Api\TimelineController;
 |
 */
 
-//Route::post('/login', [AuthController::class, 'login']);
-Route::post('login', [ 'as' => 'login', 'uses' => 'LoginController@do']);
+Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     ########Book########
@@ -35,7 +36,27 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Book########
 
-    ########start socialMedia route########
+    ########Activity########
+    Route::group(['prefix'=>'activity'], function(){
+        Route::get('/', [ActivityController::class, 'index']);
+        Route::post('/create', [ActivityController::class, 'create']);
+        Route::post('/show', [ActivityController::class, 'show']);
+        Route::post('/update', [ActivityController::class, 'update']);
+        Route::post('/delete', [ActivityController::class, 'delete']);
+
+    });
+    ########End Activity########
+
+    ########End Article########
+    Route::group(['prefix'=>'article'], function(){
+        Route::get('/', [ArticleController::class, 'index']);
+        Route::post('/create', [ArticleController::class, 'create']);
+        Route::post('/show', [ArticleController::class, 'show']);
+        Route::post('/update', [ArticleController::class, 'update']);
+        Route::post('/delete', [ArticleController::class, 'delete']);
+    });
+    ########End Article########
+      ########start socialMedia route########
     Route::group(['prefix'=>'socialMedia'], function(){
         Route::get('/', [SocialMediaController::class, 'index']);
         Route::post('/create', [SocialMediaController::class, 'create']);
@@ -56,10 +77,6 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########end timeline route########
-    
-
 });
 
    
-
-
