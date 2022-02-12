@@ -32,4 +32,23 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Book########
+    #Start Media route#
+    Route::group(['prefix'=>'media'], function(){
+        Route::get('/', [MediaController::class, 'index']);
+        Route::post('/create', [MediaController::class, 'create']);
+        Route::post('/show', [MediaController::class, 'show']);
+        Route::post('/update', [mediaController::class, 'update']);
+        Route::post('/delete', [MediaController::class, 'delete']);
+    });
+#End Media route#
+#Start Friend route#
+Route::group(['prefix'=>'friend'], function(){
+    Route::get('/', [FriendController::class, 'index']);
+    Route::post('/create', [FriendController::class, 'create']);
+    Route::post('/show', [FriendController::class, 'show']);
+    Route::post('/update', [FriendController::class, 'update']);
+    Route::post('/delete', [FriendController::class, 'delete']);
+
+});
+
 });
