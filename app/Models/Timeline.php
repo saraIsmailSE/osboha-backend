@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Timeline extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['name','description' ,'type'];
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class,'timeline_id');
+    }
+
+    
+
 }
