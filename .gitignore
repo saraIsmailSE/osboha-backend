@@ -4,6 +4,7 @@
 /storage/*.key
 /vendor
 .env
+.editorconfig
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
@@ -12,8 +13,4 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /.idea
-<<<<<<< HEAD
 /.vscode
-=======
-/.vscode
->>>>>>> 4e3cd04f72e527e0b4f36bb9f3d972fef93067fe
