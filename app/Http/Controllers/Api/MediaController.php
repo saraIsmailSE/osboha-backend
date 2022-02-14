@@ -21,7 +21,22 @@ public function index()
             return $this->jsonResponseWithoutMessage($media, 'data',200);
         }
     }
+    public function create_media($request)
+    {
+        dd($request);
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'type' => 'required'
+        ]);
 
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        Media::create($request->all());
+        return $this->jsonResponseWithoutMessage("Media added Successfully", 'data', 200);
+
+    }
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [

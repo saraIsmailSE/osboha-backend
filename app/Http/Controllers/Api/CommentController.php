@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Media;
 use App\Traits\ResponseJson;
+use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\File;
 
 class CommentController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson , MediaTraits;
 
     public function create(Request $request){
 
@@ -43,15 +44,7 @@ class CommentController extends Controller
             if($request->hasFile('image')){
                 // if comment has media
                 // upload media
-                $imageName = time().'.'. $request->file('image')->extension();  
-                $request->file('image')->move(public_path('assets/images'), $imageName);    
-                // link media with comment
-                $media = new Media();
-                $media->media = $imageName; 
-                $media->type = 'image'; 
-                $media->user_id= Auth::id();
-                $media->comment_id = $comment->id;
-                $media->save();
+                $this->createMedia($request->file('image'), $comment->id,'comment');
             }
             return $this->jsonResponseWithoutMessage("Comment Craeted Successfully", 'data', 200);  
         }
@@ -91,37 +84,42 @@ class CommentController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $comment = Comment::find($request->comment_id);
-        if(Auth::id() == $comment->user_id){
-            if($comment->type != "thesis"){
-                if($request->hasFile('image')){
-                    // if comment has media
-                    //delete old Media
-                    $currentMedia= Media::where('comment_id', $comment->id)->first();
-                    File::delete(public_path('assets/images/'.$currentMedia->media));
-
-                    // upload media
-                    $imageName = time().'.'. $request->file('image')->extension();  
-                    $request->file('image')->move(public_path('assets/images'), $imageName);    
-
-                    // update current media
-                    $currentMedia->media = $imageName; 
-                    $currentMedia->save();
-                    
+        if($comment){
+            if(Auth::id() == $comment->user_id){
+                if($comment->type != "thesis"){
+                    if($request->hasFile('image')){
+                        // if comment has media
+                        //check Media
+                        $currentMedia= Media::where('comment_id', $comment->id)->first();
+                        // if exists, update
+                        if($currentMedia){
+                            $this->updateMedia($request->file('image'), $currentMedia->id);
+                        }
+                        //else create new one
+                        else{
+                            // upload media
+                            $this->createMedia($request->file('image'), $comment->id,'comment');
+                        }
+                    }
+                    else{
+                        $comment->update($request->all());
+                    }
+                    return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
                 }
                 else{
-                    $comment->update($request->all());
+                    //get thesis
+                    // check week id 
+                    // re-calculate mark
                 }
-                return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
-            }
+            }          
             else{
-                //get thesis
-                // check week id 
-                // re-calculate mark
+                //throw new NotAuthorized;   
             }
-        }          
-        else{
-            //throw new NotAuthorized;   
         }
+        else{
+            //not found
+        }
+            
         
     }
 
@@ -138,9 +136,12 @@ class CommentController extends Controller
         $comment = Comment::find($request->comment_id);
         if(Auth::user()->can('delete comment') || Auth::id() == $comment->user_id){
             if($comment->type != "thesis"){
-                $currentMedia= Media::where('comment_id', $comment->id)->first();
-                File::delete(public_path('assets/images/'.$currentMedia->media));
-                $currentMedia->delete();
+                //check Media
+                $currentMedia = Media::where('comment_id', $comment->id)->first();
+                // if exists, update
+                if ($currentMedia) {
+                    $this->deleteMedia($currentMedia->id);
+                }
                 $comment->delete();
                 return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
             }
