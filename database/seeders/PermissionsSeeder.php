@@ -48,6 +48,16 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'delete infographic']);
         Permission::create(['name' => 'create infographic']);
 
+        ###### INFOGRAPHICSERIES  ######
+        Permission::create(['name' => 'edit infographicSeries']);
+        Permission::create(['name' => 'delete infographicSeries']);
+        Permission::create(['name' => 'create infographicSeries']);
+
+        ###### REACTION ######
+        Permission::create(['name' => 'edit reaction']);
+        Permission::create(['name' => 'delete reaction']);
+        Permission::create(['name' => 'create reaction']);
+
         ###### BOOK ######
         Permission::create(['name' => 'edit book']);
         Permission::create(['name' => 'delete book']);
@@ -57,8 +67,9 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'reject book']);
 
         ###### EXCEPTION ######
-        Permission::create(['name' => 'reject exception']);
-        Permission::create(['name' => 'accept exception']);
+        //update exception [reject or accept]
+        Permission::create(['name' => 'update exception']);
+        Permission::create(['name' => 'list exception']);
 
         ###### STATISTICS ######
         Permission::create(['name' => 'list statistics']);
@@ -76,10 +87,22 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'freeze user']);
 
         ###### ROLE ######
+        Permission::create(['name' => 'list role']);
+        Permission::create(['name' => 'list transactions']);
         Permission::create(['name' => 'assign role']);
         Permission::create(['name' => 'delete role']);
         Permission::create(['name' => 'update role']);
-
+    
+        ###### SystemIssue ######
+        Permission::create(['name' => 'list systemIssue']);
+        Permission::create(['name' => 'update systemIssue']);
+    
+        ###### TimeLine ######
+        Permission::create(['name' => 'edit timeline']);
+        Permission::create(['name' => 'delete timeline']);
+        Permission::create(['name' => 'create timeline']);
+        Permission::create(['name' => 'list timelines']);
+        
         ###### GROUP ######
         Permission::create(['name' => 'edit group']);
         Permission::create(['name' => 'delete group']);
