@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\ReactionController;
 use App\Http\Controllers\Api\SystemIssueController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -180,4 +182,24 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Timeline ########
+
+    ########Post########
+    Route::group(['prefix'=>'post'], function(){
+        Route::get('/', [PostController::class, 'index']);
+        Route::post('/create', [PostController::class, 'create']);
+        Route::post('/show', [PostController::class, 'show']);
+        Route::post('/update', [PostController::class, 'update']);
+        Route::post('/delete', [PostController::class, 'delete']);
+    });
+    ########End Post########
+
+    ########Poll-Vote########
+    Route::group(['prefix'=>'poll-vote'], function(){
+        Route::get('/', [PollVoteController::class, 'index']);
+        Route::post('/create', [PollVoteController::class, 'create']);
+        Route::post('/show', [PollVoteController::class, 'show']);
+        Route::post('/update', [PollVoteController::class, 'update']);
+        Route::post('/delete', [PollVoteController::class, 'delete']);
+    });
+    ########End Poll-Vote########
 });
