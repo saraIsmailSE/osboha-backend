@@ -15,9 +15,12 @@ class TimelineController extends Controller
 
     public function index()
     {
-        $timeline = Timeline::all();
-        if($timeline){
-            return $this->jsonResponseWithoutMessage($timeline, 'data',200);
+        if(Auth::user()->can('list timeline')){
+            $timeline = Timeline::all();
+            if($timeline){
+                $timeline = timelineResource::collection($timeline);
+                return $this->jsonResponseWithoutMessage($timeline, 'data',200);
+            }
         }
     }
 
@@ -32,9 +35,10 @@ class TimelineController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         } 
-
-        Timeline::create($request->all());
-        return $this->jsonResponseWithoutMessage("Timeline Is Created Successfully", 'data', 200);
+        if(Auth::user()->can('create timeline')){
+            Timeline::create($request->all());
+            return $this->jsonResponseWithoutMessage("Timeline Is Created Successfully", 'data', 200);
+        }
     }
 
     public function show(Request $request)
@@ -49,6 +53,7 @@ class TimelineController extends Controller
 
         $timeline = Timeline::find($request->timeline_id);
         if($timeline){
+            $timeline = timelineResource::collection($timeline);
             return $this->jsonResponseWithoutMessage($timeline, 'data',200);
         }
     }
@@ -65,10 +70,11 @@ class TimelineController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-
-        $timeline = Timeline::find($request->timeline_id);
-        $timeline->update($request->all());
-        return $this->jsonResponseWithoutMessage("Timeline Is Updated Successfully", 'data', 200);
+        if(Auth::user()->can('edit timeline')){
+            $timeline = Timeline::find($request->timeline_id);
+            $timeline->update($request->all());
+            return $this->jsonResponseWithoutMessage("Timeline Is Updated Successfully", 'data', 200);
+        }
     }
 
     public function delete(Request $request)
@@ -80,9 +86,10 @@ class TimelineController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-
-        $timeline = Timeline::find($request->timeline_id);
-        $timeline->delete();
-        return $this->jsonResponseWithoutMessage("Timeline Is Deleted Successfully", 'data', 200);
+        if(Auth::user()->can('delete timeline')){
+            $timeline = Timeline::find($request->timeline_id);
+            $timeline->delete();
+            return $this->jsonResponseWithoutMessage("Timeline Is Deleted Successfully", 'data', 200);
+        }
     }
 }
