@@ -15,12 +15,17 @@ class SystemIssueController extends Controller
 
     public function index()
     {
-        $issues = SystemIssue::all();
-        if($issues){
-            return $this->jsonResponseWithoutMessage($issues, 'data',200);
+        if(Auth::user()->can('list systemIssue')){
+            $issues = SystemIssue::all();
+            if($issues){
+                return $this->jsonResponseWithoutMessage($issues, 'data',200);
+            }
+            else {
+                // throw new NotFound;
+            }
         }
-        else {
-            // throw new NotFound;
+        else{
+            //throw new NotAuthorized;
         }
     }
 
@@ -73,6 +78,14 @@ class SystemIssueController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        if(Auth::user()->can('update systemIssue')){
+            $issue = SystemIssue::find($request->issue_id);
+            $issue->update($request->all());
+            return $this->jsonResponseWithoutMessage("System Issue Updated Successfully", 'data', 200);
+        }
+        else{
+            //throw new NotAuthorized;
         }
 
         $issue = SystemIssue::find($request->issue_id);
