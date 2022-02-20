@@ -25,7 +25,6 @@ class CreateBooksTable extends Migration
             $table->string('link');
             $table->string('section');
             $table->string('type');
-            $table->string('picture');
             $table->string('level');
             $table->timestamps();
         });
