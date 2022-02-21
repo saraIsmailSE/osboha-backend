@@ -9,8 +9,9 @@ class Friend extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'friend_id' => 'required',
-        'user_id' => 'required',
+        'friend_id',
+        'user_id',
+        'status'
     ];
     public function user()
     {

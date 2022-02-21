@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
+use App\Http\Controllers\Api\FriendController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
