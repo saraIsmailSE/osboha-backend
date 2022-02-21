@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ArticleResource extends JsonResource
+class InfographicResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,14 +14,11 @@ class ArticleResource extends JsonResource
      */
     public function toArray($request)
     {
-        #######ASMAA#######
-        
-        return
-        [
+        return [
             'title' => $this->title,
-            //'post' => new PostResource($this->post),
-            //'user' => new UserResource($this->user),
-            'section' => $this->section,  
+            //'designer' => new UserResource($this->user),
+            'section' => $this->section,
+            'series_id' => 
         ];
     }
 }
