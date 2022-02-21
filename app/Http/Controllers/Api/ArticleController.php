@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use App\Traits\ResponseJson;
@@ -21,10 +24,12 @@ class ArticleController extends Controller
 
         if($articles){
             //found articles response
-            return $this->jsonResponseWithoutMessage($articles, 'data', 200);
+            return $this->jsonResponseWithoutMessage(ArticleResource::collection($articles), 'data', 200);
         }else{
             //not found articles response
-            return $this->jsonResponseWithoutMessage('No Records', 'data', 204);
+            throw new NotFound();
+
+            //return $this->jsonResponseWithoutMessage('No Records', 'data', 204);
         }
     }
 
@@ -48,13 +53,15 @@ class ArticleController extends Controller
         //authorized user
         if(Auth::user()->can('create article')){      
             //create new article      
-            Article::create($request->all()); 
+            Article::create(new ArticleResource($request->all())); 
 
             //success response after creating the article
             return $this->jsonResponseWithoutMessage('Article created successfully', 'data', 200);
         }else{
             //unauthorized user response
-            return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
+            throw new NotAuthorized();
+
+            //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
     }
 
@@ -77,10 +84,12 @@ class ArticleController extends Controller
 
         if($article){
             //return found article
-            return $this->jsonResponseWithoutMessage($article, 'data', 200);
+            return $this->jsonResponseWithoutMessage(new ArticleResource($article), 'data', 200);
         }else{
             //article not found response
-            return $this->jsonResponseWithoutMessage('Article not found', 'data', 204);
+            throw new NotFound();
+
+            //return $this->jsonResponseWithoutMessage('Article not found', 'data', 204);
         }
     }
 
@@ -103,7 +112,7 @@ class ArticleController extends Controller
         }
 
         //authorized user
-        if(Auth::user()->can('update article')){
+        if(Auth::user()->can('update article') && (Auth::id() == $request->user_id)){
             //find needed article
             $article = Article::find($request->article_id);
 
@@ -114,7 +123,9 @@ class ArticleController extends Controller
             return $this->jsonResponseWithoutMessage('Article updated successfully', 'data', 200);
         }else{
             //unauthorized user response
-            return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
+            throw new NotAuthorized();
+
+            //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
     }
 
@@ -145,7 +156,27 @@ class ArticleController extends Controller
             return $this->jsonResponseWithoutMessage('Article deleted successfully', 'data', 200);
         }else{
             //unauthorized user response
-            return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
+            throw new NotAuthorized();
+
+            //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
+    }
+    
+    //listAllArticlesByUser used to list all articles related to certain user
+    public function listAllArticlesByUser($user_id)
+    {
+        #######ASMAA#######
+        
+        //find articles belong to user
+        $articles = Article::where('user_id', $user_id)->get();
+
+        if($articles){
+            //found articles response (display data)
+            return $this->jsonResponseWithoutMessage(ArticleResource::collection($articles), 'data', 200);
+        }else{
+            //not fount articles exception
+            throw new NotFound();
+        }
+        //ArticleResource::collection(Article::with())
     }
 }

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ActivityResource;
 use App\Models\Activity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,11 +23,13 @@ class ActivityController extends Controller
         $activity = Activity::all();
         if($activity){
             // found articles response
-            return $this->jsonResponseWithoutMessage($activity, 'data',200);
+            return $this->jsonResponseWithoutMessage(ActivityResource::collection($activity), 'data',200);
         }
         else{
             //not found articles response
-            return $this->jsonResponseWithoutMessage('No Rcords Found', 'data',204);
+            throw new NotFound();
+
+            //return $this->jsonResponseWithoutMessage('No Rcords Found', 'data',204);
         }
     }
 
@@ -48,14 +53,16 @@ class ActivityController extends Controller
         //authorized user
         if(Auth::user()->can('create activity')){
             //create new activity
-            Activity::create($request->all());
+            Activity::create(new ActivityResource($request->all()));
 
             //success response after creating new activity
             return $this->jsonResponseWithoutMessage("Activity has been Created Successfully", 'data', 200);
         }
         else{
             //unauthorized user
-            return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
+            throw new NotAuthorized();
+
+            //return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
         }
     }
 
@@ -77,11 +84,13 @@ class ActivityController extends Controller
         $activity = Activity::find($request->activity_id);
         if($activity){
             //found activity response (display its data)
-            return $this->jsonResponseWithoutMessage($activity, 'data',200);
+            return $this->jsonResponseWithoutMessage(new ActivityResource($activity), 'data',200);
         }
         else{
             //not found activity response
-            return $this->jsonResponseWithoutMessage('Activity Not Found', 'data',204);
+            throw new NotFound();
+
+            //return $this->jsonResponseWithoutMessage('Activity Not Found', 'data',204);
         }
     }
 
@@ -114,7 +123,9 @@ class ActivityController extends Controller
         }
         else{
             //unauthorized user response
-            return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
+            throw new NotAuthorized();
+
+            //return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
         }
     }
 
@@ -144,7 +155,9 @@ class ActivityController extends Controller
         }
         else{
             //unauthorized user response
-            return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
+            throw new NotAuthorized();
+
+            //return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
         }
     }
 }
