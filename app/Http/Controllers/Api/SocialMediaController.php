@@ -9,6 +9,8 @@ use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use App\Http\Resources\socialMediaResource ;
 use App\Models\SocialMedia;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
 
 class SocialMediaController extends Controller
 {
@@ -23,10 +25,10 @@ class SocialMediaController extends Controller
                 'twitter' => 'required_without_all:facebook,instagram',
                 'instagram' => 'required_without_all:facebook,twitter',
             ]);
-
             if ($validator->fails()) {
                 return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
             } 
+
             $request['user_id'] = Auth::id();
             SocialMedia::create($request->all());
             return $this->jsonResponseWithoutMessage("Your Accounts Are Added Successfully", 'data', 200);
@@ -50,7 +52,11 @@ class SocialMediaController extends Controller
             if($socialMedia){
                 $socialMedia = new socialMediaResource($socialMedia);
                 return $this->jsonResponseWithoutMessage($socialMedia, 'data',200);
+            } else {
+                throw new NotFound;
             }
+        } else {
+            throw new NotAuthorized;
         }
     }
 
@@ -61,7 +67,6 @@ class SocialMediaController extends Controller
             'facebook' => 'required_without_all:twitter,instagram',
             'twitter' => 'required_without_all:facebook,instagram',
             'instagram' => 'required_without_all:facebook,twitter',
-
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
@@ -71,6 +76,8 @@ class SocialMediaController extends Controller
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
             $socialMedia->update($request->all());
             return $this->jsonResponseWithoutMessage("Your Accounts Are Updated Successfully", 'data', 200);
+        } else {
+            throw new NotAuthorized;
         }
     }
 
@@ -79,14 +86,16 @@ class SocialMediaController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
         ]);
-
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+
         if($request->user_id == Auth::id()){
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
             $socialMedia->delete();
             return $this->jsonResponseWithoutMessage("Your Accounts Are Deleted Successfully", 'data', 200);
+        } else {
+            throw new NotAuthorized;
         }
     }
 }
