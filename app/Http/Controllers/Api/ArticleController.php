@@ -7,6 +7,7 @@ use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Auth;
@@ -112,7 +113,7 @@ class ArticleController extends Controller
         }
 
         //authorized user
-        if(Auth::user()->can('update article') && (Auth::id() == $request->user_id)){
+        if(Auth::user()->can('edit article') && (Auth::id() == $request->user_id)){
             //find needed article
             $article = Article::find($request->article_id);
 

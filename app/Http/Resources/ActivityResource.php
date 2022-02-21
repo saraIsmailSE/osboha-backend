@@ -21,6 +21,5 @@ class ActivityResource extends JsonResource
             'version' => $this->version,
             //'post_id' => new PostResource($this->post_id),   
         ];
-
     }
 }

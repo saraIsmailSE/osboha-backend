@@ -18,7 +18,7 @@ class InfographicResource extends JsonResource
             'title' => $this->title,
             //'designer' => new UserResource($this->user),
             'section' => $this->section,
-            'series_id' => 
+            'series_id' => $this->series,
         ];
     }
 }
