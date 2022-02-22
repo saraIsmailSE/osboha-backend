@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use App\Http\Resources\RateResource;
+
 class RateController extends Controller
 {
     use ResponseJson;
@@ -19,10 +21,11 @@ class RateController extends Controller
     {
         $rates = Rate::all();
         if($rates){
-            return $this->jsonResponseWithoutMessage($rates, 'data',200);
+            return $this->jsonResponseWithoutMessage(RateResource::collection($rates), 'data',200);
+
         }
         else{
-           // throw new NotFound;
+            throw new NotFound;
         }
     }
     public function create(Request $request){
@@ -55,10 +58,11 @@ class RateController extends Controller
         else if($request->has('post_id'))
          $rate = Rate::where('post_id', $request->post_id)->get();
         if($rate){
-            return $this->jsonResponseWithoutMessage($rate, 'data',200);
+            return $this->jsonResponseWithoutMessage(new RateResource($rate), 'data',200);
+
         }
         else{
-           // throw new NotFound;
+            throw new NotFound;
         }
     }
     
@@ -81,7 +85,7 @@ class RateController extends Controller
             return $this->jsonResponseWithoutMessage("Rate Updated Successfully", 'data', 200);
         }
         else{
-            //throw new NotAuthorized;   
+            throw new NotAuthorized;   
         }
     }
     public function delete(Request $request)
@@ -105,7 +109,7 @@ class RateController extends Controller
             return $this->jsonResponseWithoutMessage("Rate Deleted Successfully", 'data', 200);
         }
         else{
-            //throw new NotAuthorized;
+            throw new NotAuthorized;
         }
     }
 }
