@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\PollVoteController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\ReactionController;
 use App\Http\Controllers\Api\SystemIssueController;

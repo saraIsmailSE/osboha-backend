@@ -18,7 +18,7 @@ class Post extends Model
         'is_approved', 
         'is_pinned', 
         'timeline_id'    
-                        ];
+    ];
 
     public function comments(){
         return $this->hasMany( Comment::class, 'user_id' );
