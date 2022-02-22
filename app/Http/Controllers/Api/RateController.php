@@ -65,6 +65,16 @@ class RateController extends Controller
             throw new NotFound;
         }
     }
+    public function list_user_rates(){
+        $rate = Reaction::where('user_id', Auth::id())->get();
+       if($rate){
+           return $this->jsonResponseWithoutMessage(new RateResource($rate), 'data',200);
+       }
+       else{
+           throw new NotFound;
+       }
+
+   }
     
     public function update(Request $request)
     {
