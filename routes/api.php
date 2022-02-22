@@ -75,6 +75,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::get('/', [TransactionController::class, 'index']);
         Route::post('/create', [TransactionController::class, 'create']);
         Route::post('/show', [TransactionController::class, 'show']);
+        Route::post('/showUsrTrans', [TransactionController::class, 'showUserTransactions']);
         Route::post('/update', [TransactionController::class, 'update']);
     });
     ########End Transaction########
