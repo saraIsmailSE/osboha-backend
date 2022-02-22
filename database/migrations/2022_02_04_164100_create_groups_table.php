@@ -21,6 +21,7 @@ class CreateGroupsTable extends Migration
             $table->string('type');
             $table->string('cover_picture')->nullable();
             $table->integer('creator_id');
+            $table->integer('timeline_id');
             $table->timestamps();
         });
     }

@@ -5,20 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Group;
+use App\Models\Timeline;
 use App\Traits\ResponseJson;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
 
 /**
  * Description: GroupController for Osboha group.
  *
- * Methods: CRUD.
- *  
+ * Methods: 
+ * - CRUD
+ * - group posts list
  */
 
 class GroupController extends Controller
@@ -34,12 +34,11 @@ class GroupController extends Controller
     public function index()
     {
         $group= Group::all();
-
-        if($group){
+        if(Auth::user()->can('list groups')){
           return $this->jsonResponseWithoutMessage($group,'data', 200);
         }
         else{
-          // throw new NotFound;
+          throw new NotFound;
         }
     }
 
@@ -66,7 +65,8 @@ class GroupController extends Controller
           }
 
         if($request->hasFile('cover_picture'))
-        {
+        {  
+            //use media traits here (migrate,model)
             $file=$request->file('cover_picture');
             $fileName=time().'.'.$file->extension();
             $file->move(public_path('assets/images'),$fileName);
@@ -78,7 +78,7 @@ class GroupController extends Controller
          return $this->jsonResponse($group,'data', 200, 'Group Created');
       }
         else{
-            //throw new NotAuthorized;   
+            throw new NotAuthorized;   
         }
     }
 
@@ -93,20 +93,23 @@ class GroupController extends Controller
             'group_id' => 'required',
         ]);
 
-        if ($validator->fails()) {
+        if ($validator->fails()) {  
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-        $group=Group::find($request->group_id);
+         $group=Group::find($request->group_id);
+         $users=$group->user;
 
-        if($group){
-         return $this->jsonResponseWithoutMessage($group, 'data', 200);
+         foreach($users as $user){
+           if(Auth::id()==$user->id){
+            //return group with list of members instead of members function
+            return $this->jsonResponseWithoutMessage($group, 'data', 200);
+           }
+
+           else{
+               throw new NotAuthorized;
+           }
         }
-
-        else{
-            // throw new NotFound;
-        }
-
     }
 
     /**
@@ -138,6 +141,7 @@ class GroupController extends Controller
 
         if($request->hasFile('cover_picture'))
         {
+            
             $file=$request->file('cover_picture');
             $fileName=time().'.'.$file->extension();
             $file->move(public_path('assets/images'),$fileName);
@@ -150,12 +154,12 @@ class GroupController extends Controller
           
           //delete old image
           File::delete(public_path('assets/images/'.$oldImage));
+          return $this->jsonResponseWithoutMessage('Group Updated', 'data', 200);
 
-          return $this->jsonResponse($group,'data', 200, 'Group Updated');
         }//endif Auth
 
         else{
-            //throw new NotAuthorized;   
+            throw new NotAuthorized;   
         }
     }
 
@@ -186,9 +190,37 @@ class GroupController extends Controller
         }//endif Auth
 
         else {
-            //throw new NotAuthorized;   
+            throw new NotAuthorized;   
         }
 
+    }
+
+    /**
+     * list members of Group
+     */
+    // public function list_group_members($group_id){
+    //     $members=Group::find($group_id)->User;
+    //     return $members;
+    // }
+
+
+    /**
+     * list posts for specific group
+     * return collection
+     */
+    public function list_group_posts($group_id)
+    {
+
+        $group=Group::find($group_id);
+        $timeLine=Timeline::find($group->timeline_id)->posts;
+
+        if($timeLine){
+         return $timeLine;
+        }
+        
+        else{
+          throw new NotFound;
+        }
     }
 
 }

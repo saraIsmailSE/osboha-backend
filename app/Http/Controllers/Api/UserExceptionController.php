@@ -3,11 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserException as UserExceptionResource;
 use App\Models\UserException;
+use App\Models\User;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
 
 /**
  * UserExceptionController to create exception for user
@@ -27,16 +32,56 @@ class UserExceptionController extends Controller
     
     public function index()
     { 
-        $userException= UserException::all()->where('user_id', Auth::id());
-
-        if($userException){
-         return $this->jsonResponseWithoutMessage($userException,'data', 200);
+      $id=Auth::id();
+      $user=User::with('Group')->find($id);  
+    
+      if($user){
+            
+        //store user details in single array
+        foreach($user->group as $group){
+            $data=[
+                'user_id'=> $group->pivot->user_id,
+                'group_id'=> $group->pivot->group_id,
+                'user_type'=> $group->pivot->user_type
+            ];
         }
-        else{
-            // throw new NotFound;
-         }
-    }
 
+        //if ambassador
+        if($data['user_type']=='ambassador'&& Auth::user()->can('list exception')){
+            $userException=UserException::all()->where('user_id',$data['user_id']);
+        
+            return $this->jsonResponseWithoutMessage(
+                UserExceptionResource::collection($userException),
+                    'data', 200
+                  );
+        }
+
+        //return all exception by group for specific user type
+        if($data['user_type']=='leader' || 'supervisor'||'advisor' && Auth::user()->can('list exception')){
+            $user=Group::with('User')->find($data['group_id']); 
+            foreach($user->User as $item){
+                $ids[]=[
+                    'user_id' => $item->id
+                ];
+            }
+            
+            $userException=UserException::whereIn('user_id',$ids)->get();
+
+            return $this->jsonResponseWithoutMessage(
+                new UserExceptionResource($userException),'data', 200
+                );
+        }
+
+        else{
+            throw new NotAuthorized;
+        }
+        
+       }//end if user found
+
+       else{
+            throw new NotFound;
+        }
+    }
     /**
      * Create new exception for the user
      * 
@@ -59,13 +104,13 @@ class UserExceptionController extends Controller
         if($validator->fails()){
           return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-
-        $input['user_id']= Auth::id();
-        $userException= UserException::create($input);
         
-        return $this->jsonResponse($userException,'data', 200, 'User Exception Created');
+        if(Auth::user()->can('create exception')){
+            $input['user_id']= Auth::id();
+            $userException= UserException::create($input);
+            return $this->jsonResponseWithoutMessage("User Exception Craeted", 'data', 200);
+        }
     }
-
     /**
      * Display the details of specified user exception
      *
@@ -85,11 +130,11 @@ class UserExceptionController extends Controller
         $userException=UserException::where('user_id',Auth::id())->find($request->exception_id);
         
         if($userException){ 
-        return $this->jsonResponseWithoutMessage($userException,'data', 200);
+        return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException),'data', 200);
         }
 
         else{
-            // throw new NotFound;
+            throw new NotFound;
          }
     }
 
@@ -118,11 +163,18 @@ class UserExceptionController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
           }
 
-        $input['user_id']= Auth::id();
-        $userException= UserException::find($request->exception_id);
-        $userException->update($input);
+        if(Auth::user()->can('update exception'))
+        {
+          $input['user_id']= Auth::id();
+          $userException= UserException::find($request->exception_id);
+          $userException->update($input);
 
-        return $this->jsonResponse($userException,'data', 200, 'User Exception Updated');
+          return $this->jsonResponseWithoutMessage("User Exception Updated", 'data', 200);
+        }
+
+        else {
+            throw new NotAuthorized;
+        }
     }
-
 }
+

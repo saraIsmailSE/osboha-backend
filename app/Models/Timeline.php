@@ -16,6 +16,4 @@ class Timeline extends Model
         return $this->hasMany(Post::class,'timeline_id');
     }
 
-    
-
 }
