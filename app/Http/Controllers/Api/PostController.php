@@ -178,7 +178,7 @@ class PostController extends Controller
                     $this->deleteMedia($currentMedia->id);
                 }
                 $post->delete();
-                return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
+                return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
             }
             else{
                 throw new NotAuthorized;
