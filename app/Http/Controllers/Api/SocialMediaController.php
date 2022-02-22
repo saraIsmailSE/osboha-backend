@@ -18,22 +18,22 @@ class SocialMediaController extends Controller
 
     public function create(Request $request)
     {
-        $userExists = SocialMedia::where('user_id',Auth::id())->count();
-        if($userExists == 0){
-            $validator = Validator::make($request->all(), [
-                'facebook' => 'required_without_all:twitter,instagram',
-                'twitter' => 'required_without_all:facebook,instagram',
-                'instagram' => 'required_without_all:facebook,twitter',
-            ]);
-            if ($validator->fails()) {
-                return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-            } 
+        $validator = Validator::make($request->all(), [
+            'facebook' => 'required_without_all:twitter,instagram',
+            'twitter' => 'required_without_all:facebook,instagram',
+            'instagram' => 'required_without_all:facebook,twitter',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
 
+        $userExists = SocialMedia::where('user_id',Auth::id())->first();
+        if($userExists){
+            return $this->jsonResponseWithoutMessage("Sorry, You Can't Add Anothe Social Media Accounts", 'data', 500);
+        } else { 
             $request['user_id'] = Auth::id();
             SocialMedia::create($request->all());
             return $this->jsonResponseWithoutMessage("Your Accounts Are Added Successfully", 'data', 200);
-        } else {
-            return $this->jsonResponseWithoutMessage("You can't Add Anothe Social Media Accounts", 'data', 500);
         }
     }
 
@@ -43,10 +43,10 @@ class SocialMediaController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
         ]);
-
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+        
         if($request->user_id == Auth::id()){
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
             if($socialMedia){
