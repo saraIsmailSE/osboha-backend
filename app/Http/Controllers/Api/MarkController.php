@@ -11,19 +11,27 @@ use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use App\Exceptions\NotFound;
+use App\Exceptions\NotAuthorized;
+use App\Http\Resources\MarkResource;
+use App\Models\User;
 
 class MarkController extends Controller
 {
     use ResponseJson;
-    
+
     public function index()
     {
         $marks = Mark::all();
-        if($marks){
-            return $this->jsonResponseWithoutMessage($marks, 'data',200);
-        }
-        else{
-           // throw new NotFound;
+        if(Auth::user()->can('audit mark')){
+            if($marks){
+                return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+            }
+            else{
+               throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;   
         }
     }
 
@@ -37,13 +45,17 @@ class MarkController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }    
 
-        $mark = Mark::find($request->mark_id);
-        if($mark){
-            return $this->jsonResponseWithoutMessage($mark, 'data',200);
-        }
-        else{
-           // throw new NotFound;
-        }
+        if(Auth::user()->can('audit mark')){
+            $mark = Mark::find($request->mark_id);
+            if($mark){
+                return $this->jsonResponseWithoutMessage(new MarkResource($mark), 'data',200);
+            }
+            else{
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;   
+        } 
     }
 
     public function update(Request $request)
@@ -67,7 +79,35 @@ class MarkController extends Controller
             return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
         }
         else{
-            //throw new NotAuthorized;   
+            throw new NotAuthorized;   
+        }
+    }
+
+    public function marks_by_userid($user_id){
+        if(Auth::user()->can('audit mark')){
+            $marks = Mark::where('user_id', $user_id)->get();
+            return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+        } else{
+            throw new NotAuthorized;   
+        }
+    }
+
+    public function marks_by_weekid($week_id){
+        if(Auth::user()->can('audit mark')){
+            $marks = Mark::where('week_id', $week_id)->get();
+            return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+        } else{
+            throw new NotAuthorized;   
+        }
+    }
+
+    public function marks_by_userid_and_weekid($user_id, $week_id){
+        if(Auth::user()->can('audit mark')){
+            $marks = Mark::where('user_id', $user_id)
+                        ->where('week_id', $week_id)->get();
+            return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+        } else{
+            throw new NotAuthorized;   
         }
     }
 }
