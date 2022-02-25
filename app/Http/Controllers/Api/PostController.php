@@ -25,17 +25,12 @@ class PostController extends Controller
    
     public function index()
     {
-        if(Auth::user()->can('list posts')){
-            $posts = Post::all();
-            if($posts){
-                return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data',200);
-            }
-            else{
-                throw new NotFound;
-            }
+        $posts = Post::all();
+        if($posts){
+            return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data',200);
         }
         else{
-            throw new NotAuthorized;
+            throw new NotFound;
         }
     }
     
@@ -46,7 +41,8 @@ class PostController extends Controller
             'body' => 'required',
             'user_id' => 'required',
             'type' => 'required',
-            'timeline_id' => 'required'
+            'timeline_id' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
      
         if ($validator->fails()) {
@@ -73,7 +69,8 @@ class PostController extends Controller
                     'vote' => serialize($vote),
                     'is_approved' => $request->is_approved,
                     'is_pinned' => $request->is_pinned,
-                    'timeline_id' => $request->timeline_id  
+                    'timeline_id' => $request->timeline_id ,
+                    'image' => $request->image 
                 ]);
                 Post::create(new PostResource($request->all()));
                 
@@ -84,10 +81,10 @@ class PostController extends Controller
                 }
                 return $this->jsonResponseWithoutMessage("Post Craeted Successfully", 'data', 200);
             }
-        else{
-            throw new NotAuthorized;   
+            else{
+                throw new NotAuthorized;   
+            }
         }
-    }
     }
 
     public function show(Request $request)
@@ -121,43 +118,45 @@ class PostController extends Controller
             'is_approved' => 'required',
             'is_pinned' => 'required',
             'timeline_id' => 'required',
-            'post_id' => 'required'
+            'post_id' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if(Auth::user()->can('edit post')){
-            $post = Post::find($request->post_id);
-            if($post){
-                if(Auth::id() == $post->user_id){
-                    if($request->hasFile('image')){
-                        // if post has media
-                        //check Media
-                        $currentMedia= Media::where('post_id', $post->id)->first();
-                        // if exists, update
-                        if($currentMedia){
-                            $this->updateMedia($request->file('image'), $currentMedia->id);
-                        }
-                        else {
-                            // upload media
-                            $this->createMedia($request->file('image'), $post->id, 'post');
-                        }
-                    }else{
-                        $post->update($request->all());
+        
+        $post = Post::find($request->post_id);
+        if($post){
+            if(Auth::id() == $post->user_id){
+                if($request->hasFile('image')){
+                    // if comment has media
+                    //check Media
+                    $currentMedia= Media::where('post_id', $post->id)->first();
+                    // if exists, update
+                    if($currentMedia){
+                        $this->updateMedia($request->file('image'), $currentMedia->id);
                     }
-                    return $this->jsonResponseWithoutMessage("Post Updated Successfully", 'data', 200);
+                    //else create new one
+                    else {
+                        // upload media
+                        $this->createMedia($request->file('image'), $post->id, 'comment');
+                    }
+                } 
+                else {
+                    $post->update($request->all());
                 }
+                return $this->jsonResponseWithoutMessage("Post Updated Successfully", 'data', 200);
+            }         
             else{
-                throw new NotAuthorized; 
+                throw new NotAuthorized;   
             }
         }
         else{
-            throw new NotFound;    
-        }
-        }
-    }
-    
+            throw new NotFound;   
+        }    
+    }        
+       
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -170,7 +169,7 @@ class PostController extends Controller
 
         $post = Post::find($request->post_id);
         if($post){
-            if(Auth::user()->can('delete post')){
+            if(Auth::user()->can('delete post') || Auth::id() == $post->user_id){
                 //check Media
                 $currentMedia = Media::where('post_id', $post->id)->first();
                 // if exist, delete

@@ -16,6 +16,7 @@ class PostResource extends JsonResource
     {
         return [
             //'user_id' => new UserResource($this->user_id),
+            'body' => $this->resource->body,
             'type' => $this->resource->type,
             'allow_comments' => $this->resource->allow_comments,
             'tag' => unserialize($this->tag),
@@ -23,7 +24,6 @@ class PostResource extends JsonResource
             'is_approved' => $this->resource->is_approved,
             'is_pinned' => $this->resource->is_pinned,
             'timeline_id' => $this->resource->timeline_id,
-         
         ];
     }
 }
