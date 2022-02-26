@@ -29,7 +29,7 @@ class SocialMediaController extends Controller
 
         $userExists = SocialMedia::where('user_id',Auth::id())->first();
         if($userExists){
-            return $this->jsonResponseWithoutMessage("Sorry, You Can't Add Anothe Social Media Accounts", 'data', 500);
+            return $this->jsonResponseWithoutMessage("Your Social Media is already Exist, You Can Update It", 'data', 500);
         } else { 
             $request['user_id'] = Auth::id();
             SocialMedia::create($request->all());
@@ -50,8 +50,7 @@ class SocialMediaController extends Controller
         if($request->user_id == Auth::id()){
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
             if($socialMedia){
-                $socialMedia = new socialMediaResource($socialMedia);
-                return $this->jsonResponseWithoutMessage($socialMedia, 'data',200);
+                return $this->jsonResponseWithoutMessage(new socialMediaResource($socialMedia), 'data',200);
             } else {
                 throw new NotFound;
             }
@@ -74,13 +73,21 @@ class SocialMediaController extends Controller
     
         if($request->user_id == Auth::id()){
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
-            $socialMedia->update($request->all());
-            return $this->jsonResponseWithoutMessage("Your Accounts Are Updated Successfully", 'data', 200);
+            if (){
+                $socialMedia->update($request->all());
+                return $this->jsonResponseWithoutMessage("Your Accounts Are Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
         } else {
             throw new NotAuthorized;
         }
     }
 
+    /* delete(user_id)
+        ** function to dalete all social media accounts for a user
+        ** Take one parameter => user_id
+    */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -92,8 +99,12 @@ class SocialMediaController extends Controller
 
         if($request->user_id == Auth::id()){
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
-            $socialMedia->delete();
-            return $this->jsonResponseWithoutMessage("Your Accounts Are Deleted Successfully", 'data', 200);
+            if($socialMedia){
+                $socialMedia->delete();
+                return $this->jsonResponseWithoutMessage("Your Accounts Are Deleted Successfully", 'data', 200);
+            } else {
+                 throw new NotFound;
+            }
         } else {
             throw new NotAuthorized;
         }
