@@ -47,4 +47,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(SocialMedia::class,'user_id');
     }
+
+    public function UserException(){
+        return $this->hasMany(UserException::class);
+    }
+
+    public function Group(){
+        return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type');
+    }
 }

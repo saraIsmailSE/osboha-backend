@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Group;
+use App\Models\Timeline;
+use App\Models\User;
 use App\Traits\ResponseJson;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
@@ -17,8 +18,10 @@ use Spatie\Permission\PermissionRegistrar;
 /**
  * Description: GroupController for Osboha group.
  *
- * Methods: CRUD.
- *  
+ * Methods: 
+ * - CRUD
+ * - group posts list
+ *  - group list memebers
  */
 
 class GroupController extends Controller
@@ -35,11 +38,11 @@ class GroupController extends Controller
     {
         $group= Group::all();
 
-        if($group){
+        if(Auth::user()->can('list groups')){
           return $this->jsonResponseWithoutMessage($group,'data', 200);
         }
         else{
-          // throw new NotFound;
+          throw new NotFound;
         }
     }
 
@@ -97,16 +100,18 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-        $group=Group::find($request->group_id);
+         $group=Group::with('User')->find($request->group_id);
+         $data=$group->User->user_group;
+         return $this->jsonResponseWithoutMessage($data, 'data', 200);
 
-        if($group){
-         return $this->jsonResponseWithoutMessage($group, 'data', 200);
-        }
+         if($group->User->user_id==1){
+         }
 
-        else{
-            // throw new NotFound;
-        }
+   //   $group=$this->list_group_posts($request->group_id);
 
+      
+     
+        
     }
 
     /**
@@ -189,6 +194,34 @@ class GroupController extends Controller
             //throw new NotAuthorized;   
         }
 
+    }
+
+    public function list_group_members($group_id){
+
+        $members=Group::find($group_id)->User;
+    
+        return $members;
+
+    }
+
+    /**
+     * list posts for specific group
+     * retrun collection
+     */
+    public function list_group_posts($group_id)
+    {
+
+        $group=Group::find($group_id);
+        $timeLine=Timeline::find($group->timeline_id)->posts;
+
+        if($timeLine){
+         return $timeLine;
+        }
+
+        else{
+         // throw new NotFound;
+        }
+     
     }
 
 }

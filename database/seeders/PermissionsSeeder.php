@@ -107,6 +107,7 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'edit group']);
         Permission::create(['name' => 'delete group']);
         Permission::create(['name' => 'create group']);
+        Permission::create(['name' => 'list groups']);
         Permission::create(['name' => 'post in group']);
         Permission::create(['name' => 'add members to group']);
         Permission::create(['name' => 'delete members from group']);
