@@ -19,9 +19,11 @@ class ArticleResource extends JsonResource
         return
         [
             'title' => $this->title,
-            //'post' => new PostResource($this->post),
-            //'user' => new UserResource($this->user),
-            'section' => $this->section,  
+            //'post' => new PostResource($this->whenLoaded('post', $this->post_id)),
+            //'user' => new UserResource($this->whenLoaded('user', $this->user_id)),
+            'section' => $this->section, 
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at, 
         ];
     }
 }

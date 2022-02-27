@@ -6,6 +6,8 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
 use App\Models\InfographicSeries;
+use App\Models\Media;
+use App\Traits\MediaTraits;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 class InfographicSeriesController extends Controller
 {
     use ResponseJson;
+    use MediaTraits;
     
     public function index()
     {
@@ -26,7 +29,7 @@ class InfographicSeriesController extends Controller
         }
         else{
             //not found series response
-            throw new NotFound();
+            throw new NotFound;
         }
     }
 
@@ -39,7 +42,8 @@ class InfographicSeriesController extends Controller
         //validate requested data
         $validator = Validator::make($request->all(), [
             'title'    => 'required',
-            'section' => 'required',            
+            'section' => 'required',
+            'media' => 'required',            
         ]);
 
         //validator errors response
@@ -50,14 +54,17 @@ class InfographicSeriesController extends Controller
         //authorized user
         if(Auth::user()->can('create infographicSeries')){
             //create new series
-            infographicSeries::create(new $request->all());
+            $infographicSeries = infographicSeries::create($request->all());
+
+            //create media for infographic 
+            $this->createMedia($request->media, $infographicSeries->id, 'infographicSeries');
 
             //success response after creating new infographic Series
-            return $this->jsonResponseWithoutMessage("infographic Series has been Created Successfully", 'data', 200);
+            return $this->jsonResponse($infographicSeries, 'data', 200, "infographic Series Created Successfully");
         }
         else{
             //unauthorized user
-            throw new NotAuthorized();            
+            throw new NotAuthorized;            
         }
     }
 
@@ -83,7 +90,7 @@ class InfographicSeriesController extends Controller
         }
         else{
             //not found series response
-            throw new NotFound();
+            throw new NotFound;
         }
     }
 
@@ -96,6 +103,7 @@ class InfographicSeriesController extends Controller
             'title'    => 'required',
             'section' => 'required',
             'series_id' => 'required', 
+            'media' => 'required',
         ]);
 
         //validator errors response
@@ -111,12 +119,18 @@ class InfographicSeriesController extends Controller
             //updated found series
             $series->update($request->all());
 
+            //retrieve InfographicSeries media 
+            $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
+
+            //update media
+            $this->updateMedia($request->media, $infographicSeriesMedia->id);
+
             //success response after update
-            return $this->jsonResponseWithoutMessage("Infographic Series has been Updated Successfully", 'data', 200);
+            return $this->jsonResponse($series, 'data', 200,"Infographic Series Updated Successfully");
         }
         else{
             //unauthorized user response
-            throw new NotAuthorized();
+            throw new NotAuthorized;
         }
     }
 
@@ -141,12 +155,18 @@ class InfographicSeriesController extends Controller
             //deleted found series
             $series->delete();
 
+            //retrieve InfographicSeries media 
+            $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
+
+            //delete media
+            $this->deleteMedia($infographicSeriesMedia->id);
+ 
              //success response after delete
-            return $this->jsonResponseWithoutMessage("infographic Series has been Deleted Successfully", 'data', 200);
+            return $this->jsonResponse($series, 'data', 200,"infographic Series Deleted Successfully");
         }
         else{
             //unauthorized user response
-            throw new NotAuthorized();
+            throw new NotAuthorized;
         }
     }
 }

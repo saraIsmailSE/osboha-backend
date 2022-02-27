@@ -27,7 +27,7 @@ class ActivityController extends Controller
         }
         else{
             //not found articles response
-            throw new NotFound();
+            throw new NotFound;
 
             //return $this->jsonResponseWithoutMessage('No Rcords Found', 'data',204);
         }
@@ -53,14 +53,14 @@ class ActivityController extends Controller
         //authorized user
         if(Auth::user()->can('create activity')){
             //create new activity
-            Activity::create(new ActivityResource($request->all()));
+            $activity = Activity::create($request->all());
 
             //success response after creating new activity
-            return $this->jsonResponseWithoutMessage("Activity has been Created Successfully", 'data', 200);
+            return $this->jsonResponse(new ActivityResource($activity), 'data', 200, 'Activity Created Successfully');
         }
         else{
             //unauthorized user
-            throw new NotAuthorized();
+            throw new NotAuthorized;
 
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
         }
@@ -88,7 +88,7 @@ class ActivityController extends Controller
         }
         else{
             //not found activity response
-            throw new NotFound();
+            throw new NotFound;
 
             //return $this->jsonResponseWithoutMessage('Activity Not Found', 'data',204);
         }
@@ -119,11 +119,11 @@ class ActivityController extends Controller
             $activity->update($request->all());
 
             //success response after update
-            return $this->jsonResponseWithoutMessage("Activity has been Updated Successfully", 'data', 200);
+            return $this->jsonResponse(new ActivityResource($activity), 'data', 200, "Activity Updated Successfully");
         }
         else{
             //unauthorized user response
-            throw new NotAuthorized();
+            throw new NotAuthorized;
 
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
         }
@@ -151,11 +151,11 @@ class ActivityController extends Controller
             $activity->delete();
 
              //success response after delete
-            return $this->jsonResponseWithoutMessage("Activity has been Deleted Successfully", 'data', 200);
+            return $this->jsonResponse(new ActivityResource($activity), 'data', 200, "Activity Deleted Successfully");
         }
         else{
             //unauthorized user response
-            throw new NotAuthorized();
+            throw new NotAuthorized;
 
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data',401);
         }

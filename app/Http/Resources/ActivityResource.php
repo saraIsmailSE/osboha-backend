@@ -19,7 +19,8 @@ class ActivityResource extends JsonResource
         return [
             'name' => $this->name,
             'version' => $this->version,
-            //'post_id' => new PostResource($this->post_id),   
+            //'post_id' => new PostResource($this->whenLoaded('post', $this->post_id)),  
+            'created_at' => $this->created_at, 
         ];
     }
 }

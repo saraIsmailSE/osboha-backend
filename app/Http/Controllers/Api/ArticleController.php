@@ -28,7 +28,7 @@ class ArticleController extends Controller
             return $this->jsonResponseWithoutMessage(ArticleResource::collection($articles), 'data', 200);
         }else{
             //not found articles response
-            throw new NotFound();
+            throw new NotFound;
 
             //return $this->jsonResponseWithoutMessage('No Records', 'data', 204);
         }
@@ -42,7 +42,7 @@ class ArticleController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required', 
             'post_id' => 'required',
-            'user_id' => 'required',
+           // 'user_id' => 'required',
             'section' => 'required',            
         ]);
 
@@ -53,14 +53,19 @@ class ArticleController extends Controller
 
         //authorized user
         if(Auth::user()->can('create article')){      
-            //create new article      
-            Article::create(new ArticleResource($request->all())); 
+            //create new article
+            $article = Article::create([
+                'title' => $request->title, 
+                'post_id' => $request->post_id,
+                'user_id' => Auth::id(),
+                'section' => $request->section,
+            ]); 
 
             //success response after creating the article
-            return $this->jsonResponseWithoutMessage('Article created successfully', 'data', 200);
+            return $this->jsonResponse(new ArticleResource($article), 'data', 200,'Article Created Successfully');
         }else{
             //unauthorized user response
-            throw new NotAuthorized();
+            throw new NotAuthorized;
 
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
@@ -88,7 +93,7 @@ class ArticleController extends Controller
             return $this->jsonResponseWithoutMessage(new ArticleResource($article), 'data', 200);
         }else{
             //article not found response
-            throw new NotFound();
+            throw new NotFound;
 
             //return $this->jsonResponseWithoutMessage('Article not found', 'data', 204);
         }
@@ -121,10 +126,10 @@ class ArticleController extends Controller
             $article->update($request->all()); 
 
             //success response after update
-            return $this->jsonResponseWithoutMessage('Article updated successfully', 'data', 200);
+            return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Updated Successfully');
         }else{
             //unauthorized user response
-            throw new NotAuthorized();
+            throw new NotAuthorized;
 
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
@@ -154,10 +159,10 @@ class ArticleController extends Controller
             $article->delete();
 
             //success response after delete
-            return $this->jsonResponseWithoutMessage('Article deleted successfully', 'data', 200);
+            return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Deleted Successfully');
         }else{
             //unauthorized user response
-            throw new NotAuthorized();
+            throw new NotAuthorized;
 
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
@@ -176,7 +181,7 @@ class ArticleController extends Controller
             return $this->jsonResponseWithoutMessage(ArticleResource::collection($articles), 'data', 200);
         }else{
             //not fount articles exception
-            throw new NotFound();
+            throw new NotFound;
         }
         //ArticleResource::collection(Article::with())
     }

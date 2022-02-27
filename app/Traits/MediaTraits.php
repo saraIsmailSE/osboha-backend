@@ -21,7 +21,7 @@ Trait MediaTraits{
             $media->post_id = $type_id;
         }
         elseif($type == 'infographicSeries'){
-            $media->infographicSeries_id = $type_id;
+            $media->infographic_series_id = $type_id;
         }
         elseif($type == 'infographic'){
             $media->infographic_id = $type_id;
