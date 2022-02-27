@@ -14,7 +14,6 @@ class Group extends Model
         'name',
         'description',
         'type',
-        'cover_picture',
         'creator_id',
         'timeline_id'
     ];
@@ -26,6 +25,11 @@ class Group extends Model
     public function Timeline(){
         return $this->belongsTo(Timeline::class);
     }
+
+    public function medias()
+    {
+        return $this->hasOne(Media::class);
+    } 
 
 
 }

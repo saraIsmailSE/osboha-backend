@@ -133,7 +133,7 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::group(['prefix' => 'group'], function(){
         Route::get('/',[GroupController::class,'index']);
         Route::post('/create',[GroupController::class,'create']);
-     //   Route::get('/show',[GroupController::class,'show']);
+        Route::get('/show',[GroupController::class,'show']);
         Route::post('/update',[GroupController::class,'update']);
         Route::post('/delete',[GroupController::class,'delete']);
     });
@@ -180,8 +180,4 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Timeline ########
-
 });
-
-
-

@@ -68,7 +68,6 @@ class PermissionsSeeder extends Seeder
 
         ###### EXCEPTION ######
         //update exception [reject or accept]
-        Permission::create(['name' => 'create exception']);
         Permission::create(['name' => 'update exception']);
         Permission::create(['name' => 'list exception']);
         

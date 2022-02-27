@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Group as GroupResource;
 use Illuminate\Http\Request;
 use App\Models\Group;
+use App\Models\Media;
 use App\Models\Timeline;
 use App\Traits\ResponseJson;
+use App\Traits\MediaTraits;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Description: GroupController for Osboha group.
@@ -24,7 +30,7 @@ use App\Exceptions\NotFound;
 class GroupController extends Controller
 {
 
-    use ResponseJson;
+    use ResponseJson, MediaTraits;
 
     /**
      * Display groups list
@@ -35,10 +41,11 @@ class GroupController extends Controller
     {
         $group= Group::all();
         if(Auth::user()->can('list groups')){
-          return $this->jsonResponseWithoutMessage($group,'data', 200);
+          return $this->jsonResponseWithoutMessage(GroupResource::collection($group),'data', 200);
         }
+
         else{
-          throw new NotFound;
+          throw new NotAuthorized;
         }
     }
 
@@ -56,7 +63,7 @@ class GroupController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'type' => 'required|string',
-            'cover_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
             'creator_id' => 'required|int'
         ]);
 
@@ -64,22 +71,19 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
           }
 
-        if($request->hasFile('cover_picture'))
-        {  
-            //use media traits here (migrate,model)
-            $file=$request->file('cover_picture');
-            $fileName=time().'.'.$file->extension();
-            $file->move(public_path('assets/images'),$fileName);
-            $input['cover_picture']=$fileName;
+        $group=Group::create($input);
+         
+        if(Auth::user()->can('create group')){
+            if($request->hasFile('cover_picture'))
+            {  
+                $file=$request->file('cover_picture');
+                $this->createMedia($file,$group->id,'group');
+            }
+            return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 200);  
         }
-
-     if(Auth::user()->can('create group')){
-         $group=Group::create($input);
-         return $this->jsonResponse($group,'data', 200, 'Group Created');
-      }
-        else{
-            throw new NotAuthorized;   
-        }
+            else{
+                throw new NotAuthorized;   
+            }
     }
 
     /**
@@ -99,15 +103,14 @@ class GroupController extends Controller
         
          $group=Group::find($request->group_id);
          $users=$group->user;
-
+         
          foreach($users as $user){
            if(Auth::id()==$user->id){
-            //return group with list of members instead of members function
-            return $this->jsonResponseWithoutMessage($group, 'data', 200);
+            return $this->jsonResponseWithoutMessage(new GroupResource($group), 'data', 200);
            }
 
            else{
-               throw new NotAuthorized;
+               throw new NotFound;
            }
         }
     }
@@ -126,7 +129,7 @@ class GroupController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'type' => 'required|string',
-            'cover_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
             'creator_id' => 'required|int'
         ]);
 
@@ -136,27 +139,26 @@ class GroupController extends Controller
 
         $group=Group::find($request->group_id);  
 
-        //get old image to delete it after update 
-        $oldImage=$group->cover_picture;
-
-        if($request->hasFile('cover_picture'))
+      if(Auth::user()->can('edit group'))
+      {
+        if($request->hasFile('image'))
         {
+            $file=$request->file('image');
+            $currentMedia=Media::where('group_id',$group->id);
+
+            if($currentMedia){
+                $this->updateMedia($file, $currentMedia->id);
+            }
             
-            $file=$request->file('cover_picture');
-            $fileName=time().'.'.$file->extension();
-            $file->move(public_path('assets/images'),$fileName);
-            $input['cover_picture']=$fileName;
-        
+            else{
+                $this->createMedia($file,$group->id,'group');
+            }
+            
         }
-
-      if(Auth::user()->can('edit group')){
           $group->update($input);
-          
-          //delete old image
-          File::delete(public_path('assets/images/'.$oldImage));
-          return $this->jsonResponseWithoutMessage('Group Updated', 'data', 200);
-
-        }//endif Auth
+          return $this->jsonResponseWithoutMessage("Group Updated", 'data', 200);
+    
+       }//endif Auth
 
         else{
             throw new NotAuthorized;   
@@ -178,13 +180,16 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
 
-        if(Auth::user()->can('delete group')){
+        if(Auth::user()->can('delete group')) {
          $group=Group::find($request->group_id);
-         $group->delete();
+         $currentMedia=Media::where('group_id',$group->id);
+         
+         //if exist delete image
+         if($currentMedia) {
+          $this->deleteMedia($currentMedia->id);
+         }
 
-        if($group->cover_picture){
-           File::delete(public_path('assets/images/'.$group->cover_picture));
-        }
+         $group->delete();
 
         return $this->jsonResponseWithoutMessage('Group Deleted', 'data', 200);
         }//endif Auth
@@ -195,19 +200,6 @@ class GroupController extends Controller
 
     }
 
-    /**
-     * list members of Group
-     */
-    // public function list_group_members($group_id){
-    //     $members=Group::find($group_id)->User;
-    //     return $members;
-    // }
-
-
-    /**
-     * list posts for specific group
-     * return collection
-     */
     public function list_group_posts($group_id)
     {
 

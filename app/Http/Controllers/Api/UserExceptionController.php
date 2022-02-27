@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * UserExceptionController to create exception for user
@@ -36,7 +39,6 @@ class UserExceptionController extends Controller
       $user=User::with('Group')->find($id);  
     
       if($user){
-            
         //store user details in single array
         foreach($user->group as $group){
             $data=[
@@ -105,7 +107,7 @@ class UserExceptionController extends Controller
           return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-        if(Auth::user()->can('create exception')){
+        if(Auth::check()){
             $input['user_id']= Auth::id();
             $userException= UserException::create($input);
             return $this->jsonResponseWithoutMessage("User Exception Craeted", 'data', 200);
