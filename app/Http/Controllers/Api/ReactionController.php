@@ -56,10 +56,10 @@ class ReactionController extends Controller
                 $input_media = $request->all();
                 // upload media
                 $input = $this->createMedia($request->file('media'),0,$request['type']);
-                $input_reaction['reaction_id']= 0;
-                $input_reaction['media_id'] = $input->id;
-                $input_reaction['user_id']= Auth::id();
-                Reaction::create($input_reaction);
+                $inputReaction['reaction_id']= 0;
+                $inputReaction['media_id'] = $input->id;
+                $inputReaction['user_id']= Auth::id();
+                Reaction::create($inputReaction);
                 return $this->jsonResponseWithoutMessage("Media and Reaction Craeted Successfully", 'data', 200);
             }
             else{
@@ -100,9 +100,9 @@ class ReactionController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         if($request->has('comment_id'))
-         $reaction = Reaction::where('user_id', Auth::user()->id)->where('comment_id', $request->comment_id)->first();
+         $reaction = Reaction::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
         else if($request->has('post_id'))
-         $reaction = Reaction::where('user_id', Auth::user()->id)->where('post_id', $request->post_id)->first();
+         $reaction = Reaction::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
         if($reaction){
             $reaction->update($request->all());
             return $this->jsonResponseWithoutMessage("Reaction Updated Successfully", 'data', 200);
@@ -123,9 +123,9 @@ class ReactionController extends Controller
         }  
 
         if($request->has('comment_id'))
-         $reaction = Reaction::where('user_id', Auth::user()->id)->where('comment_id', $request->comment_id)->first();
+         $reaction = Reaction::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
         else if($request->has('post_id'))
-         $reaction = Reaction::where('user_id', Auth::user()->id)->where('post_id', $request->post_id)->first();
+         $reaction = Reaction::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
 
         if($reaction){
             $reaction->delete();
