@@ -15,6 +15,8 @@ use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\MarkResource;
 use App\Models\User;
+use App\Models\Week;
+use Carbon\Carbon;
 
 class MarkController extends Controller
 {
@@ -22,7 +24,9 @@ class MarkController extends Controller
 
     public function index()
     {
-        $marks = Mark::all();
+        $current_week = Week::latest()->first();
+        $marks = Mark::where('week_id', $current_week->id)->get();
+        
         if(Auth::user()->can('audit mark')){
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
@@ -73,39 +77,87 @@ class MarkController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+
         if(Auth::user()->can('edit mark')){
             $mark = Mark::find($request->mark_id);
-            $mark->update($request->all());
-            return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+            if($mark){
+                $mark->update($request->all());
+                return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+            }
+            else{
+                throw new NotFound;
+            }
         }
         else{
             throw new NotAuthorized;   
         }
     }
 
-    public function marks_by_userid($user_id){
+    public function marks_by_userid(Request $request){
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        
         if(Auth::user()->can('audit mark')){
-            $marks = Mark::where('user_id', $user_id)->get();
-            return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
-        } else{
+            $marks = Mark::where('user_id', $request->user_id)->get();
+            if($marks){
+                return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+            }
+            else{
+                throw new NotFound;
+            }
+        } 
+        else{
             throw new NotAuthorized;   
         }
     }
 
-    public function marks_by_weekid($week_id){
+    public function marks_by_weekid(Request $request){
+        $validator = Validator::make($request->all(), [
+            'week_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
         if(Auth::user()->can('audit mark')){
-            $marks = Mark::where('week_id', $week_id)->get();
-            return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
-        } else{
+            $marks = Mark::where('week_id', $request->week_id)->get();
+            if($marks){
+                return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+            }
+            else{
+                throw new NotFound;
+            }
+        } 
+        else{
             throw new NotAuthorized;   
         }
     }
 
-    public function marks_by_userid_and_weekid($user_id, $week_id){
+    public function marks_by_userid_and_weekid(Request $request){
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'week_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
         if(Auth::user()->can('audit mark')){
-            $marks = Mark::where('user_id', $user_id)
-                        ->where('week_id', $week_id)->get();
-            return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+            $marks = Mark::where('user_id', $request->user_id)
+                        ->where('week_id', $request->week_id)->get();
+            if($marks){
+                return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+            }
+            else{
+                throw new NotFound;
+            }
         } else{
             throw new NotAuthorized;   
         }
