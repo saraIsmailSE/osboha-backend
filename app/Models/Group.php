@@ -14,17 +14,22 @@ class Group extends Model
         'name',
         'description',
         'type',
-        'cover_picture',
         'creator_id',
         'timeline_id'
     ];
 
     public function User(){
-        return $this->belongsToMany(User::class,'user_groups');
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type');
     }
 
     public function Timeline(){
         return $this->belongsTo(Timeline::class);
     }
+
+    public function medias()
+    {
+        return $this->hasOne(Media::class);
+    } 
+
 
 }

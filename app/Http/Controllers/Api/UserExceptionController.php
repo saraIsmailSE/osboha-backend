@@ -16,7 +16,6 @@ use App\Exceptions\NotFound;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
-use Illuminate\Support\Facades\File;
 
 /**
  * UserExceptionController to create exception for user
@@ -40,7 +39,6 @@ class UserExceptionController extends Controller
       $user=User::with('Group')->find($id);  
     
       if($user){
-            
         //store user details in single array
         foreach($user->group as $group){
             $data=[
@@ -53,10 +51,14 @@ class UserExceptionController extends Controller
         //if ambassador
         if($data['user_type']=='ambassador'&& Auth::user()->can('list exception')){
             $userException=UserException::all()->where('user_id',$data['user_id']);
-            return $userException;
+        
+            return $this->jsonResponseWithoutMessage(
+                UserExceptionResource::collection($userException),
+                    'data', 200
+                  );
         }
 
-        //return group exception
+        //return all exception by group for specific user type
         if($data['user_type']=='leader' || 'supervisor'||'advisor' && Auth::user()->can('list exception')){
             $user=Group::with('User')->find($data['group_id']); 
             foreach($user->User as $item){
@@ -64,8 +66,12 @@ class UserExceptionController extends Controller
                     'user_id' => $item->id
                 ];
             }
+            
             $userException=UserException::whereIn('user_id',$ids)->get();
-            return $userException;
+
+            return $this->jsonResponseWithoutMessage(
+                new UserExceptionResource($userException),'data', 200
+                );
         }
 
         else{
@@ -77,9 +83,7 @@ class UserExceptionController extends Controller
        else{
             throw new NotFound;
         }
-           
     }
-
     /**
      * Create new exception for the user
      * 
@@ -103,13 +107,12 @@ class UserExceptionController extends Controller
           return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-        $input['user_id']= Auth::id();
-        $userException= UserException::create($input);
-        
-        return $this->jsonResponseWithoutMessage("User Exception Craeted", 'data', 200);
-
+        if(Auth::check()){
+            $input['user_id']= Auth::id();
+            $userException= UserException::create($input);
+            return $this->jsonResponseWithoutMessage("User Exception Craeted", 'data', 200);
+        }
     }
-
     /**
      * Display the details of specified user exception
      *
@@ -176,3 +179,4 @@ class UserExceptionController extends Controller
         }
     }
 }
+

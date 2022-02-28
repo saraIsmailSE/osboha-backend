@@ -29,6 +29,9 @@ Trait MediaTraits{
         elseif($type == 'book'){
             $media->book_id = $type_id;
         }
+        elseif($type == 'group'){
+            $media->group_id = $type_id;
+        }
         $media->save();   
     }
 
