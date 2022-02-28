@@ -19,10 +19,9 @@ class RateController extends Controller
 
     public function index()
     {
-        $rates = Rate::all();
+        $rates = Rate::where('user_id', Auth::id())->get();
         if($rates){
             return $this->jsonResponseWithoutMessage(RateResource::collection($rates), 'data',200);
-
         }
         else{
             throw new NotFound;
@@ -58,14 +57,12 @@ class RateController extends Controller
         else if($request->has('post_id'))
          $rate = Rate::where('post_id', $request->post_id)->get();
         if($rate){
-            return $this->jsonResponseWithoutMessage(new RateResource($rate), 'data',200);
-
+            return $this->jsonResponseWithoutMessage(RateResource::collection($rate), 'data',200);
         }
         else{
             throw new NotFound;
         }
     }
-    
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -77,15 +74,15 @@ class RateController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         if($request->has('comment_id'))
-         $rate = Rate::where('user_id', Auth::user()->id)->where('comment_id', $request->comment_id)->first();
+         $rate = Rate::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
         else if($request->has('post_id'))
-         $rate = Rate::where('user_id', Auth::user()->id)->where('post_id', $request->post_id)->first();
+         $rate = Rate::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
         if($rate){
             $rate->update($request->all());
             return $this->jsonResponseWithoutMessage("Rate Updated Successfully", 'data', 200);
         }
         else{
-            throw new NotAuthorized;   
+            throw new NotFound;  
         }
     }
     public function delete(Request $request)
@@ -100,16 +97,15 @@ class RateController extends Controller
         }  
 
         if($request->has('comment_id'))
-         $rate = Rate::where('user_id', Auth::user()->id)->where('comment_id', $request->comment_id)->first();
+         $rate = Rate::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
         else if($request->has('post_id'))
-         $rate = Rate::where('user_id', Auth::user()->id)->where('post_id', $request->post_id)->first();
-
+         $rate = Rate::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
         if($rate){
             $rate->delete();
             return $this->jsonResponseWithoutMessage("Rate Deleted Successfully", 'data', 200);
         }
         else{
-            throw new NotAuthorized;
+            throw new NotFound;
         }
     }
 }

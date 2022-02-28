@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-
 class ReactionResource extends JsonResource
 {
     /**
@@ -18,7 +17,7 @@ class ReactionResource extends JsonResource
             // 'media'=> new MediaResource($this->whenLoaded('media')),
             // 'user'=> new UserResource($this->whenLoaded('user')),
             // 'post'=> new PostResource($this->whenLoaded('post')),
-            // 'comment'=> new CommentResource($this->whenLoaded('comment'))
+             // 'comment'=>new CommentResource($this->whenLoaded('comment'))
             ];
     }
 }

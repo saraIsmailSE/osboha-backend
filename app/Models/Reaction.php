@@ -11,6 +11,7 @@ class Reaction extends Model
     protected $fillable = [
         'user_id',
         'media_id',
+        'reaction_id',
         'comment_id',
         'post_id'
     ];
