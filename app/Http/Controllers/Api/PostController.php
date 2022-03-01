@@ -53,7 +53,7 @@ class PostController extends Controller
         }  
         
         $timeline = Timeline::find($request->timeline_id);
-       if($timeline && $timeline->id==3){
+       if($timeline && $timeline->type=='gruop'){
             if(Auth::user()->can('create post')){
                 $post = $request->all();
                 $tag = null;
