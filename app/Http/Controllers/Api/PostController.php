@@ -21,11 +21,14 @@ use App\Http\Resources\PostResource;
 
 class PostController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, MediaTraits;
    
     public function index()
     {
-        $posts = Post::all();
+        //$posts = Post::all();
+        $posts = Post::where('user_id', Auth::id())->get();
+        //$posts = Post::where('timeline_id', $timeline_id)->get();
+
         if($posts){
             return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data',200);
         }
@@ -38,31 +41,37 @@ class PostController extends Controller
     {
         //validate requested data
         $validator = Validator::make($request->all(), [
-            'body' => 'required',
+            'body' => 'required_without:image',
             'user_id' => 'required',
             'type' => 'required',
             'timeline_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
         ]);
      
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
-
-        $timeline = Timeline::all();
-        if($timeline->type=="group"){
+        
+        $timeline = Timeline::find($request->timeline_id);
+       if($timeline && $timeline->id==3){
             if(Auth::user()->can('create post')){
-                //$tag = null;
-                //$vote = null;
+                $post = $request->all();
+                $tag = null;
+                $vote = null;
                 if ($request->has('tag')){
                     $tag = $request->tag;
+                    $post['tag'] = serialize($tag);
                 }
                 if ($request->has('vote')){
                     $vote = $request->vote;
+                    $post['vote'] = serialize($vote);
                 }
+
+                //Post::create($post);
+
                 $post = Post::create([
                     'body' => $request->body,
-                    'user_id' => Auth::user()->id,
+                    'user_id' => Auth::id(),
                     'type' => $request->type,
                     'allow_comments' => $request->allow_comments,
                     'tag' => serialize($tag),
@@ -72,8 +81,7 @@ class PostController extends Controller
                     'timeline_id' => $request->timeline_id ,
                     'image' => $request->image 
                 ]);
-                Post::create(new PostResource($request->all()));
-                
+
                 if ($request->hasFile('image')) {
                 // if post has media
                 // upload media
@@ -84,6 +92,9 @@ class PostController extends Controller
             else{
                 throw new NotAuthorized;   
             }
+        }
+        else{
+            echo "This timeline is not found or it's not group";
         }
     }
 
@@ -110,15 +121,15 @@ class PostController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'body' => 'required',
-            'user_id' => 'required',
+            'user_id' => Auth::id(),
             'type' => 'required',
-            'allow_comments' => 'required',
-            'tag' => 'required',
-            'vote' => 'required',
-            'is_approved' => 'required',
-            'is_pinned' => 'required',
+            //'allow_comments' => 'required',
+            //'tag' => 'required',
+            //'vote' => 'required',
+            //'is_approved' => 'required',
+            //'is_pinned' => 'required',
             'timeline_id' => 'required',
-            'post_id' => 'required',
+            //'post_id' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
@@ -130,17 +141,19 @@ class PostController extends Controller
         if($post){
             if(Auth::id() == $post->user_id){
                 if($request->hasFile('image')){
-                    // if comment has media
+                    // if post has media
                     //check Media
                     $currentMedia= Media::where('post_id', $post->id)->first();
                     // if exists, update
                     if($currentMedia){
                         $this->updateMedia($request->file('image'), $currentMedia->id);
+                        return $this->jsonResponseWithoutMessage("Image Updated Successfully", 'data', 200);
                     }
                     //else create new one
                     else {
                         // upload media
-                        $this->createMedia($request->file('image'), $post->id, 'comment');
+                        $this->createMedia($request->file('image'), $post->id, 'post');
+                        return $this->jsonResponseWithoutMessage("Image Added Successfully", 'data', 200);
                     }
                 } 
                 else {
@@ -188,8 +201,10 @@ class PostController extends Controller
         }
     }
 
-    public function listAllPostsByTimelineID($timeline_id)
+    public function postByTimelineId(Request $request)
     {
+        $timeline_id = $request->timeline_id;
+
         //find posts belong to timeline_id
         $posts = Post::where('timeline_id', $timeline_id)->get();
 
@@ -200,8 +215,9 @@ class PostController extends Controller
         }
     }
 
-    public function listAllPostsByUser($user_id)
+    public function postByUserId(Request $request)
     {
+        $user_id = $request->user_id;
         //find posts belong to user_id
         $posts = Post::where('user_id', $user_id)->get();
 

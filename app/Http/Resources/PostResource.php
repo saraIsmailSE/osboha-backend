@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Resources;
+//use App\Http\Resources\UserResource;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,14 +17,14 @@ class PostResource extends JsonResource
     {
         return [
             //'user_id' => new UserResource($this->user_id),
-            'body' => $this->resource->body,
-            'type' => $this->resource->type,
-            'allow_comments' => $this->resource->allow_comments,
+            'body' => $this->body,
+            'type' => $this->type,
+            'allow_comments' => $this->allow_comments,
             'tag' => unserialize($this->tag),
             'vote' => unserialize($this->vote),
-            'is_approved' => $this->resource->is_approved,
-            'is_pinned' => $this->resource->is_pinned,
-            'timeline_id' => $this->resource->timeline_id,
+            'is_approved' => $this->is_approved,
+            'is_pinned' => $this->is_pinned,
+            'timeline_id' => $this->timeline_id,
         ];
     }
 }
