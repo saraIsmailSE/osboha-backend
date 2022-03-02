@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
-use Illuminate\Support\Facades\File;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
+use App\Http\Resources\CommentResource;
 
 
 class CommentController extends Controller
@@ -34,20 +36,14 @@ class CommentController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $input=$request->all();
-        $input['user_id']= Auth::id();    
-        if($request->type == 'thesis'){
-            // calculate mark
-            // create thesis
+        $input['user_id']= Auth::id();
+        $comment = Comment::create($input);
+        if ($request->hasFile('image')) {
+            // if comment has media
+            // upload media
+            $this->createMedia($request->file('image'), $comment->id, 'comment');
         }
-        else{
-            $comment = Comment::create($input);
-            if($request->hasFile('image')){
-                // if comment has media
-                // upload media
-                $this->createMedia($request->file('image'), $comment->id,'comment');
-            }
-            return $this->jsonResponseWithoutMessage("Comment Craeted Successfully", 'data', 200);  
-        }
+        return $this->jsonResponseWithoutMessage("Comment Craeted Successfully", 'data', 200);  
 
     }
 
@@ -63,10 +59,10 @@ class CommentController extends Controller
 
         $comment = Comment::find($request->comment_id);
         if($comment){
-            return $this->jsonResponseWithoutMessage($comment, 'data',200);
+            return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data',200);
         }
         else{
-           // throw new NotFound;
+            throw new NotFound;
         }
     }
 
@@ -86,38 +82,30 @@ class CommentController extends Controller
         $comment = Comment::find($request->comment_id);
         if($comment){
             if(Auth::id() == $comment->user_id){
-                if($comment->type != "thesis"){
-                    if($request->hasFile('image')){
-                        // if comment has media
-                        //check Media
-                        $currentMedia= Media::where('comment_id', $comment->id)->first();
-                        // if exists, update
-                        if($currentMedia){
-                            $this->updateMedia($request->file('image'), $currentMedia->id);
-                        }
-                        //else create new one
-                        else{
-                            // upload media
-                            $this->createMedia($request->file('image'), $comment->id,'comment');
-                        }
+                if($request->hasFile('image')){
+                    // if comment has media
+                    //check Media
+                    $currentMedia= Media::where('comment_id', $comment->id)->first();
+                    // if exists, update
+                    if($currentMedia){
+                        $this->updateMedia($request->file('image'), $currentMedia->id);
                     }
-                    else{
-                        $comment->update($request->all());
+                    //else create new one
+                    else {
+                        // upload media
+                        $this->createMedia($request->file('image'), $comment->id, 'comment');
                     }
-                    return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
+                } else {
+                    $comment->update($request->all());
                 }
-                else{
-                    //get thesis
-                    // check week id 
-                    // re-calculate mark
-                }
-            }          
+                return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
+            }         
             else{
-                //throw new NotAuthorized;   
+                throw new NotAuthorized;   
             }
         }
         else{
-            //not found
+            throw new NotFound;   
         }
             
         
@@ -134,26 +122,26 @@ class CommentController extends Controller
         }  
 
         $comment = Comment::find($request->comment_id);
-        if(Auth::user()->can('delete comment') || Auth::id() == $comment->user_id){
-            if($comment->type != "thesis"){
+        if($comment){
+            if(Auth::user()->can('delete comment') || Auth::id() == $comment->user_id){
                 //check Media
                 $currentMedia = Media::where('comment_id', $comment->id)->first();
-                // if exists, update
+                // if exist, delete
                 if ($currentMedia) {
                     $this->deleteMedia($currentMedia->id);
                 }
                 $comment->delete();
-                return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
+                return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
             }
+            
             else{
-                //get thesis
-                // check week id 
-                // re calculate mark
+                throw new NotAuthorized;   
             }
         }
         else{
-            //throw new NotAuthorized;   
+            throw new NotFound;
         }
+        
         
     }
 }
