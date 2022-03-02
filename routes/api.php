@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update', [RateController::class, 'update']);
         Route::post('/delete', [RateController::class, 'delete']);
 
+
     });
     ########End Rate########
     ########Reaction########
@@ -58,6 +59,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [ReactionController::class, 'show']);
         Route::post('/update', [ReactionController::class, 'update']);
         Route::post('/delete', [ReactionController::class, 'delete']);
+
 
     });
     ########End Reaction########
