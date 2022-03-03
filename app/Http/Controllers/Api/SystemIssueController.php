@@ -41,8 +41,13 @@ class SystemIssueController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+
+        // Set reporter_id to logged-in user
+        $input = $request->all();
+        $input['reporter_id'] = Auth::id();
+
         //Anyone can create system issue
-        SystemIssue::create($request->all());
+        SystemIssue::create($input);
         return $this->jsonResponseWithoutMessage("System Issue Created Successfully", 'data', 200);
     }
 
@@ -75,15 +80,18 @@ class SystemIssueController extends Controller
         $validator = Validator::make($request->all(), [
             //'reporter_id' => 'required|integer', // Is this needed? only reviewer will update so shouldn't update id or description
             //'reporter_description' => 'required', // Is this needed? only reviewer will update so shouldn't update id or description
-            'reviewer_note' => 'required|string', // required because only reviewer will update it
-            'solved' => 'required|date', // required because only reviewer will update it
+            'reviewer_note' => 'required|string',
         ]);
 
-        $input = $request->all();
-        $input['reviewer_id'] = Auth::id();
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+
+        // Set reviewer_id to logged-in user & solved to today's date
+        $input = $request->all();
+        $input['reviewer_id'] = Auth::id();
+        $input['solved'] = date('Y-m-d');
+
         if(Auth::user()->can('update systemIssue')){
             $issue = SystemIssue::find($request->issue_id);
             if ($issue){
