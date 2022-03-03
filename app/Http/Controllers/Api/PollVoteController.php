@@ -44,9 +44,7 @@ class PollVoteController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::id();
         $option = $request->option;
-        if (is_array($option)){
             $input['option'] = serialize($option);
-        }
         PollVote::create($input);
         return $this->jsonResponseWithoutMessage("Vote Created Successfully", 'data', 200);
     }
