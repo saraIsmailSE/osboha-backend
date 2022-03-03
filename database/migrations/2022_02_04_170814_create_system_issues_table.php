@@ -16,9 +16,9 @@ class CreateSystemIssuesTable extends Migration
         Schema::create('system_issues', function (Blueprint $table) {
             $table->id();
             $table->integer('reporter_id');
-            $table->integer('reviewer_id');
+            $table->integer('reviewer_id')->nullable();
             $table->text('reporter_description');
-            $table->string('reviewer_note');
+            $table->string('reviewer_note')->nullable();
             $table->date('solved')->nullable();
             $table->timestamps();
         });
