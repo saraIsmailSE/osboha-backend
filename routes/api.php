@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\PollVoteController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\ReactionController;
 use App\Http\Controllers\Api\SystemIssueController;
@@ -15,8 +17,11 @@ use App\Http\Controllers\Api\MarkController;
 use App\Http\Controllers\Api\RejectedMarkController;
 use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Controllers\Api\GroupController;
+use App\Http\Controllers\Api\InfographicController;
+use App\Http\Controllers\Api\InfographicSeriesController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
+use App\Http\Controllers\Api\FriendController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -49,6 +54,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update', [RateController::class, 'update']);
         Route::post('/delete', [RateController::class, 'delete']);
 
+
     });
     ########End Rate########
     ########Reaction########
@@ -58,6 +64,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [ReactionController::class, 'show']);
         Route::post('/update', [ReactionController::class, 'update']);
         Route::post('/delete', [ReactionController::class, 'delete']);
+
 
     });
     ########End Reaction########
@@ -75,6 +82,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::get('/', [TransactionController::class, 'index']);
         Route::post('/create', [TransactionController::class, 'create']);
         Route::post('/show', [TransactionController::class, 'show']);
+        Route::post('/showUsrTrans', [TransactionController::class, 'showUserTransactions']);
         Route::post('/update', [TransactionController::class, 'update']);
     });
     ########End Transaction########
@@ -109,6 +117,9 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::get('/', [MarkController::class, 'index']);
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
+        Route::post('/user', [MarkController::class, 'marks_by_userid']);
+        Route::post('/week', [MarkController::class, 'marks_by_weekid']);
+        Route::post('/user-week', [MarkController::class, 'marks_by_userid_and_weekid']);
     });
     ########End Mark########
 
@@ -118,6 +129,9 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/create', [RejectedMarkController::class, 'create']);
         Route::post('/show', [RejectedMarkController::class, 'show']);
         Route::post('/update', [RejectedMarkController::class, 'update']);
+        Route::get('/user', [RejectedMarkController::class, 'rejectedmarks_by_userid']);
+        Route::get('/week', [RejectedMarkController::class, 'rejectedmarks_by_weekid']);
+        Route::get('/user-week', [RejectedMarkController::class, 'rejectedmarks_by_userid_and_weekid']);
     });
     ########End RejectedMark ########
     #########UserException########
@@ -139,7 +153,7 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ############End Group############
     
-    ########Activity########
+    ########Start Activity########
     Route::group(['prefix'=>'activity'], function(){
         Route::get('/', [ActivityController::class, 'index']);
         Route::post('/create', [ActivityController::class, 'create']);
@@ -150,7 +164,7 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Activity########
 
-    ########End Article########
+    ########Start Article########
     Route::group(['prefix'=>'article'], function(){
         Route::get('/', [ArticleController::class, 'index']);
         Route::post('/create', [ArticleController::class, 'create']);
@@ -180,4 +194,48 @@ Route::middleware('auth:sanctum')->group( function () {
 
     });
     ########End Timeline ########
+
+    ########Start Infographic########
+    Route::group(['prefix'=>'infographic'], function(){
+        Route::get('/', [InfographicController::class, 'index']);
+        Route::post('/create', [InfographicController::class, 'create']);
+        Route::post('/show', [InfographicController::class, 'show']);
+        Route::post('/update', [InfographicController::class, 'update']);
+        Route::post('/delete', [InfographicController::class, 'delete']);
+    });
+    ########End Infographic ########
+
+    ########Start InfographicSeries########
+    Route::group(['prefix'=>'infographicSeries'], function(){
+        Route::get('/', [InfographicSeriesController::class, 'index']);
+        Route::post('/create', [InfographicSeriesController::class, 'create']);
+        Route::post('/show', [InfographicSeriesController::class, 'show']);
+        Route::post('/update', [InfographicSeriesController::class, 'update']);
+        Route::post('/delete', [InfographicSeriesController::class, 'delete']);
+    });
+    ########End InfographicSeries########    
+    ########Post########
+    Route::group(['prefix'=>'post'], function(){
+        Route::get('/', [PostController::class, 'index']);
+        Route::post('/create', [PostController::class, 'create']);
+        Route::post('/show', [PostController::class, 'show']);
+        Route::post('/update', [PostController::class, 'update']);
+        Route::post('/delete', [PostController::class, 'delete']);
+        Route::post('/postByTimelineId', [PostController::class, 'postByTimelineId']); 
+        Route::post('/postByUserId', [PostController::class, 'postByUserId']); 
+    });
+    ########End Post########
+
+    ########Poll-Vote########
+    Route::group(['prefix'=>'poll-vote'], function(){
+        Route::get('/', [PollVoteController::class, 'index']);
+        Route::post('/create', [PollVoteController::class, 'create']);
+        Route::post('/show', [PollVoteController::class, 'show']);
+        Route::post('/votesByPostId', [PollVoteController::class, 'votesByPostId']);
+        Route::post('/votesByAuthUser', [PollVoteController::class, 'votesByAuthUser']); 
+        Route::post('/votesByUserId', [PollVoteController::class, 'votesByUserId']);
+        Route::post('/update', [PollVoteController::class, 'update']);
+        Route::post('/delete', [PollVoteController::class, 'delete']);
+    });
+    ########End Poll-Vote########
 });

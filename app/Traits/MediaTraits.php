@@ -1,6 +1,8 @@
 <?php
 namespace App\Traits;
 use App\Models\Media;
+use App\Models\Reaction;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
@@ -21,7 +23,7 @@ Trait MediaTraits{
             $media->post_id = $type_id;
         }
         elseif($type == 'infographicSeries'){
-            $media->infographicSeries_id = $type_id;
+            $media->infographic_series_id = $type_id;
         }
         elseif($type == 'infographic'){
             $media->infographic_id = $type_id;
@@ -33,6 +35,13 @@ Trait MediaTraits{
             $media->group_id = $type_id;
         }
         $media->save();   
+        elseif($type == 'reaction'){
+            $media->reaction_id = $type_id;
+            $media->type = $type; 
+            
+        }
+         $media->save();
+         return $media;  
     }
 
     function updateMedia($media, $media_id){
