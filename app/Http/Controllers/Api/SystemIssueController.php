@@ -35,11 +35,7 @@ class SystemIssueController extends Controller
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
-            'reporter_id' => 'required|integer',
             'reporter_description' => 'required',
-            'reviewer_id' => 'integer|nullable',
-            'reviewer_note' => 'string|nullable',
-            'solved' => 'date|nullable',
         ]);
 
         if ($validator->fails()) {
@@ -60,33 +56,38 @@ class SystemIssueController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $issue = SystemIssue::find($request->issue_id);
-        if($issue){
-            return $this->jsonResponseWithoutMessage(new SystemIssueResource($issue), 'data',200);
+        if(Auth::user()->can('list systemIssue')){
+            $issue = SystemIssue::find($request->issue_id);
+            if($issue){
+                return $this->jsonResponseWithoutMessage(new SystemIssueResource($issue), 'data',200);
+            }
+            else {
+                throw new NotFound;
+            }
         }
         else{
-            throw new NotFound;
+            throw new NotAuthorized;
         }
     }
-
 
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'reporter_id' => 'required|integer',
-            'reporter_description' => 'required',
-            'reviewer_id' => 'required|integer', // required because only reviewer will update it
+            //'reporter_id' => 'required|integer', // Is this needed? only reviewer will update so shouldn't update id or description
+            //'reporter_description' => 'required', // Is this needed? only reviewer will update so shouldn't update id or description
             'reviewer_note' => 'required|string', // required because only reviewer will update it
             'solved' => 'required|date', // required because only reviewer will update it
         ]);
 
+        $input = $request->all();
+        $input['reviewer_id'] = Auth::id();
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         if(Auth::user()->can('update systemIssue')){
             $issue = SystemIssue::find($request->issue_id);
             if ($issue){
-                $issue->update($request->all());
+                $issue->update($input);
                 return $this->jsonResponseWithoutMessage("System Issue Updated Successfully", 'data', 200);
             }
             else {
