@@ -27,6 +27,4 @@ class Timeline extends Model
     }
     */
 
-    
-
 }

@@ -31,8 +31,11 @@ Trait MediaTraits{
         elseif($type == 'book'){
             $media->book_id = $type_id;
         }
-        //for reaction
-        else{
+        elseif($type == 'group'){
+            $media->group_id = $type_id;
+        }
+        $media->save();   
+        elseif($type == 'reaction'){
             $media->reaction_id = $type_id;
             $media->type = $type; 
             

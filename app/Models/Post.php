@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Timeline;
 
 class Post extends Model
 {
@@ -47,4 +48,6 @@ class Post extends Model
     public function activity(){
         return $this->hasOne( Activity::class, 'post_id' );
     }
+
+  
 }

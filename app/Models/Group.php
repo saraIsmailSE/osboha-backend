@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
+
 
 class Group extends Model
 {
@@ -14,12 +14,22 @@ class Group extends Model
         'name',
         'description',
         'type',
-        'cover_picture',
-        'creator_id'
+        'creator_id',
+        'timeline_id'
     ];
 
     public function User(){
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type');
     }
+
+    public function Timeline(){
+        return $this->belongsTo(Timeline::class);
+    }
+
+    public function medias()
+    {
+        return $this->hasOne(Media::class);
+    } 
+
 
 }

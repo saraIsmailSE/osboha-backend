@@ -25,6 +25,7 @@ class CreateMediaTable extends Migration
             $table->integer('infographic_series_id')->nullable();
             $table->integer('infographic_id')->nullable();
             $table->integer('book_id')->nullable();
+            $table->integer('group_id')->nullable();
             $table->timestamps();
         });
     }
