@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\MarkController;
 use App\Http\Controllers\Api\RejectedMarkController;
 use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Controllers\Api\GroupController;
+use App\Http\Controllers\Api\InfographicController;
+use App\Http\Controllers\Api\InfographicSeriesController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\FriendController;
@@ -151,7 +153,7 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ############End Group############
     
-    ########Activity########
+    ########Start Activity########
     Route::group(['prefix'=>'activity'], function(){
         Route::get('/', [ActivityController::class, 'index']);
         Route::post('/create', [ActivityController::class, 'create']);
@@ -162,7 +164,7 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Activity########
 
-    ########End Article########
+    ########Start Article########
     Route::group(['prefix'=>'article'], function(){
         Route::get('/', [ArticleController::class, 'index']);
         Route::post('/create', [ArticleController::class, 'create']);
@@ -193,6 +195,25 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Timeline ########
 
+    ########Start Infographic########
+    Route::group(['prefix'=>'infographic'], function(){
+        Route::get('/', [InfographicController::class, 'index']);
+        Route::post('/create', [InfographicController::class, 'create']);
+        Route::post('/show', [InfographicController::class, 'show']);
+        Route::post('/update', [InfographicController::class, 'update']);
+        Route::post('/delete', [InfographicController::class, 'delete']);
+    });
+    ########End Infographic ########
+
+    ########Start InfographicSeries########
+    Route::group(['prefix'=>'infographicSeries'], function(){
+        Route::get('/', [InfographicSeriesController::class, 'index']);
+        Route::post('/create', [InfographicSeriesController::class, 'create']);
+        Route::post('/show', [InfographicSeriesController::class, 'show']);
+        Route::post('/update', [InfographicSeriesController::class, 'update']);
+        Route::post('/delete', [InfographicSeriesController::class, 'delete']);
+    });
+    ########End InfographicSeries########    
     ########Post########
     Route::group(['prefix'=>'post'], function(){
         Route::get('/', [PostController::class, 'index']);
