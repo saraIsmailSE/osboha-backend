@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Traits\ResponseJson;
+use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
+use App\Http\Resources\BookResource;
 
 class BookController extends Controller
 {
@@ -20,10 +24,10 @@ class BookController extends Controller
     {
         $books = Book::all();
         if($books){
-            return $this->jsonResponseWithoutMessage($books, 'data',200);
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
         }
         else{
-           // throw new NotFound;
+            throw new NotFound;
         }
     }
 
@@ -51,7 +55,7 @@ class BookController extends Controller
             return $this->jsonResponseWithoutMessage("Book Craeted Successfully", 'data', 200);
         }
         else{
-            //throw new NotAuthorized;   
+            throw new NotAuthorized;   
         }
     }
 
@@ -67,10 +71,10 @@ class BookController extends Controller
 
         $book = Book::find($request->book_id);
         if($book){
-            return $this->jsonResponseWithoutMessage($book, 'data',200);
+            return $this->jsonResponseWithoutMessage(new BookResource($book), 'data',200);
         }
         else{
-           // throw new NotFound;
+            throw new NotFound;
         }
     }
 
@@ -97,11 +101,16 @@ class BookController extends Controller
         }
         if(Auth::user()->can('edit book')){
             $book = Book::find($request->book_id);
-            $book->update($request->all());
-            return $this->jsonResponseWithoutMessage("Book Updated Successfully", 'data', 200);
+            if($book){
+                $book->update($request->all());
+                return $this->jsonResponseWithoutMessage("Book Updated Successfully", 'data', 200);
+            }
+            else{
+                throw new NotFound;   
+            }
         }
         else{
-            //throw new NotAuthorized;   
+            throw new NotAuthorized;   
         }
         
     }
@@ -118,11 +127,16 @@ class BookController extends Controller
 
         if(Auth::user()->can('delete book')){
             $book = Book::find($request->book_id);
-            $book->delete();
-            return $this->jsonResponseWithoutMessage("Book Deleted Successfully", 'data', 200);
+            if($book){
+                $book->delete();
+                return $this->jsonResponseWithoutMessage("Book Deleted Successfully", 'data', 200);
+            }
+            else{
+                throw new NotFound;
+            }
         }
         else{
-            //throw new NotAuthorized;
+            throw new NotAuthorized;
         }
     }
 }

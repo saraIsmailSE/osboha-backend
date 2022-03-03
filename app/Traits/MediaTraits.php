@@ -1,6 +1,8 @@
 <?php
 namespace App\Traits;
 use App\Models\Media;
+use App\Models\Reaction;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 
@@ -29,7 +31,14 @@ Trait MediaTraits{
         elseif($type == 'book'){
             $media->book_id = $type_id;
         }
-        $media->save();   
+        //for reaction
+        else{
+            $media->reaction_id = $type_id;
+            $media->type = $type; 
+            
+        }
+         $media->save();
+         return $media;  
     }
 
     function updateMedia($media, $media_id){
