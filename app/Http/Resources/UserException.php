@@ -20,11 +20,8 @@ class UserException extends JsonResource
         'status'=> $this->start_at,
         'leader_note' => $this->leader_note,
         'advisor_note'=> $this->advisor_note,
-<<<<<<< HEAD
       // 'week_id' =>    new WeekResource($this->Week),
-=======
         // 'week_id' =>    new WeekResource($this->Week),
->>>>>>> d7e770301d78e18b70af47e1491e06b985916a6d
        // 'user_id' =>    new UserResource($this->User),
         
         ];

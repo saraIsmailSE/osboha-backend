@@ -34,14 +34,18 @@ Trait MediaTraits{
         elseif($type == 'group'){
             $media->group_id = $type_id;
         }
-        $media->save();   
         elseif($type == 'reaction'){
             $media->reaction_id = $type_id;
             $media->type = $type; 
             
         }
-         $media->save();
-         return $media;  
+        else{
+            return 'Type Npt Found';
+        }
+
+        
+        $media->save();
+        return $media;  
     }
 
     function updateMedia($media, $media_id){

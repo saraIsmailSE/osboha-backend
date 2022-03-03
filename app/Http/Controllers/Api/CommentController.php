@@ -70,10 +70,10 @@ class CommentController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'body' => 'required',
+            'body' => 'required_without:image',
             'user_id' => 'required',
             'comment_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048|required_without:body',
         ]);
         
         if ($validator->fails()) {
@@ -95,9 +95,9 @@ class CommentController extends Controller
                         // upload media
                         $this->createMedia($request->file('image'), $comment->id, 'comment');
                     }
-                } else {
-                    $comment->update($request->all());
                 }
+                $comment->update($request->all());
+            
                 return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
             }         
             else{
