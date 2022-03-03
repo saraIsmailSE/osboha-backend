@@ -19,7 +19,7 @@ use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
-
+use App\Http\Controllers\Api\FriendController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update', [RateController::class, 'update']);
         Route::post('/delete', [RateController::class, 'delete']);
 
+
     });
     ########End Rate########
     ########Reaction########
@@ -61,6 +62,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [ReactionController::class, 'show']);
         Route::post('/update', [ReactionController::class, 'update']);
         Route::post('/delete', [ReactionController::class, 'delete']);
+
 
     });
     ########End Reaction########
@@ -112,6 +114,9 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::get('/', [MarkController::class, 'index']);
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
+        Route::post('/user', [MarkController::class, 'marks_by_userid']);
+        Route::post('/week', [MarkController::class, 'marks_by_weekid']);
+        Route::post('/user-week', [MarkController::class, 'marks_by_userid_and_weekid']);
     });
     ########End Mark########
 
@@ -121,6 +126,9 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/create', [RejectedMarkController::class, 'create']);
         Route::post('/show', [RejectedMarkController::class, 'show']);
         Route::post('/update', [RejectedMarkController::class, 'update']);
+        Route::get('/user', [RejectedMarkController::class, 'rejectedmarks_by_userid']);
+        Route::get('/week', [RejectedMarkController::class, 'rejectedmarks_by_weekid']);
+        Route::get('/user-week', [RejectedMarkController::class, 'rejectedmarks_by_userid_and_weekid']);
     });
     ########End RejectedMark ########
     #########UserException########

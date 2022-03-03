@@ -1,88 +1,117 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Friend;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
+use App\Http\Resources\FriendResource;
+
 class FriendController extends Controller
-
-{
+{   
     use ResponseJson;
-public function index()
-{
-    $friend = Friend::all();
-    if($friend){
-        return $this->jsonResponseWithoutMessage($friend, 'data',200);
-    }
-    else{
-       // throw new NotFound;
-    }
-}
-
-public function create(Request $request){
-
-    $validator = Validator::make($request->all(), [
-        'user_id' => 'required',
-    ]);
-
-    if ($validator->fails()) {
-        return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-    }    
-        Friend::create($request->all());
-        return $this->jsonResponseWithoutMessage("Friend Created Successfully", 'data', 200);
-    }
-
-public function show(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'friend_id' => 'required',
-    ]);
-
-    if ($validator->fails()) {
-        return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-    }    
-
-    $friend = Friend::find($request->friend_id);
-    if($friend){
-        return $this->jsonResponseWithoutMessage($friend, 'data',200);
-    }
-    else{
-       // throw new NotFound;
-    }
-}
-
-public function update(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'friend_id' => 'required',
-        'user_id' => 'required',
-    ]);
-
-    if ($validator-> status == false) {
-        return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-    }
     
+    public function index()
+    {
+        $friends = Friend::where('user_id', Auth::id());
+        if ($friends) {
+            return $this->jsonResponseWithoutMessage($friends, 'data', 200);
+            //return $this->jsonResponseWithoutMessage(FriendResource::collection($friends), 'data', 200);
+        } 
+        else {
+            throw new NotFound;
+        }
+    }
 
-    $friend = Friend::find($request->friend_id);
-    $friend->update($request->all());
-    return $this->jsonResponseWithoutMessage("Friend status Updated Successfully", 'data', 200);
-}
+    public function create(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'friend_id' => 'required',
+        ]);
 
-public function delete(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'friend_id' => 'required',
-    ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $input = $request->all();
+        $input['user_id'] = Auth::id();
+        Friend::create($input);
+        return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
+    }
 
-    if ($validator->fails()) {
-        return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-    }  
+    public function show(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'friendship_id' => 'required',
+        ]);
 
-        $friend = Friend::find($request->friend_id);
-        $friend->delete();
-        return $this->jsonResponseWithoutMessage("friend Deleted Successfully", 'data', 200);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $friend = Friend::find($request->Friendship);
+        if ($friend) {
+            return $this->jsonResponseWithoutMessage($friend, 'data', 200);
+            //return $this->jsonResponseWithoutMessage(new FriendResource($friend), 'data', 200);
+        } else {
+            throw new NotFound;
+        }
+    }
+
+    public function update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'friendship_id' => 'required',
+            'status' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }    
+
+        $friendship = Friend::find($request->friendship_id);
+        if($friendship){
+            if(Auth::id() == $friendship->user_id){
+                $friendship->update($request->all());
+                return $this->jsonResponseWithoutMessage("Friendship Updated Successfully", 'data', 200);
+            }
+            else{
+                throw new NotAuthorized;   
+            }
+        }
+        else{
+            throw new NotFound;   
+        }
+    
+    }
+
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'friendship_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $friendship = Friend::find($request->friendship_id);
+        if ($friendship) {
+            if (Auth::id() == $friendship->user_id) {
+                $friendship->delete();
+                return $this->jsonResponseWithoutMessage("Friendship Deleted Successfully", 'data', 200);
+            } else {
+                throw new NotAuthorized;
+            }
+        } 
+        else {
+            throw new NotFound;
+        }
+        
+        
     }
 }
