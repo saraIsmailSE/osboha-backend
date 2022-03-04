@@ -9,8 +9,9 @@ use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use App\Http\Resources\socialMediaResource ;
 use App\Models\SocialMedia;
-use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Exceptions\NotAuthorized;
+
 
 class SocialMediaController extends Controller
 {

@@ -12,8 +12,9 @@ use App\Http\Resources\timelineResource ;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
-use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Exceptions\NotAuthorized;
+
 
 
 class TimelineController extends Controller
