@@ -22,8 +22,9 @@ class PollVoteController extends Controller
    
     public function index()
     {
-            $votes = PollVote::all();
-            if($votes){
+            //$votes = PollVote::all();
+            $votes = PollVote::where('user_id', Auth::id())->get();
+            if($votes->isNotEmpty()){
                 return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data',200);
             }
             else{
@@ -43,8 +44,8 @@ class PollVoteController extends Controller
 
         $input = $request->all();
         $input['user_id'] = Auth::id();
-        $option = $request->option;
-            $input['option'] = serialize($option);
+        $input['option'] = serialize($request->option);
+
         PollVote::create($input);
         return $this->jsonResponseWithoutMessage("Vote Created Successfully", 'data', 200);
     }
@@ -75,7 +76,7 @@ class PollVoteController extends Controller
         //find votes belong to post_id
         $votes = PollVote::where('post_id', $post_id)->get();
 
-        if($votes){
+        if($votes->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
         }else{
             throw new NotFound();
@@ -113,17 +114,19 @@ class PollVoteController extends Controller
             'user_id' => 'required',
             'post_id' => 'required',
             'option' => 'required',
-            'poll_vote_id' => 'required'
+            'poll_votes_id' => 'required'
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $vote = PollVote::find($request->poll_vote_id);
+        $vote = PollVote::find($request->poll_votes_id);
         if($vote){
             if(Auth::id() == $vote->user_id){
-                $vote->update($request->all());
+                $input = $request->all();
+                $input['option'] = serialize($request->option);
+                $vote->update($input);
                 return $this->jsonResponseWithoutMessage("Vote Updated Successfully", 'data', 200);
             }
             else{

@@ -19,11 +19,11 @@ class CreatePostsTable extends Migration
             $table->integer('user_id');
             $table->integer('timeline_id');
             $table->string('type');
-            $table->boolean('allow_comments')->default(1);
+            $table->boolean('allow_comments')->default(1)->nullable();
             $table->text('tag')->nullable();
             $table->text('vote')->nullable();
             $table->date('is_approved')->nullable();
-            $table->boolean('is_pinned')->default(0);
+            $table->boolean('is_pinned')->default(0)->nullable();
             $table->timestamps();
         });
     }
