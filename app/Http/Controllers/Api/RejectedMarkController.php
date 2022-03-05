@@ -23,10 +23,10 @@ class RejectedMarkController extends Controller
 
     public function index()
     {
-        $current_week = Week::latest()->first();
-        $rejected_marks = RejectedMark::where('week_id', $current_week->id)->get();
-        
         if(Auth::user()->can('audit mark')){
+            $current_week = Week::latest()->first();
+            $rejected_marks = RejectedMark::where('week_id', $current_week->id)->get();
+        
             if($rejected_marks){
                 return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
             }
@@ -44,8 +44,8 @@ class RejectedMarkController extends Controller
             'rejecter_note' => 'required', 
             'user_id' => 'required',
             'thesis_id' => 'required', 
-            'week_id' => 'required', 
-            'rejecter_id' => 'required'
+            'week_id' => 'required',
+            'rejecter_id' => Auth::id()
         ]);
 
         if ($validator->fails()) {
@@ -94,7 +94,7 @@ class RejectedMarkController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if(Auth::user()->can('reject mark')){
+        if(Auth::user()->can('audit mark')){
             $rejected_mark = RejectedMark::find($request->rejected_mark_id);
             if($rejected_mark){
                 $rejected_mark->update($request->all());
@@ -109,16 +109,19 @@ class RejectedMarkController extends Controller
         }
     } 
 
-    public function rejectedmarks_by_userid(Request $request){
+    public function list_user_marks(Request $request){
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
+            'week_id' => 'nullable'
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if(Auth::user()->can('audit mark')){
+        if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
+            & $request->week_id == null)
+        {
             $rejected_marks = RejectedMark::where('user_id', $request->user_id)->get();
             if($rejected_marks){
                 return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
@@ -127,45 +130,9 @@ class RejectedMarkController extends Controller
                 throw new NotFound;
             }
         } 
-        else{
-            throw new NotAuthorized;   
-        }    
-    }
-
-    public function rejectedmarks_by_weekid(Request $request){
-        $validator = Validator::make($request->all(), [
-            'week_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        if(Auth::user()->can('audit mark')){
-            $rejected_marks = RejectedMark::where('week_id', $request->week_id)->get();
-            if($rejected_marks){
-                return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
-            }
-            else{
-                throw new NotFound;
-            }
-        } 
-        else{
-            throw new NotAuthorized;   
-        }
-    }
-
-    public function rejectedmarks_by_userid_and_weekid(Request $request){
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'week_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        if(Auth::user()->can('audit mark')){
+        else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
+                & $request->week_id != null)
+        {
             $rejected_marks = RejectedMark::where('user_id', $request->user_id)
                                             ->where('week_id', $request->week_id)->get();
             if($rejected_marks){
@@ -174,9 +141,57 @@ class RejectedMarkController extends Controller
             else{
                 throw new NotFound;
             }
-        } 
+        }
         else{
             throw new NotAuthorized;   
-        }
+        }    
     }
+
+    // public function rejectedmarks_by_weekid(Request $request){
+    //     $validator = Validator::make($request->all(), [
+    //         'week_id' => 'required',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+    //     }
+
+    //     if(Auth::user()->can('audit mark')){
+    //         $rejected_marks = RejectedMark::where('week_id', $request->week_id)->get();
+    //         if($rejected_marks){
+    //             return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
+    //         }
+    //         else{
+    //             throw new NotFound;
+    //         }
+    //     } 
+    //     else{
+    //         throw new NotAuthorized;   
+    //     }
+    // }
+
+    // public function rejectedmarks_by_userid_and_weekid(Request $request){
+    //     $validator = Validator::make($request->all(), [
+    //         'user_id' => 'required',
+    //         'week_id' => 'required',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+    //     }
+
+    //     if(Auth::user()->can('audit mark')){
+    //         $rejected_marks = RejectedMark::where('user_id', $request->user_id)
+    //                                         ->where('week_id', $request->week_id)->get();
+    //         if($rejected_marks){
+    //             return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
+    //         }
+    //         else{
+    //             throw new NotFound;
+    //         }
+    //     } 
+    //     else{
+    //         throw new NotAuthorized;   
+    //     }
+    // }
 }

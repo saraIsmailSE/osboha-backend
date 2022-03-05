@@ -24,10 +24,10 @@ class MarkController extends Controller
 
     public function index()
     {
-        $current_week = Week::latest()->first();
-        $marks = Mark::where('week_id', $current_week->id)->get();
-        
         if(Auth::user()->can('audit mark')){
+            $current_week = Week::latest()->first();
+            $marks = Mark::where('week_id', $current_week->id)->get();
+        
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
             }
@@ -93,16 +93,19 @@ class MarkController extends Controller
         }
     }
 
-    public function marks_by_userid(Request $request){
+    public function list_user_marks(Request $request){
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
+            'week_id' => 'nullable'
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-        if(Auth::user()->can('audit mark')){
+        if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
+            & $request->week_id == null)
+        {
             $marks = Mark::where('user_id', $request->user_id)->get();
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
@@ -110,56 +113,68 @@ class MarkController extends Controller
             else{
                 throw new NotFound;
             }
-        } 
-        else{
-            throw new NotAuthorized;   
         }
-    }
-
-    public function marks_by_weekid(Request $request){
-        $validator = Validator::make($request->all(), [
-            'week_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        if(Auth::user()->can('audit mark')){
-            $marks = Mark::where('week_id', $request->week_id)->get();
-            if($marks){
-                return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
-            }
-            else{
-                throw new NotFound;
-            }
-        } 
-        else{
-            throw new NotAuthorized;   
-        }
-    }
-
-    public function marks_by_userid_and_weekid(Request $request){
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'week_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        if(Auth::user()->can('audit mark')){
+        else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
+                & $request->week_id != null)
+        {
             $marks = Mark::where('user_id', $request->user_id)
-                        ->where('week_id', $request->week_id)->get();
+                            ->where('week_id', $request->week_id)->get();
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
             }
             else{
                 throw new NotFound;
             }
-        } else{
+        }
+        else{
             throw new NotAuthorized;   
         }
     }
+
+    // public function marks_by_weekid(Request $request){
+    //     $validator = Validator::make($request->all(), [
+    //         'week_id' => 'required',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+    //     }
+
+    //     if(Auth::user()->can('audit mark')){
+    //         $marks = Mark::where('week_id', $request->week_id)->get();
+    //         if($marks){
+    //             return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+    //         }
+    //         else{
+    //             throw new NotFound;
+    //         }
+    //     } 
+    //     else{
+    //         throw new NotAuthorized;   
+    //     }
+    // }
+
+    // public function marks_by_userid_and_weekid(Request $request){
+    //     $validator = Validator::make($request->all(), [
+    //         'user_id' => 'required',
+    //         'week_id' => 'required',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+    //     }
+
+    //     if(Auth::user()->can('audit mark')){
+    //         $marks = Mark::where('user_id', $request->user_id)
+    //                     ->where('week_id', $request->week_id)->get();
+    //         if($marks){
+    //             return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+    //         }
+    //         else{
+    //             throw new NotFound;
+    //         }
+    //     } else{
+    //         throw new NotAuthorized;   
+    //     }
+    // }
 }
