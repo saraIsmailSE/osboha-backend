@@ -32,7 +32,6 @@ class ReactionController extends Controller
     public function create(Request $request){
         $validator = Validator::make($request->all(), [
             'reaction_id' => 'required_without_all:media,type',
-            'media_id'    => 'required_without_all:media,type',
             'comment_id'  => 'required_without_all:post_id,media,type',
             'post_id'     => 'required_without_all:comment_id,media,type',
             'media'       => 'required_if:reaction_id,==,0',
@@ -53,13 +52,13 @@ class ReactionController extends Controller
         else
         {
             if(Auth::user()->can('create reaction')){
-                $input_media = $request->all();
-                // upload media
-                $input = $this->createMedia($request->file('media'),0,$request['type']);
                 $inputReaction['reaction_id']= 0;
-                $inputReaction['media_id'] = $input->id;
                 $inputReaction['user_id']= Auth::id();
-                Reaction::create($inputReaction);
+                $reaction = Reaction::create($inputReaction);
+                if($reaction){
+                // upload media
+                $input = $this->createMedia($request->file('media'),$reaction->id,'reaction');
+                }
                 return $this->jsonResponseWithoutMessage("Media and Reaction Craeted Successfully", 'data', 200);
             }
             else{
@@ -92,7 +91,7 @@ class ReactionController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'media_id'   => 'required',
+            'reaction_id'   => 'required',
             'comment_id' => 'required_without:post_id',
             'post_id'    => 'required_without:comment_id',
         ]);
