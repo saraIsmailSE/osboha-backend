@@ -74,7 +74,7 @@ class SocialMediaController extends Controller
     
         if($request->user_id == Auth::id()){
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
-            if (){
+            if ($socialMedia){
                 $socialMedia->update($request->all());
                 return $this->jsonResponseWithoutMessage("Your Accounts Are Updated Successfully", 'data', 200);
             } else {
