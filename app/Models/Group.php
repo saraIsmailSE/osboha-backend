@@ -22,6 +22,7 @@ class Group extends Model
         return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type');
     }
 
+
     public function Timeline(){
         return $this->belongsTo(Timeline::class);
     }
