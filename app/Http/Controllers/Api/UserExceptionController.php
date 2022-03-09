@@ -24,6 +24,7 @@ use Spatie\Permission\PermissionRegistrar;
  *
  * Methods:
  *  - CRU only
+ *  - revoke: Delete
  *  - getMonth
  * 
  */
@@ -53,14 +54,15 @@ class UserExceptionController extends Controller
                             ->get();
 
                 return $this->jsonResponseWithoutMessage(
-                    UserExceptionResource::collection($userException),
-                        'data', 200
-                        );
+                        UserExceptionResource::collection($userException),
+                            'data', 200
+                            );
             }
 
          if(Auth::user()->hasRole(['leader','supervisor','advisor'])){
 
             $group=Group::with('User')->find($request->group_id);
+
             if($user->user_type!="ambassador"){
                 foreach($group->User as $item){
                     $ids[]=[
@@ -73,8 +75,9 @@ class UserExceptionController extends Controller
                             ->get();
                 
                 return $this->jsonResponseWithoutMessage(
-                new UserExceptionResource($userException),'data', 200
-                );
+                        UserExceptionResource::collection($userException),
+                            'data', 200
+                            );
         
             }//end if not ambassador
             else{
@@ -133,14 +136,20 @@ class UserExceptionController extends Controller
         
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
-
-        $userException=UserException::where('user_id',Auth::id())->find($request->exception_id);
-        
-        if($userException){ 
-        return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException),'data', 200);
         }
 
+        $userException=UserException::find($request->exception_id);
+        
+        if($userException){ 
+            if(Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader','supervisor','advisor'])){
+             return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException),'data', 200);
+            }
+
+            else{
+                throw new NotAuthorized;
+            }
+        }
+        
         else{
             throw new NotFound;
          }
@@ -185,13 +194,46 @@ class UserExceptionController extends Controller
         }
     }
 
+
+    /**
+     * revoke the userexception if its not approved
+     */
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'exception_id' => 'required',
+        ]);
+
+        $userException=UserException::find($request->exception_id);
+     
+        if(Auth::id() == $userException->user_id){
+            if($userException->leader_note== null ||$userException->advisor_note == null){
+                $userException->delete();
+                return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200);
+            }
+
+            if(Auth::user()->hasRole(['leader','supervisor','advisor'])){
+                $userException->delete();
+                return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200); 
+            }
+    
+            else{
+                throw new NotAuthorized;
+            }
+        }//end if Auth
+
+        else{
+            throw new NotAuthorized;
+        }
+    }
+
+    /**
+     * return the current month
+     */
     public function getMonth()
     {
         $currentMonth=Carbon::now();
         return $currentMonth->month;
     }
-
-
-
 }
 

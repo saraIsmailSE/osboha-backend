@@ -120,14 +120,16 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update', [RejectedMarkController::class, 'update']);
     });
     ########End RejectedMark ########
-    // #########UserException########
-    // Route::group(['prefix' => 'userexception'], function(){
-    //     Route::get('/',[UserExceptionController::class,'index']);
-    //     Route::post('/create',[UserExceptionController::class,'create']);
-    //     Route::get('/show',[UserExceptionController::class,'show']);
-    //     Route::post('/update',[UserExceptionController::class,'update']);
-    // });
-    // ############End UserException########
+
+    #########UserException########
+    Route::group(['prefix' => 'userexception'], function(){
+        Route::get('/',[UserExceptionController::class,'index']);
+        Route::post('/create',[UserExceptionController::class,'create']);
+        Route::get('/show',[UserExceptionController::class,'show']);
+        Route::post('/update',[UserExceptionController::class,'update']);
+        Route::post('/delete',[UserExceptionController::class,'delete']);
+    });
+     ############End UserException########
     
     ############Group############
     Route::group(['prefix' => 'group'], function(){
@@ -182,11 +184,3 @@ Route::middleware('auth:sanctum')->group( function () {
     ########End Timeline ########
 });
 
-    #########UserException########
-    Route::group(['prefix' => 'userexception'], function(){
-        Route::get('/',[UserExceptionController::class,'index']);
-        Route::post('/create',[UserExceptionController::class,'create']);
-        Route::get('/show',[UserExceptionController::class,'show']);
-        Route::post('/update',[UserExceptionController::class,'update']);
-    });
-    ############End UserException########
