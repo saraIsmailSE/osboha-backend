@@ -79,6 +79,7 @@ class SystemIssueController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'issue_id' => 'required',
             'reviewer_note' => 'required|string',
         ]);
 

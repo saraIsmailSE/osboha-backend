@@ -115,6 +115,7 @@ class TransactionController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'transaction_id' => 'required',
             'termination_reason' => 'required', // Admin will be able to enter the reason ONLY ONCE and won't be able to update it as this will update the termination_date
         ]);
 
