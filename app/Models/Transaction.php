@@ -13,8 +13,7 @@ class Transaction extends Model
         'role_id',
         'hiring_date',
         'termination_date',
-        'status',
-        'solved',
+        'termination_reason',
     ];
 
     public function user() {

@@ -20,7 +20,8 @@ class SystemIssueController extends Controller
     {
         if(Auth::user()->can('list systemIssue')){
             $issues = SystemIssue::all();
-            if($issues){
+
+            if($issues->isNotEmpty()){
                 return $this->jsonResponseWithoutMessage(SystemIssueResource::collection($issues), 'data',200);
             }
             else {
@@ -78,8 +79,7 @@ class SystemIssueController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            //'reporter_id' => 'required|integer', // Is this needed? only reviewer will update so shouldn't update id or description
-            //'reporter_description' => 'required', // Is this needed? only reviewer will update so shouldn't update id or description
+            'issue_id' => 'required',
             'reviewer_note' => 'required|string',
         ]);
 
@@ -87,13 +87,15 @@ class SystemIssueController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        // Set reviewer_id to logged-in user & solved to today's date
         $input = $request->all();
+        // Set reviewer_id to logged-in user & solved to today's date
         $input['reviewer_id'] = Auth::id();
         $input['solved'] = date('Y-m-d');
 
         if(Auth::user()->can('update systemIssue')){
+
             $issue = SystemIssue::find($request->issue_id);
+
             if ($issue){
                 $issue->update($input);
                 return $this->jsonResponseWithoutMessage("System Issue Updated Successfully", 'data', 200);

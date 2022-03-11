@@ -18,7 +18,7 @@ class CreateTransactionsTable extends Migration
             $table->integer('user_id');
             $table->integer('role_id');
             $table->date('hiring_date');
-            $table->date('termination_date');
+            $table->date('termination_date')->nullable();
             $table->text('termination_reason')->nullable();
             $table->timestamps();
         });
