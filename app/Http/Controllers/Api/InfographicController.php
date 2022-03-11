@@ -43,7 +43,7 @@ class InfographicController extends Controller
             'title' => 'required', 
             'designer_id' => 'required',
             'section' => 'required',  
-            'media' => 'required',          
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
         ]);
 
         if($validator->fails()){
@@ -57,7 +57,7 @@ class InfographicController extends Controller
             $infographic = Infographic::create($request->all()); 
 
             //create media for infographic 
-            $this->createMedia($request->media, $infographic->id, 'infographic');
+            $this->createMedia($request->file('image'), $infographic->id, 'infographic');
 
             //success response after creating the article
             return $this->jsonResponse(new InfographicResource($infographic), 'data', 200, 'Infographic Created Successfully');
@@ -103,7 +103,7 @@ class InfographicController extends Controller
             'designer_id'    => 'required',            
             'section'    => 'required',
             'infographic_id' => 'required',
-            'media' => 'required',            
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
         ]);
 
         if($validator->fails()){
@@ -123,7 +123,7 @@ class InfographicController extends Controller
             $infographicMedia = Media::where('infographic_id', $infographic->id)->first();
 
             //update media
-            $this->updateMedia($request->media, $infographicMedia->id);
+            $this->updateMedia($request->file('image'), $infographicMedia->id);
 
             //success response after update
             return $this->jsonResponse(new InfographicResource($infographic), 'data', 200,'Infographic Updated Successfully');
