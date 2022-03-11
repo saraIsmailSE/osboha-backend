@@ -23,7 +23,7 @@ use Spatie\Permission\PermissionRegistrar;
  * UserExceptionController to create exception for user
  *
  * Methods:
- *  - CRU only
+ *  - CRU
  *  - revoke: Delete
  *  - getMonth
  * 
@@ -41,13 +41,11 @@ class UserExceptionController extends Controller
     
     public function index(Request $request)
     { 
-        
         $user=UserGroup::where('group_id',$request->group_id)
             ->where('user_id',Auth::id())
             ->first();
-
-        if($user){
-
+     
+        if($user){    
          if($user->user_type == 'ambassador'){
             $userException=UserException::where('user_id',Auth::id())
                             ->whereMonth('created_at',$this->getMonth())
@@ -60,20 +58,17 @@ class UserExceptionController extends Controller
             }
 
          if(Auth::user()->hasRole(['leader','supervisor','advisor'])){
-
             $group=Group::with('User')->find($request->group_id);
-
             if($user->user_type!="ambassador"){
                 foreach($group->User as $item){
                     $ids[]=[
                         'user_id' => $item->id
                     ];
                 }
-        
                 $userException=UserException::whereIn('user_id',$ids)
                             ->whereMonth('created_at',$this->getMonth())
                             ->get();
-                
+            
                 return $this->jsonResponseWithoutMessage(
                         UserExceptionResource::collection($userException),
                             'data', 200
@@ -117,10 +112,9 @@ class UserExceptionController extends Controller
           return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-    
         $input['user_id']= Auth::id();
         $userException= UserException::create($input);
-        return $this->jsonResponseWithoutMessage("User Exception Craeted", 'data', 200);
+        return $this->jsonResponseWithoutMessage("User Exception Created", 'data', 200);
     }
     /**
      * Display the details of specified user exception
@@ -141,14 +135,15 @@ class UserExceptionController extends Controller
         $userException=UserException::find($request->exception_id);
         
         if($userException){ 
-            if(Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader','supervisor','advisor'])){
+            if(Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader','supervisor','advisor']))
+            {
              return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException),'data', 200);
             }
 
             else{
                 throw new NotAuthorized;
             }
-        }
+        }//end if $userexception
         
         else{
             throw new NotFound;
@@ -194,9 +189,8 @@ class UserExceptionController extends Controller
         }
     }
 
-
     /**
-     * revoke the userexception if its not approved
+     * revoke the userexception if still not reviewed by leader and advisor
      */
     public function delete(Request $request)
     {
@@ -207,22 +201,16 @@ class UserExceptionController extends Controller
         $userException=UserException::find($request->exception_id);
      
         if(Auth::id() == $userException->user_id){
-            if($userException->leader_note== null ||$userException->advisor_note == null){
+            if($userException->leader_note== null && $userException->advisor_note == null){
                 $userException->delete();
                 return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200);
             }
-
-            if(Auth::user()->hasRole(['leader','supervisor','advisor'])){
-                $userException->delete();
-                return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200); 
-            }
-    
-            else{
+            else {
                 throw new NotAuthorized;
             }
         }//end if Auth
 
-        else{
+        else {
             throw new NotAuthorized;
         }
     }
@@ -236,4 +224,3 @@ class UserExceptionController extends Controller
         return $currentMonth->month;
     }
 }
-

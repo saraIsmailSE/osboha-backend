@@ -183,4 +183,3 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Timeline ########
 });
-
