@@ -95,8 +95,8 @@ class MarkController extends Controller
 
     public function list_user_mark(Request $request){
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'week_id' => 'nullable'
+            'user_id' => 'required_without:week_id',
+            'week_id' => 'required_without:user_id'
         ]);
 
         if ($validator->fails()) {
@@ -104,9 +104,10 @@ class MarkController extends Controller
         }
         
         if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
-            & $request->week_id == null)
+            && $request->has('week_id') && $request->has('user_id'))
         {
-            $marks = Mark::where('user_id', $request->user_id)->get();
+            $marks = Mark::where('user_id', $request->user_id)
+                        ->where('week_id', $request->week_id)->get();
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
             }
@@ -115,12 +116,22 @@ class MarkController extends Controller
             }
         } 
         else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
-                & $request->week_id != null)
+                && $request->has('week_id'))
         {
-            $marks = Mark::where('user_id', $request->user_id)
-                ->where('week_id', $request->week_id)->get();
+            $marks = Mark::where('week_id', $request->week_id)->get();
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
+            }
+            else{
+                throw new NotFound;
+            }
+        }
+        else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
+                && $request->has('user_id'))
+        {
+            $mark = Mark::where('user_id', $request->user_id)->latest()->first();
+            if($mark){
+                return $this->jsonResponseWithoutMessage(new MarkResource($mark), 'data',200);
             }
             else{
                 throw new NotFound;

@@ -127,7 +127,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/create', [RejectedMarkController::class, 'create']);
         Route::post('/show', [RejectedMarkController::class, 'show']);
         Route::post('/update', [RejectedMarkController::class, 'update']);
-        Route::get('/list', [RejectedMarkController::class, 'list_user_mark']);
+        Route::post('/list', [RejectedMarkController::class, 'list_user_mark']);
     });
     ########End RejectedMark ########
     #########UserException########
