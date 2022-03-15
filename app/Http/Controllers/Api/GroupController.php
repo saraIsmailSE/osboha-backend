@@ -146,10 +146,11 @@ class GroupController extends Controller
           }
 
         $group=Group::find($request->group_id);  
+        $user=UserGroup::find($request->group_id);
 
         if($group){
 
-            if(Auth::user()->can('edit group'))
+            if(Auth::user()->can('edit group')||$user->user_type!="ambassador")
             {
                 if($request->hasFile('image'))
                 {
