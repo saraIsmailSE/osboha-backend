@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
+use App\Models\UserGroup;
 use Spatie\Permission\Models\Role;
 
 class TransactionController extends Controller
@@ -55,7 +56,14 @@ class TransactionController extends Controller
             $user = User::find($request->user_id);
             $role = Role::find($request->role_id);
             $user->assignRole($role);
-
+           
+            //join group -- Asmaa
+            UserGroup::create([
+                'user_id' => $request->user_id,
+                'group_id' => $request->group_id,
+                'user_type' => $role
+            ]
+            );
             Transaction::create($input);
 
             return $this->jsonResponseWithoutMessage("Transaction Created Successfully", 'data', 200);
@@ -141,6 +149,11 @@ class TransactionController extends Controller
                 $user = User::find($user_id);
                 $role = Role::find($role_id);
                 $user->removeRole($role);
+
+                //remove from group -- Asmaa
+                $user_group = UserGroup::where('user_id', $user_id)->where('user_type', $role->name)->get();
+                
+                $user_group->delete(); //remove user from group
 
                 // Update termination details
                 $transaction->update($input);
