@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Group as GroupResource;
+use App\Http\Resources\GroupResource;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\Media;
@@ -169,7 +169,7 @@ class GroupController extends Controller
                 return $this->jsonResponseWithoutMessage("Group Updated", 'data', 200); 
             }//endif Auth
 
-            else{
+            else {
              throw new NotAuthorized;   
              }
         }//end if group found
@@ -213,7 +213,7 @@ class GroupController extends Controller
         }
     }
 
-    //the function will return all groups - discuss it later
+    //the function will return all posts - discuss it later
     public function list_group_posts($group_id)
     {
 
