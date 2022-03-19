@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Http\Request;
 use App\Models\Friend;
 use Illuminate\Support\Facades\Validator;
@@ -11,6 +12,8 @@ use App\Traits\ResponseJson;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\FriendResource;
+use App\Notifications\FriendRelationshipNotification;
+
 
 class FriendController extends Controller
 {   
@@ -40,6 +43,11 @@ class FriendController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::id();
         Friend::create($input);
+
+        $msg = "You have new friend request";
+        (new NotificationController)->sendNotification($request->friend_id , $msg);
+
+
         return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
     }
 

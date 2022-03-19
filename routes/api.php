@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\InfographicSeriesController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -234,4 +235,16 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PollVoteController::class, 'delete']);
     });
     ########End Poll-Vote########
+
+    ####### Notification ########
+    Route::group(['prefix'=>'notifications'], function(){
+        Route::get('/listAll', [NotificationController::class, 'listAllNotification']);
+        Route::get('/unRead', [NotificationController::class, 'listUnreadNotification']);
+        Route::get('/makeAllAsRead', [NotificationController::class, 'markAllNotificationAsRead']);
+        Route::post('/makeOneAsRead', [NotificationController::class, 'markOneNotificationAsRead']);
+        
+    });
+    ######## End Notification ########
+
 });
+
