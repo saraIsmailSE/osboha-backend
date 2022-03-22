@@ -69,6 +69,7 @@ class PostController extends Controller
 
                 if($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader"){
                     $input['is_approved'] = null;
+                    echo 'waiting for the leader approval'; 
                 }
                 }
                 
@@ -97,7 +98,6 @@ class PostController extends Controller
         }
         else{
             throw new NotAuthorized; 
-            echo 'waiting for the leader approval'; 
         }
 }
 

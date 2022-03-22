@@ -18,7 +18,7 @@ class ProfileSettingController extends Controller
 {
     use ResponseJson, MediaTraits;
 
-    public function show(Request $request)
+    public function show()
     {
         //Profile Settings belong to Auth user
         $settings = ProfileSetting::where('user_id', Auth::id())->get();
@@ -43,24 +43,9 @@ class ProfileSettingController extends Controller
         $setting = ProfileSetting::find($request->profile_setting_id);
         if($setting){
             if(Auth::id() == $setting->user_id){
-               
-                if($request->hasFile('image')){
-                    // if profile setting has media
-                    //check Media
-                    $currentMedia= Media::where('profile_setting_id', $setting->id)->first();
-                    // if exists, update
-                    if($currentMedia){
-                        $this->updateMedia($request->file('image'), $currentMedia->id);
-                    }
-                    //else create new one
-                    else {
-                        // upload media
-                        $this->createMedia($request->file('image'), $setting->id, 'profile setting');
-                    }
-                } 
                 $setting->update($request->all());
                 return $this->jsonResponseWithoutMessage("Profile Settings Updated Successfully", 'data', 200);
-            }         
+                }          
             else{
                 throw new NotAuthorized;   
             }
