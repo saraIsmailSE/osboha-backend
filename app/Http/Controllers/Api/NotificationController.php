@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Validator;
-use App\Notifications\FriendRelationshipNotification;
+use App\Notifications\AllNotification;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Exceptions\NotFound;
@@ -25,14 +25,14 @@ class NotificationController extends Controller
     {
         $reciver = User::where('id',$reciver_id)->first();  
         $sender = User::where('id',Auth::id())->first();  
-        $reciver->notify(new FriendRelationshipNotification($sender,$message));
+        $reciver->notify(new AllNotification($sender,$message));
     }
 
     public function listAllNotification() 
     {
         $notifications = auth()->user()->notifications()->latest()->limit(20)->get();
     
-        if ($notifications){
+        if (!empty($notifications["data"])){
             return $this->jsonResponseWithoutMessage($notifications, 'data',200);
         } else {
             throw new NotFound;
@@ -43,17 +43,18 @@ class NotificationController extends Controller
     {
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
 
-        if ($unreadNotifications){
+        if (!empty($unreadNotifications["data"])){
             return $this->jsonResponseWithoutMessage($unreadNotifications,'data',200);
         } else {
             throw new NotFound;
+
         }
     }
 
     public function markAllNotificationAsRead() 
     {
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
-        if ($unreadNotifications){
+        if (!empty($unreadNotifications["data"])){
             foreach ($unreadNotifications as $unreadNotification) {
                 $unreadNotification->markAsRead();
             }
@@ -72,7 +73,7 @@ class NotificationController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $notification = auth()->user()->notifications()->where('id', $request->notification_id)->first();
-        if ($notification) {
+        if (!empty($notification["data"])) {
             $notification->markAsRead();
             return $this->jsonResponseWithoutMessage('Done','data',200);
         } else {

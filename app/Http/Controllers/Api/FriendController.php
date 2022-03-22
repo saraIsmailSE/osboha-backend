@@ -12,7 +12,6 @@ use App\Traits\ResponseJson;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\FriendResource;
-use App\Notifications\FriendRelationshipNotification;
 
 
 class FriendController extends Controller
