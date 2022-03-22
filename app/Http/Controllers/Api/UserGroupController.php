@@ -85,7 +85,8 @@ class UserGroupController extends Controller
             'user_id' => 'required',
             'group_id' => 'required',
             'user_type' => 'required', 
-            'user_group_id' => 'required',       
+            'user_group_id' => 'required',
+            'termination_reason' => 'required'       
         ]); 
         
         if($validator->fails()){
