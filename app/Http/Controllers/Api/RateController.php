@@ -29,9 +29,10 @@ class RateController extends Controller
     }
     public function create(Request $request){
         $validator = Validator::make($request->all(), [
-            'rate' => 'required',
-            'comment_id' => 'required_without:post_id',
             'post_id' => 'required_without:comment_id',
+            'comment_id' => 'required_without:post_id',
+            'rate' => 'required',
+
         ]);
 
         if ($validator->fails()) {
@@ -73,7 +74,6 @@ class RateController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        echo Auth::id();
         if($request->has('comment_id'))
          $rate = Rate::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
         else if($request->has('post_id'))
