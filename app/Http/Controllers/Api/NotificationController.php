@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Validator;
-use App\Notifications\AllNotification;
+use App\Notifications\GeneralNotification;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Exceptions\NotFound;
@@ -25,7 +25,7 @@ class NotificationController extends Controller
     {
         $reciver = User::where('id',$reciver_id)->first();  
         $sender = User::where('id',Auth::id())->first();  
-        $reciver->notify(new AllNotification($sender,$message));
+        $reciver->notify(new GeneralNotification($sender,$message));
     }
 
     public function listAllNotification() 

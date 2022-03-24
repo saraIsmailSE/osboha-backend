@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AllNotification extends Notification
+class GeneralNotification extends Notification
 {
     use Queueable;
     protected $user;
