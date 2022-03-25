@@ -19,6 +19,7 @@ class CreateUserGroupsTable extends Migration
             $table->integer('group_id');
             // user_type could be (ambassador - leader - supervisor - advisor)
             $table->string('user_type');
+            $table->text('termination_reason')->nullable(); //asmaa
             $table->timestamps();
         });
     }

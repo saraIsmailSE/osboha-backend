@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserException as UserExceptionResource;
+use App\Http\Resources\UserExceptionResource;
 use App\Models\UserException;
 use App\Models\User;
 use App\Models\Group;
+use App\Models\UserGroup;
 use Illuminate\Http\Request;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use Carbon\Carbon;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -20,7 +22,11 @@ use Spatie\Permission\PermissionRegistrar;
 /**
  * UserExceptionController to create exception for user
  *
- * Methods:CRU only
+ * Methods:
+ *  - CRU
+ *  - revoke: Delete
+ *  - getMonth
+ * 
  */
 
 class UserExceptionController extends Controller
@@ -33,57 +39,56 @@ class UserExceptionController extends Controller
      * @return \Illuminate\Http\Response
      */
     
-    public function index()
+    public function index(Request $request)
     { 
-      $id=Auth::id();
-      $user=User::with('Group')->find($id);  
-    
-      if($user){
-        //store user details in single array
-        foreach($user->group as $group){
-            $data=[
-                'user_id'=> $group->pivot->user_id,
-                'group_id'=> $group->pivot->group_id,
-                'user_type'=> $group->pivot->user_type
-            ];
-        }
+        $user=UserGroup::where('group_id',$request->group_id)
+            ->where('user_id',Auth::id())
+            ->first();
+     
+        if($user){    
+         if($user->user_type == 'ambassador'){
+            $userException=UserException::where('user_id',Auth::id())
+                            ->whereMonth('created_at',$this->getMonth())
+                            ->get();
 
-        //if ambassador
-        if($data['user_type']=='ambassador'&& Auth::user()->can('list exception')){
-            $userException=UserException::all()->where('user_id',$data['user_id']);
-        
-            return $this->jsonResponseWithoutMessage(
-                UserExceptionResource::collection($userException),
-                    'data', 200
-                  );
-        }
-
-        //return all exception by group for specific user type
-        if($data['user_type']=='leader' || 'supervisor'||'advisor' && Auth::user()->can('list exception')){
-            $user=Group::with('User')->find($data['group_id']); 
-            foreach($user->User as $item){
-                $ids[]=[
-                    'user_id' => $item->id
-                ];
+                return $this->jsonResponseWithoutMessage(
+                        UserExceptionResource::collection($userException),
+                            'data', 200
+                            );
             }
-            
-            $userException=UserException::whereIn('user_id',$ids)->get();
 
-            return $this->jsonResponseWithoutMessage(
-                new UserExceptionResource($userException),'data', 200
-                );
-        }
+         if(Auth::user()->hasRole(['leader','supervisor','advisor'])){
+            $group=Group::with('User')->find($request->group_id);
+            if($user->user_type!="ambassador"){
+                foreach($group->User as $item){
+                    $ids[]=[
+                        'user_id' => $item->id
+                    ];
+                }
+                $userException=UserException::whereIn('user_id',$ids)
+                            ->whereMonth('created_at',$this->getMonth())
+                            ->get();
+            
+                return $this->jsonResponseWithoutMessage(
+                        UserExceptionResource::collection($userException),
+                            'data', 200
+                            );
+        
+            }//end if not ambassador
+            else{
+                throw new NotAuthorized;
+            }
+        }//end if hasRole
 
         else{
             throw new NotAuthorized;
         }
-        
-       }//end if user found
+        }//end if $user
 
-       else{
+        else{
             throw new NotFound;
         }
-    }
+  }
     /**
      * Create new exception for the user
      * 
@@ -107,11 +112,9 @@ class UserExceptionController extends Controller
           return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-        if(Auth::check()){
-            $input['user_id']= Auth::id();
-            $userException= UserException::create($input);
-            return $this->jsonResponseWithoutMessage("User Exception Craeted", 'data', 200);
-        }
+        $input['user_id']= Auth::id();
+        $userException= UserException::create($input);
+        return $this->jsonResponseWithoutMessage("User Exception Created", 'data', 200);
     }
     /**
      * Display the details of specified user exception
@@ -127,14 +130,21 @@ class UserExceptionController extends Controller
         
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
-
-        $userException=UserException::where('user_id',Auth::id())->find($request->exception_id);
-        
-        if($userException){ 
-        return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException),'data', 200);
         }
 
+        $userException=UserException::find($request->exception_id);
+        
+        if($userException){ 
+            if(Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader','supervisor','advisor']))
+            {
+             return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException),'data', 200);
+            }
+
+            else{
+                throw new NotAuthorized;
+            }
+        }//end if $userexception
+        
         else{
             throw new NotFound;
          }
@@ -178,5 +188,39 @@ class UserExceptionController extends Controller
             throw new NotAuthorized;
         }
     }
-}
 
+    /**
+     * revoke the userexception if still not reviewed by leader and advisor
+     */
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'exception_id' => 'required',
+        ]);
+
+        $userException=UserException::find($request->exception_id);
+     
+        if(Auth::id() == $userException->user_id){
+            if($userException->leader_note== null && $userException->advisor_note == null){
+                $userException->delete();
+                return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200);
+            }
+            else {
+                throw new NotAuthorized;
+            }
+        }//end if Auth
+
+        else {
+            throw new NotAuthorized;
+        }
+    }
+
+    /**
+     * return the current month
+     */
+    public function getMonth()
+    {
+        $currentMonth=Carbon::now();
+        return $currentMonth->month;
+    }
+}
