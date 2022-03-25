@@ -22,6 +22,8 @@ use App\Http\Controllers\Api\InfographicSeriesController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\UserProfileController;
+use App\Http\Controllers\Api\ProfileSettingController;
 use App\Http\Controllers\Api\NotificationController;
 /*
 |--------------------------------------------------------------------------
@@ -235,7 +237,19 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PollVoteController::class, 'delete']);
     });
     ########End Poll-Vote########
+    ########User-Profile########
+    Route::group(['prefix'=>'user-profile'], function(){
+        Route::post('/show', [UserProfileController::class, 'show']);
+        Route::post('/update', [UserProfileController::class, 'update']);
+    });
+    ########End User-Profile########
 
+    ########Profile-Setting########
+    Route::group(['prefix'=>'profile-setting'], function(){
+        Route::post('/show', [ProfileSettingController::class, 'show']);
+        Route::post('/update', [ProfileSettingController::class, 'update']);
+    });
+    ########End Profile-Setting########
     ####### Notification ########
     Route::group(['prefix'=>'notifications'], function(){
         Route::get('/listAll', [NotificationController::class, 'listAllNotification']);
