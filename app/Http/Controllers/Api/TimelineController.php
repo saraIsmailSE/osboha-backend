@@ -12,8 +12,9 @@ use App\Http\Resources\timelineResource ;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
-use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Exceptions\NotAuthorized;
+
 
 
 class TimelineController extends Controller
@@ -84,8 +85,12 @@ class TimelineController extends Controller
 
         if(Auth::user()->can('edit timeline')){
             $timeline = Timeline::find($request->timeline_id);
-            $timeline->update($request->all());
-            return $this->jsonResponseWithoutMessage("Timeline Is Updated Successfully", 'data', 200);
+            if($timeline){
+                $timeline->update($request->all());
+                return $this->jsonResponseWithoutMessage("Timeline Is Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
         } else {
             throw new NotAuthorized;
         }
@@ -102,15 +107,19 @@ class TimelineController extends Controller
         
         if(Auth::user()->can('delete timeline')){   
             $timeline = Timeline::find($request->timeline_id);
-            foreach ($timeline->posts as $post) {
-                 if($post->type == "article"){
-                    $post->timeline_id = null;
-                 } else {
-                    $post->delete();
-                 }
+            if($timeline){
+                foreach ($timeline->posts as $post) {
+                     if($post->type == "article"){
+                        $post->timeline_id = null;
+                     } else {
+                        $post->delete();
+                     }
+                }
+                $timeline->delete();
+                return $this->jsonResponseWithoutMessage("Timeline Is Deleted Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
             }
-            $timeline->delete();
-            return $this->jsonResponseWithoutMessage("Timeline Is Deleted Successfully", 'data', 200);
         } else {
             throw new NotAuthorized;
         }

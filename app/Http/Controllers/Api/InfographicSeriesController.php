@@ -43,7 +43,7 @@ class InfographicSeriesController extends Controller
         $validator = Validator::make($request->all(), [
             'title'    => 'required',
             'section' => 'required',
-            'media' => 'required',            
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
         ]);
 
         //validator errors response
@@ -57,7 +57,7 @@ class InfographicSeriesController extends Controller
             $infographicSeries = infographicSeries::create($request->all());
 
             //create media for infographic 
-            $this->createMedia($request->media, $infographicSeries->id, 'infographicSeries');
+            $this->createMedia($request->file('image'), $infographicSeries->id, 'infographicSeries');
 
             //success response after creating new infographic Series
             return $this->jsonResponse($infographicSeries, 'data', 200, "infographic Series Created Successfully");
@@ -103,7 +103,7 @@ class InfographicSeriesController extends Controller
             'title'    => 'required',
             'section' => 'required',
             'series_id' => 'required', 
-            'media' => 'required',
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
         ]);
 
         //validator errors response
@@ -123,7 +123,7 @@ class InfographicSeriesController extends Controller
             $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
 
             //update media
-            $this->updateMedia($request->media, $infographicSeriesMedia->id);
+            $this->updateMedia($request->file('image'), $infographicSeriesMedia->id);
 
             //success response after update
             return $this->jsonResponse($series, 'data', 200,"Infographic Series Updated Successfully");

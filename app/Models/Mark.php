@@ -10,6 +10,8 @@ class Mark extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'week_id',
         'out_of_90', 
         'out_of_100', 
         'total_pages',  

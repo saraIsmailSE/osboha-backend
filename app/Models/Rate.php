@@ -15,12 +15,12 @@ class Rate extends Model
         'post_id'
     ];
     public function user(){
-        return $this->belongsTo('\App\Models\User','user_id');
+        return $this->belongsTo(User::class,'user_id');
     }
     public function post(){
-        return $this->belongsTo('\App\Models\Post','post_id');
+        return $this->belongsTo(Post::class,'post_id');
     }
     public function comment(){
-        return $this->belongsTo('\App\Models\Comment','comment_id');
+        return $this->belongsTo(Reaction::class,'comment_id');
     }
 }
