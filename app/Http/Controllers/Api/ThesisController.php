@@ -16,6 +16,7 @@ class ThesisController extends Controller
 {
     use ResponseJson;
 
+    ##########ASMAA##########
     public function __construct()
     {
         define('MAX_PARTS', 5);
@@ -24,13 +25,13 @@ class ThesisController extends Controller
         define('THESIS_MARK', 8);
         define('COMPLETE_THESIS_LENGTH', 420);
         define('PART_PAGES', 6);
-        define('MAX_VALID_REMAINING', 3);
+        define('MIN_VALID_REMAINING', 3);
         define('INCREMENT_VALUE', 1);
         define('FULL_MARK_OUT_OF_90', 90);
         define('FULL_MARK_OUT_OF_100', 100);
         define('SUPPORT_MARK', 10);
         define('NORMAL_THESIS_TYPE', 'normal');
-        define('RAMADAN_THESIS_TYPE', 'normal');
+        define('RAMADAN_THESIS_TYPE', 'ramadan');
     }
 
     public function index()
@@ -159,7 +160,7 @@ class ThesisController extends Controller
                     $number_of_parts = MAX_PARTS;
                 }
                 else if($number_of_parts < MAX_PARTS && 
-                        $number_of_remaining_pages_out_of_part >= MAX_VALID_REMAINING)
+                        $number_of_remaining_pages_out_of_part >= MIN_VALID_REMAINING)
                 {
                     $number_of_parts += INCREMENT_VALUE;
                 }                                       
