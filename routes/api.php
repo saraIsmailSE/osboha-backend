@@ -235,3 +235,7 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ########End Poll-Vote########
 });
+
+Route::get('/stats', [MarkController::class, 'statsMark']);
+
+
