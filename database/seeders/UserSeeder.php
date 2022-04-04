@@ -8,8 +8,6 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -33,10 +31,10 @@ class UserSeeder extends Seeder
                 'is_hold' =>  rand(0,1),
                 'is_excluded' => rand(0,1),
             ]);
-            $user->assignRole(rand(0,3));
+            $user->assignRole(rand(0,3));            
 
             DB::table('user_profiles')->insert([
-                'user_id' => rand(1,30),
+                'user_id' => $user->id,
                 'timeline_id' => rand(1,30),
                 'first_name_ar' => Str::random(10),
                 'middle_name_ar' => Str::random(10),
@@ -56,7 +54,7 @@ class UserSeeder extends Seeder
             ]);
 
             DB::table('profile_settings')->insert([
-                'user_id' => rand(1,30),
+                'user_id' => $user->id,
                 'posts' => rand(1,30),
                 'media' => rand(1,15),
                 'certificates' => rand(1,15),
