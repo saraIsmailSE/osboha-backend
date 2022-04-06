@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $user= ['Advisor', 'Supervisor', 'Leader', 'Ambassador'];
         $i=0;
         while ($i<=200){
  
@@ -26,7 +25,7 @@ class UserSeeder extends Seeder
                 'name' => Str::random(10),
                 'email' => Str::random(10).'@gmail.com',
                 'password' => Hash::make('password'),
-                'email_verified_at' => Carbon::today()->subDays(rand(0, 365)),
+                //'email_verified_at' => Carbon::today()->subDays(rand(0, 365)),
                 'is_blocked' => rand(0,1),
                 'is_hold' =>  rand(0,1),
                 'is_excluded' => rand(0,1),
@@ -53,16 +52,17 @@ class UserSeeder extends Seeder
                 'extraspace'=> 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
             ]);
 
+
             DB::table('profile_settings')->insert([
                 'user_id' => $user->id,
-                'posts' => rand(1,30),
-                'media' => rand(1,15),
-                'certificates' => rand(1,15),
-                'infographics' => rand(1,15),
-                'articles' => rand(1,15),
-                'thesis' => rand(1,15),
-                'books' =>rand(1,15),
-                'marks' => rand(6,100),
+                'posts' => rand(1,3),
+                'media' => rand(1,3),
+                'certificates' => rand(1,3),
+                'infographics' => rand(1,3),
+                'articles' => rand(1,3),
+                'thesis' => rand(1,3),
+                'books' => rand(1,3),
+                'marks' => rand(1,3),
             ]);
             $i++;    
          }
