@@ -223,7 +223,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/postByTimelineId', [PostController::class, 'postByTimelineId']); 
         Route::post('/postByUserId', [PostController::class, 'postByUserId']); 
         Route::post('/PostsToAccept', [PostController::class, 'listPostsToAccept']); 
-        Route::post('/deniedPost', [PostController::class, 'AcceptPost']); 
+        Route::post('/acceptPost', [PostController::class, 'AcceptPost']); 
         Route::post('/declinePost', [PostController::class, 'declinePost']); 
         
 
