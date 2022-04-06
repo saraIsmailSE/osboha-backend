@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ThesisResource;
+use App\Models\Comment;
 use App\Models\Mark;
 use App\Models\Thesis;
+use App\Models\Week;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use phpDocumentor\Reflection\Types\This;
 
@@ -34,16 +37,16 @@ class ThesisController extends Controller
         define('RAMADAN_THESIS_TYPE', 'ramadan');
     }
 
-    public function index()
-    {
-        $thesises = Thesis::all();
+    // public function index()
+    // {
+    //     $thesises = Thesis::all();
 
-        if($thesises->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesises), 'data', 200);
-        }else{
-            throw new NotFound;
-        }
-    }
+    //     if($thesises->isNotEmpty()){
+    //         return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesises), 'data', 200);
+    //     }else{
+    //         throw new NotFound;
+    //     }
+    // }
 
     public function create(Request $request)
     {
@@ -54,8 +57,7 @@ class ThesisController extends Controller
           'type' => 'required', //normal - ramadan - young - kids ...
           'max_length' => 'required_without:total_screenshots|numeric',
           'comment_id' => 'required',
-          'book_id' => 'required',
-          'user_id' => 'required',
+          'book_id' => 'required',          
           'mark_id' => 'required',
         ]);
 
@@ -93,8 +95,17 @@ class ThesisController extends Controller
     }
 
     public function calculate_mark_for_normal_thesis($request)
-    {
-        $mark_record = Mark::find($request->mark_id);
+    {   
+        $user_id = Auth::id();
+             
+        $current_date = date('Y-m-d');
+
+        $week_id = Week::where('date', $current_date)->first()->id;
+
+        $mark_record = Mark::where('id', $request->mark_id)
+                           ->where('user_id', $user_id)
+                           ->where('week_id', $week_id)
+                           ->first();                              
 
         if($mark_record)
         {
@@ -104,7 +115,7 @@ class ThesisController extends Controller
                 'comment_id' => $request->comment_id,
                 'book_id' =>$request->book_id,
                 'mark_id' => $request->mark_id,
-                'user_id' => $request->user_id,
+                'user_id' => $user_id,
                 'type' => $request->type,  
                 'total_pages' => $request->total_pages,                              
             );
@@ -118,22 +129,14 @@ class ThesisController extends Controller
             {//if the mark is full --> add thesis only without updating the mark            
                 if($request->has('max_length')  && $request->max_length > 0)
                 {
-                    $thesis_data_to_insert['max_length'] = $request->max_length;
-                    // $thesis_data_to_insert['total_screenshots'] = 0;
+                    $thesis_data_to_insert['max_length'] = $request->max_length;                
                     $mark_data_to_update['total_thesis'] = $mark_record->total_thesis + INCREMENT_VALUE;
                 }   
                 else if($request->has('total_screenshots') && $request->total_screenshots > 0)
                 {
-                    $thesis_data_to_insert['total_screenshots'] = $request->total_screenshots;
-                    // $thesis_data_to_insert['max_length'] = 0;
+                    $thesis_data_to_insert['total_screenshots'] = $request->total_screenshots;                    
                     $mark_data_to_update['total_screenshot'] = $mark_record->total_screenshot + $request->total_screenshot;
-                }
-                // else if(($request->has('max_length')  && $request->max_length == 0) || 
-                //          ($request->has('total_screenshot')  && $request->total_screenshot == 0))
-                // {
-                //     $thesis_data_to_insert['max_length'] = 0;
-                //     $thesis_data_to_insert['total_screenshot'] = 0;
-                // } 
+                }                
                     
                 $thesis = Thesis::create($thesis_data_to_insert);
 
@@ -255,7 +258,11 @@ class ThesisController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $thesis = Thesis::where('book_id' , $request->book_id)->first();
+        //select function to be added in order to reduce the data retrieved
+        $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
+                        ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
+                        ->where('theses.book_id', $request->book_id)
+                        ->get();
 
         if($thesis->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
@@ -263,4 +270,49 @@ class ThesisController extends Controller
             throw new NotFound;
         } 
     }
+
+    public function list_user_thesis(Request $request)
+    {
+        $validator = Validator::make($request->all(), ['user_id' => 'required']);
+
+        if($validator->fails()){
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        //select function to be added in order to reduce the data retrieved
+        $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
+                        ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
+                        ->where('theses.user_id', $request->user_id)
+                        ->get();  
+
+        if($thesis->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
+        }else{
+            throw new NotFound;
+        } 
+    }    
+
+    public function list_week_thesis(Request $request)
+    {
+        $validator = Validator::make($request->all(), ['week_id' => 'required']);
+
+        if($validator->fails()){
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        //select function to be added in order to reduce the data retrieved
+        $thesis = Thesis::select('theses.*') 
+                        ->join('marks', 'marks.id', '=', 'theses.mark_id')
+                        ->join('weeks', 'weeks.id', '=', 'marks.week_id')
+                        ->join('comments', 'comments.id', '=', 'theses.comment_id')
+                        ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
+                        ->where('marks.week_id', $request->week_id)
+                        ->get();
+
+        if($thesis->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
+        }else{
+            throw new NotFound;
+        } 
+    }        
 }

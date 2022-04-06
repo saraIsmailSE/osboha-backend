@@ -277,6 +277,8 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [ThesisController::class, 'show']);
         Route::post('/create', [ThesisController::class, 'create']);
         Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);        
+        Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);        
+        Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);        
     });
     ######## thesis ########
     
