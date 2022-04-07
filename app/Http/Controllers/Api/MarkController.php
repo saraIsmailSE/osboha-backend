@@ -93,32 +93,55 @@ class MarkController extends Controller
         }
     }
 
+<<<<<<< HEAD
     public function list_user_marks(Request $request){
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
             'week_id' => 'nullable'
+=======
+    public function list_user_mark(Request $request){
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required_without:week_id',
+            'week_id' => 'required_without:user_id'
+>>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
+<<<<<<< HEAD
         if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
             & $request->week_id == null)
         {
             $marks = Mark::where('user_id', $request->user_id)->get();
+=======
+        if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
+            && $request->has('week_id') && $request->has('user_id'))
+        {
+            $marks = Mark::where('user_id', $request->user_id)
+                        ->where('week_id', $request->week_id)->get();
+>>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
             }
             else{
                 throw new NotFound;
             }
+<<<<<<< HEAD
         }
         else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
                 & $request->week_id != null)
         {
             $marks = Mark::where('user_id', $request->user_id)
                             ->where('week_id', $request->week_id)->get();
+=======
+        } 
+        else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
+                && $request->has('week_id'))
+        {
+            $marks = Mark::where('week_id', $request->week_id)->get();
+>>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
             if($marks){
                 return $this->jsonResponseWithoutMessage(MarkResource::collection($marks), 'data',200);
             }
@@ -126,10 +149,25 @@ class MarkController extends Controller
                 throw new NotFound;
             }
         }
+<<<<<<< HEAD
+=======
+        else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
+                && $request->has('user_id'))
+        {
+            $mark = Mark::where('user_id', $request->user_id)->latest()->first();
+            if($mark){
+                return $this->jsonResponseWithoutMessage(new MarkResource($mark), 'data',200);
+            }
+            else{
+                throw new NotFound;
+            }
+        }
+>>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
         else{
             throw new NotAuthorized;   
         }
     }
+<<<<<<< HEAD
 
     // public function marks_by_weekid(Request $request){
     //     $validator = Validator::make($request->all(), [
@@ -177,4 +215,6 @@ class MarkController extends Controller
     //         throw new NotAuthorized;   
     //     }
     // }
+=======
+>>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
 }

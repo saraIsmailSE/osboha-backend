@@ -22,6 +22,9 @@ use App\Http\Controllers\Api\InfographicSeriesController;
 use App\Http\Controllers\Api\SocialMediaController;
 use App\Http\Controllers\Api\TimelineController;
 use App\Http\Controllers\Api\FriendController;
+use App\Http\Controllers\Api\UserProfileController;
+use App\Http\Controllers\Api\ProfileSettingController;
+use App\Http\Controllers\Api\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -82,7 +85,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::get('/', [TransactionController::class, 'index']);
         Route::post('/create', [TransactionController::class, 'create']);
         Route::post('/show', [TransactionController::class, 'show']);
-        Route::post('/showUsrTrans', [TransactionController::class, 'showUserTransactions']);
+        Route::post('/show/user/all', [TransactionController::class, 'showUserTransactions']);
         Route::post('/update', [TransactionController::class, 'update']);
     });
     ########End Transaction########
@@ -117,7 +120,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::get('/', [MarkController::class, 'index']);
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
+<<<<<<< HEAD
         Route::post('/list', [MarkController::class, 'list_user_marks']);
+=======
+        Route::post('/list', [MarkController::class, 'list_user_mark']);
+>>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
     });
     ########End Mark########
 
@@ -127,7 +134,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/create', [RejectedMarkController::class, 'create']);
         Route::post('/show', [RejectedMarkController::class, 'show']);
         Route::post('/update', [RejectedMarkController::class, 'update']);
+<<<<<<< HEAD
         Route::get('/list', [RejectedMarkController::class, 'list_user_marks']);
+=======
+        Route::post('/list', [RejectedMarkController::class, 'list_user_mark']);
+>>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
     });
     ########End RejectedMark ########
     #########UserException########
@@ -234,4 +245,28 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PollVoteController::class, 'delete']);
     });
     ########End Poll-Vote########
+    ########User-Profile########
+    Route::group(['prefix'=>'user-profile'], function(){
+        Route::post('/show', [UserProfileController::class, 'show']);
+        Route::post('/update', [UserProfileController::class, 'update']);
+    });
+    ########End User-Profile########
+
+    ########Profile-Setting########
+    Route::group(['prefix'=>'profile-setting'], function(){
+        Route::post('/show', [ProfileSettingController::class, 'show']);
+        Route::post('/update', [ProfileSettingController::class, 'update']);
+    });
+    ########End Profile-Setting########
+    ####### Notification ########
+    Route::group(['prefix'=>'notifications'], function(){
+        Route::get('/listAll', [NotificationController::class, 'listAllNotification']);
+        Route::get('/unRead', [NotificationController::class, 'listUnreadNotification']);
+        Route::get('/makeAllAsRead', [NotificationController::class, 'markAllNotificationAsRead']);
+        Route::post('/makeOneAsRead', [NotificationController::class, 'markOneNotificationAsRead']);
+        
+    });
+    ######## End Notification ########
+
 });
+
