@@ -22,7 +22,7 @@ class CreatePostsTable extends Migration
             $table->boolean('allow_comments')->default(1);
             $table->text('tag')->nullable();
             $table->text('vote')->nullable();
-            $table->date('is_approved')->nullable();
+            $table->timestamp('is_approved')->nullable()->useCurrent();
             $table->boolean('is_pinned')->default(0);
             $table->timestamps();
         });

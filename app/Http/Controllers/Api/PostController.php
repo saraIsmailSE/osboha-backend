@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Media;
 use App\Models\Timeline;
+use App\Models\UserGroup;
+use App\Models\Group;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
@@ -29,7 +31,7 @@ class PostController extends Controller
         $posts = Post::where('user_id', Auth::id())->get();
         //$posts = Post::where('timeline_id', $timeline_id)->get();
 
-        if($posts){
+        if($posts->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data',200);
         }
         else{
@@ -50,37 +52,38 @@ class PostController extends Controller
      
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
-        
-        $timeline = Timeline::find($request->timeline_id);
-       if($timeline && $timeline->type=='gruop'){
-            if(Auth::user()->can('create post')){
-                $post = $request->all();
-                $tag = null;
-                $vote = null;
+        }
+     
+        if(Auth::user()->can('create post')){
+            $input = $request->all();
+            $timeline = Timeline::find($request->timeline_id);
+
+            if($timeline){ 
+                if($timeline->type=="group") {
+                $group = Group::where('timeline_id',$timeline->id)->get();
+                
+                $user = UserGroup::where([
+                    ['group_id', $group->id],
+                    ['user_id', Auth::id()]
+                ])->get();
+
+                if($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader"){
+                    $input['is_approved'] = null;
+                    echo 'waiting for the leader approval'; 
+                }
+                }
+                
                 if ($request->has('tag')){
-                    $tag = $request->tag;
-                    $post['tag'] = serialize($tag);
+                    $input['tag'] = serialize($request->tag);
                 }
+
                 if ($request->has('vote')){
-                    $vote = $request->vote;
-                    $post['vote'] = serialize($vote);
+                    $input['vote'] = serialize($request->vote);
                 }
 
-                //Post::create($post);
+                $input['user_id'] = Auth::id();
 
-                $post = Post::create([
-                    'body' => $request->body,
-                    'user_id' => Auth::id(),
-                    'type' => $request->type,
-                    'allow_comments' => $request->allow_comments,
-                    'tag' => serialize($tag),
-                    'vote' => serialize($vote),
-                    'is_approved' => $request->is_approved,
-                    'is_pinned' => $request->is_pinned,
-                    'timeline_id' => $request->timeline_id ,
-                    'image' => $request->image 
-                ]);
+                $post= Post::create($input);
 
                 if ($request->hasFile('image')) {
                 // if post has media
@@ -90,13 +93,13 @@ class PostController extends Controller
                 return $this->jsonResponseWithoutMessage("Post Craeted Successfully", 'data', 200);
             }
             else{
-                throw new NotAuthorized;   
+                throw new NotFound;
             }
         }
         else{
-            echo "This timeline is not found or it's not group";
+            throw new NotAuthorized; 
         }
-    }
+}
 
     public function show(Request $request)
     {
@@ -120,8 +123,8 @@ class PostController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'body' => 'required',
-            'user_id' => Auth::id(),
+            'body' => 'required_without:image',
+            'user_id' => 'required',
             'type' => 'required',
             //'allow_comments' => 'required',
             //'tag' => 'required',
@@ -130,7 +133,7 @@ class PostController extends Controller
             //'is_pinned' => 'required',
             'timeline_id' => 'required',
             //'post_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body'
         ]);
 
         if ($validator->fails()) {
@@ -140,6 +143,15 @@ class PostController extends Controller
         $post = Post::find($request->post_id);
         if($post){
             if(Auth::id() == $post->user_id){
+                $input = $request->all();
+                if ($request->has('tag')){
+                $input['tag'] = serialize($request->tag);
+                }
+
+                if ($request->has('vote')){
+                    $input['vote'] = serialize($request->vote);
+                }
+
                 if($request->hasFile('image')){
                     // if post has media
                     //check Media
@@ -147,18 +159,14 @@ class PostController extends Controller
                     // if exists, update
                     if($currentMedia){
                         $this->updateMedia($request->file('image'), $currentMedia->id);
-                        return $this->jsonResponseWithoutMessage("Image Updated Successfully", 'data', 200);
                     }
                     //else create new one
                     else {
                         // upload media
                         $this->createMedia($request->file('image'), $post->id, 'post');
-                        return $this->jsonResponseWithoutMessage("Image Added Successfully", 'data', 200);
                     }
                 } 
-                else {
-                    $post->update($request->all());
-                }
+                $post->update($input);
                 return $this->jsonResponseWithoutMessage("Post Updated Successfully", 'data', 200);
             }         
             else{
@@ -208,7 +216,7 @@ class PostController extends Controller
         //find posts belong to timeline_id
         $posts = Post::where('timeline_id', $timeline_id)->get();
 
-        if($posts){
+        if($posts->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data', 200);
         }else{
             throw new NotFound();
@@ -221,7 +229,7 @@ class PostController extends Controller
         //find posts belong to user_id
         $posts = Post::where('user_id', $user_id)->get();
 
-        if($posts){
+        if($posts->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data', 200);
         }else{
             throw new NotFound();
