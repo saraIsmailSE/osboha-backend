@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\Week;
 use Carbon\Carbon;
 
+
 class MarkController extends Controller
 {
     use ResponseJson;
@@ -141,4 +142,6 @@ class MarkController extends Controller
             throw new NotAuthorized;   
         }
     }
+
+
 }

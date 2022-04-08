@@ -260,5 +260,7 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ######## End Notification ########
 
+  Route::get('/stats', [MarkController::class, 'statsMark']);
+
 });
 
