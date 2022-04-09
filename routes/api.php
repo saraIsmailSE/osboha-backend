@@ -225,6 +225,12 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PostController::class, 'delete']);
         Route::post('/postByTimelineId', [PostController::class, 'postByTimelineId']); 
         Route::post('/postByUserId', [PostController::class, 'postByUserId']); 
+        Route::post('/PostsToAccept', [PostController::class, 'listPostsToAccept']); 
+        Route::post('/acceptPost', [PostController::class, 'AcceptPost']); 
+        Route::post('/declinePost', [PostController::class, 'declinePost']); 
+        
+
+
     });
     ########End Post########
 
@@ -281,6 +287,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);        
     });
     ######## thesis ########
-    
+   
+  Route::get('/stats', [MarkController::class, 'statsMark']);
 });
 
