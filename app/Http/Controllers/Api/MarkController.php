@@ -17,7 +17,8 @@ use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
 use Carbon\Carbon;
-
+use App\libstats\MarksStats;
+use Spatie\Stats\StatsQuery;
 
 class MarkController extends Controller
 {
@@ -143,5 +144,17 @@ class MarkController extends Controller
         }
     }
 
+    //its just example about the statistics changes in DB 
+    public function statsMark(Request $request)
+    {
 
+         $stats = MarksStats::query()
+        ->start(now()->subMonths($request->month))
+        ->end(now()->subSecond())
+        ->groupByMonth()
+        ->get();
+
+        return $stats;
+       
+    }
 }

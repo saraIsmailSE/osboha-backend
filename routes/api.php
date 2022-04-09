@@ -124,6 +124,8 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
+        Route::get('/statsmark', [MarkController::class, 'statsMark']);
+
     });
     ########End Mark########
 
@@ -246,6 +248,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PollVoteController::class, 'delete']);
     });
     ########End Poll-Vote########
+
     ########User-Profile########
     Route::group(['prefix'=>'user-profile'], function(){
         Route::post('/show', [UserProfileController::class, 'show']);
