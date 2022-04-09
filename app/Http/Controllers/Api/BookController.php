@@ -24,7 +24,7 @@ class BookController extends Controller
     public function index()
     {
         $books = Book::all();
-        if($books){
+        if($books->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
         }
         else{

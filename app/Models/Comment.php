@@ -49,5 +49,9 @@ class Comment extends Model
         return $this->belongsTo(Post::class. 'post_id');
     }
 
+    public function thesis()
+    {
+        return $this->hasOne(Thesis::class);
+    }
     
 }

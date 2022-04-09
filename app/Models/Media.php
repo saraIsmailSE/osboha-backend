@@ -27,5 +27,9 @@ class Media extends Model
     {
         return $this->belongsTo(Comment::class,'comment_id');
     }
+    public function reaction()
+    {
+        return $this->belongsTo(Reaction::class,'reaction_id');
+    }
 }
 

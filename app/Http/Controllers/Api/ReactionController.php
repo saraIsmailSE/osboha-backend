@@ -30,109 +30,190 @@ class ReactionController extends Controller
         }
     }
     public function create(Request $request){
+        ####Rufi####
+        //validate requested data
         $validator = Validator::make($request->all(), [
             'reaction_id' => 'required_without_all:media,type',
-            'comment_id'  => 'required_without_all:post_id,media,type',
             'post_id'     => 'required_without_all:comment_id,media,type',
+            'comment_id'  => 'required_without_all:post_id,media,type',
             'media'       => 'required_if:reaction_id,==,0',
             'type'        => 'required_if:reaction_id,==,0',
         ]);
+        //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         // if reaction_id != 0 ; user add reaction to post or comment
         if($request['reaction_id'] != 0)
         {
-            $input = $request->all();
-            $input['user_id']= Auth::id();
-            Reaction::create($input);
-            return $this->jsonResponseWithoutMessage("Reaction Craeted Successfully", 'data', 200);
+            //create new reaction
+            $reaction = Reaction::create([
+                'user_id'     => Auth::id(),
+                'reaction_id' => $request->reaction_id,
+                'post_id'     => $request->post_id,
+                'comment_id'  => $request->comment_id,
+            ]);
+            //success response after creating the reaction
+            return $this->jsonResponse(new ReactionResource($reaction), 'data', 200,'Reaction Created Successfully');
         }
         // else if reaction_id == 0 ; user have permission to add new reaction 
         else
         {
+            //authorized user
             if(Auth::user()->can('create reaction')){
-                $inputReaction['reaction_id']= 0;
-                $inputReaction['user_id']= Auth::id();
-                $reaction = Reaction::create($inputReaction);
-                if($reaction){
-                // upload media
-                $input = $this->createMedia($request->file('media'),$reaction->id,'reaction');
-                }
-                return $this->jsonResponseWithoutMessage("Media and Reaction Craeted Successfully", 'data', 200);
+                //create new reaction
+                $reaction = Reaction::create([
+                    'reaction_id' => 0,
+                    'user_id' => Auth::id(),
+                ]); 
+                //upload media
+                $this->createMedia($request->file('media'),$reaction->id,'reaction');
+                //success response after creating the reaction
+                return $this->jsonResponse(new ReactionResource($reaction), 'data', 200,'New Reaction Created Successfully');
             }
             else{
+                //unauthorized user response
                 throw new NotAuthorized;   
             }
         }
     }
     public function show(Request $request)
     {
+        ####Rufi####
+        //validate requested data
         $validator = Validator::make($request->all(), [
             'comment_id' => 'required_without:post_id',
             'post_id' => 'required_without:comment_id',
         ]);
-
+        //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+        //find reaction belong to auth user and comment
         if($request->has('comment_id'))
          $reaction = Reaction::where('comment_id', $request->comment_id)->get();
-        else if($request->has('post_id'))
+        //find reaction belong to auth user and post
+         else if($request->has('post_id'))
          $reaction = Reaction::where('post_id', $request->post_id)->get();
         if($reaction){
+            //return found reaction
             return $this->jsonResponseWithoutMessage(ReactionResource::collection($reaction), 'data',200);
         }
         else{
+            //reaction not found response
             throw new NotFound;
         }
     }
     
     public function update(Request $request)
     {
+        ####Rufi####
+         //validate requested data
         $validator = Validator::make($request->all(), [
-            'reaction_id'   => 'required',
-            'comment_id' => 'required_without:post_id',
-            'post_id'    => 'required_without:comment_id',
+            'reaction_id'  => 'required',
+            'comment_id'   => 'required_without_all:post_id,media',
+            'post_id'      => 'required_without_all:comment_id,media',
+            'media'        => 'required_without_all:post_id,comment_id',
         ]);
+         //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if($request->has('comment_id'))
-         $reaction = Reaction::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
-        else if($request->has('post_id'))
-         $reaction = Reaction::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
-        if($reaction){
-            $reaction->update($request->all());
-            return $this->jsonResponseWithoutMessage("Reaction Updated Successfully", 'data', 200);
+        //******To edit media of reaction by user have permission to edit******//
+        if($request->has('media')){
+            //authorized user
+            if(Auth::user()->can('edit reaction')){
+                //find media belong to reaction
+                $media = Media::where('reaction_id', $request->reaction_id)->first();
+                //update found media
+                $reaction = $this->updateMedia($request->file('media'),$media->id);
+                //success response after update
+                return $this->jsonResponse(new ReactionResource($reaction), 'data', 200, 'Reaction Updated Successfully');
+            }
+            else{
+                //unauthorized user response
+                throw new NotAuthorized;   
+            }
         }
+        //******To edit reaction of post or comment******//
         else{
+            //find reaction belong to auth user and comment
+            if($request->has('comment_id'))
+            $reaction = Reaction::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
+            //find reaction belong to auth user and comment
+            else if($request->has('post_id'))
+            $reaction = Reaction::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
+            //find media belong to user have a unauthorized to edit media of reaction
+            if($reaction){
+                //update found reaction
+                $reaction->update($request->all());
+                //success response after update
+                return $this->jsonResponse(new ReactionResource($reaction), 'data', 200, 'Reaction Updated Successfully');
+            }
+            else{
+                //not fount reaction exception
             throw new NotFound;;   
+            }
         }
     }
     public function delete(Request $request)
     {
+        ####Rufi####
+         //validate requested data
         $validator = Validator::make($request->all(), [
-            'comment_id' => 'required_without:post_id',
-            'post_id'    => 'required_without:comment_id',
-        ]);
+            'reaction_id'  => 'required_without_all:post_id,comment_id',
+            'comment_id'   => 'required_without_all:post_id,reaction_id',
+            'post_id'      => 'required_without_all:comment_id,reaction_id',
 
+        ]);
+         //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
-
+    //******To delete reaction of post or comment******//
+        //find reaction belong to auth user and comment
         if($request->has('comment_id'))
-         $reaction = Reaction::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
+            $reaction = Reaction::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
+        //find reaction belong to auth user and comment
         else if($request->has('post_id'))
-         $reaction = Reaction::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
-
+            $reaction = Reaction::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
+    //**************To delete reaction*****************//
+        else{
+            //authorized user
+            if(Auth::user()->can('delete reaction')){
+                //find reaction
+                $reaction = Reaction::where('reaction_id', $request->reaction_id)->get();
+                if($reaction->isNotEmpty()){
+                //update found medias
+                foreach($reaction as $row)
+                $row->update(['reaction_id'=>1]);
+                //find media belong to reaction
+                $media = Media::where('reaction_id', $request->reaction_id)->first();
+                //delete found media
+                $this->deleteMedia($media->id);
+                $reaction= Reaction::find($request->reaction_id);
+                }
+                else{
+                //not found reaction exception
+                throw new NotFound;
+                }
+                
+            }
+            else{
+                //unauthorized user response
+                throw new NotAuthorized;   
+            }
+        }
         if($reaction){
+            //delete found reaction
             $reaction->delete();
-            return $this->jsonResponseWithoutMessage("Reaction Deleted Successfully", 'data', 200);
+                //success response after update
+            return $this->jsonResponse(new ReactionResource($reaction), 'data', 200, 'Reaction Deleted Successfully');
         }
         else{
+            //not found reaction exception
             throw new NotFound;
-        }
+        }   
     }
     
 }
