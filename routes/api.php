@@ -25,6 +25,9 @@ use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Api\ProfileSettingController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ThesisController;
+use App\Http\Controllers\Api\UserGroupController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -121,6 +124,8 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
+        Route::get('/statsmark', [MarkController::class, 'statsMark']);
+
     });
     ########End Mark########
 
@@ -222,6 +227,12 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PostController::class, 'delete']);
         Route::post('/postByTimelineId', [PostController::class, 'postByTimelineId']); 
         Route::post('/postByUserId', [PostController::class, 'postByUserId']); 
+        Route::post('/PostsToAccept', [PostController::class, 'listPostsToAccept']); 
+        Route::post('/acceptPost', [PostController::class, 'AcceptPost']); 
+        Route::post('/declinePost', [PostController::class, 'declinePost']); 
+        
+
+
     });
     ########End Post########
 
@@ -237,6 +248,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PollVoteController::class, 'delete']);
     });
     ########End Poll-Vote########
+
     ########User-Profile########
     Route::group(['prefix'=>'user-profile'], function(){
         Route::post('/show', [UserProfileController::class, 'show']);
@@ -259,6 +271,26 @@ Route::middleware('auth:sanctum')->group( function () {
         
     });
     ######## End Notification ########
-
+    ####### UserGroup ########
+    Route::group(['prefix'=>'userGroup'], function(){
+        Route::get('/', [UserGroupController::class, 'index']);
+        Route::post('/show', [UserGroupController::class, 'show']);
+        Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
+        Route::post('/updateRole', [UserGroupController::class, 'update_role']);
+        Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
+    });
+    ######## UserGroup ########
+    ####### thesis ########
+    Route::group(['prefix'=>'thesis'], function(){
+        Route::get('/', [ThesisController::class, 'index']);
+        Route::post('/show', [ThesisController::class, 'show']);
+        Route::post('/create', [ThesisController::class, 'create']);
+        Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);        
+        Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);        
+        Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);        
+    });
+    ######## thesis ########
+   
+  Route::get('/stats', [MarkController::class, 'statsMark']);
 });
 

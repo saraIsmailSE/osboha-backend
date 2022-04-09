@@ -23,7 +23,7 @@ class UserGroupController extends Controller
         #####Asmaa####
         $userGroups = UserGroup::all();
 
-        if($userGroups)
+        if($userGroups->isNotEmpty())
         {
             return $this->jsonResponseWithoutMessage(UserGroupResource::collection($userGroups), 'data', 200);
         }else
@@ -66,7 +66,7 @@ class UserGroupController extends Controller
 
         if(Auth::user()->can('assgin role')){
             $user = User::find($request->user_id);
-            $role = Role::where('name' ,$request->user_type);
+            $role = Role::where('name' ,$request->user_type)->first();
             
             $user->assignRole($role);
 
@@ -99,7 +99,7 @@ class UserGroupController extends Controller
             if(Auth::user()->can('update role')){
 
                 $user = User::find($request->user_id);
-                $role = Role::where('name' ,$request->user_type);
+                $role = Role::where('name' ,$request->user_type)->first();
                 
                 $user->removeRole($role);
     
@@ -125,7 +125,7 @@ class UserGroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $userGroups = UserGroup::where('user_id', $request->user_id);
+        $userGroups = UserGroup::where('user_id', $request->user_id)->first();
 
         if($userGroups){
             return $this->jsonResponseWithoutMessage(UserGroupResource::collection($userGroups), 'data', 200);

@@ -23,7 +23,7 @@ class ArticleController extends Controller
 
         $articles = Article::all();
 
-        if($articles){
+        if($articles->isNotEmpty()){
             //found articles response
             return $this->jsonResponseWithoutMessage(ArticleResource::collection($articles), 'data', 200);
         }else{

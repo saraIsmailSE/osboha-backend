@@ -16,11 +16,13 @@ class CreateThesesTable extends Migration
         Schema::create('theses', function (Blueprint $table) {
             $table->id();
             $table->integer('comment_id');
-            $table->integer('max_length');
+            $table->integer('user_id');
+            $table->integer('max_length')->default(0);
             $table->integer('book_id');
             $table->string('type');
             $table->integer('mark_id');
             $table->integer('total_pages');
+            $table->integer('total_screenshots')->default(0);
             $table->date('is_acceptable')->nullable();
             $table->timestamps();
         });
