@@ -16,14 +16,14 @@ class UserGroupSeeder extends Seeder
         $user_type= ['advisor', 'supervisor', 'leader', 'ambassador'];
         $i=0;
         while ($i<=200){
-           
-            $userGroup = \App\Models\UserGroup::factory()->insert([
-                'user_id' => rand(1,30),
-                'group_id' => rand(1,30),
-                'user_type' => $user_type[rand(0,3)]
-            ]);
-            $userGroup->assignRole($user_type);
-            $i++;    
-        }
+           ######################CANCELED#######################
+        //     $userGroup = \App\Models\UserGroup::factory()->insert([
+        //         'user_id' => rand(1,30),
+        //         'group_id' => rand(1,30),
+        //         'user_type' => $user_type[rand(0,3)]
+        //     ]);
+        //     $userGroup->assignRole($user_type);
+        //     $i++;    
+        // }
     }
 } 

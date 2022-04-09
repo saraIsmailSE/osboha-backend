@@ -1,13 +1,14 @@
 <?php
-
 namespace Database\Seeders;
-namespace Carbon;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class UserSeeder extends Seeder
 {
@@ -21,7 +22,7 @@ class UserSeeder extends Seeder
         $i=0;
         while ($i<=200){
  
-            $user = \App\Models\User::factory()->insert([
+            $user = \App\Models\User::factory()->create([
                 'name' => Str::random(10),
                 'email' => Str::random(10).'@gmail.com',
                 'password' => Hash::make('password'),
@@ -30,6 +31,7 @@ class UserSeeder extends Seeder
                 'is_hold' =>  rand(0,1),
                 'is_excluded' => rand(0,1),
             ]);
+
             $user->assignRole(rand(0,3));            
 
             DB::table('user_profiles')->insert([
