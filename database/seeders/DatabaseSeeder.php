@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\RejectedMark;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,6 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(PermissionsSeeder::class);
+        $this->call([
+            PermissionsSeeder::class,
+            MarksSeeder::class,
+            RejectedMarksSeeder::class,
+            InfographicSeeder::class,
+            InfographicSeriesSeeder::class,
+            ArticleSeeder::class
+        ]);
     }
 }
