@@ -23,7 +23,7 @@ class InfographicSeriesController extends Controller
          #######ASMAA#######
         //get and display all the series
         $series = InfographicSeries::all();
-        if($series){
+        if($series->isNotEmpty()){
             // found series response
             return $this->jsonResponseWithoutMessage($series, 'data',200);
         }

@@ -21,7 +21,7 @@ class ActivityController extends Controller
         #######ASMAA#######
         //get and display all the activities
         $activity = Activity::all();
-        if($activity){
+        if($activity->isNotEmpty()){
             // found articles response
             return $this->jsonResponseWithoutMessage(ActivityResource::collection($activity), 'data',200);
         }
