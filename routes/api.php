@@ -182,7 +182,6 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [SocialMediaController::class, 'show']);
         Route::post('/update', [SocialMediaController::class, 'update']);
         Route::post('/delete', [SocialMediaController::class, 'delete']);
-
     });
     ########End SocialMedia########
 
@@ -288,6 +287,5 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ######## thesis ########
    
-  Route::get('/stats', [MarkController::class, 'statsMark']);
 });
 
