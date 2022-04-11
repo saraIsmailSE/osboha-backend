@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Stats\Traits\HasStats;
+
 
 class Mark extends Model
 {
-    use HasFactory,HasStats;
+    use HasFactory;
 
     protected $fillable = [
         'out_of_90', 
