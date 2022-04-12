@@ -17,6 +17,8 @@ use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
 use Carbon\Carbon;
+use App\libstats\MarksStats;
+use Spatie\Stats\StatsQuery;
 
 class MarkController extends Controller
 {
@@ -168,6 +170,7 @@ class MarkController extends Controller
         }
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     // public function marks_by_weekid(Request $request){
     //     $validator = Validator::make($request->all(), [
@@ -217,4 +220,20 @@ class MarkController extends Controller
     // }
 =======
 >>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
+=======
+
+    //its just example about the statistics changes in DB 
+    public function statsMark(Request $request)
+    {
+
+         $stats = MarksStats::query()
+        ->start(now()->subMonths($request->month))
+        ->end(now()->subSecond())
+        ->groupByMonth()
+        ->get();
+
+        return $stats;
+       
+    }
+>>>>>>> ff98aa81e211e5ba9bfa5ea88d8be28e483fc63c
 }

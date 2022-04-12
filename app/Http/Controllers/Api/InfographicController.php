@@ -25,7 +25,7 @@ class InfographicController extends Controller
 
          $infographic = Infographic::all();
 
-         if($infographic){
+         if($infographic->isNotEmpty()){
              //found infographic response
              return $this->jsonResponseWithoutMessage(InfographicResource::collection($infographic), 'data', 200);
          }else{

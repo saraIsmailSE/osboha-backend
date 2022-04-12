@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateThesesTable extends Migration
+class CreateParticipantsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,12 @@ class CreateThesesTable extends Migration
      */
     public function up()
     {
-        Schema::create('theses', function (Blueprint $table) {
+        Schema::create('participants', function (Blueprint $table) {
             $table->id();
-            $table->integer('comment_id');
             $table->integer('user_id');
-            $table->integer('max_length')->default(0);
-            $table->integer('book_id');
+            $table->integer('room_id');
+            //type admin - participant
             $table->string('type');
-            $table->integer('mark_id');
-            $table->integer('total_pages');
-            $table->integer('total_screenshots')->default(0);
-            $table->date('is_acceptable')->nullable();
             $table->timestamps();
         });
     }
@@ -35,6 +30,6 @@ class CreateThesesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('theses');
+        Schema::dropIfExists('participants');
     }
 }
