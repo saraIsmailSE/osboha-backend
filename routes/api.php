@@ -49,6 +49,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [BookController::class, 'show']);
         Route::post('/update', [BookController::class, 'update']);
         Route::post('/delete', [BookController::class, 'delete']);
+        Route::post('/book-by-type', [BookController::class, 'bookByType']);
+        Route::post('/book-by-level', [BookController::class, 'bookByLevel']);
+        Route::post('/book-by-section', [BookController::class, 'bookBySection']);
+        Route::post('/book-by-name', [BookController::class, 'bookByName']);
+
 
     });
     ########End Book########
