@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Stats\Traits\HasStats;
+
 
 class Mark extends Model
 {
-    use HasFactory,HasStats;
+    use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'week_id',
         'out_of_90', 
         'out_of_100', 
         'total_pages',  
