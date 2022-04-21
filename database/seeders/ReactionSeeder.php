@@ -14,7 +14,7 @@ class ReactionSeeder extends Seeder
      */
     public function run()
     {
-        for($i=0; $i<200; $i++){	
+        for($i=0; $i<4; $i++){	
             Reaction::create([
                 'comment_id' => rand(0, 200) ?: null,
                 'user_id' => rand(1, 200),

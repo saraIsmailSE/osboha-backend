@@ -19,7 +19,7 @@ class RateSeeder extends Seeder
                 'comment_id' => rand(0, 200) ?: null,
                 'user_id' => rand(1, 200),
                 'post_id' => rand(0, 200) ?: null,
-                'rate' => rand(0, 5)
+                'rate' => rand(1, 5)
             ]);
         }
     }
