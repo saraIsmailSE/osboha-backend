@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class ThesisType extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'type',
+    ];
+
+    public function thesises()
+    {
+        return $this->hasMany(Theses::class, 'thesis_type_id');
+    }
 }

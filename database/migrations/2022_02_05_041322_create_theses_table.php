@@ -20,6 +20,7 @@ class CreateThesesTable extends Migration
             $table->integer('max_length')->default(0);
             $table->integer('book_id');
             $table->integer('mark_id');
+            $table->integer('thesis_type_id');
             $table->integer('total_pages');
             $table->integer('total_screenshots')->default(0);
             $table->date('is_acceptable')->nullable();
