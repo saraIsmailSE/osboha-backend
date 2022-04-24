@@ -26,4 +26,5 @@ class UserGroupSeeder extends Seeder
         //     $i++;    
         // }
     }
-} 
+}
+}

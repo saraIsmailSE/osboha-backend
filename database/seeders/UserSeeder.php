@@ -20,14 +20,15 @@ class UserSeeder extends Seeder
     public function run()
     {
         $i=0;
+        $gender= ['male', 'female'];
         while ($i<=200){
- 
             $user = \App\Models\User::factory()->create([
                 'name' => Str::random(10),
                 'email' => Str::random(10).'@gmail.com',
                 'password' => Hash::make('password'),
                 //'email_verified_at' => Carbon::today()->subDays(rand(0, 365)),
                 'is_blocked' => rand(0,1),
+                'gender' => $gender[rand(0,1)],
                 'is_hold' =>  rand(0,1),
                 'is_excluded' => rand(0,1),
             ]);
