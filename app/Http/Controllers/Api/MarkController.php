@@ -187,7 +187,8 @@ class MarkController extends Controller
                     $highMark = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100' , 100)
                                 ->count();
-                    $rateHighMarkToAudit = $highMark * 50 /100;
+                    //$rateHighMarkToAudit = $highMark * 50 /100;
+                    $rateHighMarkToAudit = $highMark * 10 /100;
                     $highMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100' , 100)
                                 ->inRandomOrder()
@@ -198,7 +199,8 @@ class MarkController extends Controller
                     $lowMark = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100', '<' , 100)
                                 ->count();
-                    $rateLowMarkToAudit = $lowMark * 50 /100;
+                    //$rateLowMarkToAudit = $lowMark * 50 /100;
+                    $rateLowMarkToAudit = $lowMark * 10 /100;
                     $lowMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100','!=' , 100)
                                 ->inRandomOrder()
@@ -219,15 +221,15 @@ class MarkController extends Controller
                     $supervisorMark = Mark::whereIn('user_id',$supervisorAuditMarks)
                                 ->count();
                    // $rateSupervisorMark  = $supervisorMark * 10 /100;
-                    $rateSupervisorMark1  = $lowMark * 100 /100;
+                    $rateSupervisorMark1  = $lowMark * 10 /100;
                     $advisorMarks1 = Mark::whereIn('user_id',$supervisorAuditMarks)
                                 ->inRandomOrder()
                                 ->limit($rateSupervisorMark1)
                                 ->pluck('user_id')->toArray();
 
                     //Get 5% of not supervisor Marks
-                    //$rateSupervisorMark2 = count($allAmbassadorsID) * 5 /100;
-                    $rateSupervisorMark2 = count($allAmbassadorsID) * 25 /100;
+                    $rateSupervisorMark2 = count($allAmbassadorsID) * 5 /100;
+                    //$rateSupervisorMark2 = count($allAmbassadorsID) * 25 /100;
 
                     $advisorMarks2 = Mark::whereIn('user_id',$allAmbassadorsID)
                                         ->whereNotIn('user_id',$supervisorAuditMarks)
@@ -276,18 +278,18 @@ class MarkController extends Controller
 
         if(Auth::user()->can('audit mark')){
             $current_week = Week::latest()->pluck('id')->first();
-            $groupAuditMark = AuditMark::where('leader_id',5)
-                            //->where('aduitor_id',Auth::id)
-                            ->where('aduitor_id',2 )
+            $groupAuditMark = AuditMark::where('leader_id',$request->leader_id)
+                            ->where('aduitor_id',Auth::id)
+                            //->where('aduitor_id',2 )
                             ->where('week_id',$current_week)
                             ->pluck('aduitMarks')
                             ->first();
 
             if($groupAuditMark){
                 $note = AuditMark::select('note','status')
-                            ->where('leader_id',5)
-                            //->where('aduitor_id',Auth::id)
-                            ->where('aduitor_id',2 )
+                            ->where('leader_id',$request->leader_id)
+                            ->where('aduitor_id',Auth::id)
+                            //->where('aduitor_id',2 )
                             ->where('week_id',$current_week)
                             ->first();
 
@@ -322,7 +324,7 @@ class MarkController extends Controller
         }
 
         if(Auth::user()->can('audit mark')){
-            $auditMarks = AuditMark::where('leader_id' , 99)->first();
+            $auditMarks = AuditMark::where('leader_id' , $request->leader_id)->first();
             if($auditMarks){
                 $auditMarks->note = $request->note;
                 $auditMarks->status = $request->status;
