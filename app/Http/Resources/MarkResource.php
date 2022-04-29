@@ -22,7 +22,8 @@ class MarkResource extends JsonResource
             "support" => $this->support, 
             "total thesis" => $this->total_thesis, 
             "total screenshot" => $this->total_screenshot,
-            "updated at" => $this->updated_at
+            "updated at" => $this->updated_at,
+            "thesis" => $this->thesis,
         ];
     }
 }
