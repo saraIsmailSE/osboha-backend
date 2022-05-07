@@ -129,6 +129,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
+        //Route::get('/statsmark', [MarkController::class, 'statsMark']);
     });
     ########End Mark########
 
@@ -141,6 +142,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/list', [RejectedMarkController::class, 'list_user_mark']);
     });
     ########End RejectedMark ########
+
     #########UserException########
     Route::group(['prefix' => 'userexception'], function(){
         Route::get('/',[UserExceptionController::class,'index']);
