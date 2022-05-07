@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
     {
         $i=0;
         while ($i<=200){
- 
+            
             $user = \App\Models\User::factory()->create([
                 'name' => Str::random(10),
                 'email' => Str::random(10).'@gmail.com',
@@ -70,4 +70,3 @@ class UserSeeder extends Seeder
          }
     }
 } 
-

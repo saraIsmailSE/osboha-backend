@@ -1606,7 +1606,6 @@
         },
         {
             "name": "league/mime-type-detection",
-
             "version": "1.10.0",
             "source": {
                 "type": "git",
