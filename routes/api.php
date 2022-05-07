@@ -49,6 +49,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [BookController::class, 'show']);
         Route::post('/update', [BookController::class, 'update']);
         Route::post('/delete', [BookController::class, 'delete']);
+        Route::post('/book-by-type', [BookController::class, 'bookByType']);
+        Route::post('/book-by-level', [BookController::class, 'bookByLevel']);
+        Route::post('/book-by-section', [BookController::class, 'bookBySection']);
+        Route::post('/book-by-name', [BookController::class, 'bookByName']);
+
 
     });
     ########End Book########
@@ -124,7 +129,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
-        Route::get('/statsmark', [MarkController::class, 'statsMark']);
+        //Route::get('/statsmark', [MarkController::class, 'statsMark']);
     });
     ########End Mark########
 
@@ -184,7 +189,6 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [SocialMediaController::class, 'show']);
         Route::post('/update', [SocialMediaController::class, 'update']);
         Route::post('/delete', [SocialMediaController::class, 'delete']);
-
     });
     ########End SocialMedia########
 
@@ -248,7 +252,6 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/delete', [PollVoteController::class, 'delete']);
     });
     ########End Poll-Vote########
-
     ########User-Profile########
     Route::group(['prefix'=>'user-profile'], function(){
         Route::post('/show', [UserProfileController::class, 'show']);
@@ -291,6 +294,5 @@ Route::middleware('auth:sanctum')->group( function () {
     });
     ######## thesis ########
    
-  Route::get('/stats', [MarkController::class, 'statsMark']);
 });
 

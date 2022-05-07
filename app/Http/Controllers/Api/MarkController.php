@@ -17,8 +17,7 @@ use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
 use Carbon\Carbon;
-use App\libstats\MarksStats;
-use Spatie\Stats\StatsQuery;
+
 
 class MarkController extends Controller
 {
