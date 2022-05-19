@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\UserGroupController;
 */
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     ########Book########

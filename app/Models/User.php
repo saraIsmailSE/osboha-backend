@@ -22,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'gender',
+        'request_id',
         'user_type',
         'email_verified_at',
         'is_blocked',
@@ -74,6 +76,9 @@ class User extends Authenticatable
     public function Group(){
         return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type');
     }
+    public function LeaderRrequest(){
+        return $this->hasMany(leader_request::class);
+
     public function messages()
     {
         return $this->hasMany(Message::class,'user_id');

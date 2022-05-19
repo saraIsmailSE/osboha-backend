@@ -60,7 +60,6 @@ class ArticleController extends Controller
                 'user_id' => Auth::id(),
                 'section' => $request->section,
             ]); 
-
             //success response after creating the article
             return $this->jsonResponse(new ArticleResource($article), 'data', 200,'Article Created Successfully');
         }else{
