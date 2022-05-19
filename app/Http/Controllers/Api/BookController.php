@@ -157,4 +157,76 @@ class BookController extends Controller
             throw new NotAuthorized;
         }
     }
+
+    public function bookByType(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $books = Book::where('type',$request->type)->get();
+        if($books->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        }
+        else{
+            throw new NotFound;   
+        }        
+    }
+    public function bookByLevel(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'level' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $books = Book::where('level',$request->level)->get();
+        if($books->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        }
+        else{
+            throw new NotFound;   
+        }        
+    }
+
+    public function bookBySection(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'section' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $books = Book::where('section',$request->section)->get();
+        if($books->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        }
+        else{
+            throw new NotFound;   
+        }        
+    }
+
+    public function bookByName(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $books = Book::where('name','LIKE','%'.$request->name.'%')->get();
+        if($books->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        }
+        else{
+            throw new NotFound;   
+        }        
+    }
+
 }
