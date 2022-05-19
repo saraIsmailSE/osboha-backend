@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInfographicsTable extends Migration
+class CreateSectionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CreateInfographicsTable extends Migration
      */
     public function up()
     {
-        Schema::create('infographics', function (Blueprint $table) {
+        Schema::create('sections', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->integer('designer_id');
-            $table->integer('section_id');
-            $table->integer('series_id')->nullable();
+            // section could be: 'علمي', 'تاريخي', 'ديني', 'سياسي' , 'انجليزي' , 'ثقافي' ,'تربوي' ,'تنمية' ...
+            $table->string('section');
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ class CreateInfographicsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('infographics');
+        Schema::dropIfExists('sections');
     }
 }

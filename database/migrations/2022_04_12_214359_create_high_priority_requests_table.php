@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInfographicsTable extends Migration
+class CreateHighPriorityRequestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateInfographicsTable extends Migration
      */
     public function up()
     {
-        Schema::create('infographics', function (Blueprint $table) {
+        Schema::create('high_priority_requests', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->integer('designer_id');
-            $table->integer('section_id');
-            $table->integer('series_id')->nullable();
+            $table->integer('request_id');
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ class CreateInfographicsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('infographics');
+        Schema::dropIfExists('high_priority_requests');
     }
 }

@@ -13,6 +13,9 @@ use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use App\Models\Group;
+
+
 
 class UserGroupController extends Controller
 {
@@ -67,9 +70,13 @@ class UserGroupController extends Controller
         if(Auth::user()->can('assgin role')){
             $user = User::find($request->user_id);
             $role = Role::where('name' ,$request->user_type)->first();
+            $group = Group::where('id' ,$request->group_id)->first();
             
             $user->assignRole($role);
 
+            $msg = "Now, you are " . $role->name ." in ". $group->name ." group" ;
+            (new NotificationController)->sendNotification($request->user_id , $msg);
+ 
             $userGroup = UserGroup::create($request->all());
 
             return $this->jsonResponse(new UserGroupResource($userGroup), 'data', 200, 'User Group Created Successfully');
@@ -100,9 +107,13 @@ class UserGroupController extends Controller
 
                 $user = User::find($request->user_id);
                 $role = Role::where('name' ,$request->user_type)->first();
+                $group = Group::where('id' ,$request->group_id)->first();
                 
                 $user->removeRole($role);
     
+                $msg = "You are not a " . $role->name ." in ". $group->name ." group anymore, because you " . $request->termination_reason;
+                (new NotificationController)->sendNotification($request->user_id , $msg);
+
                 $userGroup->update($request->all());
     
                 return $this->jsonResponse(new UserGroupResource($userGroup), 'data', 200, 'User Group Updated Successfully');

@@ -18,7 +18,7 @@ class CreateGroupsTable extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             // type could be (reading - leading - advising - supervising)
-            $table->string('type');
+            $table->integer('type_id');
             $table->string('cover_picture')->nullable();
             $table->integer('creator_id');
             $table->integer('timeline_id');
