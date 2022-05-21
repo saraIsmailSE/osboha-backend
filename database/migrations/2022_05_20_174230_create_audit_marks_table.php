@@ -20,7 +20,7 @@ class CreateAuditMarksTable extends Migration
             $table->integer('leader_id');
             $table->text('aduitMarks');
             $table->text('note')->nullable();
-            $table->text('status');
+            $table->integer('status')->default(0);
             $table->timestamps();
         });
     }

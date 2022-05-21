@@ -125,7 +125,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
         Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
-        Route::post('/audit/all', [MarkController::class, 'allAuditmarks']);        
+        Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);         
         Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);        
         Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
 

@@ -156,13 +156,12 @@ class MarkController extends Controller
     {
         if(Auth::user()->can('audit mark')){
 
-            $current_week = Week::latest()->pluck('id')->first();
+            $current_week =4;// Week::latest()->pluck('id')->first();
             $weekAuditMarks = AuditMark::where('week_id',$current_week)->exists();
 
             if (!$weekAuditMarks){
 
-                //$groupsID = Group::where('type' ,??)->pluck('id');
-                $groupsID = Group::limit(3)->pluck('id');
+                $groupsID = Group::where('type' ,'reading')->pluck('id'); 
 
                 foreach ($groupsID as $key => $groupID) {
 
@@ -187,25 +186,25 @@ class MarkController extends Controller
                     $highMark = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100' , 100)
                                 ->count();
-                    //$rateHighMarkToAudit = $highMark * 50 /100;
+
                     $rateHighMarkToAudit = $highMark * 10 /100;
                     $highMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100' , 100)
                                 ->inRandomOrder()
                                 ->limit($rateHighMarkToAudit)
-                                ->pluck('user_id')->toArray();
+                                ->pluck('id')->toArray();
                        
                     //Get 10% of not Full Mark
                     $lowMark = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100', '<' , 100)
                                 ->count();
-                    //$rateLowMarkToAudit = $lowMark * 50 /100;
+                    
                     $rateLowMarkToAudit = $lowMark * 10 /100;
                     $lowMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
                                 ->where('out_of_100','!=' , 100)
                                 ->inRandomOrder()
                                 ->limit($rateLowMarkToAudit)
-                                ->pluck('user_id')->toArray();
+                                ->pluck('id')->toArray();
                     $supervisorAuditMarks = array_merge($highMarkToAudit ,$lowMarkToAudit);
 
                     // Save Marks for supervisors
@@ -214,27 +213,25 @@ class MarkController extends Controller
                     $auditMarks->aduitor_id=$supervisorID;
                     $auditMarks->leader_id=$leaderID;
                     $auditMarks->aduitMarks=serialize($supervisorAuditMarks);
-                    $auditMarks->status='To aduit';
                     $auditMarks->save();
 
                     //Get 10% of supervisor Marks
-                    $supervisorMark = Mark::whereIn('user_id',$supervisorAuditMarks)
+                    $supervisorMark = Mark::whereIn('id',$supervisorAuditMarks)
                                 ->count();
-                   // $rateSupervisorMark  = $supervisorMark * 10 /100;
+                    
                     $rateSupervisorMark1  = $lowMark * 10 /100;
                     $advisorMarks1 = Mark::whereIn('user_id',$supervisorAuditMarks)
                                 ->inRandomOrder()
                                 ->limit($rateSupervisorMark1)
-                                ->pluck('user_id')->toArray();
+                                ->pluck('id')->toArray();
 
                     //Get 5% of not supervisor Marks
                     $rateSupervisorMark2 = count($allAmbassadorsID) * 5 /100;
-                    //$rateSupervisorMark2 = count($allAmbassadorsID) * 25 /100;
 
                     $advisorMarks2 = Mark::whereIn('user_id',$allAmbassadorsID)
                                         ->whereNotIn('user_id',$supervisorAuditMarks)
                                         ->limit($rateSupervisorMark2)
-                                        ->pluck('user_id')->toArray();
+                                        ->pluck('id')->toArray();
 
                     $advisorAuditMarks = array_merge($advisorMarks1 ,$advisorMarks2);
 
@@ -244,7 +241,6 @@ class MarkController extends Controller
                     $auditMarks->aduitor_id=$advisorID;
                     $auditMarks->leader_id=$leaderID;
                     $auditMarks->aduitMarks=serialize($advisorAuditMarks);
-                    $auditMarks->status='To aduit';
                     $auditMarks->save();
 
                 }
@@ -258,6 +254,35 @@ class MarkController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
+
+
+    /*
+        leadersAuditmarks Function
+        To show all leaders marks for auditor
+        Return: leaders marks for current auditor in current week
+    */
+    public function leadersAuditmarks()
+    {
+        if(Auth::user()->can('audit mark')){
+            $current_week = Week::latest()->pluck('id')->first();
+            $leadersAuditMarksId = AuditMark::where('aduitor_id', Auth::id())
+                            ->where('week_id',$current_week)
+                            ->pluck('leader_id');
+            if($leadersAuditMarksId){ 
+                $leadersMark = Mark::whereIn('user_id',$leadersAuditMarksId)
+                                ->where('week_id',$current_week) 
+                                ->get();
+                return $this->jsonResponseWithoutMessage(MarkResource::collection($leadersMark), 'data',200);
+
+            } else {
+                throw new NotFound;
+            }  
+
+        } else {
+            throw new NotAuthorized;
+        }
+
     }
 
     /*
@@ -278,26 +303,28 @@ class MarkController extends Controller
 
         if(Auth::user()->can('audit mark')){
             $current_week = Week::latest()->pluck('id')->first();
-            $groupAuditMark = AuditMark::where('leader_id',$request->leader_id)
-                            ->where('aduitor_id',Auth::id)
-                            //->where('aduitor_id',2 )
+            $auditMarksId = AuditMark::where('leader_id', $request->leader_id)
                             ->where('week_id',$current_week)
+                            ->where('aduitor_id',Auth::id())
+                            ->pluck('id')
+                            ->first(); 
+
+            if($auditMarksId){
+                $auditMarksIds = AuditMark::where('id',$auditMarksId)
                             ->pluck('aduitMarks')
                             ->first();
 
-            if($groupAuditMark){
                 $note = AuditMark::select('note','status')
-                            ->where('leader_id',$request->leader_id)
-                            ->where('aduitor_id',Auth::id)
-                            //->where('aduitor_id',2 )
-                            ->where('week_id',$current_week)
+                            ->where('id',$auditMarksId)
                             ->first();
 
-                $marks = unserialize($groupAuditMark);
-                $aduitMarks = Mark::whereIn('user_id',$marks)->get(); 
+                $marksId = unserialize($auditMarksIds);
+                $aduitMarks = Mark::whereIn('id',$marksId)->get();
                 $aduitMarks = MarkResource::collection($aduitMarks);
-                $marksAndNote = $aduitMarks->merge($note);
+                $marksAndNote = $aduitMarks->merge($note);  
+
                 return $this->jsonResponseWithoutMessage($marksAndNote, 'data',200);
+
             } else {
                 throw new NotFound;
             }
@@ -314,7 +341,7 @@ class MarkController extends Controller
     public function updateAuditMark(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'leader_id' => 'required',
+            'auditMark_id' => 'required',
             'note' => 'required',
             'status' => 'required'
         ]);
@@ -324,7 +351,7 @@ class MarkController extends Controller
         }
 
         if(Auth::user()->can('audit mark')){
-            $auditMarks = AuditMark::where('leader_id' , $request->leader_id)->first();
+            $auditMarks = AuditMark::where('id' , $request->auditMark_id)->first();
             if($auditMarks){
                 $auditMarks->note = $request->note;
                 $auditMarks->status = $request->status;
