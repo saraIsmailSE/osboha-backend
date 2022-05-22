@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Api\NotificationController;
+//use App\Http\Controllers\Api\NotificationController;
 use App\Models\User;
 use App\Models\Sign_up;
 use App\Traits\ResponseJson;
@@ -68,24 +68,47 @@ class AuthController extends Controller
     }
     
     public function allocateAmbassador($ambassador){
-        
-        DB::transaction(function () use($ambassador) {
+        $leader_gender = $ambassador['leader_gender'];
+        $ambassador_gender = $ambassador['gender'];
+        // if($leader_gender == 'any'){
+        //     $condition_ambassador = "where('leader_requests.gender', '=', $ambassador_gender)";
+        // }
+        // else{
+        //     $condition_ambassador = "where('leader_requests.gender', '=', $ambassador_gender)->orwhere('leader_requests.gender', '=', 'any' )";
+        //     $condition_leader = "where('users.gender', '=', $leader_gender )";
+
+        // }
+        if ($ambassador_gender == 'any') {
+            $ambassador_condition = "where('leader_requests.gender', '=', $ambassador_gender)";
+          }
+          else{
+            $ambassador_condition = "where('leader_requests.gender', '=', $ambassador_gender)->orwhere('leader_requests.gender', '=', 'any' )";
+          }
+      
+          if ($leader_gender == "any") {
+            $leader_condition = "where('users.gender', '=', $leader_gender)->orwhere('users.gender', '=', 'male')->orwhere('users.gender', '=', 'female')";
+          }
+          else{
+            $leader_condition = "where('users.gender', '=', $leader_gender )";
+          }
+    
+        DB::transaction(function () use($ambassador,$ambassador_condition,$leader_condition) {
             $exit=false;
             while (! $exit ) {
                 // Check for High Priority Requests
-                $result = Sign_up::selectHighPriority($ambassador['leader_gender'],$ambassador['gender']);
+                $result = Sign_up::selectHighPriority($ambassador_condition,$leader_condition);
                 if ($result->count() == 0){ 
                  // Check for SpecialCare
-                 $result = Sign_up::selectSpecialCare($ambassador['leader_gender'],$ambassador['gender']);
+                 $result = Sign_up::selectSpecialCare($ambassador_condition,$leader_condition);
                  if ($result->count() == 0){
                      //Check New Teams
-                     $result = Sign_up::selectTeam($ambassador['leader_gender'],$ambassador['gender']);
+                     $result = Sign_up::selectTeam($ambassador_condition,$leader_condition);
                      if ($result->count() == 0){
                          //Check Teams With Less Than 12 Members
-                         $result=Sign_up::selectTeam_between($ambassador['leader_gender'],$ambassador['gender'],"1","12");
+                         $result=Sign_up::selectTeam_between($ambassador_condition,$leader_condition,"1","12");
                          if ($result->count() == 0){
                               //Check Teams With Less More 12 Members
-                              $result=Sign_up::selectTeam($ambassador['leader_gender'],$ambassador['gender'],">","12");
+                              $result=Sign_up::selectTeam($ambassador_condition,$leader_condition,">","12");
                               if ($result->count() == 0){
                                 // print_r($ambassador);
                                  $ambassadorWithoutLeader = User::create($ambassador);
@@ -157,16 +180,16 @@ class AuthController extends Controller
             if ($result->members_num <= $countRequest) {
                 Sign_up::updateRequest($result->id);
                 $msg = "You request is done";
-                (new NotificationController)->sendNotification($result->leader_id , $msg);
+               // (new NotificationController)->sendNotification($result->leader_id , $msg);
             }
             $msg = "You have new user to your team";
-            (new NotificationController)->sendNotification($result->leader_id , $msg);
+            //(new NotificationController)->sendNotification($result->leader_id , $msg);
             return true;
             }
             else{
                 Sign_up::updateRequest($result->id);    
                 $msg = "You request is done";
-                (new NotificationController)->sendNotification($result->leader_id , $msg);           
+               // (new NotificationController)->sendNotification($result->leader_id , $msg);           
                 return false;
             }
         }

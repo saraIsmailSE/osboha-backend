@@ -117,6 +117,7 @@ class FriendController extends Controller
         } 
         else {
             throw new NotFound;
+            
         }
         
         
