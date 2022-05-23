@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PostSeeder::class);
         $this->call(BookSeeder::class);
         $this->call(UserSeeder::class);
-        $this->call(FreindSeeder::class);
+        $this->call(FriendSeeder::class);
         $this->call(GroupSeeder::class);
         $this->call(UserGroupSeeder::class);
         $this->call(ThesisSeeder::class);
