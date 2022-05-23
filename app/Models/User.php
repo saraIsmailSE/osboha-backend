@@ -78,7 +78,7 @@ class User extends Authenticatable
     }
     public function LeaderRrequest(){
         return $this->hasMany(leader_request::class);
-
+    }
     public function messages()
     {
         return $this->hasMany(Message::class,'user_id');
@@ -86,7 +86,7 @@ class User extends Authenticatable
     public function participant()
     {
         return $this->hasMany(Participant::class,'user_id');
-
+    }
     public function post(){
         return $this->hasMany(Post::class);
     }
