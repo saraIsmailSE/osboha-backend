@@ -48,7 +48,29 @@ class GroupController extends Controller
           throw new NotAuthorized;
         }
     }
+    public function GroupByType(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'type_id' => 'required',
+        ]);
 
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        if(Auth::user()->can('list groups')){
+
+            $groups = Group::where('type_id',$request->type_id)->get();
+            if($groups->isNotEmpty()){
+                return $this->jsonResponseWithoutMessage(GroupResource::collection($groups), 'data',200);
+            }
+            else{
+                throw new NotFound;   
+            } 
+        }
+        else{
+            throw new NotAuthorized;
+        }       
+    }
     /**
      * Create new group
      *
@@ -62,7 +84,7 @@ class GroupController extends Controller
         $validator=Validator::make($input,[
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'type' => 'required|string',
+            'type_id' => 'required',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
             'creator_id' => 'required|int'
         ]);
@@ -136,7 +158,7 @@ class GroupController extends Controller
             'group_id' => 'required',
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'type' => 'required|string',
+            'type_id' => 'required',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
             'creator_id' => 'required|int'
         ]);
