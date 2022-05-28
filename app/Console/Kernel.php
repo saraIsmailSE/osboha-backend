@@ -2,11 +2,14 @@
 
 namespace App\Console;
 
+use App\Console\Commands\generateAuditMark;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+    protected  $commands = [ generateAuditMark::class ];
+   
     /**
      * Define the application's command schedule.
      *
@@ -15,7 +18,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('generate:auditMark')
+                    ->timezone('Asia/Riyadh')
+                    ->weeklyOn(6, '6:00'); // every Sundy at 06:00 am (6 => Sundy)
     }
 
     /**
