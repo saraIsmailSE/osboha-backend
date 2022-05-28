@@ -146,7 +146,6 @@ class MarkController extends Controller
         }
     }
 
-<<<<<<< HEAD
 
     /*
         generateAuditMarks Function
@@ -157,7 +156,7 @@ class MarkController extends Controller
     {
         if(Auth::user()->can('audit mark')){
 
-            $current_week =4;// Week::latest()->pluck('id')->first();
+            $current_week =Week::latest()->pluck('id')->first();
             $weekAuditMarks = AuditMark::where('week_id',$current_week)->exists();
 
             if (!$weekAuditMarks){
@@ -221,7 +220,7 @@ class MarkController extends Controller
                                 ->count();
                     
                     $rateSupervisorMark1  = $lowMark * 10 /100;
-                    $advisorMarks1 = Mark::whereIn('user_id',$supervisorAuditMarks)
+                    $advisorMarks1 = Mark::whereIn('id',$supervisorAuditMarks)
                                 ->inRandomOrder()
                                 ->limit($rateSupervisorMark1)
                                 ->pluck('id')->toArray();
@@ -371,6 +370,4 @@ class MarkController extends Controller
 
     
 
-=======
->>>>>>> 330e933a5a24094c536eb5495fefaed77871ebe8
 }
