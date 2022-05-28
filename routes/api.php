@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\UserGroupController;
 */
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     ########Book########
@@ -49,6 +50,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [BookController::class, 'show']);
         Route::post('/update', [BookController::class, 'update']);
         Route::post('/delete', [BookController::class, 'delete']);
+        Route::post('/book-by-type', [BookController::class, 'bookByType']);
+        Route::post('/book-by-level', [BookController::class, 'bookByLevel']);
+        Route::post('/book-by-section', [BookController::class, 'bookBySection']);
+        Route::post('/book-by-name', [BookController::class, 'bookByName']);
+
 
     });
     ########End Book########
@@ -124,6 +130,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [MarkController::class, 'show']);
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
+<<<<<<< HEAD
         Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
         Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);         
         Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);        
@@ -131,6 +138,9 @@ Route::middleware('auth:sanctum')->group( function () {
 
 
 
+=======
+        //Route::get('/statsmark', [MarkController::class, 'statsMark']);
+>>>>>>> 330e933a5a24094c536eb5495fefaed77871ebe8
     });
     ########End Mark########
 
@@ -143,6 +153,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/list', [RejectedMarkController::class, 'list_user_mark']);
     });
     ########End RejectedMark ########
+
     #########UserException########
     Route::group(['prefix' => 'userexception'], function(){
         Route::get('/',[UserExceptionController::class,'index']);

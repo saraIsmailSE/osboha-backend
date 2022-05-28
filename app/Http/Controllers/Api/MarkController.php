@@ -146,6 +146,7 @@ class MarkController extends Controller
         }
     }
 
+<<<<<<< HEAD
 
     /*
         generateAuditMarks Function
@@ -370,4 +371,6 @@ class MarkController extends Controller
 
     
 
+=======
+>>>>>>> 330e933a5a24094c536eb5495fefaed77871ebe8
 }

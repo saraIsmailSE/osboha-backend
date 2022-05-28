@@ -16,11 +16,10 @@ class InfographicSeriesSeeder extends Seeder
      */
     public function run()
     {
-        $section= ['علمي', 'تاريخي', 'ديني', 'سياسي' , 'انجليزي' , 'ثقافي' ,'تربوي' ,'تنمية'];
         for($i=0; $i<5; $i++){
             InfographicSeries::create([
                 'title' => Str::random(15),
-                'section' => $section[rand(0,7)],
+                'section_id' =>rand(1,7),
             ]);
         }
     }
