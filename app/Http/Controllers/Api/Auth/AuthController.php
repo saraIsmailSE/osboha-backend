@@ -70,14 +70,6 @@ class AuthController extends Controller
     public function allocateAmbassador($ambassador){
         $leader_gender = $ambassador['leader_gender'];
         $ambassador_gender = $ambassador['gender'];
-        // if($leader_gender == 'any'){
-        //     $condition_ambassador = "where('leader_requests.gender', '=', $ambassador_gender)";
-        // }
-        // else{
-        //     $condition_ambassador = "where('leader_requests.gender', '=', $ambassador_gender)->orwhere('leader_requests.gender', '=', 'any' )";
-        //     $condition_leader = "where('users.gender', '=', $leader_gender )";
-
-        // }
         if ($ambassador_gender == 'any') {
             $ambassador_condition = "where('leader_requests.gender', '=', $ambassador_gender)";
           }
