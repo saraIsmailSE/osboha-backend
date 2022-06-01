@@ -16,7 +16,7 @@ class CreateInfographicSeriesTable extends Migration
         Schema::create('infographic_series', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('section');
+            $table->integer('section_id');
             $table->timestamps();
         });
     }

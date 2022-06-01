@@ -178,6 +178,8 @@ class PermissionsSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' =>$password,
+            'gender'=> 'male'
+
         ]);
         $user->assignRole($role1);
 
@@ -185,6 +187,8 @@ class PermissionsSeeder extends Seeder
             'name' => 'Advisor User',
             'email' => 'advisor@example.com',
             'password' =>$password,
+            'gender'=> 'male'
+
         ]);
         $user->assignRole($role2);
 
@@ -192,6 +196,8 @@ class PermissionsSeeder extends Seeder
             'name' => 'Supervisor User',
             'email' => 'supervisor@example.com',
             'password' =>$password,
+            'gender'=> 'male'
+
         ]);
         $user->assignRole($role3);
 
@@ -199,6 +205,8 @@ class PermissionsSeeder extends Seeder
             'name' => 'Leader User',
             'email' => 'leader@example.com',
             'password' =>$password,
+            'gender'=> 'male'
+
         ]);
         $user->assignRole($role4);
 
@@ -206,6 +214,8 @@ class PermissionsSeeder extends Seeder
             'name' => 'Ambassador User',
             'email' => 'ambassador@example.com',
             'password' =>$password,
+            'gender'=> 'male'
+
         ]);
         $user->assignRole($role5);
     }

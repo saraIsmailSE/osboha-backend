@@ -16,8 +16,6 @@ class BookSeeder extends Seeder
     public function run()
     {
 
-        $section= ['علمي', 'تاريخي', 'ديني', 'سياسي' , 'انجليزي' , 'ثقافي' ,'تربوي' ,'تنمية'];
-        $type= ['noraml', 'ramadan', 'young', 'kids'];
         $level= ['بسيط', 'متوسط', 'عميق'];
        $i=0;
         while ($i<=200){
@@ -31,8 +29,8 @@ class BookSeeder extends Seeder
                 'start_page' => 1,
                 'end_page' => rand(150,600),
                 'link' => 'https://www.google.com/',
-                'section' => $section[rand(0,7)],
-                'type' => $type[rand(0,3)],
+                'section_id' =>rand(1,7),
+                'type_id' => rand(1,3),
                 'level' => $level[rand(0,2)],
             ]);
             $i++;    

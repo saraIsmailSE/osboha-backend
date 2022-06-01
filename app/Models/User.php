@@ -83,7 +83,7 @@ class User extends Authenticatable
     public function AmbassadorRrequest()
     {
         return $this->hasone(leader_request::class);
-    }
+
     public function messages()
     {
         return $this->hasMany(Message::class,'user_id');

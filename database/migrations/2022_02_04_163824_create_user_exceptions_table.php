@@ -18,7 +18,7 @@ class CreateUserExceptionsTable extends Migration
             $table->integer('user_id');
             $table->integer('week_id');
             $table->string('reason');
-            $table->string('type'); // type could be (freeze - exceptional_freeze - exams)
+            $table->integer('type_id');
             $table->integer('duration'); // in days
             $table->string('status')->default('pending');
             $table->date('start_at')->nullable();
