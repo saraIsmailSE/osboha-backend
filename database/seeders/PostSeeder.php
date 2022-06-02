@@ -16,7 +16,6 @@ class PostSeeder extends Seeder
     public function run()
     {
 
-        $type= ['noraml', 'book', 'article', 'infographic', 'support', 'discussion'];
        $i=0;
         while ($i<=200){
             
@@ -24,7 +23,7 @@ class PostSeeder extends Seeder
                 'body' => Str::random(3000),
                 'user_id' => rand(1,30),
                 'timeline_id' => rand(1,30),
-                'type' => $type[rand(0,5)],
+                'type_id' => rand(1,5),
             ]);
             $i++;    
         }
