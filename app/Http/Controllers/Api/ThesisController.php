@@ -121,7 +121,7 @@ class ThesisController extends Controller
 
             $mark_out_of_100 = $mark_out_of_90;
 
-            if ($mark_record->support == 1) {
+            if ($mark_record->support == SUPPORT_MARK && $mark_out_of_100 > 0) {
                 $mark_out_of_100 += SUPPORT_MARK;
             }
 
@@ -245,7 +245,7 @@ class ThesisController extends Controller
 
                     $mark_out_of_100 = $mark_out_of_90;
 
-                    if ($mark_record->support == 1) {
+                    if ($mark_record->support == SUPPORT_MARK && $mark_out_of_100 > 0) {
                         $mark_out_of_100 += SUPPORT_MARK;
                     }
 
@@ -290,9 +290,10 @@ class ThesisController extends Controller
         $thesis = Thesis::where('id', $request->thesis_id)->first(
             [
                 'id', 'thesis_type_id', 'total_pages', 'mark_id',
-                'max_length', 'total_screenshots'
+                'max_length', 'total_screenshots', 'comment_id'
             ]
         );
+        $comment = Comment::where('id', $thesis->comment_id)->first('id');
 
         if ($thesis) {
             $week_id = Week::all('id')->last()->id;
@@ -305,6 +306,7 @@ class ThesisController extends Controller
             if ($mark_record) {
                 if ($week_id == $mark_record->week_id) {
                     $thesis->delete();
+                    $comment->delete();
 
                     $mark_out_of_90 = $this->calculate_mark_for_all_thesis($thesis->mark_id);
 
@@ -314,7 +316,7 @@ class ThesisController extends Controller
 
                     $mark_out_of_100 = $mark_out_of_90;
 
-                    if ($mark_record->support == 1) {
+                    if ($mark_record->support == SUPPORT_MARK && $mark_out_of_100 > 0) {
                         $mark_out_of_100 += SUPPORT_MARK;
                     }
 
