@@ -71,36 +71,37 @@ class AuthController extends Controller
         $leader_gender = $ambassador['leader_gender'];
         $ambassador_gender = $ambassador['gender'];
         if ($ambassador_gender == 'any') {
-            $ambassador_condition = "where('leader_requests.gender', '=', $ambassador_gender)";
+            $ambassador_condition = array($ambassador_gender);
           }
           else{
-            $ambassador_condition = "where('leader_requests.gender', '=', $ambassador_gender)->orwhere('leader_requests.gender', '=', 'any' )";
+            $ambassador_condition = array($ambassador_gender,'any');
           }
       
           if ($leader_gender == "any") {
-            $leader_condition = "where('users.gender', '=', $leader_gender)->orwhere('users.gender', '=', 'male')->orwhere('users.gender', '=', 'female')";
+            $leader_condition = array('male','female');
           }
           else{
-            $leader_condition = "where('users.gender', '=', $leader_gender )";
+            $leader_condition = array($leader_gender);
           }
-    
+        
         DB::transaction(function () use($ambassador,$ambassador_condition,$leader_condition) {
             $exit=false;
             while (! $exit ) {
+                
                 // Check for High Priority Requests
-                $result = Sign_up::selectHighPriority($ambassador_condition,$leader_condition);
+                $result = Sign_up::selectHighPriority($leader_condition,$ambassador_condition);
                 if ($result->count() == 0){ 
                  // Check for SpecialCare
-                 $result = Sign_up::selectSpecialCare($ambassador_condition,$leader_condition);
+                 $result = Sign_up::selectSpecialCare($leader_condition,$ambassador_condition);
                  if ($result->count() == 0){
                      //Check New Teams
-                     $result = Sign_up::selectTeam($ambassador_condition,$leader_condition);
+                     $result = Sign_up::selectTeam($leader_condition,$ambassador_condition);
                      if ($result->count() == 0){
                          //Check Teams With Less Than 12 Members
-                         $result=Sign_up::selectTeam_between($ambassador_condition,$leader_condition,"1","12");
+                         $result=Sign_up::selectTeam_between($leader_condition,$ambassador_condition,"1","12");
                          if ($result->count() == 0){
                               //Check Teams With Less More 12 Members
-                              $result=Sign_up::selectTeam($ambassador_condition,$leader_condition,">","12");
+                              $result=Sign_up::selectTeam($leader_condition,$ambassador_condition,">","12");
                               if ($result->count() == 0){
                                 // print_r($ambassador);
                                  $ambassadorWithoutLeader = User::create($ambassador);

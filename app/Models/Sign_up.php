@@ -1,124 +1,79 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Models;
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Api\NotificationController;
-use Illuminate\Http\Request;
-use App\Models\Friend;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
-use App\Traits\ResponseJson;
-use App\Exceptions\NotAuthorized;
-use App\Exceptions\NotFound;
-use App\Http\Resources\FriendResource;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\support\facades\DB;
 
 
-class FriendController extends Controller
-{   
-    use ResponseJson;
+class Sign_up extends Model
+{
+    use HasFactory;
+
+    public function selectHighPriority($leader_condition,$ambassador_condition){
+        $users = DB::table('leader_requests')
+        ->join('users', 'leader_requests.leader_id', '=', 'users.id')
+        ->join('high_priority_requests', 'leader_requests.id', '=', 'high_priority_requests.request_id')
+        ->where('leader_requests.is_done', '=', 0 )
+        ->whereIn('leader_requests.gender',$leader_condition)
+        ->whereIn('users.gender',$ambassador_condition)
+        ->select('leader_requests.*', 'users.gender')
+        ->orderByDesc('high_priority_requests.id')
+        ->limit(1)->get();
+      
+      return $users ;
+           
+	}//selectHighPriority
     
-    public function index()
-    {
-        $friends = Friend::where('user_id', Auth::id());
-        if ($friends) {
-            return $this->jsonResponseWithoutMessage($friends, 'data', 200);
-            //return $this->jsonResponseWithoutMessage(FriendResource::collection($friends), 'data', 200);
-        } 
-        else {
-            throw new NotFound;
-        }
-    }
+	public function selectSpecialCare($leader_gender,$ambassador_gender){
+         $users = DB::table('leader_requests')
+         ->join('users', 'leader_requests.leader_id', '=', 'users.id')
+         ->where('leader_requests.current_team_count', '=', 40 )//just for test
+         ->whereIn('leader_requests.gender',$leader_condition)
+         ->whereIn('users.gender',$ambassador_condition)
+         ->where('leader_requests.is_done', '=', 0 )
+         ->select('leader_requests.*', 'users.gender')
+         ->orderByDesc('leader_requests.created_at')
+        ->limit(1)->get();
 
-    public function create(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'friend_id' => 'required',
-        ]);
+    return $users ;
+	}//selectSpecialCare
+    public function selectTeam($leader_gender,$ambassador_gender,$logical_operator = "=",$value = "0"){
+        $users = DB::table('leader_requests')
+         ->join('users', 'leader_requests.leader_id', '=', 'users.id')
+         ->where('leader_requests.current_team_count', $logical_operator,$value )
+         ->whereIn('leader_requests.gender',$leader_condition)
+         ->whereIn('users.gender',$ambassador_condition)
+         ->where('leader_requests.is_done', '=', 0 )
+         ->select('leader_requests.*', 'users.gender')
+         ->orderByDesc('leader_requests.created_at')
+         ->limit(1)->get();
+      return $users ;
+	}//selectTeam
+  public function selectTeam_between($leader_gender,$ambassador_gender,$value1,$value2){
+      $users = DB::table('leader_requests')
+       ->join('users', 'leader_requests.leader_id', '=', 'users.id')
+       ->whereBetween('leader_requests.current_team_count', [$value1, $value2])
+       ->whereIn('leader_requests.gender',$leader_condition)
+       ->whereIn('users.gender',$ambassador_condition)
+       ->where('leader_requests.is_done', '=', 0 )
+       ->select('leader_requests.*', 'users.gender')
+       ->orderByDesc('leader_requests.created_at')
+       ->limit(1)->get();
+   
+    return $users ;
+}//selectTeam
+  public function countRequests($request_id)
+	{
+    return DB::table('users')
+    ->where('request_id', '=', $request_id )
+    ->count();
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        $input = $request->all();
-        $input['user_id'] = Auth::id();
-        Friend::create($input);
-
-        $msg = "You have new friend request";
-        (new NotificationController)->sendNotification($request->friend_id , $msg);
-
-
-        return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
-    }
-
-    public function show(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'friendship_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $friend = Friend::find($request->Friendship);
-        if ($friend) {
-            return $this->jsonResponseWithoutMessage($friend, 'data', 200);
-            //return $this->jsonResponseWithoutMessage(new FriendResource($friend), 'data', 200);
-        } else {
-            throw new NotFound;
-        }
-    }
-
-    public function update(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'friendship_id' => 'required',
-            'status' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
-
-        $friendship = Friend::find($request->friendship_id);
-        if($friendship){
-            if(Auth::id() == $friendship->user_id){
-                $friendship->update($request->all());
-                return $this->jsonResponseWithoutMessage("Friendship Updated Successfully", 'data', 200);
-            }
-            else{
-                throw new NotAuthorized;   
-            }
-        }
-        else{
-            throw new NotFound;   
-        }
-    
-    }
-
-    public function delete(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'friendship_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $friendship = Friend::find($request->friendship_id);
-        if ($friendship) {
-            if (Auth::id() == $friendship->user_id) {
-                $friendship->delete();
-                return $this->jsonResponseWithoutMessage("Friendship Deleted Successfully", 'data', 200);
-            } else {
-                throw new NotAuthorized;
-            }
-        } 
-        else {
-            throw new NotFound;
-        }
-        
-        
-    }
+	}
+  public function updateRequest( $request_id ) {
+    DB::table('leader_requests')
+    ->where('id', '=', $request_id )
+    ->update(['is_done' => 1]);
+	} //updateRequest
 }

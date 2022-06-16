@@ -24,7 +24,7 @@ class User extends Authenticatable
         'password',
         'gender',
         'request_id',
-        'user_type',
+       // 'user_type',
         'email_verified_at',
         'is_blocked',
         'is_hold',
@@ -82,7 +82,7 @@ class User extends Authenticatable
     }
     public function AmbassadorRrequest()
     {
-        return $this->hasone(leader_request::class);
+        return $this->belongsToOne(leader_request::class);
     }
     public function messages()
     {
@@ -94,7 +94,6 @@ class User extends Authenticatable
     public function post(){
         return $this->hasMany(Post::class);
     }
-
     public function reaction(){
         return $this->hasMany(Reaction::class);
     }
