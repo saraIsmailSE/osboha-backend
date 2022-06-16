@@ -15,12 +15,11 @@ class InfographicSeeder extends Seeder
      */
     public function run()
     {
-        $section= ['علمي', 'تاريخي', 'ديني', 'سياسي' , 'انجليزي' , 'ثقافي' ,'تربوي' ,'تنمية'];
         for($i=0; $i<200; $i++){
             Infographic::create([
                 'title' => Str::random(15),
                 'designer_id' => rand(1, 200),
-                'section' => $section[rand(0,7)],
+                'section_id' =>rand(1,7),
                 'series_id' => rand(1, 5),
             ]);
         }
