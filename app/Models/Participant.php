@@ -9,9 +9,9 @@ class Participant extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id' => 'required',
-        'room_id' => 'required',
-        'type' => 'required',
+        'user_id',
+        'room_id',
+        'type',
     ];
 public function user()
 {

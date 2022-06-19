@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\ProfileSettingController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ThesisController;
 use App\Http\Controllers\Api\UserGroupController;
+use App\Http\Controllers\Api\RoomController;
 
 /*
 |--------------------------------------------------------------------------
@@ -294,6 +295,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);        
     });
     ######## thesis ########
-   
+    ######## Room ########
+    Route::group(['prefix'=>'room'], function(){
+        Route::post('/create', [RoomController::class, 'create']);       
+        Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);        
+    });
+    ######## Room ########
 });
 

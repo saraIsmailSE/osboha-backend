@@ -44,12 +44,7 @@ class RejectedMarkController extends Controller
             'rejecter_note' => 'required', 
             'user_id' => 'required',
             'thesis_id' => 'required', 
-<<<<<<< HEAD
-            'week_id' => 'required',
-            'rejecter_id' => Auth::id()
-=======
             'week_id' => 'required', 
->>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
         ]);
 
         if ($validator->fails()) {
@@ -116,35 +111,21 @@ class RejectedMarkController extends Controller
         }
     } 
 
-<<<<<<< HEAD
-    public function list_user_marks(Request $request){
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'week_id' => 'nullable'
-=======
     public function list_user_mark(Request $request){
         $validator = Validator::make($request->all(), [
             'user_id' => 'required_without:week_id',
             'week_id' => 'required_without:user_id'
->>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-<<<<<<< HEAD
-        if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
-            & $request->week_id == null)
-        {
-            $rejected_marks = RejectedMark::where('user_id', $request->user_id)->get();
-=======
         if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
             && $request->has('week_id') && $request->has('user_id'))
         {
             $rejected_marks = RejectedMark::where('user_id', $request->user_id)
                                             ->where('week_id', $request->week_id)->get();
->>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
             if($rejected_marks){
                 return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
             }
@@ -152,15 +133,6 @@ class RejectedMarkController extends Controller
                 throw new NotFound;
             }
         } 
-<<<<<<< HEAD
-        else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id()) 
-                & $request->week_id != null)
-        {
-            $rejected_marks = RejectedMark::where('user_id', $request->user_id)
-                                            ->where('week_id', $request->week_id)->get();
-            if($rejected_marks){
-                return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
-=======
         else if((Auth::user()->can('audit mark') || $request->user_id == Auth::id())
                 && $request->has('week_id'))
         {
@@ -178,7 +150,6 @@ class RejectedMarkController extends Controller
             $rejected_mark = RejectedMark::where('user_id', $request->user_id)->latest()->first();
             if($rejected_mark){
                 return $this->jsonResponseWithoutMessage(new RejectedMarkResource($rejected_mark), 'data',200);
->>>>>>> e295eaeef50f5eeeeaf7ce10e059a83aff2fce03
             }
             else{
                 throw new NotFound;
@@ -189,51 +160,4 @@ class RejectedMarkController extends Controller
         }    
     }
 
-    // public function rejectedmarks_by_weekid(Request $request){
-    //     $validator = Validator::make($request->all(), [
-    //         'week_id' => 'required',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-    //     }
-
-    //     if(Auth::user()->can('audit mark')){
-    //         $rejected_marks = RejectedMark::where('week_id', $request->week_id)->get();
-    //         if($rejected_marks){
-    //             return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
-    //         }
-    //         else{
-    //             throw new NotFound;
-    //         }
-    //     } 
-    //     else{
-    //         throw new NotAuthorized;   
-    //     }
-    // }
-
-    // public function rejectedmarks_by_userid_and_weekid(Request $request){
-    //     $validator = Validator::make($request->all(), [
-    //         'user_id' => 'required',
-    //         'week_id' => 'required',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-    //     }
-
-    //     if(Auth::user()->can('audit mark')){
-    //         $rejected_marks = RejectedMark::where('user_id', $request->user_id)
-    //                                         ->where('week_id', $request->week_id)->get();
-    //         if($rejected_marks){
-    //             return $this->jsonResponseWithoutMessage(RejectedMarkResource::collection($rejected_marks), 'data',200);
-    //         }
-    //         else{
-    //             throw new NotFound;
-    //         }
-    //     } 
-    //     else{
-    //         throw new NotAuthorized;   
-    //     }
-    // }
 }
