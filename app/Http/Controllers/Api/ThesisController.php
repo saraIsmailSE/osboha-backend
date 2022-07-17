@@ -43,429 +43,479 @@ class ThesisController extends Controller
 
     public function create(Request $request)
     {
-        $validator = Validator::make($request->all(), 
-        [
-          'total_pages' => 'required|numeric',
-          'total_screenshots' => 'required_without:max_length|numeric',
-          'type_id' => 'required', //normal - ramadan - young - kids ...
-          'max_length' => 'required_without:total_screenshots|numeric',
-          'comment_id' => 'required',
-          'book_id' => 'required',          
-          'mark_id' => 'required',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'total_pages' => 'required|numeric',
+                'total_screenshots' => 'required_without:max_length|numeric',
+                'thesis_type_id' => 'required', //normal - ramadan - young - kids ...
+                'max_length' => 'required_without:total_screenshots|numeric',
+                'comment_id' => 'required',
+                'book_id' => 'required',
+                'mark_id' => 'required',
+            ]
+        );
 
-        if($validator->fails())
-        {
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-         
-        //get thesis type
-        $thesis_type = ThesisType::find($request->thesis_type_id);
 
-        if($thesis_type->type === NORMAL_THESIS_TYPE)
-        {//calculate mark for normal thesis                                                  
-            return $this->calculate_mark_for_normal_thesis($request);                                   
+        //get thesis type
+        $thesis_type = ThesisType::find($request->thesis_type_id, ['type']);
+
+        $week_id = Week::all('id')->last()->id;
+
+        $mark_record = Mark::where('id', $request->mark_id)
+            ->where('user_id', Auth::id())
+            ->where('week_id', $week_id)
+            ->first(['id', 'total_pages', 'total_thesis', 'total_screenshot', 'out_of_90', 'support']);
+
+        if ($mark_record) {
+            $max_length = ($request->has('max_length') ? $request->max_length : 0);
+            $total_thesis = ($request->has('max_length') ? ($request['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
+            $total_screenshots = ($request->has('total_screenshots') ? $request->total_screenshots : 0);
+            $thesis_mark = 0;
+
+            $thesis_data_to_insert = array(
+                'comment_id'        => $request->comment_id,
+                'book_id'           => $request->book_id,
+                'mark_id'           => $request->mark_id,
+                'user_id'           => Auth::id(),
+                'thesis_type_id'    => $request->thesis_type_id,
+                'total_pages'       => $request->total_pages,
+                'max_length'        => $max_length,
+                'total_screenshots' => $total_screenshots,
+            );
+
+            $mark_data_to_update = array(
+                'total_pages'      => $mark_record->total_pages + $request->total_pages,
+                'total_thesis'     => $mark_record->total_thesis + $total_thesis,
+                'total_screenshot' => $mark_record->total_screenshot + $total_screenshots,
+            );
+
+            $mark_out_of_90 = $mark_record->out_of_90;
+
+            if (strtolower($thesis_type->type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis or not completed ramadan/tafseer thesis                    
+                $thesis_mark = $this->calculate_mark_for_normal_thesis(
+                    $request->total_pages,
+                    $max_length,
+                    $total_screenshots,
+                );
+            } else if (
+                strtolower($thesis_type->type) === RAMADAN_THESIS_TYPE ||
+                strtolower($thesis_type->type) === TAFSEER_THESIS_TYPE
+            ) { ///calculate mark for ramadan or tafseer thesis             
+
+                $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
+                    $request->total_pages,
+                    $max_length,
+                    $total_screenshots,
+                    (strtolower($thesis_type->type) === RAMADAN_THESIS_TYPE ? RAMADAN_THESIS_TYPE : TAFSEER_THESIS_TYPE)
+                );
+            }
+            $mark_out_of_90 += $thesis_mark;
+
+            if ($mark_out_of_90 > FULL_MARK_OUT_OF_90) {
+                $mark_out_of_90 = FULL_MARK_OUT_OF_90;
+            }
+
+            $mark_out_of_100 = $mark_out_of_90;
+
+            if ($mark_record->support == SUPPORT_MARK && $mark_out_of_100 > 0) {
+                $mark_out_of_100 += SUPPORT_MARK;
+            }
+
+            $mark_data_to_update['out_of_90'] = $mark_out_of_90;
+            $mark_data_to_update['out_of_100'] = $mark_out_of_100;
+
+            $thesis = Thesis::create($thesis_data_to_insert);
+
+            if ($thesis) {
+                $mark_record->update($mark_data_to_update);
+                return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
+            } else {
+                return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
+            }
+        } else {
+            throw new NotFound;
         }
-        else if
-        ($thesis_type->type === RAMADAN_THESIS_TYPE || $thesis_type->type === TAFSEER_THESIS_TYPE)
-        {///calculate mark for ramadan or tafseer thesis             
-            return $this->calculate_mark_for_ramadan_thesis($request);
-        }            
     }
 
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), ['thesis_id' => 'required']);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         $thesis = Thesis::find($request->thesis_id);
 
-        if($thesis->isNotEmpty()){
+        if ($thesis->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(new ThesisResource($thesis), 'data', 200);
-        }else{
+        } else {
             throw new NotFound;
         }
     }
 
-    public function calculate_mark_for_normal_thesis($request)
-    {   
-        $user_id = Auth::id();
-             
-        $current_date = date('Y-m-d');
+    public function update(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'total_pages' => 'required|numeric',
+                'total_screenshots' => 'required_without:max_length|numeric',
+                'max_length' => 'required_without:total_screenshots|numeric',
+                'thesis_id' => 'required',
+            ]
+        );
 
-        $week_id = Week::where('date', $current_date)->first()->id;
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
 
-        $mark_record = Mark::where('id', $request->mark_id)
-                           ->where('user_id', $user_id)
-                           ->where('week_id', $week_id)
-                           ->first();                              
+        $thesis = Thesis::where('id', $request->thesis_id)->first(
+            [
+                'id', 'thesis_type_id', 'total_pages', 'mark_id',
+                'max_length', 'total_screenshots'
+            ]
+        );
 
-        if($mark_record)
-        {
-            //data to be inserted
-            $thesis_data_to_insert = array
-            (
-                'comment_id' => $request->comment_id,
-                'book_id' =>$request->book_id,
-                'mark_id' => $request->mark_id,
-                'user_id' => $user_id,
-                'type' => $request->type,  
-                'total_pages' => $request->total_pages,                              
-            );
+        if ($thesis) {
+            $week_id = Week::all('id')->last()->id;
 
-            $mark_data_to_update = array
-            (
-                'total_pages' => $mark_record->total_pages + $request->total_pages,                 
-            );
+            $mark_record = Mark::where('id', $thesis->mark_id)
+                ->where('user_id', Auth::id())
+                ->where('week_id', $week_id)
+                ->first(['id', 'total_pages', 'total_thesis', 'total_screenshot', 'out_of_90', 'support', 'week_id']);
 
-            if($mark_record->out_of_90 == FULL_MARK_OUT_OF_90)
-            {//if the mark is full --> add thesis only without updating the mark            
-                if($request->has('max_length')  && $request->max_length > 0)
-                {
-                    $thesis_data_to_insert['max_length'] = $request->max_length;                
-                    $mark_data_to_update['total_thesis'] = $mark_record->total_thesis + INCREMENT_VALUE;
-                }   
-                else if($request->has('total_screenshots') && $request->total_screenshots > 0)
-                {
-                    $thesis_data_to_insert['total_screenshots'] = $request->total_screenshots;                    
-                    $mark_data_to_update['total_screenshot'] = $mark_record->total_screenshot + $request->total_screenshot;
-                }                
-                    
-                $thesis = Thesis::create($thesis_data_to_insert);
+            if ($mark_record) {
+                if ($week_id == $mark_record->week_id) {
+                    //get thesis type
+                    $thesis_type = ThesisType::find($thesis->thesis_type_id, ['type']);
 
-                if($thesis)
-                {   
-                    $mark_record->update($mark_data_to_update); 
-                    return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
-                }
-                else
-                {
-                    return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);             
-                }
-            }
-            else
-            {                                       
-                $mark_out_of_90 = 0;
-                $mark_out_of_100 = 0;
-                $mark = 0;
-                $number_of_parts = (int) ($request->total_pages / PART_PAGES);                    
-                $number_of_remaining_pages_out_of_part = $request->total_pages % PART_PAGES; //used if the parts less than 5 
-                
-                if($number_of_parts > MAX_PARTS) 
-                {//if the parts exceeded the max number 
-                    $number_of_parts = MAX_PARTS;
-                }
-                else if($number_of_parts < MAX_PARTS && 
-                        $number_of_remaining_pages_out_of_part >= MIN_VALID_REMAINING)
-                {
-                    $number_of_parts += INCREMENT_VALUE;
-                }                                       
-                //reading mark    
-                $mark = $number_of_parts * READING_MARK;
+                    $max_length = ($request->has('max_length') ? $request->max_length : 0);
+                    $total_thesis = ($request->has('max_length') ? ($request['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
+                    $total_screenshots = ($request->has('total_screenshots') ? $request->total_screenshots : 0);
 
-                if($request->has('max_length')  && $request->max_length > 0)
-                {                   
-                    if($request->max_length >= COMPLETE_THESIS_LENGTH) 
-                    { //COMPLETE THESIS                           
-                        $mark += $number_of_parts * THESIS_MARK; 
+                    $thesis_mark = 0;
+                    $old_thesis_mark = 0;
+
+                    $thesis_data_to_update = array(
+                        'total_pages'       => $request->total_pages,
+                        'max_length'        => $max_length,
+                        'total_screenshots' => $total_screenshots,
+                    );
+
+                    if (strtolower($thesis_type->type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis                     
+                        $thesis_mark = $this->calculate_mark_for_normal_thesis(
+                            $request->total_pages,
+                            $max_length,
+                            $total_screenshots
+                        );
+                        //calculate the old mark to remove it from the total                        
+                        $old_thesis_mark = $this->calculate_mark_for_normal_thesis(
+                            $thesis->total_pages,
+                            $thesis->max_length,
+                            $thesis->total_screenshots
+                        );
+                    } else if (
+                        strtolower($thesis_type->type) === RAMADAN_THESIS_TYPE ||
+                        strtolower($thesis_type->type) === TAFSEER_THESIS_TYPE
+                    ) { ///calculate mark for ramadan or tafseer thesis             
+                        $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
+                            $request->total_pages,
+                            $max_length,
+                            $total_screenshots,
+                            $thesis_type->type,
+                        );
+
+                        $old_thesis_mark = $this->calculate_mark_for_ramadan_thesis(
+                            $thesis->total_pages,
+                            $thesis->max_length,
+                            $thesis->total_screenshots,
+                            $thesis_type->type,
+                        );
                     }
-                    else
-                    { //INCOMPLETE THESIS
-                        $mark += THESIS_MARK;
-                    }                                                                                                                                                                                
-                    $thesis_data_to_insert['max_length'] = $request->max_length;
-                    // $thesis_data_to_insert['total_screenshots'] = 0;
-                    $mark_data_to_update['total_thesis'] = $mark_record->total_thesis + INCREMENT_VALUE;
-                }
-                else if($request->has('total_screenshots') && $request->total_screenshots > 0)
-                {
-                    $screenshots = $request->total_screenshots;                
-                    if($screenshots >= MAX_SCREENSHOTS)
-                    {
-                        $screenshots = MAX_SCREENSHOTS;                
+                    $mark_out_of_90 = $thesis_mark + $mark_record->out_of_90 - $old_thesis_mark;
+
+                    if ($mark_out_of_90 > FULL_MARK_OUT_OF_90) {
+                        $mark_out_of_90 = FULL_MARK_OUT_OF_90;
                     }
-        
-                    if($screenshots > $number_of_parts)
-                    {
-                        $screenshots = $number_of_parts;
+
+                    $mark_out_of_100 = $mark_out_of_90;
+
+                    if ($mark_record->support == SUPPORT_MARK && $mark_out_of_100 > 0) {
+                        $mark_out_of_100 += SUPPORT_MARK;
                     }
-        
-                    $mark += $screenshots * THESIS_MARK;
-                    $thesis_data_to_insert['total_screenshots'] = $request->total_screenshots;    
-                    // $thesis_data_to_insert['max_length'] = 0;    
-                    $mark_data_to_update['total_screenshot'] = $mark_record->total_screenshot + $request->total_screenshots;    
-                }        
-                else if($request->has('max_length') && $request->max_length == 0)
-                {               
-                    $thesis_data_to_insert['max_length'] = $request->max_length;                        
-                    // $thesis_data_to_insert['total_screenshot'] = 0;    
-                }
-                else if($request->has('total_screenshots') && $request->total_screenshots == 0)
-                {
-                    $thesis_data_to_insert['total_screenshots'] = $request->total_screenshots;                                                    
-                    // $thesis_data_to_insert['max_length'] = 0;    
-                }
 
-                $mark_out_of_90 = $mark + $mark_record->out_of_90;
-                
-                if($mark_out_of_90 > FULL_MARK_OUT_OF_90)
-                {
-                    $mark_out_of_90 = FULL_MARK_OUT_OF_90;
-                }
-                
-                $mark_out_of_100 = $mark_out_of_90;
+                    $mark_data_to_update = array(
+                        'total_pages'      => $mark_record->total_pages - $thesis->total_pages + $request->total_pages,
+                        'total_thesis'     => $mark_record->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0) + $total_thesis,
+                        'total_screenshot' => $mark_record->total_screenshot - $thesis->total_screenshots + $total_screenshots,
+                        'out_of_90' => $mark_out_of_90,
+                        'out_of_100' => $mark_out_of_100,
+                    );
 
-                if($mark_record->support == 1)
-                {
-                    $mark_out_of_100 += SUPPORT_MARK;
-                }
 
-                $mark_data_to_update['out_of_90'] = $mark_out_of_90;
-                $mark_data_to_update['out_of_100'] = $mark_out_of_100; 
-                
-                $thesis = Thesis::create($thesis_data_to_insert);
+                    $thesis->update($thesis_data_to_update);
 
-                if($thesis)
-                {
                     $mark_record->update($mark_data_to_update);
 
-                    return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully');
+                    return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis updated successfully!');
+                } else {
+                    return $this->jsonResponseWithoutMessage('Cannot update thesis of previous weeks', 'data', 500);
                 }
-                else
-                {
-                    return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
-                }                
-            } 
-        }
-        else
-        {//when mark not found
+            } else {
+                throw new NotFound;
+            }
+        } else {
             throw new NotFound;
-        }       
+        }
     }
 
-    public function calculate_mark_for_ramadan_thesis($request)
-    {   
-       //if the user did not put a thesis (read only), it will be consedered as normal thesis
-        if($request->has('max_length')  && $request->max_length <= 0 ||
-           $request->has('total_screenshots')  && $request->total_screenshots <= 0)
-        {          
-            return $this->calculate_mark_for_normal_thesis($request);
-        } 
+    public function delete(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'thesis_id' => 'required',
+            ]
+        );
 
-        $user_id = Auth::id();
-             
-        $current_date = date('Y-m-d');
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
 
-        $week_id = Week::where('date', $current_date)->first()->id;
+        $thesis = Thesis::where('id', $request->thesis_id)->first(
+            [
+                'id', 'thesis_type_id', 'total_pages', 'mark_id',
+                'max_length', 'total_screenshots', 'comment_id'
+            ]
+        );
+        $comment = Comment::where('id', $thesis->comment_id)->first('id');
 
-        $mark_record = Mark::where('id', $request->mark_id)
-                           ->where('user_id', $user_id)
-                           ->where('week_id', $week_id)
-                           ->first();                              
+        if ($thesis) {
+            $week_id = Week::all('id')->last()->id;
 
-        if($mark_record)
-        {
-            //data to be inserted
-            $thesis_data_to_insert = array
-            (
-                'comment_id' => $request->comment_id,
-                'book_id' =>$request->book_id,
-                'mark_id' => $request->mark_id,
-                'user_id' => $user_id,
-                'thesis_type_id' => $request->thesis_type_id,  
-                'total_pages' => $request->total_pages,                              
-            );
+            $mark_record = Mark::where('id', $thesis->mark_id)
+                ->where('user_id', Auth::id())
+                ->where('week_id', $week_id)
+                ->first(['id', 'total_pages', 'total_thesis', 'total_screenshot', 'out_of_90', 'support', 'week_id']);
 
-            $mark_data_to_update = array
-            (
-                'total_pages' => $mark_record->total_pages + $request->total_pages,                 
-            );
+            if ($mark_record) {
+                if ($week_id == $mark_record->week_id) {
+                    $thesis->delete();
+                    $comment->delete();
 
-            if($mark_record->out_of_90 == FULL_MARK_OUT_OF_90)
-            {//if the mark is full --> add thesis only without updating the mark            
-                if($request->has('max_length')  && $request->max_length > 0)
-                {
-                    $thesis_data_to_insert['max_length'] = $request->max_length;                
-                    $mark_data_to_update['total_thesis'] = $mark_record->total_thesis + INCREMENT_VALUE;
-                }   
-                else if($request->has('total_screenshots') && $request->total_screenshots > 0)
-                {
-                    $thesis_data_to_insert['total_screenshots'] = $request->total_screenshots;                    
-                    $mark_data_to_update['total_screenshot'] = $mark_record->total_screenshot + $request->total_screenshot;
-                }                              
-                    
-                $thesis = Thesis::create($thesis_data_to_insert);
+                    $mark_out_of_90 = $this->calculate_mark_for_all_thesis($thesis->mark_id);
 
-                if($thesis)
-                {   
-                    $mark_record->update($mark_data_to_update); 
-                    return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
-                }
-                else
-                {
-                    return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);             
-                }
-            }
-            else
-            {                                       
-                $mark_out_of_90 = 0;
-                $mark_out_of_100 = 0;
-                $mark = 0;
-
-                $thesis_type = Thesis::find($request->thesis_type_id);
-
-                if($thesis_type->type === RAMADAN_THESIS_TYPE)
-                {
-                    $number_of_parts = (int) ($request->total_pages / RAMADAN_PART_PAGES);                    
-                }
-                //tafseer thesis consedered based on the number of ayats
-                else if ($thesis_type->type === TAFSEER_THESIS_TYPE)
-                {
-                    $number_of_parts = $request->total_pages;
-                }
-
-                if($number_of_parts > MAX_PARTS) 
-                {//if the parts exceeded the max number 
-                    $number_of_parts = MAX_PARTS;
-                }
-                                                       
-                //reading mark    
-                $mark = $number_of_parts * READING_MARK;
-
-                if($request->has('max_length')  && $request->max_length > 0)
-                {                   
-                    if($request->max_length >= COMPLETE_THESIS_LENGTH) 
-                    { //COMPLETE THESIS                           
-                        $mark += $number_of_parts * THESIS_MARK; 
+                    if ($mark_out_of_90 > FULL_MARK_OUT_OF_90) {
+                        $mark_out_of_90 = FULL_MARK_OUT_OF_90;
                     }
-                    else
-                    { //INCOMPLETE THESIS
-                        $mark += THESIS_MARK;
-                    }                                                                                                                                                                                
-                    $thesis_data_to_insert['max_length'] = $request->max_length;                
-                    $mark_data_to_update['total_thesis'] = $mark_record->total_thesis + INCREMENT_VALUE;
-                }
-                else if($request->has('total_screenshots') && $request->total_screenshots > 0)
-                {
-                    $screenshots = $request->total_screenshots;                
-                    if($screenshots >= MAX_SCREENSHOTS)
-                    {
-                        $screenshots = MAX_SCREENSHOTS;                
+
+                    $mark_out_of_100 = $mark_out_of_90;
+
+                    if ($mark_record->support == SUPPORT_MARK && $mark_out_of_100 > 0) {
+                        $mark_out_of_100 += SUPPORT_MARK;
                     }
-        
-                    if($screenshots > $number_of_parts)
-                    {
-                        $screenshots = $number_of_parts;
-                    }
-        
-                    $mark += $screenshots * THESIS_MARK;
-                    $thesis_data_to_insert['total_screenshots'] = $request->total_screenshots;                        
-                    $mark_data_to_update['total_screenshot'] = $mark_record->total_screenshot + $request->total_screenshots;    
-                }        
-               
-                $mark_out_of_90 = $mark + $mark_record->out_of_90;
-                
-                if($mark_out_of_90 > FULL_MARK_OUT_OF_90)
-                {
-                    $mark_out_of_90 = FULL_MARK_OUT_OF_90;
-                }
-                
-                $mark_out_of_100 = $mark_out_of_90;
 
-                if($mark_record->support == 1)
-                {
-                    $mark_out_of_100 += SUPPORT_MARK;
-                }
+                    $mark_data_to_update = array(
+                        'total_pages'      => $mark_record->total_pages - $thesis->total_pages,
+                        'total_thesis'     => $mark_record->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0),
+                        'total_screenshot' => $mark_record->total_screenshot - $thesis->total_screenshots,
+                        'out_of_90' => $mark_out_of_90,
+                        'out_of_100' => $mark_out_of_100,
+                    );
 
-                $mark_data_to_update['out_of_90'] = $mark_out_of_90;
-                $mark_data_to_update['out_of_100'] = $mark_out_of_100; 
-                
-                $thesis = Thesis::create($thesis_data_to_insert);
-
-                if($thesis)
-                {
                     $mark_record->update($mark_data_to_update);
 
-                    return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully');
+                    return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis deleted successfully!');
+                } else {
+                    return $this->jsonResponseWithoutMessage('Cannot delete thesis of previous weeks', 'data', 500);
                 }
-                else
-                {
-                    return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
-                }                
-            } 
-        }
-        else
-        {//when mark not found
+            } else {
+                throw new NotFound;
+            }
+        } else {
             throw new NotFound;
-        }       
+        }
+    }
+
+    public function calculate_mark_for_all_thesis($mark_id)
+    {
+        $total_mark = 0;
+
+        $thesises = Thesis::join('thesis_types', 'thesis_types.id', '=', 'theses.thesis_type_id')
+            ->where('mark_id', $mark_id)->get([
+                'theses.id', 'thesis_type_id', 'total_pages', 'mark_id',
+                'max_length', 'total_screenshots', 'thesis_types.type'
+            ]);
+
+        foreach ($thesises as $thesis) {
+            if ($thesis->type === NORMAL_THESIS_TYPE) {
+                $total_mark += $this->calculate_mark_for_normal_thesis(
+                    $thesis->total_pages,
+                    $thesis->max_length,
+                    $thesis->total_screenshots
+                );
+            } else if ($thesis->type === RAMADAN_THESIS_TYPE || $thesis->type === TAFSEER_THESIS_TYPE) {
+                $total_mark += $this->calculate_mark_for_ramadan_thesis(
+                    $thesis->total_pages,
+                    $thesis->max_length,
+                    $thesis->total_screenshots,
+                    $thesis->type
+                );
+            }
+        }
+
+        return $total_mark;
+    }
+
+    public function calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots) //isNew used to tell if the thesis is new or updated
+    {
+        $mark = 0;
+        $number_of_parts = (int) ($total_pages / PART_PAGES);
+        $number_of_remaining_pages_out_of_part = $total_pages % PART_PAGES; //used if the parts less than 5 
+
+        if ($number_of_parts > MAX_PARTS) { //if the parts exceeded the max number 
+            $number_of_parts = MAX_PARTS;
+        } else if (
+            $number_of_parts < MAX_PARTS &&
+            $number_of_remaining_pages_out_of_part >= MIN_VALID_REMAINING
+        ) {
+            $number_of_parts += INCREMENT_VALUE;
+        }
+        //reading mark    
+        $mark = $number_of_parts * READING_MARK;
+
+        if ($max_length > 0) {
+            if ($max_length >= COMPLETE_THESIS_LENGTH) { //COMPLETE THESIS                           
+                $mark += $number_of_parts * THESIS_MARK;
+            } else { //INCOMPLETE THESIS
+                $mark += THESIS_MARK;
+            }
+        } else if ($total_screenshots > 0) {
+            $screenshots = $total_screenshots;
+            if ($screenshots >= MAX_SCREENSHOTS) {
+                $screenshots = MAX_SCREENSHOTS;
+            }
+            if ($screenshots > $number_of_parts) {
+                $screenshots = $number_of_parts;
+            }
+
+            $mark += $screenshots * THESIS_MARK;
+        }
+
+        return $mark;
+    }
+
+    public function calculate_mark_for_ramadan_thesis($total_pages, $max_length, $total_screenshots, $thesis_type)
+    {
+        if ($max_length <= 0 && $thesis_type <= 0) { //if no thesis -- it is considered as normal thesis
+            return $this->calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots);
+        }
+
+        $mark = 0;
+
+        if ($thesis_type === RAMADAN_THESIS_TYPE) {
+            $number_of_parts = (int) ($total_pages / RAMADAN_PART_PAGES);
+        }
+        //tafseer thesis consedered based on the number of ayats
+        else if ($thesis_type === TAFSEER_THESIS_TYPE) {
+            $number_of_parts = $total_pages;
+        }
+
+        if ($number_of_parts > MAX_PARTS) { //if the parts exceeded the max number 
+            $number_of_parts = MAX_PARTS;
+        }
+
+        //reading mark    
+        $mark = $number_of_parts * READING_MARK;
+
+        if ($max_length > 0) {
+            if ($max_length >= COMPLETE_THESIS_LENGTH) { //COMPLETE THESIS                           
+                $mark += $number_of_parts * THESIS_MARK;
+            } else { //INCOMPLETE THESIS
+                $mark += THESIS_MARK;
+            }
+        } else if ($total_screenshots > 0) {
+            $screenshots = $total_screenshots;
+            if ($screenshots >= MAX_SCREENSHOTS) {
+                $screenshots = MAX_SCREENSHOTS;
+            }
+            if ($screenshots > $number_of_parts) {
+                $screenshots = $number_of_parts;
+            }
+            $mark += $screenshots * THESIS_MARK;
+        }
+
+        return $mark;
     }
 
     public function list_book_thesis(Request $request)
     {
         $validator = Validator::make($request->all(), ['book_id' => 'required']);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         //select function to be added in order to reduce the data retrieved
         $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
-                        ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-                        ->where('theses.book_id', $request->book_id)
-                        ->get();
+            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
+            ->where('theses.book_id', $request->book_id)
+            ->get();
 
-        if($thesis->isNotEmpty()){
+        if ($thesis->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
-        }else{
+        } else {
             throw new NotFound;
-        } 
+        }
     }
 
     public function list_user_thesis(Request $request)
     {
         $validator = Validator::make($request->all(), ['user_id' => 'required']);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         //select function to be added in order to reduce the data retrieved
         $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
-                        ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-                        ->where('theses.user_id', $request->user_id)
-                        ->get();  
+            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
+            ->where('theses.user_id', $request->user_id)
+            ->get();
 
-        if($thesis->isNotEmpty()){
+        if ($thesis->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
-        }else{
+        } else {
             throw new NotFound;
-        } 
-    }    
+        }
+    }
 
     public function list_week_thesis(Request $request)
     {
         $validator = Validator::make($request->all(), ['week_id' => 'required']);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::select('theses.*') 
-                        ->join('marks', 'marks.id', '=', 'theses.mark_id')
-                        ->join('weeks', 'weeks.id', '=', 'marks.week_id')
-                        ->join('comments', 'comments.id', '=', 'theses.comment_id')
-                        ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-                        ->where('marks.week_id', $request->week_id)
-                        ->get();
+        $thesis = Thesis::select('theses.*')
+            ->join('marks', 'marks.id', '=', 'theses.mark_id')
+            ->join('weeks', 'weeks.id', '=', 'marks.week_id')
+            ->join('comments', 'comments.id', '=', 'theses.comment_id')
+            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
+            ->where('marks.week_id', $request->week_id)
+            ->get();
 
-        if($thesis->isNotEmpty()){
+        if ($thesis->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
-        }else{
+        } else {
             throw new NotFound;
-        } 
-    }        
+        }
+    }
 }

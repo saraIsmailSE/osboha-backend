@@ -91,10 +91,10 @@ class BookController extends Controller
             'start_page' => 'required',
             'end_page' => 'required',
             'link' => 'required',
-            'section' => 'required',
-            'type' => 'required',
+            'section_id' => 'required',
+            'type_id' => 'required',
             'image' => 'required',
-            'level' => 'required',
+            'level_id' => 'required',
             'book_id' => 'required',
         ]);
 
@@ -161,13 +161,13 @@ class BookController extends Controller
     public function bookByType(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'type' => 'required',
+            'type_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('type',$request->type)->get();
+        $books = Book::where('type_id',$request->type_id)->get();
         if($books->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
         }
@@ -178,13 +178,13 @@ class BookController extends Controller
     public function bookByLevel(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'level' => 'required',
+            'level_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('level',$request->level)->get();
+        $books = Book::where('level_id',$request->level_id)->get();
         if($books->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
         }
@@ -196,13 +196,13 @@ class BookController extends Controller
     public function bookBySection(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'section' => 'required',
+            'section_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('section',$request->section)->get();
+        $books = Book::where('section_id',$request->section_id)->get();
         if($books->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
         }

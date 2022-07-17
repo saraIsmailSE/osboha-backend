@@ -42,7 +42,7 @@ class InfographicController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required', 
             'designer_id' => 'required',
-            'section' => 'required',  
+            'section_id' => 'required',  
             'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
         ]);
 
@@ -101,7 +101,7 @@ class InfographicController extends Controller
          $validator = Validator::make($request->all(), [
             'title'      => 'required', 
             'designer_id'    => 'required',            
-            'section'    => 'required',
+            'section_id'    => 'required',
             'infographic_id' => 'required',
             'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
         ]);
@@ -168,5 +168,23 @@ class InfographicController extends Controller
             //unauthorized user response
             throw new NotAuthorized;            
         }
+    }
+
+    public function InfographicBySection(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'section_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $infographics = Infographic::where('section_id',$request->section_id)->get();
+        if($infographics->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(InfographicResource::collection($infographics), 'data',200);
+        }
+        else{
+            throw new NotFound;   
+        }        
     }
 }
