@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mark;
+use App\Models\AuditMark;
+use App\Models\UserGroup;
+use App\Models\Group;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -16,9 +20,8 @@ use App\Exceptions\NotAuthorized;
 use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
-use Carbon\Carbon;
 
-
+ 
 class MarkController extends Controller
 {
     use ResponseJson;
@@ -142,5 +145,226 @@ class MarkController extends Controller
             throw new NotAuthorized;   
         }
     }
+
+
+    /*
+        generateAuditMarks Function
+        generate audit marks for supervisor and advisor for each group in current week
+    */
+    
+    public function generateAuditMarks()
+    {
+        if(Auth::user()->can('audit mark')){
+
+            $current_week =Week::latest()->pluck('id')->first();
+            $weekAuditMarks = AuditMark::where('week_id',$current_week)->exists();
+
+            if (!$weekAuditMarks){
+
+                $groupsID = Group::where('type' ,'reading')->pluck('id'); 
+
+                foreach ($groupsID as $key => $groupID) {
+
+                    $leaderID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','Leader ')
+                                    ->pluck('user_id')
+                                    ->first();
+                    $supervisorID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','supervisor ')
+                                    ->pluck('user_id')
+                                    ->first();
+                    $advisorID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','advisor ')
+                                    ->pluck('user_id')
+                                    ->first();
+
+                    $allAmbassadorsID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','Ambassador ')
+                                    ->pluck('user_id');
+
+                    // Get 10% of Full Mark
+                    $highMark = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100' , 100)
+                                ->count();
+
+                    $rateHighMarkToAudit = $highMark * 10 /100;
+                    $highMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100' , 100)
+                                ->inRandomOrder()
+                                ->limit($rateHighMarkToAudit)
+                                ->pluck('id')->toArray();
+                       
+                    //Get 10% of not Full Mark
+                    $lowMark = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100', '<' , 100)
+                                ->count();
+                    
+                    $rateLowMarkToAudit = $lowMark * 10 /100;
+                    $lowMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100','!=' , 100)
+                                ->inRandomOrder()
+                                ->limit($rateLowMarkToAudit)
+                                ->pluck('id')->toArray();
+                    $supervisorAuditMarks = array_merge($highMarkToAudit ,$lowMarkToAudit);
+
+                    // Save Marks for supervisors
+                    $auditMarks=new AuditMark; 
+                    $auditMarks->week_id=$current_week;
+                    $auditMarks->aduitor_id=$supervisorID;
+                    $auditMarks->leader_id=$leaderID;
+                    $auditMarks->aduitMarks=serialize($supervisorAuditMarks);
+                    $auditMarks->save();
+
+                    //Get 10% of supervisor Marks
+                    $supervisorMark = Mark::whereIn('id',$supervisorAuditMarks)
+                                ->count();
+                    
+                    $rateSupervisorMark1  = $lowMark * 10 /100;
+                    $advisorMarks1 = Mark::whereIn('id',$supervisorAuditMarks)
+                                ->inRandomOrder()
+                                ->limit($rateSupervisorMark1)
+                                ->pluck('id')->toArray();
+
+                    //Get 5% of not supervisor Marks
+                    $rateSupervisorMark2 = count($allAmbassadorsID) * 5 /100;
+
+                    $advisorMarks2 = Mark::whereIn('user_id',$allAmbassadorsID)
+                                        ->whereNotIn('user_id',$supervisorAuditMarks)
+                                        ->limit($rateSupervisorMark2)
+                                        ->pluck('id')->toArray();
+
+                    $advisorAuditMarks = array_merge($advisorMarks1 ,$advisorMarks2);
+
+                     // Save Marks for advisor
+                    $auditMarks=new AuditMark;
+                    $auditMarks->week_id=$current_week;
+                    $auditMarks->aduitor_id=$advisorID;
+                    $auditMarks->leader_id=$leaderID;
+                    $auditMarks->aduitMarks=serialize($advisorAuditMarks);
+                    $auditMarks->save();
+
+                }
+
+               return $this->jsonResponseWithoutMessage("Audit Marks Are Generated Successfully", 'data', 200);
+
+            } else {
+               return $this->jsonResponseWithoutMessage("Audit Marks Already Exist For This Week", 'data', 200);
+            }
+        
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+
+    /*
+        leadersAuditmarks Function
+        To show all leaders marks for auditor
+        Return: leaders marks for current auditor in current week
+    */
+    public function leadersAuditmarks()
+    {
+        if(Auth::user()->can('audit mark')){
+            $current_week = Week::latest()->pluck('id')->first();
+            $leadersAuditMarksId = AuditMark::where('aduitor_id', Auth::id())
+                            ->where('week_id',$current_week)
+                            ->pluck('leader_id');
+            if($leadersAuditMarksId){ 
+                $leadersMark = Mark::whereIn('user_id',$leadersAuditMarksId)
+                                ->where('week_id',$current_week) 
+                                ->get();
+                return $this->jsonResponseWithoutMessage(MarkResource::collection($leadersMark), 'data',200);
+
+            } else {
+                throw new NotFound;
+            }  
+
+        } else {
+            throw new NotAuthorized;
+        }
+
+    }
+
+    /*
+        showAuditmarks Function
+        To show audit marks and note of a specific leader
+        Take: leader_id
+        Return: audit marks & note & status for specific leader in current week
+    */
+    public function showAuditmarks(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'leader_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if(Auth::user()->can('audit mark')){
+            $current_week = Week::latest()->pluck('id')->first();
+            $auditMarksId = AuditMark::where('leader_id', $request->leader_id)
+                            ->where('week_id',$current_week)
+                            ->where('aduitor_id',Auth::id())
+                            ->pluck('id')
+                            ->first(); 
+
+            if($auditMarksId){
+                $auditMarksIds = AuditMark::where('id',$auditMarksId)
+                            ->pluck('aduitMarks')
+                            ->first();
+
+                $note = AuditMark::select('note','status')
+                            ->where('id',$auditMarksId)
+                            ->first();
+
+                $marksId = unserialize($auditMarksIds);
+                $aduitMarks = Mark::whereIn('id',$marksId)->get();
+                $aduitMarks = MarkResource::collection($aduitMarks);
+                $marksAndNote = $aduitMarks->merge($note);  
+
+                return $this->jsonResponseWithoutMessage($marksAndNote, 'data',200);
+
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+ 
+
+    /*
+        To add note and status to audit marks
+    */
+    public function updateAuditMark(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'auditMark_id' => 'required',
+            'note' => 'required',
+            'status' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if(Auth::user()->can('audit mark')){
+            $auditMarks = AuditMark::where('id' , $request->auditMark_id)->first();
+            if($auditMarks){
+                $auditMarks->note = $request->note;
+                $auditMarks->status = $request->status;
+                $auditMarks->update();
+                return $this->jsonResponseWithoutMessage("Audit Mark Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
 
 }
