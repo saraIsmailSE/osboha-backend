@@ -21,7 +21,7 @@ class GroupSeeder extends Seeder
             DB::table('groups')->insert([
                 'name' => Str::random(10),
                 'description' => Str::random(20),
-                'type' => Str::random(10),
+                'type_id' => rand(1,4),
                 'cover_picture' => Str::random(10),
                 'creator_id' => rand(1,30),
                 'timeline_id' => rand(1,30)

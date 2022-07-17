@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\UserGroupController;
 */
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     ########Book########
@@ -49,6 +50,11 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/show', [BookController::class, 'show']);
         Route::post('/update', [BookController::class, 'update']);
         Route::post('/delete', [BookController::class, 'delete']);
+        Route::post('/book-by-type', [BookController::class, 'bookByType']);
+        Route::post('/book-by-level', [BookController::class, 'bookByLevel']);
+        Route::post('/book-by-section', [BookController::class, 'bookBySection']);
+        Route::post('/book-by-name', [BookController::class, 'bookByName']);
+
 
     });
     ########End Book########
@@ -128,9 +134,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);         
         Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);        
         Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
-
-
-
+        //Route::get('/statsmark', [MarkController::class, 'statsMark']);
     });
     ########End Mark########
 
@@ -143,6 +147,7 @@ Route::middleware('auth:sanctum')->group( function () {
         Route::post('/list', [RejectedMarkController::class, 'list_user_mark']);
     });
     ########End RejectedMark ########
+
     #########UserException########
     Route::group(['prefix' => 'userexception'], function(){
         Route::get('/',[UserExceptionController::class,'index']);

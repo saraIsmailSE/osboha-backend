@@ -367,7 +367,4 @@ class MarkController extends Controller
     }
 
 
-
-    
-
 }

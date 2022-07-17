@@ -18,7 +18,7 @@ class CreateTimelinesTable extends Migration
             $table->string('name');
             $table->string('description');
             // type could be (main - news - book - profile - group)
-            $table->string('type');
+            $table->integer('type_id');
             $table->timestamps();
         });
     }

@@ -23,8 +23,8 @@ class CreateBooksTable extends Migration
             $table->integer('start_page');
             $table->integer('end_page');
             $table->string('link');
-            $table->string('section');
-            $table->string('type');
+            $table->integer('section_id');
+            $table->integer('type_id');
             $table->string('level');
             $table->timestamps();
         });
