@@ -39,7 +39,7 @@ class TimelineController extends Controller
     {   
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'type' => 'required',
+            'type_id' => 'required',
             'description' => 'required',
         ]);
         if ($validator->fails()) {
@@ -75,7 +75,7 @@ class TimelineController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'type' => 'required',
+            'type_id' => 'required',
             'description' => 'required',
             'timeline_id' => 'required',
         ]);
