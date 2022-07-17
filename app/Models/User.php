@@ -24,7 +24,7 @@ class User extends Authenticatable
         'password',
         'gender',
         'request_id',
-        'user_type',
+       // 'user_type',
         'email_verified_at',
         'is_blocked',
         'is_hold',
@@ -76,21 +76,24 @@ class User extends Authenticatable
     public function Group(){
         return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type');
     }
-    public function LeaderRrequest(){
-        return $this->hasMany(leader_request::class);
+    public function LeaderRrequest()
+    {
+        return $this->hasMany(leader_request::class,'leader_id');
+    }
+    public function AmbassadorRrequest()
+    {
+        return $this->belongsToOne(leader_request::class);
     }
     public function messages()
     {
         return $this->hasMany(Message::class,'user_id');
     }
-    public function participant()
-    {
+    public function participant(){
         return $this->hasMany(Participant::class,'user_id');
     }
     public function post(){
         return $this->hasMany(Post::class);
     }
-
     public function reaction(){
         return $this->hasMany(Reaction::class);
     }
