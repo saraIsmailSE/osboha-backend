@@ -25,11 +25,11 @@ class CommentController extends Controller
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
-            'body' => 'required',
-            'post_id' => 'required_without_all:comment_id',
-            'comment_id' => 'required_without_all:post_id',
+            'body' => 'required_without:image',
+            'post_id' => 'required|numeric',
+            'comment_id' => 'numeric',
             'type' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required_without:body|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -43,23 +43,23 @@ class CommentController extends Controller
             // upload media
             $this->createMedia($request->file('image'), $comment->id, 'comment');
         }
-        return $this->jsonResponseWithoutMessage("Comment Craeted Successfully", 'data', 200);  
+        return $this->jsonResponseWithoutMessage("Comment Created Successfully", 'data', 200);  
 
     }
 
-    public function show(Request $request)
+    public function getPostComments(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'comment_id' => 'required',
+            'post_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }    
 
-        $comment = Comment::find($request->comment_id);
-        if($comment){
-            return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data',200);
+        $comments = Comment::where('post_id',$request->post_id)->get();
+        if($comments->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(CommentResource::collection($comments), 'data',200);
         }
         else{
             throw new NotFound;
@@ -71,7 +71,6 @@ class CommentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'body' => 'required_without:image',
-            'user_id' => 'required',
             'comment_id' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048|required_without:body',
         ]);
@@ -124,6 +123,9 @@ class CommentController extends Controller
         $comment = Comment::find($request->comment_id);
         if($comment){
             if(Auth::user()->can('delete comment') || Auth::id() == $comment->user_id){
+                //delete replies
+                Comment::where('comment_id', $comment->id)->delete();
+
                 //check Media
                 $currentMedia = Media::where('comment_id', $comment->id)->first();
                 // if exist, delete

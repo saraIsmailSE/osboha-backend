@@ -96,7 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
     ########Start Comment########
     Route::group(['prefix' => 'comment'], function () {
         Route::post('/create', [CommentController::class, 'create']);
-        Route::post('/show', [CommentController::class, 'show']);
+        Route::post('/get-post-comments', [CommentController::class, 'getPostComments']);
         Route::post('/update', [CommentController::class, 'update']);
         Route::post('/delete', [CommentController::class, 'delete']);
     });
