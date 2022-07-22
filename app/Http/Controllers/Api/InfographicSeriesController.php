@@ -17,17 +17,16 @@ class InfographicSeriesController extends Controller
 {
     use ResponseJson;
     use MediaTraits;
-    
+
     public function index()
     {
-         #######ASMAA#######
+        #######ASMAA#######
         //get and display all the series
         $series = InfographicSeries::all();
-        if($series->isNotEmpty()){
+        if ($series->isNotEmpty()) {
             // found series response
-            return $this->jsonResponseWithoutMessage($series, 'data',200);
-        }
-        else{
+            return $this->jsonResponseWithoutMessage($series, 'data', 200);
+        } else {
             //not found series response
             throw new NotFound;
         }
@@ -38,21 +37,21 @@ class InfographicSeriesController extends Controller
         #######ASMAA#######
 
         //create new series and store it in the database
-      
+
         //validate requested data
         $validator = Validator::make($request->all(), [
             'title'    => 'required',
             'section_id' => 'required',
-            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',
         ]);
 
         //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        } 
-        
+        }
+
         //authorized user
-        if(Auth::user()->can('create infographicSeries')){
+        if (Auth::user()->can('create infographicSeries')) {
             //create new series
             $infographicSeries = infographicSeries::create($request->all());
 
@@ -61,16 +60,15 @@ class InfographicSeriesController extends Controller
 
             //success response after creating new infographic Series
             return $this->jsonResponse($infographicSeries, 'data', 200, "infographic Series Created Successfully");
-        }
-        else{
+        } else {
             //unauthorized user
-            throw new NotAuthorized;            
+            throw new NotAuthorized;
         }
     }
 
     public function show(Request $request)
     {
-       #######ASMAA#######
+        #######ASMAA#######
 
         //validate series id
         $validator = Validator::make($request->all(), [
@@ -80,15 +78,14 @@ class InfographicSeriesController extends Controller
         //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
+        }
 
         //find needed series
         $series = InfographicSeries::find($request->series_id);
-        if($series){
+        if ($series) {
             //found series response (display its data)
-            return $this->jsonResponseWithoutMessage($series, 'data',200);
-        }
-        else{
+            return $this->jsonResponseWithoutMessage($series, 'data', 200);
+        } else {
             //not found series response
             throw new NotFound;
         }
@@ -98,37 +95,40 @@ class InfographicSeriesController extends Controller
     {
         #######ASMAA#######
 
-         //validate requested data
-         $validator = Validator::make($request->all(), [
+        //validate requested data
+        $validator = Validator::make($request->all(), [
             'title'    => 'required',
             'section_id' => 'required',
-            'series_id' => 'required', 
-            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
+            'series_id' => 'required',
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',
         ]);
 
         //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }   
-        
+        }
+
         //authorized user
-        if(Auth::user()->can('edit infographicSeries')){
+        if (Auth::user()->can('edit infographicSeries')) {
             //find needed series
             $series = InfographicSeries::find($request->series_id);
 
-            //updated found series
-            $series->update($request->all());
+            if ($series) {
+                //updated found series
+                $series->update($request->all());
 
-            //retrieve InfographicSeries media 
-            $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
+                //retrieve InfographicSeries media 
+                $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
 
-            //update media
-            $this->updateMedia($request->file('image'), $infographicSeriesMedia->id);
-
+                //update media
+                $this->updateMedia($request->file('image'), $infographicSeriesMedia->id);
+            } else {
+                //not found series response
+                throw new NotFound;
+            }
             //success response after update
-            return $this->jsonResponse($series, 'data', 200,"Infographic Series Updated Successfully");
-        }
-        else{
+            return $this->jsonResponse($series, 'data', 200, "Infographic Series Updated Successfully");
+        } else {
             //unauthorized user response
             throw new NotAuthorized;
         }
@@ -137,8 +137,8 @@ class InfographicSeriesController extends Controller
     public function delete(Request $request)
     {
         #######ASMAA#######
-        
-         //validate series id 
+
+        //validate series id 
         $validator = Validator::make($request->all(), [
             'series_id' => 'required',
         ]);
@@ -146,25 +146,28 @@ class InfographicSeriesController extends Controller
         //validator errors response
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
-        if(Auth::user()->can('delete infographicSeries')){
+        if (Auth::user()->can('delete infographicSeries')) {
             //find needed series
             $series = InfographicSeries::find($request->series_id);
 
-            //deleted found series
-            $series->delete();
+            if ($series) {
+                //deleted found series
+                $series->delete();
 
-            //retrieve InfographicSeries media 
-            $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
+                //retrieve InfographicSeries media 
+                $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
 
-            //delete media
-            $this->deleteMedia($infographicSeriesMedia->id);
- 
-             //success response after delete
-            return $this->jsonResponse($series, 'data', 200,"infographic Series Deleted Successfully");
-        }
-        else{
+                //delete media
+                $this->deleteMedia($infographicSeriesMedia->id);
+            } else {
+                //not found series response
+                throw new NotFound;
+            }
+            //success response after delete
+            return $this->jsonResponse($series, 'data', 200, "infographic Series Deleted Successfully");
+        } else {
             //unauthorized user response
             throw new NotAuthorized;
         }
@@ -178,12 +181,11 @@ class InfographicSeriesController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $infographicSeries = infographicSeries::where('section_id',$request->section_id)->get();
-        if($infographicSeries->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage($infographicSeries, 'data',200);
+        $infographicSeries = infographicSeries::where('section_id', $request->section_id)->get();
+        if ($infographicSeries->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage($infographicSeries, 'data', 200);
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }        
     }
 }

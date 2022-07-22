@@ -126,8 +126,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
         Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
-        Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);         
-        Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);        
+        Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);
+        Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);
         Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
         //Route::get('/statsmark', [MarkController::class, 'statsMark']);
     });
@@ -208,6 +208,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/show', [InfographicController::class, 'show']);
         Route::post('/update', [InfographicController::class, 'update']);
         Route::post('/delete', [InfographicController::class, 'delete']);
+        Route::post('/infographicBySection', [InfographicController::class, 'InfographicBySection']);
     });
     ########End Infographic ########
 
@@ -218,6 +219,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/show', [InfographicSeriesController::class, 'show']);
         Route::post('/update', [InfographicSeriesController::class, 'update']);
         Route::post('/delete', [InfographicSeriesController::class, 'delete']);
+        Route::post('/seriesBySection', [InfographicSeriesController::class, 'SeriesBySection']);
     });
     ########End InfographicSeries########    
     ########Post########
@@ -290,9 +292,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     ######## thesis ########
     ######## Room ########
-    Route::group(['prefix'=>'room'], function(){
-        Route::post('/create', [RoomController::class, 'create']);       
-        Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);        
+    Route::group(['prefix' => 'room'], function () {
+        Route::post('/create', [RoomController::class, 'create']);
+        Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
     });
     ######## Room ########
 
