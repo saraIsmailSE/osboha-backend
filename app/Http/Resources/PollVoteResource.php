@@ -17,6 +17,10 @@ class PollVoteResource extends JsonResource
         return [
             //'post_id' => new PostResource($this->post_id),
             //'user_id' => new UserResource($this->user_id),
+
+            //"user_id"=> $this->user,
+            "user_id"=> $this->user_id,
+            "post_id"=> $this->post_id,
             'option' => unserialize($this->option)
         ];
     }

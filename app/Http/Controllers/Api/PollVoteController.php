@@ -23,7 +23,8 @@ class PollVoteController extends Controller
     public function index()
     {
             $votes = PollVote::all();
-            if($votes){
+            
+            if($votes->isNotEmpty()){
                 return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data',200);
             }
             else{
@@ -68,52 +69,14 @@ class PollVoteController extends Controller
         }
     }
 
-    public function votesByPostId(Request $request)
-    {
-        $post_id = $request->post_id;
-
-        //find votes belong to post_id
-        $votes = PollVote::where('post_id', $post_id)->get();
-
-        if($votes){
-            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
-        }else{
-            throw new NotFound();
-        }
-    }
-
-    public function votesByAuthUser()
-    {
-        //find votes belong to Auth user
-        $votes = PollVote::where('user_id', Auth::id())->get();
-
-        if($votes){
-            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
-        }else{
-            throw new NotFound();
-        }
-    }
-    
-    public function votesByUserId(Request $request)
-    {
-        $user_id = $request->user_id;
-        //find votes belong to user_id
-        $votes = PollVote::where('user_id', $user_id)->get();
-
-        if($votes){
-            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
-        }else{
-            throw new NotFound();
-        }
-    }
-
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'poll_vote_id' => 'required',
             'user_id' => 'required',
             'post_id' => 'required',
             'option' => 'required',
-            'poll_vote_id' => 'required'
+        
         ]);
 
         if ($validator->fails()) {
@@ -157,6 +120,45 @@ class PollVoteController extends Controller
         }
         else{
             throw new NotFound;
+        }
+    }
+
+    public function votesByPostId(Request $request)
+    {
+        $post_id = $request->post_id;
+
+        //find votes belong to post_id
+        $votes = PollVote::where('post_id', $post_id)->get();
+
+        if($votes->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
+        }else{
+            throw new NotFound();
+        }
+    }
+
+    public function votesByAuthUser()
+    {
+        //find votes belong to Auth user
+        $votes = PollVote::where('user_id', Auth::id())->get();
+
+        if($votes->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
+        }else{
+            throw new NotFound();
+        }
+    }
+    
+    public function votesByUserId(Request $request)
+    {
+        $user_id = $request->user_id;
+        //find votes belong to user_id
+        $votes = PollVote::where('user_id', $user_id)->get();
+
+        if($votes->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
+        }else{
+            throw new NotFound();
         }
     }
 }
