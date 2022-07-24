@@ -45,7 +45,7 @@ class PollVoteController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::id();
         $option = $request->option;
-            $input['option'] = serialize($option);
+        $input['option'] = serialize($option);
         PollVote::create($input);
         return $this->jsonResponseWithoutMessage("Vote Created Successfully", 'data', 200);
     }
@@ -72,9 +72,9 @@ class PollVoteController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'poll_vote_id' => 'required',
-            'user_id' => 'required',
-            'post_id' => 'required',
+            'id' => 'required',
+            //'user_id' => 'required',
+            //'post_id' => 'required',
             'option' => 'required',
         
         ]);
@@ -83,10 +83,16 @@ class PollVoteController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $vote = PollVote::find($request->poll_vote_id);
+        $input=$request->all();
+        $vote = PollVote::find($request->id);
+
         if($vote){
             if(Auth::id() == $vote->user_id){
-                $vote->update($request->all());
+                $option = $request->option;
+                $input['option'] = serialize($option);
+                $vote->update($input);
+                //$vote->update($request->all());
+
                 return $this->jsonResponseWithoutMessage("Vote Updated Successfully", 'data', 200);
             }
             else{
@@ -129,18 +135,6 @@ class PollVoteController extends Controller
 
         //find votes belong to post_id
         $votes = PollVote::where('post_id', $post_id)->get();
-
-        if($votes->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
-        }else{
-            throw new NotFound();
-        }
-    }
-
-    public function votesByAuthUser()
-    {
-        //find votes belong to Auth user
-        $votes = PollVote::where('user_id', Auth::id())->get();
 
         if($votes->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
