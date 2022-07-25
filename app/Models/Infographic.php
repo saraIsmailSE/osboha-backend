@@ -18,12 +18,12 @@ class Infographic extends Model
 
     public function series()
     {
-        $this->belongsTo(InfographicSeries::class, 'series_id');
+        return $this->belongsTo(InfographicSeries::class, 'series_id');
     }
 
     public function section()
     {
-        $this->belongsTo(Section::class, 'section_id');
+        return $this->belongsTo(Section::class, 'section_id');
     }
     public function media()
     {

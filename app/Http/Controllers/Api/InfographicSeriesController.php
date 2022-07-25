@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InfographicSeriesResource;
 use App\Models\InfographicSeries;
 use App\Models\Media;
 use App\Traits\MediaTraits;
@@ -25,7 +26,7 @@ class InfographicSeriesController extends Controller
         $series = InfographicSeries::all();
         if ($series->isNotEmpty()) {
             // found series response
-            return $this->jsonResponseWithoutMessage($series, 'data', 200);
+            return $this->jsonResponseWithoutMessage(InfographicSeriesResource::collection($series), 'data', 200);
         } else {
             //not found series response
             throw new NotFound;
@@ -59,7 +60,7 @@ class InfographicSeriesController extends Controller
             $this->createMedia($request->file('image'), $infographicSeries->id, 'infographicSeries');
 
             //success response after creating new infographic Series
-            return $this->jsonResponse($infographicSeries, 'data', 200, "infographic Series Created Successfully");
+            return $this->jsonResponse(new InfographicSeriesResource($infographicSeries), 'data', 200, "infographic Series Created Successfully");
         } else {
             //unauthorized user
             throw new NotAuthorized;
@@ -84,7 +85,7 @@ class InfographicSeriesController extends Controller
         $series = InfographicSeries::find($request->series_id);
         if ($series) {
             //found series response (display its data)
-            return $this->jsonResponseWithoutMessage($series, 'data', 200);
+            return $this->jsonResponseWithoutMessage(new InfographicSeriesResource($series), 'data', 200);
         } else {
             //not found series response
             throw new NotFound;
@@ -127,7 +128,7 @@ class InfographicSeriesController extends Controller
                 throw new NotFound;
             }
             //success response after update
-            return $this->jsonResponse($series, 'data', 200, "Infographic Series Updated Successfully");
+            return $this->jsonResponse(new InfographicSeriesResource($series), 'data', 200, "Infographic Series Updated Successfully");
         } else {
             //unauthorized user response
             throw new NotAuthorized;
@@ -166,7 +167,7 @@ class InfographicSeriesController extends Controller
                 throw new NotFound;
             }
             //success response after delete
-            return $this->jsonResponse($series, 'data', 200, "infographic Series Deleted Successfully");
+            return $this->jsonResponse(new InfographicSeriesResource($series), 'data', 200, "infographic Series Deleted Successfully");
         } else {
             //unauthorized user response
             throw new NotAuthorized;
@@ -183,7 +184,7 @@ class InfographicSeriesController extends Controller
         }
         $infographicSeries = infographicSeries::where('section_id', $request->section_id)->get();
         if ($infographicSeries->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage($infographicSeries, 'data', 200);
+            return $this->jsonResponseWithoutMessage(InfographicSeriesResource::collection($infographicSeries), 'data', 200);
         } else {
             throw new NotFound;
         }
