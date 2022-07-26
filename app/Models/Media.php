@@ -16,20 +16,27 @@ class Media extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class ,'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
-    
- public function posts()
+
+    public function posts()
     {
-        return $this->belongsTo(Post::class,'post_id');
+        return $this->belongsTo(Post::class, 'post_id');
     }
     public function comments()
     {
-        return $this->belongsTo(Comment::class,'comment_id');
+        return $this->belongsTo(Comment::class, 'comment_id');
     }
     public function reaction()
     {
-        return $this->belongsTo(Reaction::class,'reaction_id');
+        return $this->belongsTo(Reaction::class, 'reaction_id');
+    }
+    public function infographics()
+    {
+        return $this->belongsTo(Infographic::class, 'infographic_id');
+    }
+    public function series()
+    {
+        return $this->belongsTo(InfographicSeries::class, 'infographic_series_id');
     }
 }
-

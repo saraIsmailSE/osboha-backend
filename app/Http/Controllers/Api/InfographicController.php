@@ -124,7 +124,9 @@ class InfographicController extends Controller
                 $infographicMedia = Media::where('infographic_id', $infographic->id)->first();
 
                 //update media
-                $this->updateMedia($request->file('image'), $infographicMedia->id);
+                if ($infographicMedia) {
+                    $this->updateMedia($request->file('image'), $infographicMedia->id);
+                }
 
                 //success response after update
                 return $this->jsonResponse(new InfographicResource($infographic), 'data', 200, 'Infographic Updated Successfully');
@@ -159,14 +161,16 @@ class InfographicController extends Controller
             $infographic = Infographic::find($request->infographic_id);
 
             if ($infographic) {
-                //delete found infographic
-                $infographic->delete();
-
                 //retrieve infographic media 
                 $infographicMedia = Media::where('infographic_id', $infographic->id)->first();
 
                 //delete media
-                $this->deleteMedia($infographicMedia->id);
+                if ($infographicMedia) {
+                    $this->deleteMedia($infographicMedia->id);
+                }
+
+                //delete found infographic
+                $infographic->delete();
             } else {
                 //infographic not found response
                 throw new NotFound;

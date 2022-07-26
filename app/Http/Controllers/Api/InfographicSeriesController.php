@@ -122,7 +122,9 @@ class InfographicSeriesController extends Controller
                 $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
 
                 //update media
-                $this->updateMedia($request->file('image'), $infographicSeriesMedia->id);
+                if ($infographicSeriesMedia) {
+                    $this->updateMedia($request->file('image'), $infographicSeriesMedia->id);
+                }
             } else {
                 //not found series response
                 throw new NotFound;
@@ -154,14 +156,20 @@ class InfographicSeriesController extends Controller
             $series = InfographicSeries::find($request->series_id);
 
             if ($series) {
-                //deleted found series
-                $series->delete();
-
                 //retrieve InfographicSeries media 
                 $infographicSeriesMedia = Media::where('infographic_series_id', $series->id)->first();
 
+                //keep media with no series id
+                if ($infographicSeriesMedia) {
+                    $infographicSeriesMedia->infographic_series_id = null;
+                    $infographicSeriesMedia->save();
+                }
+
+                //delete found series
+                $series->delete();
+
                 //delete media
-                $this->deleteMedia($infographicSeriesMedia->id);
+                // $this->deleteMedia($infographicSeriesMedia->id);
             } else {
                 //not found series response
                 throw new NotFound;
