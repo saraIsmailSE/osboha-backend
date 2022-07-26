@@ -28,7 +28,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ThesisController;
 use App\Http\Controllers\Api\UserGroupController;
 use App\Http\Controllers\Api\RoomController;
-
+use App\Http\Controllers\Api\RejectedThesesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -139,9 +139,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [RejectedMarkController::class, 'create']);
         Route::post('/show', [RejectedMarkController::class, 'show']);
         Route::post('/update', [RejectedMarkController::class, 'update']);
-        Route::post('/list', [RejectedMarkController::class, 'list_user_mark']);
+        Route::post('/list', [RejectedMarkController::class, 'list_user_rejectedmark']);
     });
     ########End RejectedMark ########
+
+    ########RejectedTheses########
+    Route::group(['prefix' => 'rejected-theses'], function () {
+        Route::get('/', [RejectedThesesController::class, 'index']);
+        Route::post('/create', [RejectedThesesController::class, 'create']);
+        Route::post('/show', [RejectedThesesController::class, 'show']);
+        Route::post('/update', [RejectedThesesController::class, 'update']);
+        Route::post('/list', [RejectedThesesController::class, 'list_user_rejectedtheses']);
+    });
+    ########End RejectedTheses ########
 
     #########UserException########
     Route::group(['prefix' => 'userexception'], function () {
