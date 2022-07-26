@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\GroupResource;
+use App\Models\UserGroup;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\Media;
@@ -125,19 +126,19 @@ class GroupController extends Controller
         }
         
          $group=Group::find($request->group_id);
-         $users=$group->user;
 
          if($group){
-         foreach($users as $user) {
-           if(Auth::id()==$user->id) {
-            //return group details with members by resource
-            return $this->jsonResponseWithoutMessage(new GroupResource($group), 'data', 200);
-           }
-           else {
-               throw new NotAuthorized;
-           }
-        }
-      }//end if group found
+             $users=$group->user;
+             foreach($users as $user) {
+                 if(Auth::id()==$user->id) {
+                     //return group details with members by resource
+                     return $this->jsonResponseWithoutMessage(new GroupResource($group), 'data', 200);
+                 }
+                 else {
+                     throw new NotAuthorized;
+                 }
+             }
+         }//end if group found
 
       //group not found
       else{
@@ -218,17 +219,23 @@ class GroupController extends Controller
 
         if(Auth::user()->can('delete group')) {
          $group=Group::find($request->group_id);
-         $currentMedia=Media::where('group_id',$group->id);
-         
-         //if exist delete image
-         if($currentMedia) {
-          $this->deleteMedia($currentMedia->id);
+         if ($group) {
+             $currentMedia=Media::where('group_id',$group->id)->first();
+
+             //if exist delete image
+             if($currentMedia) {
+                 $this->deleteMedia($currentMedia->id);
+             }
+
+             $group->delete();
+
+             return $this->jsonResponseWithoutMessage('Group Deleted', 'data', 200);
          }
-
-         $group->delete();
-
-        return $this->jsonResponseWithoutMessage('Group Deleted', 'data', 200);
-        }//endif Auth
+         else {
+             throw new NotFound();
+         }
+         }
+         //endif Auth
 
         else {
             throw new NotAuthorized;   

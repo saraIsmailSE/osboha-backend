@@ -122,10 +122,15 @@ class ArticleController extends Controller
             $article = Article::find($request->article_id);
 
             //update found article
-            $article->update($request->all()); 
+           if ($article) {
+               $article->update($request->all());
 
-            //success response after update
-            return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Updated Successfully');
+               //success response after update
+               return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Updated Successfully');
+           }else{
+               throw new NotFound();
+           }
+
         }else{
             //unauthorized user response
             throw new NotAuthorized;
@@ -154,11 +159,15 @@ class ArticleController extends Controller
             //find needed article 
             $article = Article::find($request->article_id);
 
-            //delete found article
-            $article->delete();
+            if($article) {
+                //delete found article
+                $article->delete();
 
-            //success response after delete
-            return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Deleted Successfully');
+                //success response after delete
+                return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Deleted Successfully');
+            }else{
+                throw new NotFound();
+            }
         }else{
             //unauthorized user response
             throw new NotAuthorized;
