@@ -181,6 +181,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/show', [ArticleController::class, 'show']);
         Route::post('/update', [ArticleController::class, 'update']);
         Route::post('/delete', [ArticleController::class, 'delete']);
+        Route::post('/articles-by-user', [ArticleController::class, 'listAllArticlesByUser']);
     });
     ########End Article########
     ########Start SocialMedia########

@@ -177,18 +177,28 @@ class ArticleController extends Controller
     }
     
     //listAllArticlesByUser used to list all articles related to certain user
-    public function listAllArticlesByUser($user_id)
+    public function listAllArticlesByUser(Request $request)
     {
         #######ASMAA#######
+
+        //validate article id
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required'
+        ]);
+
+        //validator errors response
+        if($validator->fails()){
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
         
         //find articles belong to user
-        $articles = Article::where('user_id', $user_id)->get();
+        $articles = Article::where('user_id', $request->user_id)->get();
 
-        if($articles){
+        if($articles->isNotEmpty()){
             //found articles response (display data)
             return $this->jsonResponseWithoutMessage(ArticleResource::collection($articles), 'data', 200);
         }else{
-            //not fount articles exception
+            //not found articles exception
             throw new NotFound;
         }
         //ArticleResource::collection(Article::with())
