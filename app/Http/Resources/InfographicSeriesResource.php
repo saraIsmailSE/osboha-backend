@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class InfographicResource extends JsonResource
+class InfographicSeriesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,8 @@ class InfographicResource extends JsonResource
     {
         return [
             'title' => $this->title,
-            //'designer' => new UserResource($this->whenLoaded('user')),
-            //'section' => $this->section,
-            'series' => $this->whenLoaded('series', $this->series->title),
-            'image' => $this->whenLoaded('media', $this->media->media),
+            //'section' => $this->section,            
+            // 'image' => $this->whenLoaded('media', $this->media->media),
         ];
     }
 }
