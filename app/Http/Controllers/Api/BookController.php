@@ -42,8 +42,8 @@ class BookController extends Controller
             'start_page' => 'required',
             'end_page' => 'required',
             'link' => 'required',
-            'section' => 'required',
-            'type' => 'required',
+            'section_id' => 'required',
+            'type_id' => 'required',
             'image' => 'required',
             'level' => 'required',
         ]);
@@ -54,7 +54,7 @@ class BookController extends Controller
         if(Auth::user()->can('create book')){
             $book=Book::create($request->all());
             $this->createMedia($request->file('image'), $book->id, 'book');
-            return $this->jsonResponseWithoutMessage("Book Craeted Successfully", 'data', 200);
+            return $this->jsonResponseWithoutMessage("Book Created Successfully", 'data', 200);
         }
         else{
             throw new NotAuthorized;   
@@ -84,17 +84,6 @@ class BookController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'writer' => 'required',
-            'publisher' => 'required',
-            'brief' => 'required',
-            'start_page' => 'required',
-            'end_page' => 'required',
-            'link' => 'required',
-            'section_id' => 'required',
-            'type_id' => 'required',
-            'image' => 'required',
-            'level_id' => 'required',
             'book_id' => 'required',
         ]);
 
@@ -104,15 +93,17 @@ class BookController extends Controller
         if(Auth::user()->can('edit book')){
             $book = Book::find($request->book_id);
             if($book){
-                $currentMedia= Media::where('comment_id', $book->id)->first();
-                // if exists, update
-                if($currentMedia){
-                    $this->updateMedia($request->file('image'), $currentMedia->id);
-                }
-                //else create new one
-                else {
-                    // upload media
-                    $this->createMedia($request->file('image'), $book->id, 'book');
+                if ($request->hasFile('image')) {
+                    $currentMedia= Media::where('book_id', $book->id)->first();
+                    // if exists, update
+                    if($currentMedia){
+                        $this->updateMedia($request->file('image'), $currentMedia->id);
+                    }
+                    //else create new one
+                    else {
+                        // upload media
+                        $this->createMedia($request->file('image'), $book->id, 'book');
+                    }
                 }
                 $book->update($request->all());
                 return $this->jsonResponseWithoutMessage("Book Updated Successfully", 'data', 200);
@@ -141,7 +132,7 @@ class BookController extends Controller
             $book = Book::find($request->book_id);
             if($book){
                 //check Media
-                $currentMedia = Media::where('comment_id', $book->id)->first();
+                $currentMedia = Media::where('book_id', $book->id)->first();
                 // if exist, delete
                 if ($currentMedia) {
                     $this->deleteMedia($currentMedia->id);
@@ -178,13 +169,13 @@ class BookController extends Controller
     public function bookByLevel(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'level_id' => 'required',
+            'level' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('level_id',$request->level_id)->get();
+        $books = Book::where('level',$request->level)->get();
         if($books->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
         }
