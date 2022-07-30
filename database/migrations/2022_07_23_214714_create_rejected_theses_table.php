@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommentsTable extends Migration
+class CreateRejectedThesesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,14 @@ class CreateCommentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('comments', function (Blueprint $table) {
+        Schema::create('rejected_theses', function (Blueprint $table) {
             $table->id();
-            $table->longText('body')->nullable();
             $table->integer('user_id');
-            $table->integer('post_id');
-            $table->integer('comment_id')->default(0);
-            $table->string('type');
+            $table->integer('thesis_id');
+            $table->integer('week_id');
+            $table->integer('rejecter_id');
+            $table->string('rejecter_note');
+            $table->date('is_acceptable')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ class CreateCommentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comments');
+        Schema::dropIfExists('rejected_theses');
     }
 }

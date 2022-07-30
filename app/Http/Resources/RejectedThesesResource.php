@@ -3,8 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\User;
 
-class InfographicResource extends JsonResource
+class RejectedThesesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,11 +16,12 @@ class InfographicResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'title' => $this->title,
-            //'designer' => new UserResource($this->whenLoaded('user')),
-            //'section' => $this->section,
-            'series' => $this->whenLoaded('series', $this->series->title),
-            'image' => $this->whenLoaded('media', $this->media->media),
+            "user" => $this->user,
+            "week" => $this->week,
+            "thesis" => $this->thesis,
+            "rejecter" => User::find($this->rejecter_id),
+            "rejecter note" => $this->rejecter_note,
+            "is acceptable" => $this->is_acceptable
         ];
     }
 }

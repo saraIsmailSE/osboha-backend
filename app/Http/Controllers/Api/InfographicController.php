@@ -21,17 +21,17 @@ class InfographicController extends Controller
 
     public function index()
     {
-         #######ASMAA#######
+        #######ASMAA#######
 
-         $infographic = Infographic::all();
+        $infographic = Infographic::all();
 
-         if($infographic->isNotEmpty()){
-             //found infographic response
-             return $this->jsonResponseWithoutMessage(InfographicResource::collection($infographic), 'data', 200);
-         }else{
-             //not found articles response
-             throw new NotFound;
-         }
+        if ($infographic->isNotEmpty()) {
+            //found infographic response
+            return $this->jsonResponseWithoutMessage(InfographicResource::collection($infographic), 'data', 200);
+        } else {
+            //not found articles response
+            throw new NotFound;
+        }
     }
 
     public function create(Request $request)
@@ -40,30 +40,30 @@ class InfographicController extends Controller
 
         //validate requested data
         $validator = Validator::make($request->all(), [
-            'title' => 'required', 
+            'title' => 'required',
             'designer_id' => 'required',
-            'section_id' => 'required',  
-            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
+            'section_id' => 'required',
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             //return validator errors
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         //authorized user
-        if(Auth::user()->can('create infographic')){      
+        if (Auth::user()->can('create infographic')) {
             //create new article      
-            $infographic = Infographic::create($request->all()); 
+            $infographic = Infographic::create($request->all());
 
             //create media for infographic 
             $this->createMedia($request->file('image'), $infographic->id, 'infographic');
 
             //success response after creating the article
             return $this->jsonResponse(new InfographicResource($infographic), 'data', 200, 'Infographic Created Successfully');
-        }else{
+        } else {
             //unauthorized user response
-            throw new NotAuthorized;           
+            throw new NotAuthorized;
         }
     }
 
@@ -77,19 +77,19 @@ class InfographicController extends Controller
         ]);
 
         //validator errors response
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         //find needed infographic
         $infographic = Infographic::find($request->infographic_id);
 
-        if($infographic){
+        if ($infographic) {
             //return found infographic
             return $this->jsonResponseWithoutMessage(new InfographicResource($infographic), 'data', 200);
-        }else{
+        } else {
             //infographic not found response
-            throw new NotFound;           
+            throw new NotFound;
         }
     }
 
@@ -97,39 +97,46 @@ class InfographicController extends Controller
     {
         #######ASMAA#######
 
-         //validate requested data
-         $validator = Validator::make($request->all(), [
-            'title'      => 'required', 
-            'designer_id'    => 'required',            
+        //validate requested data
+        $validator = Validator::make($request->all(), [
+            'title'      => 'required',
+            'designer_id'    => 'required',
             'section_id'    => 'required',
             'infographic_id' => 'required',
-            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',          
+            'image' => 'required|image|mimes:png,jpg,jpeg,gif,svg|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             //return validator errors
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         //authorized user
-        if(Auth::user()->can('edit infographic')){
+        if (Auth::user()->can('edit infographic')) {
             //find needed infographic
             $infographic = Infographic::find($request->infographic_id);
 
-            //update found infographic
-            $infographic->update($request->all()); 
+            if ($infographic) {
+                //update found infographic
+                $infographic->update($request->all());
 
-            //retrieve infographic media 
-            $infographicMedia = Media::where('infographic_id', $infographic->id)->first();
+                //retrieve infographic media 
+                $infographicMedia = Media::where('infographic_id', $infographic->id)->first();
 
-            //update media
-            $this->updateMedia($request->file('image'), $infographicMedia->id);
+                //update media
+                if ($infographicMedia) {
+                    $this->updateMedia($request->file('image'), $infographicMedia->id);
+                }
 
-            //success response after update
-            return $this->jsonResponse(new InfographicResource($infographic), 'data', 200,'Infographic Updated Successfully');
-        }else{
+                //success response after update
+                return $this->jsonResponse(new InfographicResource($infographic), 'data', 200, 'Infographic Updated Successfully');
+            } else {
+                //infographic not found response
+                throw new NotFound;
+            }
+        } else {
             //unauthorized user response
-            throw new NotAuthorized;            
+            throw new NotAuthorized;
         }
     }
 
@@ -143,30 +150,37 @@ class InfographicController extends Controller
         ]);
 
         //validator errors response
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         //authorized user
-        if(Auth::user()->can('delete infographic')){
+        if (Auth::user()->can('delete infographic')) {
 
             //find needed infographic 
             $infographic = Infographic::find($request->infographic_id);
 
-            //delete found infographic
-            $infographic->delete();
+            if ($infographic) {
+                //retrieve infographic media 
+                $infographicMedia = Media::where('infographic_id', $infographic->id)->first();
 
-            //retrieve infographic media 
-            $infographicMedia = Media::where('infographic_id', $infographic->id)->first();
+                //delete media
+                if ($infographicMedia) {
+                    $this->deleteMedia($infographicMedia->id);
+                }
 
-            //delete media
-            $this->deleteMedia($infographicMedia->id);
+                //delete found infographic
+                $infographic->delete();
+            } else {
+                //infographic not found response
+                throw new NotFound;
+            }
 
             //success response after delete
-            return $this->jsonResponse(new InfographicResource($infographic), 'data', 200,'Infographic Deleted Successfully');
-        }else{
+            return $this->jsonResponse(new InfographicResource($infographic), 'data', 200, 'Infographic Deleted Successfully');
+        } else {
             //unauthorized user response
-            throw new NotAuthorized;            
+            throw new NotAuthorized;
         }
     }
 
@@ -179,12 +193,11 @@ class InfographicController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $infographics = Infographic::where('section_id',$request->section_id)->get();
-        if($infographics->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(InfographicResource::collection($infographics), 'data',200);
+        $infographics = Infographic::where('section_id', $request->section_id)->get();
+        if ($infographics->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(InfographicResource::collection($infographics), 'data', 200);
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }        
     }
 }

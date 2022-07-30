@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\RejectedMark;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call(MarksSeeder::class);
-        $this->call(RejectedMarksSeeder::class);
+        $this->call(RejectesThesesSeeder::class);
         $this->call(InfographicSeeder::class);
         $this->call(InfographicSeriesSeeder::class);
         $this->call(ArticleSeeder::class);
