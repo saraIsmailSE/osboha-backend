@@ -159,6 +159,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [UserExceptionController::class, 'create']);
         Route::get('/show', [UserExceptionController::class, 'show']);
         Route::post('/update', [UserExceptionController::class, 'update']);
+        Route::post('/delete', [UserExceptionController::class, 'delete']);
     });
     ############End UserException########
 
@@ -167,6 +168,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [GroupController::class, 'index']);
         Route::post('/create', [GroupController::class, 'create']);
         Route::get('/show', [GroupController::class, 'show']);
+        Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
         Route::post('/update', [GroupController::class, 'update']);
         Route::post('/delete', [GroupController::class, 'delete']);
     });
@@ -189,6 +191,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/show', [ArticleController::class, 'show']);
         Route::post('/update', [ArticleController::class, 'update']);
         Route::post('/delete', [ArticleController::class, 'delete']);
+        Route::post('/articles-by-user', [ArticleController::class, 'listAllArticlesByUser']);
     });
     ########End Article########
     ########Start SocialMedia########
