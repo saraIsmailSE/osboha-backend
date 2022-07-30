@@ -253,7 +253,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [PollVoteController::class, 'create']);
         Route::post('/show', [PollVoteController::class, 'show']);
         Route::post('/votesByPostId', [PollVoteController::class, 'votesByPostId']);
-        Route::post('/votesByAuthUser', [PollVoteController::class, 'votesByAuthUser']);
         Route::post('/votesByUserId', [PollVoteController::class, 'votesByUserId']);
         Route::post('/update', [PollVoteController::class, 'update']);
         Route::post('/delete', [PollVoteController::class, 'delete']);
