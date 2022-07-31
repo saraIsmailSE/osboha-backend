@@ -9,10 +9,10 @@ class Room extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'creator_id' => 'required',
-        'name' => 'required',
-        'type' => 'required',
-        'messages_status' =>'required',
+        'creator_id',
+        'name' ,
+        'type' ,
+        'messages_status' ,
     ];
 
 public function user()

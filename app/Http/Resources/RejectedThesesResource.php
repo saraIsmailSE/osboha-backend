@@ -3,8 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\User;
 
-class MarkResource extends JsonResource
+class RejectedThesesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,13 +18,10 @@ class MarkResource extends JsonResource
         return [
             "user" => $this->user,
             "week" => $this->week,
-            "out of 90" => $this->out_of_90,
-            "out of 100" => $this->out_of_100,
-            "support" => $this->support, 
-            "total thesis" => $this->total_thesis, 
-            "total screenshot" => $this->total_screenshot,
-            "updated at" => $this->updated_at,
             "thesis" => $this->thesis,
+            "rejecter" => User::find($this->rejecter_id),
+            "rejecter note" => $this->rejecter_note,
+            "is acceptable" => $this->is_acceptable
         ];
     }
 }

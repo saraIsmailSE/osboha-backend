@@ -23,10 +23,10 @@ class ProfileSettingController extends Controller
         //Profile Settings belong to Auth user
         $settings = ProfileSetting::where('user_id', Auth::id())->get();
 
-        if($settings){
+        if($settings->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(ProfileSettingResource::collection($settings), 'data', 200);
         }else{
-            throw new NotFound();
+            throw new NotFound;
         }
     }
 

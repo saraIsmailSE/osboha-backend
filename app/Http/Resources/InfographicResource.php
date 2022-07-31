@@ -17,8 +17,9 @@ class InfographicResource extends JsonResource
         return [
             'title' => $this->title,
             //'designer' => new UserResource($this->whenLoaded('user')),
-            'section' => $this->section,
-            'series_id' => $this->whenLoaded('series', $this->series_id),
+            //'section' => $this->section,
+            'series' => $this->whenLoaded('series', $this->series->title),
+            'image' => $this->whenLoaded('media', $this->media->media),
         ];
     }
 }

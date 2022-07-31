@@ -3,8 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\User;
 
-class PollVoteResource extends JsonResource
+class RoomResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,13 +16,11 @@ class PollVoteResource extends JsonResource
     public function toArray($request)
     {
         return [
-            //'post_id' => new PostResource($this->post_id),
-            //'user_id' => new UserResource($this->user_id),
-
-            //"user_id"=> $this->user,
-            "user_id"=> $this->user_id,
-            "post_id"=> $this->post_id,
-            'option' => unserialize($this->option)
+            "creator" => User::find($this->creator_id),
+            "participant" => $this-> participant,
+            "name" => $this->name,
+            "type" => $this->type,
+            "messages status" => $this->messages_status
         ];
     }
 }

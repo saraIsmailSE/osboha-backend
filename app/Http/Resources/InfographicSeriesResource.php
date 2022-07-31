@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PollVoteResource extends JsonResource
+class InfographicSeriesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,13 +15,9 @@ class PollVoteResource extends JsonResource
     public function toArray($request)
     {
         return [
-            //'post_id' => new PostResource($this->post_id),
-            //'user_id' => new UserResource($this->user_id),
-
-            //"user_id"=> $this->user,
-            "user_id"=> $this->user_id,
-            "post_id"=> $this->post_id,
-            'option' => unserialize($this->option)
+            'title' => $this->title,
+            //'section' => $this->section,            
+            // 'image' => $this->whenLoaded('media', $this->media->media),
         ];
     }
 }
