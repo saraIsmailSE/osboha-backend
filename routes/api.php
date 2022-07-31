@@ -81,6 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [SystemIssueController::class, 'create']);
         Route::post('/show', [SystemIssueController::class, 'show']);
         Route::post('/update', [SystemIssueController::class, 'update']);
+        
     });
     ########End SystemIssue########
 
