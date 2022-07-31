@@ -30,4 +30,27 @@ class MessagesController extends Controller
             $request['user_id']= Auth::id();    
             Message::create($request->all());
             return $this->jsonResponseWithoutMessage("Message Added Successfully", 'data', 200);
-    }
+    }  
+    public function index()
+    {
+            //get and display all the messages
+            $message = Message::all();
+            if($message->isNotEmpty()){
+                // found message response
+                return $this->jsonResponseWithoutMessage($message, 'data',200);
+            }
+            else{
+                //not found message response
+                throw new NotFound;
+            }
+
+            
+         //get and display messages between 2 users
+            $message = Message::with('user')
+            ->groupBy('sender_id')
+            ->where('receiver_id',auth()->user()->id)
+            ->orWhere('sender_id',auth()->user()->id)
+           
+            ->get();
+}
+}
