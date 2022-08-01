@@ -1,13 +1,15 @@
 <?php
+
 namespace App\Traits;
+
 use App\Models\Media;
 use App\Models\Reaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 Use \Carbon\Carbon;
 
-Trait MediaTraits{
-
+trait MediaTraits
+{
     function createMedia($media, $type_id , $type){
         try {
             $imageName = rand(100000, 999999).time() . '.' . $media->extension();
@@ -42,29 +44,28 @@ Trait MediaTraits{
             return false;
         }
     }
-
-    function updateMedia($media, $media_id){
+    function updateMedia($media, $media_id)
+    {
         //get current media
-        $currentMedia= Media::find($media_id);
+        $currentMedia = Media::find($media_id);
         //delete current media
-        File::delete(public_path('assets/images/'.$currentMedia->media));
+        File::delete(public_path('assets/images/' . $currentMedia->media));
 
         // upload new media
-        $imageName = time().'.'. $media->extension();  
-        $media->move(public_path('assets/images'), $imageName);    
+        $imageName = time() . '.' . $media->extension();
+        $media->move(public_path('assets/images'), $imageName);
 
         // update current media
-        $currentMedia->media = $imageName; 
+        $currentMedia->media = $imageName;
         $currentMedia->save();
     }
 
-    
-    function deleteMedia($media_id){
-        $currentMedia= Media::find($media_id);
-         //delete current media
-        File::delete(public_path('assets/images/'.$currentMedia->media));
+
+    function deleteMedia($media_id)
+    {
+        $currentMedia = Media::find($media_id);
+        //delete current media
+        File::delete(public_path('assets/images/' . $currentMedia->media));
         $currentMedia->delete();
     }
-
-
 }

@@ -44,7 +44,7 @@ class PostController extends Controller
         //validate requested data
         $validator = Validator::make($request->all(), [
             'body' => 'required_without:image',
-            'type' => 'required',
+            'type_id' => 'required',
             'timeline_id' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
         ]);
@@ -59,7 +59,7 @@ class PostController extends Controller
             $timeline = Timeline::find($request->timeline_id);
 
             if(!empty($timeline) ){ 
-                if($timeline->type=="group") {
+                if($timeline->type_id=="group") {
                 $group = Group::where('timeline_id',$timeline->id)->first();
                 $user = UserGroup::where([
                     ['group_id', $group->id],
@@ -130,14 +130,14 @@ class PostController extends Controller
         $validator = Validator::make($request->all(), [
             'body' => 'required_without:image',
             'user_id' => 'required',
-            'type' => 'required',
+            'type_id' => 'required',
             //'allow_comments' => 'required',
             //'tag' => 'required',
             //'vote' => 'required',
             //'is_approved' => 'required',
             //'is_pinned' => 'required',
             'timeline_id' => 'required',
-            //'post_id' => 'required',
+            'post_id' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body'
         ]);
 

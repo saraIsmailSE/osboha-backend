@@ -101,7 +101,7 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, [
             'week_id' => 'required',
             'reason' => 'required|string',
-            'type' => 'required|string',
+            'type_id' => 'required|int',
             'duration' => 'required|int',
             'start_at' => 'required|date',
             'leader_note' => 'nullable|string',
@@ -164,7 +164,7 @@ class UserExceptionController extends Controller
             'exception_id' => 'required',
             'week_id' => 'required',
             'reason' => 'required|string',
-            'type' => 'required|string',
+            'type_id' => 'required|int',
             'duration' => 'required|int',
             'start_at' => 'required|date',
             'leader_note' => 'nullable|string',
@@ -179,11 +179,16 @@ class UserExceptionController extends Controller
         {
           $input['user_id']= Auth::id();
           $userException= UserException::find($request->exception_id);
-          $userException->update($input);
 
-          return $this->jsonResponseWithoutMessage("User Exception Updated", 'data', 200);
+          if($userException){
+              $userException->update($input);
+
+              return $this->jsonResponseWithoutMessage("User Exception Updated", 'data', 200);
+          }
+          else {
+              throw new NotFound();
+          }
         }
-
         else {
             throw new NotAuthorized;
         }
@@ -198,20 +203,28 @@ class UserExceptionController extends Controller
             'exception_id' => 'required',
         ]);
 
+        if($validator->fails()){
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
         $userException=UserException::find($request->exception_id);
-     
-        if(Auth::id() == $userException->user_id){
-            if($userException->leader_note== null && $userException->advisor_note == null){
-                $userException->delete();
-                return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200);
-            }
+
+        if ($userException){
+            if(Auth::id() == $userException->user_id){
+                if($userException->leader_note== null && $userException->advisor_note == null){
+                    $userException->delete();
+                    return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200);
+                }
+                else {
+                    throw new NotAuthorized;
+                }
+            }//end if Auth
             else {
                 throw new NotAuthorized;
             }
-        }//end if Auth
-
+        }
         else {
-            throw new NotAuthorized;
+            throw new NotFound();
         }
     }
 

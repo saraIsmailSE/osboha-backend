@@ -151,7 +151,7 @@ class ThesisController extends Controller
 
         $thesis = Thesis::find($request->thesis_id);
 
-        if ($thesis->isNotEmpty()) {
+        if ($thesis) {
             return $this->jsonResponseWithoutMessage(new ThesisResource($thesis), 'data', 200);
         } else {
             throw new NotFound;
@@ -293,9 +293,10 @@ class ThesisController extends Controller
                 'max_length', 'total_screenshots', 'comment_id'
             ]
         );
-        $comment = Comment::where('id', $thesis->comment_id)->first('id');
 
         if ($thesis) {
+            $comment = Comment::where('id', $thesis->comment_id)->first('id');
+
             $week_id = Week::all('id')->last()->id;
 
             $mark_record = Mark::where('id', $thesis->mark_id)
@@ -412,7 +413,7 @@ class ThesisController extends Controller
 
     public function calculate_mark_for_ramadan_thesis($total_pages, $max_length, $total_screenshots, $thesis_type)
     {
-        if ($max_length <= 0 && $thesis_type <= 0) { //if no thesis -- it is considered as normal thesis
+        if ($max_length <= 0 && $total_screenshots <= 0) { //if no thesis -- it is considered as normal thesis
             return $this->calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots);
         }
 

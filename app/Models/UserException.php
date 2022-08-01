@@ -13,7 +13,7 @@ class UserException extends Model
         'user_id',
         'week_id',
         'reason',
-        'type',
+        'type_id',
         'duration',
         'status',
         'start_at',

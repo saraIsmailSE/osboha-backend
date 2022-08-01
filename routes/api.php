@@ -28,7 +28,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ThesisController;
 use App\Http\Controllers\Api\UserGroupController;
 use App\Http\Controllers\Api\RoomController;
-
+use App\Http\Controllers\Api\RejectedThesesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -81,6 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [SystemIssueController::class, 'create']);
         Route::post('/show', [SystemIssueController::class, 'show']);
         Route::post('/update', [SystemIssueController::class, 'update']);
+        
     });
     ########End SystemIssue########
 
@@ -126,8 +127,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
         Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
-        Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);         
-        Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);        
+        Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);
+        Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);
         Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
         //Route::get('/statsmark', [MarkController::class, 'statsMark']);
     });
@@ -139,9 +140,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [RejectedMarkController::class, 'create']);
         Route::post('/show', [RejectedMarkController::class, 'show']);
         Route::post('/update', [RejectedMarkController::class, 'update']);
-        Route::post('/list', [RejectedMarkController::class, 'list_user_mark']);
+        Route::post('/list', [RejectedMarkController::class, 'list_user_rejectedmark']);
     });
     ########End RejectedMark ########
+
+    ########RejectedTheses########
+    Route::group(['prefix' => 'rejected-theses'], function () {
+        Route::get('/', [RejectedThesesController::class, 'index']);
+        Route::post('/create', [RejectedThesesController::class, 'create']);
+        Route::post('/show', [RejectedThesesController::class, 'show']);
+        Route::post('/update', [RejectedThesesController::class, 'update']);
+        Route::post('/list', [RejectedThesesController::class, 'list_user_rejectedtheses']);
+    });
+    ########End RejectedTheses ########
 
     #########UserException########
     Route::group(['prefix' => 'userexception'], function () {
@@ -149,6 +160,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [UserExceptionController::class, 'create']);
         Route::get('/show', [UserExceptionController::class, 'show']);
         Route::post('/update', [UserExceptionController::class, 'update']);
+        Route::post('/delete', [UserExceptionController::class, 'delete']);
     });
     ############End UserException########
 
@@ -157,6 +169,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [GroupController::class, 'index']);
         Route::post('/create', [GroupController::class, 'create']);
         Route::get('/show', [GroupController::class, 'show']);
+        Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
         Route::post('/update', [GroupController::class, 'update']);
         Route::post('/delete', [GroupController::class, 'delete']);
     });
@@ -179,6 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/show', [ArticleController::class, 'show']);
         Route::post('/update', [ArticleController::class, 'update']);
         Route::post('/delete', [ArticleController::class, 'delete']);
+        Route::post('/articles-by-user', [ArticleController::class, 'listAllArticlesByUser']);
     });
     ########End Article########
     ########Start SocialMedia########
@@ -208,6 +222,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/show', [InfographicController::class, 'show']);
         Route::post('/update', [InfographicController::class, 'update']);
         Route::post('/delete', [InfographicController::class, 'delete']);
+        Route::post('/infographicBySection', [InfographicController::class, 'InfographicBySection']);
     });
     ########End Infographic ########
 
@@ -218,6 +233,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/show', [InfographicSeriesController::class, 'show']);
         Route::post('/update', [InfographicSeriesController::class, 'update']);
         Route::post('/delete', [InfographicSeriesController::class, 'delete']);
+        Route::post('/seriesBySection', [InfographicSeriesController::class, 'SeriesBySection']);
     });
     ########End InfographicSeries########    
     ########Post########
@@ -241,7 +257,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [PollVoteController::class, 'create']);
         Route::post('/show', [PollVoteController::class, 'show']);
         Route::post('/votesByPostId', [PollVoteController::class, 'votesByPostId']);
-        Route::post('/votesByAuthUser', [PollVoteController::class, 'votesByAuthUser']);
         Route::post('/votesByUserId', [PollVoteController::class, 'votesByUserId']);
         Route::post('/update', [PollVoteController::class, 'update']);
         Route::post('/delete', [PollVoteController::class, 'delete']);
@@ -290,9 +305,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     ######## thesis ########
     ######## Room ########
-    Route::group(['prefix'=>'room'], function(){
-        Route::post('/create', [RoomController::class, 'create']);       
-        Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);        
+    Route::group(['prefix' => 'room'], function () {
+        Route::post('/create', [RoomController::class, 'create']);
+        Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
     });
     ######## Room ########
 

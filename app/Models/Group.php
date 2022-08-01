@@ -13,7 +13,7 @@ class Group extends Model
     protected $fillable=[
         'name',
         'description',
-        'type',
+        'type_id',
         'creator_id',
         'timeline_id'
     ];

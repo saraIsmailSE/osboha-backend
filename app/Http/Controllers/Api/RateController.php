@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
 use Spatie\Permission\PermissionRegistrar;
 use App\Http\Resources\RateResource;
 
@@ -57,7 +59,7 @@ class RateController extends Controller
          $rate = Rate::where('comment_id', $request->comment_id)->get();
         else if($request->has('post_id'))
          $rate = Rate::where('post_id', $request->post_id)->get();
-        if($rate){
+        if($rate->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(RateResource::collection($rate), 'data',200);
         }
         else{

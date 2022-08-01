@@ -66,7 +66,8 @@ class RoomController extends Controller
     public function addUserToRoom(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required',
+            'user_id' => 'required',
+            'room_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -75,24 +76,23 @@ class RoomController extends Controller
 
         if(Auth::user()->can('room control'))
         {
-            $input = $request->all();
-            $user = User::find($input['id']);
-            $room = Room::where('creator_id', Auth::id())->get()[0];
+            $user = User::find($request->user_id);
             $participant = new Participant([
-                'user_id' => $user->id,
-                'room_id' => $room->id,
+                'user_id' => $request->user_id,
+                'room_id' => $request->room_id,
                 'type' => ''
             ]);
 
-            if($user){
-                if(!(Participant::where('user_id', $user->id)->get())){
+            if(User::find($request->user_id)){
+                if(Participant::where('user_id', $request->user_id)->get()->isNotEmpty()){
+
+                    return $this->jsonResponseWithoutMessage("This User already in Room", 'data', 500); 
+                }
+                else{
                     //added user to participant table
                     $user->participant()->save($participant);
 
-                    return $this->jsonResponseWithoutMessage("User Added Successfully", 'data', 200);
-                }
-                else{
-                    return $this->jsonResponseWithoutMessage("This User already in Room", 'data', 500);
+                    return $this->jsonResponseWithoutMessage("User Added Successfully", 'data', 200); 
                 }
             }
             else{
