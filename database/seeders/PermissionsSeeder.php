@@ -133,6 +133,16 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'create room']);
         Permission::create(['name' => 'room control']);
 
+        ###### SECTION ######
+        Permission::create(['name' => 'edit section']);
+        Permission::create(['name' => 'delete section']);
+        Permission::create(['name' => 'create section']);
+
+        ###### Type ######
+        Permission::create(['name' => 'edit type']);
+        Permission::create(['name' => 'delete type']);
+        Permission::create(['name' => 'create type']);
+
         // create roles and assign existing permissions
 
         $role1 = Role::create(['name' => 'admin']);

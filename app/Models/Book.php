@@ -35,9 +35,11 @@ class Book extends Model
     {
         return $this->belongsTo(section::class);
     }
+
     public function type()
     {
         return $this->belongsTo(BookType::class);
     }
+    
 }
 

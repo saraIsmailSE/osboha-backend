@@ -49,5 +49,8 @@ class Post extends Model
         return $this->hasOne( Activity::class, 'post_id' );
     }
 
-  
+    public function type(){
+        return $this->belongsTo( PostType::class);
+    }
+
 }

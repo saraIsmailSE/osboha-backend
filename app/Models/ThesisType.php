@@ -15,6 +15,6 @@ class ThesisType extends Model
 
     public function thesises()
     {
-        return $this->hasMany(Theses::class, 'thesis_type_id');
+        return $this->hasMany(Thesis::class);
     }
 }
