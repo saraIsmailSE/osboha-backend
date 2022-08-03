@@ -58,6 +58,11 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'delete reaction']);
         Permission::create(['name' => 'create reaction']);
 
+        ###### LEADER REQUEST######
+        Permission::create(['name' => 'edit leaderRequest']);
+        Permission::create(['name' => 'delete leaderRequest']);
+        Permission::create(['name' => 'create leaderRequest']);
+
         ###### BOOK ######
         Permission::create(['name' => 'edit book']);
         Permission::create(['name' => 'delete book']);

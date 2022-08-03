@@ -18,8 +18,11 @@ class Group extends Model
         'timeline_id'
     ];
 
-    public function User(){
+    public function user(){
         return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type');
+    }
+    public function userAmbassador(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','ambassador');
     }
 
     public function Timeline(){

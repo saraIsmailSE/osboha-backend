@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PollVoteController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\ReactionController;
+use App\Http\Controllers\Api\LeaderRequestController;
 use App\Http\Controllers\Api\SystemIssueController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\CommentController;
@@ -75,6 +76,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [ReactionController::class, 'delete']);
     });
     ########End Reaction########
+    ########LeaderRequest########
+    Route::group(['prefix' => 'leader-request'], function () {
+        Route::get('/', [LeaderRequestController::class, 'index']);
+        Route::post('/create', [LeaderRequestController::class, 'create']);
+        Route::post('/show', [LeaderRequestController::class, 'show']);
+        Route::post('/update', [LeaderRequestController::class, 'update']);
+        Route::post('/delete', [LeaderRequestController::class, 'delete']);
+    });
+    ########End LeaderRequest########
     ########SystemIssue########
     Route::group(['prefix' => 'system-issue'], function () {
         Route::get('/', [SystemIssueController::class, 'index']);
