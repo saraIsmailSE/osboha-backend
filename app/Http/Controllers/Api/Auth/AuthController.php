@@ -9,6 +9,8 @@ use App\Models\Sign_up;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
+
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -43,10 +45,9 @@ class AuthController extends Controller
             return $this->jsonResponse('UnAuthorized', 'data', 404, 'Email Or Password is Wrong');
         }
     }
-
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
+    
+    public function register(Request $request){
+        $ambassador = Validator::make($request->all(), [
             // 'name_ar'          => 'required',
             // 'name_en'          => 'required',
             'name'             => 'required',
@@ -62,12 +63,7 @@ class AuthController extends Controller
         }
        $input = $request->all();
        $input['password'] = bcrypt($input['password']);
-       $this->allocateAmbassador($input);
 
-      
-    }
-    
-    public function allocateAmbassador($ambassador){
         $leader_gender = $ambassador['leader_gender'];
         $ambassador_gender = $ambassador['gender'];
         if ($ambassador_gender == 'any') {
@@ -82,8 +78,8 @@ class AuthController extends Controller
           }
           else{
             $leader_condition = array($leader_gender);
-          }
         
+          }
         DB::transaction(function () use($ambassador,$ambassador_condition,$leader_condition) {
             $exit=false;
             while (! $exit ) {
@@ -99,12 +95,13 @@ class AuthController extends Controller
                      if ($result->count() == 0){
                          //Check Teams With Less Than 12 Members
                          $result=Sign_up::selectTeam_between($leader_condition,$ambassador_condition,"1","12");
+
                          if ($result->count() == 0){
                               //Check Teams With Less More 12 Members
                               $result=Sign_up::selectTeam($leader_condition,$ambassador_condition,">","12");
                               if ($result->count() == 0){
                                 // print_r($ambassador);
-                                 $ambassadorWithoutLeader = User::create($ambassador);
+                                // $ambassadorWithoutLeader = User::create($ambassador);
                                  $exit=true;
                                  echo $this->jsonResponseWithoutMessage("Register Successfully --Without Leader", 'data', 200);
                              }

@@ -26,10 +26,10 @@ class Sign_up extends Model
            
 	}//selectHighPriority
     
-	public function selectSpecialCare($leader_gender,$ambassador_gender){
+	public function selectSpecialCare($leader_condition,$ambassador_condition){
          $users = DB::table('leader_requests')
          ->join('users', 'leader_requests.leader_id', '=', 'users.id')
-         ->where('leader_requests.current_team_count', '=', 40 )//just for test
+         ->where('leader_requests.current_team_count', '=', 2 )//just for test
          ->whereIn('leader_requests.gender',$leader_condition)
          ->whereIn('users.gender',$ambassador_condition)
          ->where('leader_requests.is_done', '=', 0 )
@@ -39,7 +39,7 @@ class Sign_up extends Model
 
     return $users ;
 	}//selectSpecialCare
-    public function selectTeam($leader_gender,$ambassador_gender,$logical_operator = "=",$value = "0"){
+    public function selectTeam($leader_condition,$ambassador_condition,$logical_operator = "=",$value = "0"){
         $users = DB::table('leader_requests')
          ->join('users', 'leader_requests.leader_id', '=', 'users.id')
          ->where('leader_requests.current_team_count', $logical_operator,$value )
@@ -51,7 +51,7 @@ class Sign_up extends Model
          ->limit(1)->get();
       return $users ;
 	}//selectTeam
-  public function selectTeam_between($leader_gender,$ambassador_gender,$value1,$value2){
+  public function selectTeam_between($leader_condition,$ambassador_condition,$value1,$value2){
       $users = DB::table('leader_requests')
        ->join('users', 'leader_requests.leader_id', '=', 'users.id')
        ->whereBetween('leader_requests.current_team_count', [$value1, $value2])

@@ -122,10 +122,15 @@ class ArticleController extends Controller
             $article = Article::find($request->article_id);
 
             //update found article
-            $article->update($request->all()); 
+           if ($article) {
+               $article->update($request->all());
 
-            //success response after update
-            return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Updated Successfully');
+               //success response after update
+               return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Updated Successfully');
+           }else{
+               throw new NotFound();
+           }
+
         }else{
             //unauthorized user response
             throw new NotAuthorized;
@@ -154,11 +159,15 @@ class ArticleController extends Controller
             //find needed article 
             $article = Article::find($request->article_id);
 
-            //delete found article
-            $article->delete();
+            if($article) {
+                //delete found article
+                $article->delete();
 
-            //success response after delete
-            return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Deleted Successfully');
+                //success response after delete
+                return $this->jsonResponse(new ArticleResource($article), 'data', 200, 'Article Deleted Successfully');
+            }else{
+                throw new NotFound();
+            }
         }else{
             //unauthorized user response
             throw new NotAuthorized;
@@ -168,18 +177,28 @@ class ArticleController extends Controller
     }
     
     //listAllArticlesByUser used to list all articles related to certain user
-    public function listAllArticlesByUser($user_id)
+    public function listAllArticlesByUser(Request $request)
     {
         #######ASMAA#######
+
+        //validate article id
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required'
+        ]);
+
+        //validator errors response
+        if($validator->fails()){
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
         
         //find articles belong to user
-        $articles = Article::where('user_id', $user_id)->get();
+        $articles = Article::where('user_id', $request->user_id)->get();
 
-        if($articles){
+        if($articles->isNotEmpty()){
             //found articles response (display data)
             return $this->jsonResponseWithoutMessage(ArticleResource::collection($articles), 'data', 200);
         }else{
-            //not fount articles exception
+            //not found articles exception
             throw new NotFound;
         }
         //ArticleResource::collection(Article::with())
