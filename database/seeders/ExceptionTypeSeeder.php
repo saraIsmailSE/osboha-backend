@@ -4,9 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
-class BookTypeSeeder extends Seeder
+class ExceptionTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,14 +14,13 @@ class BookTypeSeeder extends Seeder
      */
     public function run()
     {
-
-        $book_type = ['noraml', 'ramadan', 'young', 'kids'];
-        //BOOK TYPE
+        $exception_type = ['freeze', 'exams', 'exceptional freeze'];
+        //EXCEPTION TYPE
         $i = 0;
-        while ($i <= 3) {
-            DB::table('book_types')->insert([
+        while ($i <= 2) {
+            DB::table('exception_types')->insert([
 
-                'type' => $book_type[$i],
+                'type' => $exception_type[$i],
 
             ]);
             $i++;

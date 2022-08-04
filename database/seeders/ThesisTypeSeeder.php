@@ -4,9 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
-class BookTypeSeeder extends Seeder
+class ThesisTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,13 +15,13 @@ class BookTypeSeeder extends Seeder
     public function run()
     {
 
-        $book_type = ['noraml', 'ramadan', 'young', 'kids'];
-        //BOOK TYPE
+        $thesis_type = ['noraml', 'ramadan', 'young', 'kids'];
+        //THESIS TYPE
         $i = 0;
         while ($i <= 3) {
-            DB::table('book_types')->insert([
+            DB::table('thesis_types')->insert([
 
-                'type' => $book_type[$i],
+                'type' => $thesis_type[$i],
 
             ]);
             $i++;

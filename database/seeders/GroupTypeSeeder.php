@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class BookTypeSeeder extends Seeder
+class GroupTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,13 +16,13 @@ class BookTypeSeeder extends Seeder
     public function run()
     {
 
-        $book_type = ['noraml', 'ramadan', 'young', 'kids'];
-        //BOOK TYPE
+        $group_type = ['reading', 'working', 'supervising'];
+        //GROUP TYPE
         $i = 0;
-        while ($i <= 3) {
-            DB::table('book_types')->insert([
+        while ($i <= 2) {
+            DB::table('group_types')->insert([
 
-                'type' => $book_type[$i],
+                'type' => $group_type[$i],
 
             ]);
             $i++;

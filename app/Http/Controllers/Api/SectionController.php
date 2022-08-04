@@ -115,23 +115,20 @@ class SectionController extends Controller
 
                 Book::where('section_id',$request->section_id)
                     ->update(['section_id'=> 0]);
-                    $section->delete();
 
                 Infographic::where('section_id',$request->section_id)
                     ->update(['section_id'=> 0]);
-                    $section->delete();
 
                 InfographicSeries::where('section_id',$request->section_id)
                     ->update(['section_id'=> 0]);
-                    $section->delete();
-                
-
-                    return $this->jsonResponseWithoutMessage("Section Deleted Successfully", 'data', 200);
-                }
-                else{
-                    throw new NotFound;
-                }
+        
+                $section->delete();
+                return $this->jsonResponseWithoutMessage("Section Deleted Successfully", 'data', 200);
             }
+            else{
+                throw new NotFound;
+            }
+        }
         else{
             throw new NotAuthorized;
         }
