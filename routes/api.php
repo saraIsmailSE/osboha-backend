@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\ThesisController;
 use App\Http\Controllers\Api\UserGroupController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RejectedThesesController;
+use App\Http\Controllers\Api\MessagesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -310,5 +311,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
     });
     ######## Room ########
-
+     ######## Messages ########
+     Route::group(['prefix' => 'messages'], function () {
+        Route::get('/', [MessagesController::class, 'index']);
+        Route::post('/create', [MessagesController::class, 'create']);
+});
+     ######## Messages ########
 });
