@@ -25,6 +25,7 @@ class Infographic extends Model
     {
         return $this->belongsTo(Section::class, 'section_id');
     }
+    
     public function media()
     {
         return $this->hasOne(Media::class, 'infographic_id');

@@ -27,4 +27,9 @@ class Timeline extends Model
     }
     */
 
+    public function type()
+    {
+        return $this->belongsTo(TimelineType::class);
+    }
+
 }
