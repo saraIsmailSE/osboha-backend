@@ -18,9 +18,9 @@ class Message extends Model
     {
         return $this->belongsTo(User::class ,'user_id');
     }
-    public function participant()
+    public function room()
     {
-        return $this->hasMany(Participant::class,'user_id');
+        return $this->belongsTo(User::class ,'user_id');
     }
 }
-}
+} 
