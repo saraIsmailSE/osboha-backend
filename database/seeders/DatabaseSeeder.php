@@ -29,11 +29,15 @@ class DatabaseSeeder extends Seeder
         $this->call(ThesisSeeder::class);
         $this->call(RateSeeder::class);
         $this->call(ReactionSeeder::class);
+<<<<<<< Updated upstream
         $this->call(BookTypeSeeder::class);
         $this->call(ExceptionTypeSeeder::class);
         $this->call(GroupTypeSeeder::class);
         $this->call(PostTypeSeeder::class);
         $this->call(ThesisTypeSeeder::class);
         $this->call(TimelineTypeSeeder::class);
+=======
+        $this->call(WeekSeeder::class);
+>>>>>>> Stashed changes
     }
 }

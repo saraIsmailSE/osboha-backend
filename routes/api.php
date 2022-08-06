@@ -36,6 +36,10 @@ use App\Http\Controllers\Api\PostTypeController;
 use App\Http\Controllers\Api\ThesisTypeController;
 use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
+<<<<<<< Updated upstream
+=======
+use App\Http\Controllers\api\WeekController;
+>>>>>>> Stashed changes
 
 /*
 |--------------------------------------------------------------------------
@@ -89,7 +93,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [SystemIssueController::class, 'create']);
         Route::post('/show', [SystemIssueController::class, 'show']);
         Route::post('/update', [SystemIssueController::class, 'update']);
-        
     });
     ########End SystemIssue########
 
@@ -318,6 +321,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
     });
     ######## Room ########
+    ######## Week ########
+    Route::group(['prefix' => 'week'], function () {
+        Route::post('/create', [WeekController::class, 'create']);
+        Route::post('/update', [WeekController::class, 'update']);
+        // Route::post('/get_last_weeks_ids', [WeekController::class, 'get_last_weeks_ids']); //for testing - to be deleted
+    });
+    ######## Week ########
 
     ######## Section ########
     Route::group(['prefix' => 'section'], function () {
