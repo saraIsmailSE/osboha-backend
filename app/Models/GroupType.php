@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class GroupType extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'type' 
+    ];
+
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
 }

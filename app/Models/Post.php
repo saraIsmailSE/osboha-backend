@@ -52,5 +52,8 @@ class Post extends Model
         return $this->belongsTo(PostType::class);
     }
 
-  
+    public function type(){
+        return $this->belongsTo( PostType::class);
+    }
+
 }

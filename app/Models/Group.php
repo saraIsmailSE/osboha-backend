@@ -31,5 +31,9 @@ class Group extends Model
         return $this->hasOne(Media::class);
     } 
 
+    public function type()
+    {
+        return $this->belongsTo(GroupType::class);
+    }
 
 }
