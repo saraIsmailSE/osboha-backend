@@ -22,7 +22,7 @@ class Post extends Model
     ];
 
     public function comments(){
-        return $this->hasMany( Comment::class, 'user_id' );
+        return $this->hasMany( Comment::class, 'post_id' );
     }
 
     public function user(){
@@ -34,7 +34,7 @@ class Post extends Model
     }
 
     public function book(){
-        return $this->belongsTo( Book::class, 'user_id' );
+        return $this->belongsTo( Book::class, 'book_id' );
     }
 
     public function media(){
