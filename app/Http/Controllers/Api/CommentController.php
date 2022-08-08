@@ -32,7 +32,7 @@ class CommentController extends Controller
             'comment_id' => 'numeric',
             'type' => 'required',
             'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'screenShots' => 'array|required_if:type,thesis|required_without:image,body',
+            'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
             'total_pages' => 'required_if:type,thesis|numeric',
             'thesis_type_id' => 'required_if:type,thesis|numeric',
 
