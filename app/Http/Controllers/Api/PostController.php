@@ -325,7 +325,14 @@ class PostController extends Controller
             if(Auth::id() == $post->user_id || Auth::user()->can('controll comments')){
                 $post->allow_comments=$request->allow_comments;
                 $post->save();
-                return $this->jsonResponseWithoutMessage("Comments cControlled Successfully", 'data', 200);
+
+                if($request->allow_comments == 0 ){
+                    $msg = "Comments Closed Successfully";
+                }
+                else{
+                    $msg = "Comments Opend Successfully";
+                }
+                return $this->jsonResponseWithoutMessage($msg, 'data', 200);
 
             }    
             else{
@@ -354,8 +361,13 @@ class PostController extends Controller
             if(Auth::user()->userProfile->timeline_id == $post->timeline_id || Auth::user()->can('pin ')){
                
                 Post::where('id',$request->post_id)->update(['is_pinned'=>$request->is_pinned]);
-                return $this->jsonResponseWithoutMessage("Post Pinned Successfully", 'data', 200);
-
+                if($request->is_pinned == 0 ){
+                    $msg = "Post Unpinned Successfully";
+                }
+                else{
+                    $msg = "Post Pinned Successfully";
+                }
+                return $this->jsonResponseWithoutMessage($msg, 'data', 200);
             }    
             else{
                 throw new NotAuthorized;   
