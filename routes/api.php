@@ -256,6 +256,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/PostsToAccept', [PostController::class, 'listPostsToAccept']);
         Route::post('/acceptPost', [PostController::class, 'AcceptPost']);
         Route::post('/declinePost', [PostController::class, 'declinePost']);
+        Route::post('/controllComments', [PostController::class, 'controllComments']);
+        Route::post('/pinnPost', [PostController::class, 'pinnPost']);
     });
     ########End Post########
 

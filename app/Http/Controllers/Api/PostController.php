@@ -20,6 +20,7 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\PostResource;
 
+use function PHPUnit\Framework\isNull;
 
 class PostController extends Controller
 {
@@ -27,9 +28,7 @@ class PostController extends Controller
    
     public function index()
     {
-        //$posts = Post::all();
         $posts = Post::where('user_id', Auth::id())->get();
-        //$posts = Post::where('timeline_id', $timeline_id)->get();
 
         if($posts->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data',200);
@@ -43,68 +42,80 @@ class PostController extends Controller
     {
         //validate requested data
         $validator = Validator::make($request->all(), [
-            'body' => 'required_without:image',
+            'body' => 'required_without_all:image',
             'type_id' => 'required',
             'timeline_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048|required_without_all:body',
+            'tag' => 'array',
+            'vote' => 'array',
         ]);
-     
+    
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $user_id = Auth::id();
+        if (Auth::user()->can('create post')) {
 
-        if(Auth::user()->can('create post')){
-            $input = $request->all();
+            $postData = $request->all();
+            $postData['user_id'] = Auth::id();
+
+            // tag: array of user id 
+            if ($request->has('tag')) {
+                $postData['tag'] = serialize($request->tag);
+            }
+            // vote: array of options 
+            if ($request->has('vote')) {
+                $postData['vote'] = serialize($request->vote);
+            }
+
             $timeline = Timeline::find($request->timeline_id);
 
-            if(!empty($timeline) ){ 
-                if($timeline->type_id=="group") {
-                $group = Group::where('timeline_id',$timeline->id)->first();
-                $user = UserGroup::where([
-                    ['group_id', $group->id],
-                    ['user_id', Auth::id()]
-                ])->first();
-                if($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader"){
-                    $input['is_approved'] = null;
-                    echo 'waiting for the leader approval'; 
+            if ($timeline) {
+                if ($timeline->type->type == "group") {
+                    // get group information
+                    $group = Group::where('timeline_id', $timeline->id)->first();
 
-                    $leader =UserGroup::where([
+                    // get user role in the group
+                    $userInGroup = UserGroup::where([
+                        ['group_id', $group->id],
+                        ['user_id', Auth::id()]
+                    ])->first();
+                    //if user role in a group is an ambassador then post need leader\supervisor\advisor approvement 
+                    if ($userInGroup->user_type == "ambassador") {
+                        $postData['is_approved'] = null;
+                    }
+                }
+
+                $post = Post::create($postData);
+                // if the post need approval inform each ambassador and leader 
+                if(is_null($postData['is_approved'])){
+                    //inform user 
+                    $msg = "your post needs leader approval";
+                    (new NotificationController)->sendNotification(Auth::id(), $msg);
+
+                    // inform leader
+                    $leader = UserGroup::where([
                         ['group_id', $group->id],
                         ['user_type', "leader"]
-                    ])->first(); 
+                    ])->first();
                     $msg = "There are new posts need approval";
-                    (new NotificationController)->sendNotification($leader->user_id , $msg);
+                    (new NotificationController)->sendNotification($leader->user_id, $msg);
                 }
-            }
-                
-                if ($request->has('tag')){
-                    $input['tag'] = serialize($request->tag);
-                }
-
-                if ($request->has('vote')){
-                    $input['vote'] = serialize($request->vote);
-                }
-
-                $input['user_id'] = Auth::id();
-
-                $post= Post::create($input);
-
+                    
                 if ($request->hasFile('image')) {
-                // if post has media
-                // upload media
-                $this->createMedia($request->file('image'), $post->id, 'post');
+                    // if post has image
+                    // upload image
+                    $this->createMedia($request->file('image'), $post->id, 'post');
                 }
                 return $this->jsonResponseWithoutMessage("Post Craeted Successfully", 'data', 200);
-            }
-            else{
+            } 
+            else {
                 throw new NotFound;
             }
+        } 
+        else {
+            throw new NotAuthorized;
         }
-        else{
-            throw new NotAuthorized; 
-        }
-}
+    }
 
     public function show(Request $request)
     {
@@ -131,11 +142,6 @@ class PostController extends Controller
             'body' => 'required_without:image',
             'user_id' => 'required',
             'type_id' => 'required',
-            //'allow_comments' => 'required',
-            //'tag' => 'required',
-            //'vote' => 'required',
-            //'is_approved' => 'required',
-            //'is_pinned' => 'required',
             'timeline_id' => 'required',
             'post_id' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body'
@@ -182,7 +188,7 @@ class PostController extends Controller
             throw new NotFound;   
         }    
     }        
-       
+
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -302,9 +308,73 @@ class PostController extends Controller
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);   
         }   
     }
-        
-
-
-
     
+    public function controllComments(Request $request){
+        // user can controll comments [allowed or not]  if he is the owner or has a controll comments permission
+        $validator = Validator::make($request->all(), [
+            'allow_comments' => 'required',
+            'post_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        
+        $post = Post::find($request->post_id);
+        if($post){
+            if(Auth::id() == $post->user_id || Auth::user()->can('controll comments')){
+                $post->allow_comments=$request->allow_comments;
+                $post->save();
+
+                if($request->allow_comments == 0 ){
+                    $msg = "Comments Closed Successfully";
+                }
+                else{
+                    $msg = "Comments Opend Successfully";
+                }
+                return $this->jsonResponseWithoutMessage($msg, 'data', 200);
+
+            }    
+            else{
+                throw new NotAuthorized;   
+            }
+        }
+        else{
+            throw new NotFound;   
+        } 
+
+    }
+
+    public function pinnPost(Request $request){
+        // user can pin post on his profile or if he has a pin post permission
+        $validator = Validator::make($request->all(), [
+            'is_pinned' => 'required',
+            'post_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        
+        $post = Post::find($request->post_id);
+        if($post){
+            if(Auth::user()->userProfile->timeline_id == $post->timeline_id || Auth::user()->can('pin ')){
+               
+                Post::where('id',$request->post_id)->update(['is_pinned'=>$request->is_pinned]);
+                if($request->is_pinned == 0 ){
+                    $msg = "Post Unpinned Successfully";
+                }
+                else{
+                    $msg = "Post Pinned Successfully";
+                }
+                return $this->jsonResponseWithoutMessage($msg, 'data', 200);
+            }    
+            else{
+                throw new NotAuthorized;   
+            }
+        }
+        else{
+            throw new NotFound;   
+        } 
+    }    
 }

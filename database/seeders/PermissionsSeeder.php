@@ -123,11 +123,13 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'edit post']);
         Permission::create(['name' => 'delete post']);
         Permission::create(['name' => 'create post']);
+        Permission::create(['name' => 'pin post']);
 
         ###### COMMENT ######
         Permission::create(['name' => 'edit comment']);
         Permission::create(['name' => 'delete comment']);
         Permission::create(['name' => 'create comment']);
+        Permission::create(['name' => 'controll comments']);
 
         ###### ROOM ######
         Permission::create(['name' => 'create room']);
