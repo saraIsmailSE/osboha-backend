@@ -9,7 +9,11 @@ class TimelineType extends Model
 {
     use HasFactory;
     
-    public function timelines(){
+    protected $fillable = [
+        'type' 
+    ];
+
+   public function timelines(){
         return $this->hasMany( Timeline::class,"type_id");
     }
 }

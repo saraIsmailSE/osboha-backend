@@ -28,7 +28,15 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ThesisController;
 use App\Http\Controllers\Api\UserGroupController;
 use App\Http\Controllers\Api\RoomController;
+use App\Http\Controllers\Api\SectionController;
+use App\Http\Controllers\Api\BooktypeController;
+use App\Http\Controllers\Api\ExceptionTypeController;
+use App\Http\Controllers\Api\GroupTypeController;
+use App\Http\Controllers\Api\PostTypeController;
+use App\Http\Controllers\Api\ThesisTypeController;
+use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -312,5 +320,75 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
     });
     ######## Room ########
+
+    ######## Section ########
+    Route::group(['prefix' => 'section'], function () {
+        Route::get('/', [SectionController::class, 'index']);
+        Route::post('/create', [SectionController::class, 'create']);
+        Route::post('/show', [SectionController::class, 'show']);
+        Route::post('/update', [SectionController::class, 'update']);
+        Route::post('/delete', [SectionController::class, 'delete']);
+    });
+    ######## Section ########
+
+    ######## Book-Type ########
+    Route::group(['prefix' => 'book-type'], function () {
+        Route::get('/', [BookTypeController::class, 'index']);
+        Route::post('/create', [BookTypeController::class, 'create']);
+        Route::post('/show', [BookTypeController::class, 'show']);
+        Route::post('/update', [BookTypeController::class, 'update']);
+        Route::post('/delete', [BookTypeController::class, 'delete']);
+    });
+    ######## Book-Type ########
+
+    ######## Exception-Type ########
+    Route::group(['prefix' => 'exception-type'], function () {
+        Route::get('/', [ExceptionTypeController::class, 'index']);
+        Route::post('/create', [ExceptionTypeController::class, 'create']);
+        Route::post('/show', [ExceptionTypeController::class, 'show']);
+        Route::post('/update', [ExceptionTypeController::class, 'update']);
+        Route::post('/delete', [ExceptionTypeController::class, 'delete']);
+    });
+    ######## Exception-Type ########
+
+    ######## Group-Type ########
+    Route::group(['prefix' => 'group-type'], function () {
+        Route::get('/', [GroupTypeController::class, 'index']);
+        Route::post('/create', [GroupTypeController::class, 'create']);
+        Route::post('/show', [GroupTypeController::class, 'show']);
+        Route::post('/update', [GroupTypeController::class, 'update']);
+        Route::post('/delete', [GroupTypeController::class, 'delete']);
+    });
+    ######## Group-Type ########
+
+    ######## Post-Type ########
+    Route::group(['prefix' => 'post-type'], function () {
+        Route::get('/', [PostTypeController::class, 'index']);
+        Route::post('/create', [PostTypeController::class, 'create']);
+        Route::post('/show', [PostTypeController::class, 'show']);
+        Route::post('/update', [PostTypeController::class, 'update']);
+        Route::post('/delete', [PostTypeController::class, 'delete']);
+    });
+    ######## Post-Type ########
+
+    ######## Thesis-Type ########
+    Route::group(['prefix' => 'thesis-type'], function () {
+        Route::get('/', [ThesisTypeController::class, 'index']);
+        Route::post('/create', [ThesisTypeController::class, 'create']);
+        Route::post('/show', [ThesisTypeController::class, 'show']);
+        Route::post('/update', [ThesisTypeController::class, 'update']);
+        Route::post('/delete', [ThesisTypeController::class, 'delete']);
+    });
+    ######## Thesis-Type ########
+
+    ######## Timeline-Type ########
+    Route::group(['prefix' => 'timeline-type'], function () {
+        Route::get('/', [TimelineTypeController::class, 'index']);
+        Route::post('/create', [TimelineTypeController::class, 'create']);
+        Route::post('/show', [TimelineTypeController::class, 'show']);
+        Route::post('/update', [TimelineTypeController::class, 'update']);
+        Route::post('/delete', [TimelineTypeController::class, 'delete']);
+    });
+    ######## Timeline-Type ########
 
 });

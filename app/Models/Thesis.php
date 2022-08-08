@@ -43,8 +43,8 @@ class Thesis extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function thesis_type()
+    public function type()
     {
-        return $this->belongsTo(ThesisType::class, 'thesis_type_id');
+        return $this->belongsTo(ThesisType::class);
     }
 }
