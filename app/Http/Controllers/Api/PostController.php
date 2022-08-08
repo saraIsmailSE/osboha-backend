@@ -140,13 +140,13 @@ class PostController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'body' => 'required_without:image',
-            'user_id' => 'required',
             'type_id' => 'required',
             'timeline_id' => 'required',
             'post_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body'
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
+            'tag' => 'array',
+            'vote' => 'array'
         ]);
-
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
@@ -222,10 +222,16 @@ class PostController extends Controller
 
     public function postByTimelineId(Request $request)
     {
-        $timeline_id = $request->timeline_id;
-
+        $validator = Validator::make($request->all(), [
+            'timeline_id' => 'required',
+        ]);
+        
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        
         //find posts belong to timeline_id
-        $posts = Post::where('timeline_id', $timeline_id)->get();
+        $posts = Post::where('timeline_id', $request->timeline_id)->get();
 
         if($posts->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data', 200);
@@ -236,9 +242,16 @@ class PostController extends Controller
 
     public function postByUserId(Request $request)
     {
-        $user_id = $request->user_id;
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+        ]);
+        
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
         //find posts belong to user_id
-        $posts = Post::where('user_id', $user_id)->get();
+        $posts = Post::where('user_id', $request->user_id)->get();
 
         if($posts->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data', 200);
@@ -255,37 +268,50 @@ class PostController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-
-        $posts = Post::where([
-                        ['timeline_id', $request->timeline_id],
-                        ['is_approved', Null]
-                    ])->get();
-        if($posts->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data',200); 
-        } else{
-            throw new NotFound;
+        if (Auth::user()->can('accept post')) {
+            $posts = Post::where([
+                ['timeline_id', $request->timeline_id],
+                ['is_approved', Null]
+            ])->get();
+            if ($posts->isNotEmpty()) {
+                return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data', 200);
+            } else {
+                throw new NotFound;
+            }
         }
+        else{
+            throw new NotAuthorized;
+        }
+
+        
     }
 
     public function AcceptPost(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'post_id' => 'required',     
+            'post_id' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        } 
+        }
+        if (Auth::user()->can('accept post')) {
+            $post = Post::find($request->post_id);
+            if ($post) {
+                if ($post->is_approved == Null) {
+                    $post->is_approved = now();
+                    $post->update();
 
-        $post = Post::find($request->post_id);
-        if($post->is_approved == Null) {
-            $post->is_approved = now();
-            $post->update();
-
-            $msg = "Your post is approved successfully";
-            (new NotificationController)->sendNotification($post->user_id , $msg);
-            return $this->jsonResponseWithoutMessage("The post is approved successfully", 'data', 200);
+                    $msg = "Your post is approved successfully";
+                    (new NotificationController)->sendNotification($post->user_id, $msg);
+                    return $this->jsonResponseWithoutMessage("The post is approved successfully", 'data', 200);
+                } else {
+                    return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
+                }
+            } else {
+                throw new NotFound;
+            }
         } else {
-            return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);   
+            throw new NotAuthorized;
         }
     }
 
@@ -296,17 +322,24 @@ class PostController extends Controller
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        } 
-
-        $post = Post::find($request->post_id);
-        if($post->is_approved == Null) {
-            $post->delete();
-            $msg = "Your post is declined";
-            (new NotificationController)->sendNotification($post->user_id , $msg);
-            return $this->jsonResponseWithoutMessage("The post is deleted successfully", 'data', 200);
+        }
+        if (Auth::user()->can('decline post')) {
+            $post = Post::find($request->post_id);
+            if ($post) {
+                if ($post->is_approved == Null) {
+                    $post->delete();
+                    $msg = "Your post is declined";
+                    (new NotificationController)->sendNotification($post->user_id, $msg);
+                    return $this->jsonResponseWithoutMessage("The post is deleted successfully", 'data', 200);
+                } else {
+                    return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
+                }
+            } else {
+                throw new NotFound;
+            }
         } else {
-            return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);   
-        }   
+            throw new NotAuthorized;
+        }
     }
     
     public function controllComments(Request $request){

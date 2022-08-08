@@ -120,6 +120,8 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'create challenge']);
 
         ###### POST ######
+        Permission::create(['name' => 'accept post']);
+        Permission::create(['name' => 'decline post']);
         Permission::create(['name' => 'edit post']);
         Permission::create(['name' => 'delete post']);
         Permission::create(['name' => 'create post']);
