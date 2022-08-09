@@ -58,10 +58,13 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'delete reaction']);
         Permission::create(['name' => 'create reaction']);
 
-        ###### LEADER REQUEST######
-        Permission::create(['name' => 'edit leaderRequest']);
-        Permission::create(['name' => 'delete leaderRequest']);
-        Permission::create(['name' => 'create leaderRequest']);
+        ###### REQUEST AMBASSADOR######
+        Permission::create(['name' => 'edit RequestAmbassador']);
+        Permission::create(['name' => 'create RequestAmbassador']);
+
+         ###### HIGH PRIORITY REQUEST######
+         Permission::create(['name' => 'delete highPriorityRequestAmbassador']);
+         Permission::create(['name' => 'create highPriorityRequestAmbassador']);
 
         ###### BOOK ######
         Permission::create(['name' => 'edit book']);
@@ -163,6 +166,10 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('create comment');
         $role3->givePermissionTo('delete comment');
         $role3->givePermissionTo('edit comment');
+        $role3->givePermissionTo('create RequestAmbassador');
+        $role3->givePermissionTo('edit RequestAmbassador');
+        $role3->givePermissionTo('create highPriorityRequest');
+        $role3->givePermissionTo('delete highPriorityRequest');
 
         $role4->givePermissionTo('create post');
         $role4->givePermissionTo('delete post');
@@ -170,6 +177,9 @@ class PermissionsSeeder extends Seeder
         $role4->givePermissionTo('create comment');
         $role4->givePermissionTo('delete comment');
         $role4->givePermissionTo('edit comment');
+        $role4->givePermissionTo('create RequestAmbassador');
+        $role4->givePermissionTo('edit RequestAmbassador');
+ 
 
         $role5->givePermissionTo('create post');
         $role5->givePermissionTo('delete post');

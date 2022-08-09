@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\PollVoteController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\ReactionController;
 use App\Http\Controllers\Api\LeaderRequestController;
+use App\Http\Controllers\Api\HighPriorityRequestController;
 use App\Http\Controllers\Api\SystemIssueController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\CommentController;
@@ -85,6 +86,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [LeaderRequestController::class, 'delete']);
     });
     ########End LeaderRequest########
+    ########HighPriorityRequest########
+    Route::group(['prefix' => 'high-priority-request'], function () {
+        Route::get('/', [HighPriorityRequestController::class, 'index']);
+        Route::post('/create', [HighPriorityRequestController::class, 'create']);
+        Route::post('/show', [HighPriorityRequestController::class, 'show']);
+        Route::post('/delete', [HighPriorityRequestController::class, 'delete']);
+    });
+    ########End HighPriorityRequest########
     ########SystemIssue########
     Route::group(['prefix' => 'system-issue'], function () {
         Route::get('/', [SystemIssueController::class, 'index']);

@@ -1,11 +1,11 @@
 <?php
 
 namespace App\Http\Resources;
-//use App\Http\Resources\UserResource;
+use App\Http\Resources\LeaderRequestResource;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class LeaderRequestResource extends JsonResource
+class HighPriorityRequestResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,8 @@ class LeaderRequestResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'members_num'=> $this->members_num,
-            'gender' => $this->gender,
-            //"leader_id" =>new UserResource($this->leader_id),
-            'current_team_count' => $this->current_team_count,
-            'is_done' => $this->is_done, 
+            'request_id' => $this->request_id,//new LeaderRequestResource($this->request_id),
+
         ];
     }
 }

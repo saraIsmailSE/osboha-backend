@@ -114,6 +114,8 @@ class AuthController extends Controller
                                      continue;
                                  }
                              }
+
+
                          }//end if Teams With Less Than 12 Members
                          else{
                              $exit =  $this->insert_ambassador($ambassador,$result);
