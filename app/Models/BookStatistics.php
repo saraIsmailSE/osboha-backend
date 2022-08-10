@@ -10,7 +10,6 @@ class BookStatistics extends Model
     use HasFactory;
     protected $fillable = [
         'total',
-
         'simple',
         'intermediate',
         'advanced',

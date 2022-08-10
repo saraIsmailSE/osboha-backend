@@ -27,11 +27,11 @@ class BookObserver
             $book_stat->advanced += 1;
         }
 
-        if($book->section_id == '1'){
+        if($book->type_id == '1'){
             $book_stat->method_books += 1;
-        }else if($book->section_id == '2'){
+        }else if($book->type_id == '2'){
             $book_stat->ramadan_books += 1;
-        }else if($book->section_id == '3'){
+        }else if($book->type_id == '3'){
             $book_stat->children_books += 1;
         }else{
             $book_stat->young_people_books += 1;
@@ -59,32 +59,47 @@ class BookObserver
             $book_stat->advanced += 1;
         }
 
-        if($book->section_id == '1'){
+        if($book->type_id == '1'){
             $book_stat->method_books += 1;
-        }else if($book->section_id == '2'){
+        }else if($book->type_id == '2'){
             $book_stat->ramadan_books += 1;
-        }else if($book->section_id == '3'){
+        }else if($book->type_id == '3'){
             $book_stat->children_books += 1;
         }else{
             $book_stat->young_people_books += 1;
         }
 
         if($old_book['level'] == 'بسيط'){
-            $book_stat->simple -= 1;
+            if($book_stat->simple !=0){
+                $book_stat->simple -= 1;
+            }
         }else if($old_book['level'] == 'متوسط'){
-            $book_stat->intermediate -= 1;
+            if($book_stat->intermediate !=0){
+                $book_stat->intermediate -= 1;
+            }
         }else{
-            $book_stat->advanced -= 1;
+           if( $book_stat->advanced !=0){
+                $book_stat->advanced -= 1;
+           }
         }
 
-        if($old_book['section_id'] == '1'){
-            $book_stat->method_books -= 1;
-        }else if($old_book['section_id'] == '2'){
-            $book_stat->ramadan_books -= 1;
-        }else if($old_book['section_id'] == '3'){
-            $book_stat->children_books -= 1;
+        if($old_book['type_id'] == '1'){
+            if( $book_stat->method_books !=0){
+                $book_stat->method_books -= 1;
+            }
+           
+        }else if($old_book['type_id'] == '2'){
+            if($book_stat->ramadan_books !=0){
+                $book_stat->ramadan_books -= 1;
+            }
+        }else if($old_book['type_id'] == '3'){
+            if($book_stat->children_books !=0){
+                $book_stat->children_books -= 1;
+            }
         }else{
-            $book_stat->young_people_books -= 1;
+            if($book_stat->young_people_books !=0){
+                $book_stat->young_people_books -= 1;
+            }
         }
 
         $book_stat->save();
@@ -100,27 +115,44 @@ class BookObserver
     {
         $book_stat = BookStatistics::latest()->first();
         
-        $book_stat->total -=  1;
+        if( $book_stat->total !=0){
+            $book_stat->total -=  1;
+            if($book->level == 'بسيط'){
+                if($book_stat->simple !=0){
+                    $book_stat->simple -= 1;
+                }
+            }else if($book->level == 'متوسط'){
+                if($book_stat->intermediate !=0){
+                    $book_stat->intermediate -= 1;
+                }
+            }else{
+                if($book_stat->advanced !=0){
+                    $book_stat->advanced -= 1;
+                }
+            }
+    
+            if($book->type_id == '1'){
+                if($book_stat->method_books !=0){
+                    $book_stat->method_books -= 1;
+                }
+            }else if($book->type_id == '2'){
+                if($book_stat->ramadan_books !=0){
+                    $book_stat->ramadan_books -= 1;
+                }
+            }else if($book->type_id == '3'){
+                if($book_stat->children_books !=0){
+                    $book_stat->children_books -= 1;
+                }
+            }else{
+                if($book_stat->young_people_books !=0){
+                    $book_stat->young_people_books -= 1;
+                }
+            }
+    
+            $book_stat->save();
+        }
         
-        if($book->level == 'بسيط'){
-            $book_stat->simple -= 1;
-        }else if($book->level == 'متوسط'){
-            $book_stat->intermediate -= 1;
-        }else{
-            $book_stat->advanced -= 1;
-        }
-
-        if($book->section_id == '1'){
-            $book_stat->method_books -= 1;
-        }else if($book->section_id == '2'){
-            $book_stat->ramadan_books -= 1;
-        }else if($book->section_id == '3'){
-            $book_stat->children_books -= 1;
-        }else{
-            $book_stat->young_people_books -= 1;
-        }
-
-        $book_stat->save();
+      
     }
 
     /**

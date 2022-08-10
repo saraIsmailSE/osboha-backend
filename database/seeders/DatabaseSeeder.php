@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BookStatistics;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -35,5 +36,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PostTypeSeeder::class);
         $this->call(ThesisTypeSeeder::class);
         $this->call(TimelineTypeSeeder::class);
+        $this->call(BookStatisticsSeeder::class);
     }
 }

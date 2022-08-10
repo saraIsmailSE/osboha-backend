@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\BookStatisticsResource;
 use App\Models\BookStatistics;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
@@ -23,7 +22,7 @@ class BookStatisticsController extends Controller
         $stat = BookStatistics::latest()->get();
         
         if($stat->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(BookStatisticsResource::collection($stat), 'data',200);
+            return $this->jsonResponseWithoutMessage($stat, 'data',200);
         }
         else{
             throw new NotFound();
