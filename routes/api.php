@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\BookStatisticsController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PollVoteController;
 use App\Http\Controllers\Api\RateController;
@@ -390,5 +391,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [TimelineTypeController::class, 'delete']);
     });
     ######## Timeline-Type ########
+
+    ######## BookStatistics ########
+    Route::group(['prefix'=>'book-stat'], function(){
+        Route::get('/', [BookStatisticsController::class, 'index']);              
+    });
+    ######## BookStatistics ########
 
 });
