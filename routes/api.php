@@ -83,7 +83,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [LeaderRequestController::class, 'create']);
         Route::post('/show', [LeaderRequestController::class, 'show']);
         Route::post('/update', [LeaderRequestController::class, 'update']);
-        Route::post('/delete', [LeaderRequestController::class, 'delete']);
     });
     ########End LeaderRequest########
     ########HighPriorityRequest########
@@ -91,7 +90,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [HighPriorityRequestController::class, 'index']);
         Route::post('/create', [HighPriorityRequestController::class, 'create']);
         Route::post('/show', [HighPriorityRequestController::class, 'show']);
-        Route::post('/delete', [HighPriorityRequestController::class, 'delete']);
     });
     ########End HighPriorityRequest########
     ########SystemIssue########

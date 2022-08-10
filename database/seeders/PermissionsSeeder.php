@@ -63,7 +63,6 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'create RequestAmbassador']);
 
          ###### HIGH PRIORITY REQUEST######
-         Permission::create(['name' => 'delete highPriorityRequestAmbassador']);
          Permission::create(['name' => 'create highPriorityRequestAmbassador']);
 
         ###### BOOK ######
@@ -169,7 +168,6 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('create RequestAmbassador');
         $role3->givePermissionTo('edit RequestAmbassador');
         $role3->givePermissionTo('create highPriorityRequest');
-        $role3->givePermissionTo('delete highPriorityRequest');
 
         $role4->givePermissionTo('create post');
         $role4->givePermissionTo('delete post');

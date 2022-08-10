@@ -58,11 +58,11 @@ class AuthController extends Controller
             'password'         => 'required',
             'user_type'        => 'required',
          ]);
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        if ($ambassador->fails()) {
+            return $this->jsonResponseWithoutMessage($ambassador->errors(), 'data', 500);
         }
-       $input = $request->all();
-       $input['password'] = bcrypt($input['password']);
+        $ambassador = $request->all();
+        $ambassador['password'] = bcrypt($ambassador['password']);
 
         $leader_gender = $ambassador['leader_gender'];
         $ambassador_gender = $ambassador['gender'];
@@ -100,8 +100,7 @@ class AuthController extends Controller
                               //Check Teams With Less More 12 Members
                               $result=Sign_up::selectTeam($leader_condition,$ambassador_condition,">","12");
                               if ($result->count() == 0){
-                                // print_r($ambassador);
-                                // $ambassadorWithoutLeader = User::create($ambassador);
+                                $ambassadorWithoutLeader = User::create($ambassador);
                                  $exit=true;
                                  echo $this->jsonResponseWithoutMessage("Register Successfully --Without Leader", 'data', 200);
                              }

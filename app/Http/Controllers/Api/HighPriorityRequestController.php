@@ -73,28 +73,4 @@ class HighPriorityRequestController extends Controller
         }
     }
 
-    public function delete(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'request_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
-
-        $high_priority_request = HighPriorityRequest::where('request_id',$request->request_id)->first();
-        if($high_priority_request){
-            if(Auth::user()->can('delete highPriorityRequestAmbassador')){
-                $high_priority_request->delete();
-                return $this->jsonResponseWithoutMessage("HighPriorityRequest Deleted Successfully", 'data', 200);
-            }
-            else{
-                throw new NotAuthorized;
-            }
-        }
-        else{
-            throw new NotFound;   
-        }
-    }
 }

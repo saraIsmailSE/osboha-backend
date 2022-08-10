@@ -103,7 +103,7 @@ class LeaderRequestController extends Controller
                     $request['current_team_count'] = $group->userAmbassador->count();
                     $members_num_leader_can_request = 30 - $request['current_team_count'];//check the number of membmers that can leader request ,the number of membmers up to a maximum of 30 members
                     if( $request['members_num'] > $members_num_leader_can_request ){
-                        return $this->jsonResponseWithoutMessage("you can't request this count of members, you can add:".$members_num_leader_can_request." members", 'data', 200);
+                        return $this->jsonResponseWithoutMessage("you can't request that number of members ,the previous request was:".$request['members_num']." members and maximum number that can be requested is:".$members_num_leader_can_request." members", 'data', 200);
                     }
                     else{
                         $leader_request->update($request->all());
