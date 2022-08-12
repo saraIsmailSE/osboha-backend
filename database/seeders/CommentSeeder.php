@@ -17,13 +17,13 @@ class CommentSeeder extends Seeder
     {
 
         $type= ['noraml', 'thesis', 'support'];
-       $i=0;
+        $i=0;
         while ($i<=200){
             
             DB::table('comments')->insert([
                 'body' => Str::random(3000),
-                'user_id' => rand(1,30),
-                'post_id' => rand(1,30),
+                'user_id' => rand(1,200),
+                'post_id' => rand(1,200),
                 'comment_id' => rand(0,10),
                 'type' => $type[rand(0,2)],
             ]);

@@ -18,8 +18,8 @@ class FriendSeeder extends Seeder
         while ($i<=200){
 
             DB::table('friends')->insert([
-                'user_id' => rand(1,30),
-                'friend_id' => rand(1,30),
+                'user_id' => rand(1,200),
+                'friend_id' => rand(1,200),
                 'status' => rand(0,1)
             ]);
             $i++;

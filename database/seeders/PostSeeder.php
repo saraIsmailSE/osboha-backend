@@ -21,9 +21,9 @@ class PostSeeder extends Seeder
             
             DB::table('posts')->insert([
                 'body' => Str::random(3000),
-                'user_id' => rand(1,30),
-                'timeline_id' => rand(1,30),
-                'type_id' => rand(1,5),
+                'user_id' => rand(1,200),
+                'timeline_id' => rand(1,200),
+                'type_id' => rand(1,6),
             ]);
             $i++;    
         }

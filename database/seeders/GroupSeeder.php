@@ -23,8 +23,8 @@ class GroupSeeder extends Seeder
                 'description' => Str::random(20),
                 'type_id' => rand(1,4),
                 'cover_picture' => Str::random(10),
-                'creator_id' => rand(1,30),
-                'timeline_id' => rand(1,30)
+                'creator_id' => rand(1,200),
+                'timeline_id' => rand(1,200)
             ]);
             $i++;
         }

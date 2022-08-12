@@ -22,7 +22,7 @@ class LeaderRequestsSeeder extends Seeder
         
 
         $gender= ['male', 'female'];
-       $i=0;
+        $i=0;
         while ($i<=200){
             DB::table('leader_requests')->insert([
                 'members_num' => rand(1,10),

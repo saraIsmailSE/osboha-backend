@@ -21,7 +21,7 @@ class BookSeeder extends Seeder
         while ($i<=200){
             
             DB::table('books')->insert([
-                'post_id' => rand(0,15),
+                'post_id' => rand(0,200),
                 'name' => Str::random(10),
                 'writer' => Str::random(10),
                 'publisher' => Str::random(10),
@@ -29,8 +29,8 @@ class BookSeeder extends Seeder
                 'start_page' => 1,
                 'end_page' => rand(150,600),
                 'link' => 'https://www.google.com/',
-                'section_id' =>rand(1,7),
-                'type_id' => rand(1,3),
+                'section_id' =>rand(1,8),
+                'type_id' => rand(1,4),
                 'level' => $level[rand(0,2)],
             ]);
             $i++;    

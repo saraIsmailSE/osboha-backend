@@ -4,8 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
-class ThesisTypeSeeder extends Seeder
+class TimelineSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,15 +15,12 @@ class ThesisTypeSeeder extends Seeder
      */
     public function run()
     {
-
-        $thesis_type = ['noraml', 'ramadan', 'tafseer', 'young', 'kids'];
-        //THESIS TYPE
         $i = 0;
-        while ($i <= 4) {
-            DB::table('thesis_types')->insert([
-
-                'type' => $thesis_type[$i],
-
+        while ($i <= 200) {
+            DB::table('timelines')->insert([
+                'name' => Str::random(10),
+                'description' => Str::random(50),
+                'type_id' => rand(1,4),
             ]);
             $i++;
         }

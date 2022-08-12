@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class GroupTypeSeeder extends Seeder
+class ExceptionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,15 +15,11 @@ class GroupTypeSeeder extends Seeder
      */
     public function run()
     {
+        $i=0;
+        while ($i<=200){
 
-        $group_type = ['reading', 'leading', 'advising', 'supervising'];
-        //GROUP TYPE
-        $i = 0;
-        while ($i <= 3) {
-            DB::table('group_types')->insert([
-
-                'type' => $group_type[$i],
-
+            DB::table('exceptions')->insert([
+                'type_id' => rand(1,3),
             ]);
             $i++;
         }

@@ -18,10 +18,10 @@ class UserGroupSeeder extends Seeder
         $i=0;
         while ($i<=200){
             $role = $user_type[rand(0,3)];
-            $user_id = rand(1,30);
+            $user_id = rand(1,200);
             $userGroup = \App\Models\UserGroup::insert([
                 'user_id' => $user_id,
-                'group_id' => rand(1,30),
+                'group_id' => rand(1,200),
                 'user_type' => $role
             ]);
             $user = \App\Models\User::find($user_id); 

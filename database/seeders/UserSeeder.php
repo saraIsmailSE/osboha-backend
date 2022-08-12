@@ -5,6 +5,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -19,21 +20,66 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $i=0;
+        $password = bcrypt('password123');
         $gender= ['male', 'female'];
-        while ($i<=200){
-            $user = \App\Models\User::factory()->create([
-                'name' => Str::random(10),
+        $i=1;
+        while ($i <= 200) {
+            if($i <= 5){
+            $user = User::create([
+                'name' => 'Advisor',
                 'email' => Str::random(10).'@gmail.com',
-                'password' => Hash::make('password'),
+                'password' => $password,
                 //'email_verified_at' => Carbon::today()->subDays(rand(0, 365)),
                 'is_blocked' => rand(0,1),
                 'gender' => $gender[rand(0,1)],
                 'is_hold' =>  rand(0,1),
                 'is_excluded' => rand(0,1),
             ]);
+            $user->assignRole(2);
+            }
 
-            $user->assignRole(rand(0,3));            
+            if( $i > 5 && $i <= 20 ){
+                $user = User::create([
+                    'name' => 'supervisor',
+                    'email' => Str::random(10).'@gmail.com',
+                    'password' => $password,
+                    //'email_verified_at' => Carbon::today()->subDays(rand(0, 365)),
+                    'is_blocked' => rand(0,1),
+                    'gender' => $gender[rand(0,1)],
+                    'is_hold' =>  rand(0,1),
+                    'is_excluded' => rand(0,1),
+                ]);
+                $user->assignRole(3);
+                }
+
+                if( $i >20 && $i <= 40 ){
+                    $user = User::create([
+                        'name' => 'leader',
+                        'email' => Str::random(10).'@gmail.com',
+                        'password' => $password,
+                        //'email_verified_at' => Carbon::today()->subDays(rand(0, 365)),
+                        'is_blocked' => rand(0,1),
+                        'gender' => $gender[rand(0,1)],
+                        'is_hold' =>  rand(0,1),
+                        'is_excluded' => rand(0,1),
+                    ]);
+                    $user->assignRole(4);
+                    }
+
+                    if( $i > 40 && $i <= 200 ){
+                        $user = User::create([
+                            'name' => 'ambassador',
+                            'email' => Str::random(10).'@gmail.com',
+                            'password' => $password,
+                            //'email_verified_at' => Carbon::today()->subDays(rand(0, 365)),
+                            'is_blocked' => rand(0,1),
+                            'gender' => $gender[rand(0,1)],
+                            'is_hold' =>  rand(0,1),
+                            'is_excluded' => rand(0,1),
+                        ]);
+                        $user->assignRole(5);
+                        }
+
 
             DB::table('user_profiles')->insert([
                 'user_id' => $user->id,
@@ -67,7 +113,8 @@ class UserSeeder extends Seeder
                 'books' => rand(1,3),
                 'marks' => rand(1,3),
             ]);
-            $i++;    
-         }
+            $i++; 
+  
+         }}
     }
-} 
+

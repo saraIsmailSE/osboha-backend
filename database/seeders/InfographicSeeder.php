@@ -19,7 +19,7 @@ class InfographicSeeder extends Seeder
             Infographic::create([
                 'title' => Str::random(15),
                 'designer_id' => rand(1, 200),
-                'section_id' =>rand(1,7),
+                'section_id' =>rand(1,8),
                 'series_id' => rand(1, 5),
             ]);
         }

@@ -19,7 +19,7 @@ class InfographicSeriesSeeder extends Seeder
         for($i=0; $i<5; $i++){
             InfographicSeries::create([
                 'title' => Str::random(15),
-                'section_id' =>rand(1,7),
+                'section_id' =>rand(1,8),
             ]);
         }
     }
