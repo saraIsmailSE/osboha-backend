@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
-
+use App\Models\User;
 class LeaderRequestsSeeder extends Seeder
 {
     /**
@@ -19,19 +19,22 @@ class LeaderRequestsSeeder extends Seeder
      */
     public function run()
     {
-        
-
         $gender= ['male', 'female'];
        $i=0;
-        while ($i<=200){
+       $leaders = User::role('leader')->get();    
+        while ($i<=20){
             DB::table('leader_requests')->insert([
                 'members_num' => rand(1,10),
                 'gender' => $gender[rand(0,1)],
-                'leader_id' => rand(1, 200),
+                'leader_id' => $leaders[$i]->id,
                 'current_team_count' => rand(0,10),
             ]);
             $i++;    
         }
     }
 } 
+
+
+
+
 
