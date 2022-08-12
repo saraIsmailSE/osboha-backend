@@ -22,7 +22,7 @@ class ThesisSeeder extends Seeder
                 'user_id' => rand(1, 200),
                 'max_length' => rand(0, 1000),
                 'book_id' => rand(1, 200),
-                'thesis_type_id' => rand(1,4),
+                'type_id' => rand(1,4),
                 'mark_id' => rand(1, 2000),
                 'total_pages' => rand(0, 100),
                 'total_screenshots' => rand(0, 5),
