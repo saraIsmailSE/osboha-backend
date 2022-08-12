@@ -16,12 +16,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-<<<<<<< Updated upstream
-=======
         //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
         $schedule->command('weekly:marks')->weekly()->sundays()->at('00:00'); //main part
         // $schedule->command('weekly:marks')->everyMinute(); //for testing - to be deleted
->>>>>>> Stashed changes
     }
 
     /**
@@ -31,7 +28,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

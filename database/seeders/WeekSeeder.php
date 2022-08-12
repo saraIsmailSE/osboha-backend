@@ -19,8 +19,7 @@ class WeekSeeder extends Seeder
         $titles = ['الأول من يونيو', 'الثاني من يونيو', 'الثالث من يونيو', 'الرابع من يونيو', 'الأول من يوليو', 'الثاني من يوليو', 'الثالث من يوليو', 'الرابع من يوليو', 'الأول من أغسطس'];
         for ($i = 0; $i < 8; $i++) {
             Week::create([
-                'title' => $titles[$i],
-                'date' => $now->addWeeks()->format('Y-m-d'),
+                'title' => $titles[$i]
             ]);
         }
     }
