@@ -95,17 +95,36 @@ class CommentController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'body' => 'required_without:image',
-            'comment_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048|required_without:body',
+            'body' => 'required_without_all:image,screenShots|string',
+            'comment_id' => 'numeric',
+            'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
+            'total_pages' => 'required_if:type,thesis|numeric',
         ]);
-        
+
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $comment = Comment::find($request->comment_id);
         if($comment){
             if(Auth::id() == $comment->user_id){
+                if($comment->type == "thesis"){
+                    $thesis['comment_id']=$comment->id;
+                    $thesis['book_id'] = Book::where('post_id',$request->post_id)->pluck('id')[0];
+                    $thesis['total_pages']=$request->total_pages;
+                    $thesis['thesis_type_id']=$request->thesis_type_id;
+                    if($request->has('body')){
+                        $thesis['max_length']=strlen($request->body);
+                    }
+                    if($request->has('screenShots')){
+                        $thesis['total_screenshots']=count($request->screenShots);
+                        foreach ($request->screenShots as $screenShot) {
+                            $this->createMedia($screenShot, $comment->id, 'comment');
+                        }
+                    }
+                    $this->updateThesis($thesis);
+                }
+                
                 if($request->hasFile('image')){
                     // if comment has media
                     //check Media
@@ -150,7 +169,11 @@ class CommentController extends Controller
             if(Auth::user()->can('delete comment') || Auth::id() == $comment->user_id){
                 //delete replies
                 Comment::where('comment_id', $comment->id)->delete();
-
+                if($comment->type == "thesis"){
+                    $thesis['comment_id']=$comment->id;
+                    $this->deleteThesis($thesis);
+                    
+                }
                 //check Media
                 $currentMedia = Media::where('comment_id', $comment->id)->first();
                 // if exist, delete
