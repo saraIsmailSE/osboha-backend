@@ -52,9 +52,14 @@ class SocialMediaController extends Controller
             $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
             if($socialMedia){
                 return $this->jsonResponseWithoutMessage(new socialMediaResource($socialMedia), 'data',200);
-            } 
+               } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
+        }
     }
-}
+
 
     public function update(Request $request)
     {
@@ -68,16 +73,19 @@ class SocialMediaController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $userExists = SocialMedia::where('user_id',Auth::id())->first();
-        if($userExists){
-            return $this->jsonResponseWithoutMessage("Your Social Media is already Exist, You Can Update It", 'data', 500);
-        } else { 
-            $request['user_id'] = Auth::id();
-            SocialMedia::update($request->all());
-            return $this->jsonResponseWithoutMessage("Your Accounts Are Updated Successfully", 'data', 200);
+        if($request->user_id == Auth::id()){
+            $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
+            if ($socialMedia){
+                $socialMedia->update($request->all());
+                return $this->jsonResponseWithoutMessage("Your Accounts Are Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
         }
     }
-    
+        
     /* delete(user_id)
         ** function to dalete all social media accounts for a user
         ** Take one parameter => user_id
@@ -91,10 +99,19 @@ class SocialMediaController extends Controller
             if ($validator->fails()) {
                 return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
             }
-                $request['user_id']= Auth::id();    
-                SocialMedia::create($request->all());
-                return $this->jsonResponseWithoutMessage("Your Account Deleted Successfully", 'data', 200);
+    
+            if($request->user_id == Auth::id()){
+                $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
+                if($socialMedia){
+                    $socialMedia->delete();
+                    return $this->jsonResponseWithoutMessage("Your Accounts Are Deleted Successfully", 'data', 200);
+                } else {
+                    throw new NotFound;
+                }
+            } else {
+                throw new NotAuthorized;
+            }
         }
     }
-        }
-    
+}
+                

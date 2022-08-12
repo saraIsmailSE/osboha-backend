@@ -20,8 +20,6 @@ class MessagesController extends Controller
         $validator = Validator::make($request->all(), [
             'sender_id' => 'required',
             'receiver_id' => 'required',
-            'status' => 'required',
-            'room_id' => 'required',
         ]);
 
         if ($validator->fails()) {

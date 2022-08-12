@@ -51,6 +51,7 @@ class FriendController extends Controller
     }
 
     public function show(Request $request)
+  
     {
         $validator = Validator::make($request->all(), [
             'friendship_id' => 'required',
@@ -58,55 +59,58 @@ class FriendController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        
-        if($request->user_id == Auth::id()){
-            $friendship = Friend::where('user_id',Auth::id())->first();
-            if($friendship){
-                return $this->jsonResponseWithoutMessage(new friendResource($friendship), 'data',200);
-            }
+        $friend = Friend::find($request->friendship_id);
+        if ($friend) {
+            return $this->jsonResponseWithoutMessage($friend, 'data', 200);
+            //return $this->jsonResponseWithoutMessage(new FriendResource($friend), 'data', 200);
+        } else {
+            throw new NotFound;
         }
     }
 
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+      //dd($request->friendship_id);
+        {$validator = Validator::make($request->all(), [
             'friendship_id' => 'required',
             'status' => 'required',
         ]);
-
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if($request->friendship_id == Auth::id()){
-            $friendship_id = Friend::where('user_id',Auth::id())->first();
-            if($friendship_id){
-                $friendship_id->update();
-                return $this->jsonResponseWithoutMessage("Friendship Updated Successfully", 'data', 200);
-            }
-            
+        $friendship = Friend::find($request->friendship_id);
+        if ($friendship) {
+            if(Auth::id() == $friendship->user_id || Auth::id() == $friendship->friend_id){
+                
+                $friendship->update(($request->all()));
+              }  return $this->jsonResponseWithoutMessage("Friendship Updated Successfully", 'data', 200);
+            } else {
+                throw new NotAuthorized;
         }
-    
     }
-
+}    
   public function delete(Request $request)
-    {
+    
         {
             $validator = Validator::make($request->all(), [
                 'friendship_id' => 'required',
             ]);
+    
             if ($validator->fails()) {
                 return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
             }
     
-            if($request->friendship_id == Auth::id()){
-                $friendship_id = Friend::where('user_id',Auth::id())->first();
-                if($friendship_id){
-                    $friendship_id->delete();
-                    return $this->jsonResponseWithoutMessage("Friendship Deleted Successfully", 'data', 200);
-                }
-            } 
+            $friendship = Friend::find($request->friendship_id);
+            if ($friendship) {
+                if(Auth::id() == $friendship->user_id || Auth::id() == $friendship->friend_id){
+                    
+                    $friendship->delete();
+                  }  return $this->jsonResponseWithoutMessage("Friendship Deleted Successfully", 'data', 200);
+                } else {
+                    throw new NotAuthorized;
         }
     }
     
-}
+        }
+    
