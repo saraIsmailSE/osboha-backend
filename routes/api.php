@@ -322,11 +322,7 @@ Route::middleware('auth:sanctum')->group(function () {
     ######## UserGroup ########
     ####### thesis ########
     Route::group(['prefix' => 'thesis'], function () {
-        Route::get('/', [ThesisController::class, 'index']);
         Route::post('/show', [ThesisController::class, 'show']);
-        Route::post('/create', [ThesisController::class, 'create']);
-        Route::post('/update', [ThesisController::class, 'update']);
-        Route::post('/delete', [ThesisController::class, 'delete']);
         Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);
         Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);
         Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);
