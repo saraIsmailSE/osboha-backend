@@ -44,7 +44,7 @@ Trait ThesisTraits
     public function createThesis($thesis)
     {
         //get thesis type
-        $thesis_type = ThesisType::find($thesis['thesis_type_id'], ['type']);
+        $thesis_type = ThesisType::find($thesis['type_id'], ['type']);
 
         $week_id = Week::all('id')->last()->id;
 
@@ -63,7 +63,7 @@ Trait ThesisTraits
                 'book_id'           => $thesis['book_id'],
                 'mark_id'           => $mark_record->id,
                 'user_id'           => Auth::id(),
-                'thesis_type_id'    => $thesis['thesis_type_id'],
+                'type_id'    => $thesis['type_id'],
                 'total_pages'       => $thesis['total_pages'],
                 'max_length'        => $max_length,
                 'total_screenshots' => $total_screenshots,
@@ -123,42 +123,12 @@ Trait ThesisTraits
         }
     }
 
-    public function show(Request $request)
+    public function updateThesis( $thesisToUpdate)
     {
-        $validator = Validator::make($request->all(), ['thesis_id' => 'required']);
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $thesis = Thesis::find($request->thesis_id);
-
-        if ($thesis->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(new ThesisResource($thesis), 'data', 200);
-        } else {
-            throw new NotFound;
-        }
-    }
-
-    public function update(Request $request)
-    {
-        $validator = Validator::make(
-            $request->all(),
+        $thesis = Thesis::where('comment_id', $thesisToUpdate['comment_id'])->first(
             [
-                'total_pages' => 'required|numeric',
-                'total_screenshots' => 'required_without:max_length|numeric',
-                'max_length' => 'required_without:total_screenshots|numeric',
-                'thesis_id' => 'required',
-            ]
-        );
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $thesis = Thesis::where('id', $request->thesis_id)->first(
-            [
-                'id', 'thesis_type_id', 'total_pages', 'mark_id',
+                'id', 'type_id', 'total_pages', 'mark_id',
                 'max_length', 'total_screenshots'
             ]
         );
@@ -174,24 +144,24 @@ Trait ThesisTraits
             if ($mark_record) {
                 if ($week_id == $mark_record->week_id) {
                     //get thesis type
-                    $thesis_type = ThesisType::find($thesis->thesis_type_id, ['type']);
+                    $thesis_type = ThesisType::find($thesis->type_id, ['type']);
 
-                    $max_length = ($request->has('max_length') ? $request->max_length : 0);
-                    $total_thesis = ($request->has('max_length') ? ($request['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
-                    $total_screenshots = ($request->has('total_screenshots') ? $request->total_screenshots : 0);
+                    $max_length = ($thesisToUpdate['max_length'] ? $thesisToUpdate['max_length'] : 0);
+                    $total_thesis = ($thesisToUpdate['max_length'] ? ($thesisToUpdate['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
+                    $total_screenshots = ($thesisToUpdate['total_screenshots'] ? $thesisToUpdate['total_screenshots'] : 0);
 
                     $thesis_mark = 0;
                     $old_thesis_mark = 0;
 
                     $thesis_data_to_update = array(
-                        'total_pages'       => $request->total_pages,
+                        'total_pages'       => $thesisToUpdate['total_pages'],
                         'max_length'        => $max_length,
                         'total_screenshots' => $total_screenshots,
                     );
 
                     if (strtolower($thesis_type->type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis                     
                         $thesis_mark = $this->calculate_mark_for_normal_thesis(
-                            $request->total_pages,
+                            $thesisToUpdate['total_pages'],
                             $max_length,
                             $total_screenshots
                         );
@@ -206,7 +176,7 @@ Trait ThesisTraits
                         strtolower($thesis_type->type) === TAFSEER_THESIS_TYPE
                     ) { ///calculate mark for ramadan or tafseer thesis             
                         $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                            $request->total_pages,
+                            $thesisToUpdate['total_pages'],
                             $max_length,
                             $total_screenshots,
                             $thesis_type->type,
@@ -232,7 +202,7 @@ Trait ThesisTraits
                     }
 
                     $mark_data_to_update = array(
-                        'total_pages'      => $mark_record->total_pages - $thesis->total_pages + $request->total_pages,
+                        'total_pages'      => $mark_record->total_pages - $thesis->total_pages + $thesis->total_pages,
                         'total_thesis'     => $mark_record->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0) + $total_thesis,
                         'total_screenshot' => $mark_record->total_screenshot - $thesis->total_screenshots + $total_screenshots,
                         'out_of_90' => $mark_out_of_90,
@@ -256,22 +226,11 @@ Trait ThesisTraits
         }
     }
 
-    public function delete(Request $request)
+    public function deleteThesis($thesisToDelete)
     {
-        $validator = Validator::make(
-            $request->all(),
+        $thesis = Thesis::where('comment_id', $thesisToDelete['comment_id'])->first(
             [
-                'thesis_id' => 'required',
-            ]
-        );
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $thesis = Thesis::where('id', $request->thesis_id)->first(
-            [
-                'id', 'thesis_type_id', 'total_pages', 'mark_id',
+                'id', 'type_id', 'total_pages', 'mark_id',
                 'max_length', 'total_screenshots', 'comment_id'
             ]
         );
@@ -328,9 +287,9 @@ Trait ThesisTraits
     {
         $total_mark = 0;
 
-        $thesises = Thesis::join('thesis_types', 'thesis_types.id', '=', 'theses.thesis_type_id')
+        $thesises = Thesis::join('thesis_types', 'thesis_types.id', '=', 'theses.type_id')
             ->where('mark_id', $mark_id)->get([
-                'theses.id', 'thesis_type_id', 'total_pages', 'mark_id',
+                'theses.id', 'type_id', 'total_pages', 'mark_id',
                 'max_length', 'total_screenshots', 'thesis_types.type'
             ]);
 
@@ -435,69 +394,4 @@ Trait ThesisTraits
         return $mark;
     }
 
-    public function list_book_thesis(Request $request)
-    {
-        $validator = Validator::make($request->all(), ['book_id' => 'required']);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
-            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-            ->where('theses.book_id', $request->book_id)
-            ->get();
-
-        if ($thesis->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
-        } else {
-            throw new NotFound;
-        }
-    }
-
-    public function list_user_thesis(Request $request)
-    {
-        $validator = Validator::make($request->all(), ['user_id' => 'required']);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
-            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-            ->where('theses.user_id', $request->user_id)
-            ->get();
-
-        if ($thesis->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
-        } else {
-            throw new NotFound;
-        }
-    }
-
-    public function list_week_thesis(Request $request)
-    {
-        $validator = Validator::make($request->all(), ['week_id' => 'required']);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::select('theses.*')
-            ->join('marks', 'marks.id', '=', 'theses.mark_id')
-            ->join('weeks', 'weeks.id', '=', 'marks.week_id')
-            ->join('comments', 'comments.id', '=', 'theses.comment_id')
-            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-            ->where('marks.week_id', $request->week_id)
-            ->get();
-
-        if ($thesis->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
-        } else {
-            throw new NotFound;
-        }
-    }
 }

@@ -6,10 +6,13 @@ use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\BookStatisticsController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PollVoteController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\ReactionController;
+use App\Http\Controllers\Api\LeaderRequestController;
+use App\Http\Controllers\Api\HighPriorityRequestController;
 use App\Http\Controllers\Api\SystemIssueController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\CommentController;
@@ -84,6 +87,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [ReactionController::class, 'delete']);
     });
     ########End Reaction########
+    ########LeaderRequest########
+    Route::group(['prefix' => 'leader-request'], function () {
+        Route::get('/', [LeaderRequestController::class, 'index']);
+        Route::post('/create', [LeaderRequestController::class, 'create']);
+        Route::post('/show', [LeaderRequestController::class, 'show']);
+        Route::post('/update', [LeaderRequestController::class, 'update']);
+    });
+    ########End LeaderRequest########
+    ########HighPriorityRequest########
+    Route::group(['prefix' => 'high-priority-request'], function () {
+        Route::get('/', [HighPriorityRequestController::class, 'index']);
+        Route::post('/create', [HighPriorityRequestController::class, 'create']);
+        Route::post('/show', [HighPriorityRequestController::class, 'show']);
+    });
+    ########End HighPriorityRequest########
     ########SystemIssue########
     Route::group(['prefix' => 'system-issue'], function () {
         Route::get('/', [SystemIssueController::class, 'index']);
@@ -305,11 +323,7 @@ Route::middleware('auth:sanctum')->group(function () {
     ######## UserGroup ########
     ####### thesis ########
     Route::group(['prefix' => 'thesis'], function () {
-        Route::get('/', [ThesisController::class, 'index']);
         Route::post('/show', [ThesisController::class, 'show']);
-        Route::post('/create', [ThesisController::class, 'create']);
-        Route::post('/update', [ThesisController::class, 'update']);
-        Route::post('/delete', [ThesisController::class, 'delete']);
         Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);
         Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);
         Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);
@@ -391,7 +405,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [TimelineTypeController::class, 'delete']);
     });
     ######## Timeline-Type ########
-
     ######## Messages ########
         Route::get('listAllMessages', [MessagesController::class, 'listAllMessages']);
         Route::post('/updateStatus', [MessagesController::class, 'updateStatus']);
@@ -399,6 +412,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/listMessage', [MessagesController::class, 'listMessage']);
         Route::post('/listRoomMessages', [MessagesController::class, 'listRoomMessages']);
     ######## Messages ########
-
+    ######## BookStatistics ########
+    Route::group(['prefix'=>'book-stat'], function(){
+        Route::get('/', [BookStatisticsController::class, 'index']);              
+    });
+    ######## BookStatistics ########
 
 });
