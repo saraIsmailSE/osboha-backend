@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Notifications;
-
+ 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -40,7 +40,7 @@ class GeneralNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'sender name' => $this->name,
+            'sender name' => $this->sender,
             'message'   =>  $this->msg,
         ];
     }

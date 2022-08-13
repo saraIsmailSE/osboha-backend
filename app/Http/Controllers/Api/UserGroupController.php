@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use App\Models\Group;
+use Illuminate\Validation\Rule;
+
 
 
 
@@ -58,28 +60,36 @@ class UserGroupController extends Controller
 
         $validator = Validator::make($request->all(), 
         [
-            'user_id' => 'required',
             'group_id' => 'required',
-            'user_type' => 'required',        
+            'user_id' => ['required',
+                            Rule::unique('user_groups')->where(fn ($query) => $query->where('group_id', $request->group_id))],
+            'user_type' => 'required',   
         ]); 
+
+
         
         if($validator->fails()){
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if(Auth::user()->can('assgin role')){
+        if(Auth::user()->can('assign role')){
             $user = User::find($request->user_id);
             $role = Role::where('name' ,$request->user_type)->first();
             $group = Group::where('id' ,$request->group_id)->first();
-            
-            $user->assignRole($role);
 
-            $msg = "Now, you are " . $role->name ." in ". $group->name ." group" ;
-            (new NotificationController)->sendNotification($request->user_id , $msg);
- 
-            $userGroup = UserGroup::create($request->all());
+            if($user && $role && $group)
+            {
+                $user->assignRole($role);
 
-            return $this->jsonResponse(new UserGroupResource($userGroup), 'data', 200, 'User Group Created Successfully');
+                $msg = "Now, you are " . $role->name ." in ". $group->name ." group" ;
+                (new NotificationController)->sendNotification($request->user_id , $msg);
+     
+                $userGroup = UserGroup::create($request->all());
+
+                return $this->jsonResponse(new UserGroupResource($userGroup), 'data', 200, 'User Group Created Successfully');
+            } else {
+                throw new NotFound;
+            }
         }else{
             throw new NotAuthorized;
         }
@@ -89,11 +99,12 @@ class UserGroupController extends Controller
         #####Asmaa####
         $validator = Validator::make($request->all(), 
         [
-            'user_id' => 'required',
             'group_id' => 'required',
             'user_type' => 'required', 
             'user_group_id' => 'required',
-            'termination_reason' => 'required'       
+            'termination_reason' => 'required',
+            'user_id' => ['required',
+                            Rule::unique('user_groups')->where(fn ($query) => $query->where('group_id', $request->group_id))->ignore(request('user_id'),'user_id')],    
         ]); 
         
         if($validator->fails()){
@@ -108,15 +119,20 @@ class UserGroupController extends Controller
                 $user = User::find($request->user_id);
                 $role = Role::where('name' ,$request->user_type)->first();
                 $group = Group::where('id' ,$request->group_id)->first();
-                
-                $user->removeRole($role);
-    
-                $msg = "You are not a " . $role->name ." in ". $group->name ." group anymore, because you " . $request->termination_reason;
-                (new NotificationController)->sendNotification($request->user_id , $msg);
 
-                $userGroup->update($request->all());
-    
-                return $this->jsonResponse(new UserGroupResource($userGroup), 'data', 200, 'User Group Updated Successfully');
+                if($user && $role && $group)
+                {
+                    $user->removeRole($role);
+        
+                    $msg = "You are not a " . $role->name ." in ". $group->name ." group anymore, because you " . $request->termination_reason;
+                    (new NotificationController)->sendNotification($request->user_id , $msg);
+
+                    $userGroup->update($request->all());
+        
+                    return $this->jsonResponse(new UserGroupResource($userGroup), 'data', 200, 'User Group Updated Successfully');
+                } else {
+                    throw new NotFound;
+                }
             }else{
                 throw new NotAuthorized;
             }
@@ -136,7 +152,7 @@ class UserGroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $userGroups = UserGroup::where('user_id', $request->user_id)->first();
+        $userGroups = UserGroup::where('user_id', $request->user_id)->get();
 
         if($userGroups){
             return $this->jsonResponseWithoutMessage(UserGroupResource::collection($userGroups), 'data', 200);

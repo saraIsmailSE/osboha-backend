@@ -46,7 +46,7 @@ class PostController extends Controller
             'body' => 'required_without:image',
             'type_id' => 'required',
             'timeline_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
+            //'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
         ]);
      
         if ($validator->fails()) {
@@ -68,6 +68,9 @@ class PostController extends Controller
                 if($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader"){
                     $input['is_approved'] = null;
                     echo 'waiting for the leader approval'; 
+
+                    $msg = "hi";
+                    (new NotificationController)->sendNotification(Auth::id() , $msg);
 
                     $leader =UserGroup::where([
                         ['group_id', $group->id],
