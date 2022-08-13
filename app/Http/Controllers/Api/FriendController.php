@@ -93,6 +93,7 @@ class FriendController extends Controller
   public function delete(Request $request)
     
         {
+            //dd($request->friendship_id);
             $validator = Validator::make($request->all(), [
                 'friendship_id' => 'required',
             ]);
