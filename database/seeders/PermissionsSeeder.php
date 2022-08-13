@@ -58,6 +58,13 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'delete reaction']);
         Permission::create(['name' => 'create reaction']);
 
+        ###### REQUEST AMBASSADOR######
+        Permission::create(['name' => 'edit RequestAmbassador']);
+        Permission::create(['name' => 'create RequestAmbassador']);
+
+         ###### HIGH PRIORITY REQUEST######
+         Permission::create(['name' => 'create highPriorityRequestAmbassador']);
+
         ###### BOOK ######
         Permission::create(['name' => 'edit book']);
         Permission::create(['name' => 'delete book']);
@@ -120,14 +127,18 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'create challenge']);
 
         ###### POST ######
+        Permission::create(['name' => 'accept post']);
+        Permission::create(['name' => 'decline post']);
         Permission::create(['name' => 'edit post']);
         Permission::create(['name' => 'delete post']);
         Permission::create(['name' => 'create post']);
+        Permission::create(['name' => 'pin post']);
 
         ###### COMMENT ######
         Permission::create(['name' => 'edit comment']);
         Permission::create(['name' => 'delete comment']);
         Permission::create(['name' => 'create comment']);
+        Permission::create(['name' => 'controll comments']);
 
         ###### ROOM ######
         Permission::create(['name' => 'create room']);
@@ -168,6 +179,9 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('create comment');
         $role3->givePermissionTo('delete comment');
         $role3->givePermissionTo('edit comment');
+        $role3->givePermissionTo('create RequestAmbassador');
+        $role3->givePermissionTo('edit RequestAmbassador');
+        $role3->givePermissionTo('create highPriorityRequest');
 
         $role4->givePermissionTo('create post');
         $role4->givePermissionTo('delete post');
@@ -175,6 +189,9 @@ class PermissionsSeeder extends Seeder
         $role4->givePermissionTo('create comment');
         $role4->givePermissionTo('delete comment');
         $role4->givePermissionTo('edit comment');
+        $role4->givePermissionTo('create RequestAmbassador');
+        $role4->givePermissionTo('edit RequestAmbassador');
+ 
 
         $role5->givePermissionTo('create post');
         $role5->givePermissionTo('delete post');
