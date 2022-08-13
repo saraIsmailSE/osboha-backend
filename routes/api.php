@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\PostTypeController;
 use App\Http\Controllers\Api\ThesisTypeController;
 use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
+use App\Http\Controllers\Api\MessagesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -404,7 +405,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [TimelineTypeController::class, 'delete']);
     });
     ######## Timeline-Type ########
-
+    ######## Messages ########
+        Route::get('listAllMessages', [MessagesController::class, 'listAllMessages']);
+        Route::post('/updateStatus', [MessagesController::class, 'updateStatus']);
+        Route::post('/sendMessage', [MessagesController::class, 'sendMessage']);
+        Route::post('/listMessage', [MessagesController::class, 'listMessage']);
+        Route::post('/listRoomMessages', [MessagesController::class, 'listRoomMessages']);
+    ######## Messages ########
     ######## BookStatistics ########
     Route::group(['prefix'=>'book-stat'], function(){
         Route::get('/', [BookStatisticsController::class, 'index']);              
