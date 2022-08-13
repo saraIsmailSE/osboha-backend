@@ -125,7 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [FriendController::class, 'index']);
         Route::post('/create', [FriendController::class, 'create']);
         Route::post('/show', [FriendController::class, 'show']);
-        Route::post('/update', [FriendController::class, 'update']);
+        Route::post('/accept', [FriendController::class, 'accept']);
         Route::post('/delete', [FriendController::class, 'delete']);
     });
     ########End Friend route########
@@ -207,9 +207,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########Start SocialMedia########
     Route::group(['prefix' => 'socialMedia'], function () {
         Route::get('/', [SocialMediaController::class, 'index']);
-        Route::post('/create', [SocialMediaController::class, 'create']);
+        Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
         Route::post('/show', [SocialMediaController::class, 'show']);
-        Route::post('/update', [SocialMediaController::class, 'update']);
         Route::post('/delete', [SocialMediaController::class, 'delete']);
     });
     ########End SocialMedia########
