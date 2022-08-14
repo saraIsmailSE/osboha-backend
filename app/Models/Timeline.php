@@ -29,10 +29,4 @@ class Timeline extends Model
         return $this->hasMany(UserProfile::class,'timeline_id');
     }
     
-
-    public function type()
-    {
-        return $this->belongsTo(TimelineType::class);
-    }
-
 }
