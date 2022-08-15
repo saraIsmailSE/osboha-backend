@@ -10,7 +10,7 @@ class TimelineType extends Model
     use HasFactory;
     
     protected $fillable = [
-        'type' 
+        'description' ,'type' 
     ];
 
    public function timelines(){

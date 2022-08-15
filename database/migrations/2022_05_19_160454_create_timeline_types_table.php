@@ -15,6 +15,7 @@ class CreateTimelineTypesTable extends Migration
     {
         Schema::create('timeline_types', function (Blueprint $table) {
             $table->id();
+            $table->string('description')->nullable();
             // type could be: main , profile , book, activity, ..... 
             $table->string('type');
             $table->timestamps();

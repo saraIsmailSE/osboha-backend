@@ -74,8 +74,11 @@ class User extends Authenticatable
         return $this->hasMany(UserException::class);
     }
 
-    public function Group(){
-        return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type');
+    // public function Group(){
+    //     return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type');
+    // }
+    public function groups(){
+        return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type','termination_reason');
     }
     public function LeaderRrequest()
     {
@@ -94,7 +97,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Room::class,"participants");
     }
 
-    public function post(){
+    public function posts(){
         return $this->hasMany(Post::class);
     }
     public function reaction(){

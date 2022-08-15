@@ -106,6 +106,7 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'update systemIssue']);
     
         ###### TimeLine ######
+        Permission::create(['name' => 'main timeline']);
         Permission::create(['name' => 'edit timeline']);
         Permission::create(['name' => 'delete timeline']);
         Permission::create(['name' => 'create timeline']);
@@ -172,6 +173,7 @@ class PermissionsSeeder extends Seeder
         $role2->givePermissionTo('create comment');
         $role2->givePermissionTo('delete comment');
         $role2->givePermissionTo('edit comment');
+        $role2->givePermissionTo('main timeline');
 
         $role3->givePermissionTo('create post');
         $role3->givePermissionTo('delete post');
@@ -181,7 +183,7 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('edit comment');
         $role3->givePermissionTo('create RequestAmbassador');
         $role3->givePermissionTo('edit RequestAmbassador');
-        $role3->givePermissionTo('create highPriorityRequest');
+        $role3->givePermissionTo('create highPriorityRequestAmbassador');
 
         $role4->givePermissionTo('create post');
         $role4->givePermissionTo('delete post');
@@ -201,51 +203,5 @@ class PermissionsSeeder extends Seeder
         $role5->givePermissionTo('edit comment');
 
 
-        // create demo users
-        $password = bcrypt('password123');
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role1);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Advisor User',
-            'email' => 'advisor@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role2);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Supervisor User',
-            'email' => 'supervisor@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role3);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Leader User',
-            'email' => 'leader@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role4);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Ambassador User',
-            'email' => 'ambassador@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role5);
     }
 }

@@ -15,12 +15,12 @@ class TimelineTypeSeeder extends Seeder
     public function run()
     {
     
-        $timeline_type = ['main', 'profile', 'book', 'activity'];
+        $timeline_type = ['main', 'profile', 'book', 'group'];
         //TIMELINE TYPE
         $i = 0;
         while ($i <= 3) {
             DB::table('timeline_types')->insert([
-
+                'description'=> "simple desc",
                 'type' => $timeline_type[$i],
 
             ]);

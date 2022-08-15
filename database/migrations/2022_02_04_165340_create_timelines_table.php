@@ -15,8 +15,6 @@ class CreateTimelinesTable extends Migration
     {
         Schema::create('timelines', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('description');
             // type could be (main - news - book - profile - group)
             $table->integer('type_id');
             $table->timestamps();
