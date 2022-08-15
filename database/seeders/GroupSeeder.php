@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\Group;
+use App\Models\Timeline;
+use App\Models\User;
 
 class GroupSeeder extends Seeder
 {
@@ -15,18 +18,20 @@ class GroupSeeder extends Seeder
      */
     public function run()
     {
-        $i=0;
-        while ($i<=200){
+        //Group Type could be['reading', 'working', 'supervising'];
 
-            DB::table('groups')->insert([
-                'name' => Str::random(10),
-                'description' => Str::random(20),
-                'type_id' => rand(1,4),
-                'cover_picture' => Str::random(10),
-                'creator_id' => rand(1,30),
-                'timeline_id' => rand(1,30)
+        ######## Seed Reading Groups #######
+        $group = 0;
+        while ($group <= 9) {
+
+            $timeline = Timeline::create(['type_id' => 4]);
+            group::factory(1)->create([
+                'type_id' => 1,
+                'timeline_id' => $timeline->id
             ]);
-            $i++;
+            $group++;
         }
+        ######## End Seed Reading Groups #######
+
     }
 }

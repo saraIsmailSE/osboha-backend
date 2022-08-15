@@ -26,7 +26,7 @@ class Post extends Model
     }
 
     public function user(){
-        return $this->belongsTo(User::class, 'user_id' );
+        return $this->belongsTo(User::class);
     }
 
     public function Timeline(){
@@ -47,9 +47,6 @@ class Post extends Model
 
     public function activity(){
         return $this->hasOne( Activity::class, 'post_id' );
-    }
-    public function type(){
-        return $this->belongsTo(PostType::class);
     }
 
     public function type(){

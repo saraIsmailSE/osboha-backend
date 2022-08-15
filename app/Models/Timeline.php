@@ -9,7 +9,7 @@ class Timeline extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','description' ,'type_id'];
+    protected $fillable = ['type_id'];
 
     public function posts()
     {
