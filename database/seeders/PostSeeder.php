@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Post;
+use App\Models\Comment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,16 +18,34 @@ class PostSeeder extends Seeder
     public function run()
     {
 
-       $i=0;
-        while ($i<=200){
-            
-            DB::table('posts')->insert([
-                'body' => Str::random(3000),
-                'user_id' => rand(1,30),
-                'timeline_id' => rand(1,30),
-                'type_id' => rand(1,5),
-            ]);
-            $i++;    
-        }
+        // Post on Main Timeline
+        //'user_id' => rand(1,3) [users have permition]
+
+        // 'type_id' =>1 [Normal]
+        // 'timeline_id' => [Main]
+
+        Post::factory(30)->create([
+            'user_id' => rand(1, 3),
+            'type_id' => 1,
+            'timeline_id' => 1
+        ])->each(function ($post) {
+            Comment::factory(rand(1, 20))->create([
+                'type' => 'normal',
+                'user_id' => rand(1, 150),
+                'post_id' => $post->id,
+            ])->each(function ($comment) use ($post) {
+                // replies
+                Comment::factory(rand(1, 5))->create([
+                    'user_id' => rand(1, 150),
+                    'type' => 'replay',
+                    'post_id' => $post->id,
+                    'comment_id' => $comment->id
+                ]);
+            });
+        });
+
+
+
+
     }
 }

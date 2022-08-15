@@ -106,6 +106,7 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'update systemIssue']);
     
         ###### TimeLine ######
+        Permission::create(['name' => 'main timeline']);
         Permission::create(['name' => 'edit timeline']);
         Permission::create(['name' => 'delete timeline']);
         Permission::create(['name' => 'create timeline']);
@@ -172,6 +173,7 @@ class PermissionsSeeder extends Seeder
         $role2->givePermissionTo('create comment');
         $role2->givePermissionTo('delete comment');
         $role2->givePermissionTo('edit comment');
+        $role2->givePermissionTo('main timeline');
 
         $role3->givePermissionTo('create post');
         $role3->givePermissionTo('delete post');

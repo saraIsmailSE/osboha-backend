@@ -32,10 +32,12 @@ class DatabaseSeeder extends Seeder
         // $this->call(ArticleSeeder::class);
          $this->call(PermissionsSeeder::class);
         // $this->call(CommentSeeder::class);
-        // $this->call(PostSeeder::class);
+        
         // $this->call(BookSeeder::class);
         $this->call(GroupSeeder::class);
         $this->call(UserSeeder::class);
+        $this->call(PostSeeder::class);
+        
         // $this->call(FriendSeeder::class);
         
         // $this->call(UserGroupSeeder::class);

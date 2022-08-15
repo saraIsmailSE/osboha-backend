@@ -3,9 +3,11 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Traits\ThesisTraits;
 
-class PostFactory extends Factory
+class ThesisFactory extends Factory
 {
+    use ThesisTraits;
     /**
      * Define the model's default state.
      *
@@ -13,12 +15,8 @@ class PostFactory extends Factory
      */
     public function definition()
     {
-        $datetime = $this->faker->dateTimeBetween('-1 month', 'now');
-
         return [
-            'body'=>  $this->faker->paragraph,
-            'created_at' => $datetime,
-            'updated_at' => $datetime
+            //
         ];
     }
 }
