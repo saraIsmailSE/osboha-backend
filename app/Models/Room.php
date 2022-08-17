@@ -15,16 +15,13 @@ class Room extends Model
         'messages_status' ,
     ];
 
-public function user()
-{
-    return $this->hasMany(User::class,'user_id');
-}
-public function participant()
-{
-    return $this->hasMany(Participant::class,'user_id');
-}
-public function messages()
+    public function users()
     {
-        return $this->hasMany(Message::class,'user_id');
+        return $this->belongsToMany(User::class, "participants");
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'user_id');
     }
 }

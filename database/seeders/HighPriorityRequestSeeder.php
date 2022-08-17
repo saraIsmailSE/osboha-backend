@@ -22,7 +22,7 @@ class HighPriorityRequestSeeder extends Seeder
     public function run()
     {
        $i=0;
-        while ($i<=20){
+        while ($i<=10){
             DB::table('high_priority_requests')->insert([
                 'request_id' => rand(0,20)
             ]);

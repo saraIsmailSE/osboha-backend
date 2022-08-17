@@ -15,8 +15,8 @@ class CreateWeeksTable extends Migration
     {
         Schema::create('weeks', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->string('section');
+            // $table->date('date');
+            $table->string('title');
             $table->integer('is_vacation')->nullable();
             $table->timestamps();
         });

@@ -13,7 +13,7 @@ class GeneralNotification extends Notification
     protected $user;
     public function __construct($sender , $msg)
     {
-        $this->sender = $sender;
+        $this->sender = $sender->name;
         $this->msg = $msg;
 
     }

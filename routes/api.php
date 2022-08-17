@@ -6,10 +6,13 @@ use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\BookStatisticsController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PollVoteController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\ReactionController;
+use App\Http\Controllers\Api\LeaderRequestController;
+use App\Http\Controllers\Api\HighPriorityRequestController;
 use App\Http\Controllers\Api\SystemIssueController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\CommentController;
@@ -28,7 +31,17 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ThesisController;
 use App\Http\Controllers\Api\UserGroupController;
 use App\Http\Controllers\Api\RoomController;
+use App\Http\Controllers\Api\SectionController;
+use App\Http\Controllers\Api\BooktypeController;
+use App\Http\Controllers\Api\ExceptionTypeController;
+use App\Http\Controllers\Api\GroupTypeController;
+use App\Http\Controllers\Api\PostTypeController;
+use App\Http\Controllers\Api\ThesisTypeController;
+use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
+use App\Http\Controllers\api\WeekController;
+use App\Http\Controllers\Api\MessagesController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -75,13 +88,27 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [ReactionController::class, 'delete']);
     });
     ########End Reaction########
+    ########LeaderRequest########
+    Route::group(['prefix' => 'leader-request'], function () {
+        Route::get('/', [LeaderRequestController::class, 'index']);
+        Route::post('/create', [LeaderRequestController::class, 'create']);
+        Route::post('/show', [LeaderRequestController::class, 'show']);
+        Route::post('/update', [LeaderRequestController::class, 'update']);
+    });
+    ########End LeaderRequest########
+    ########HighPriorityRequest########
+    Route::group(['prefix' => 'high-priority-request'], function () {
+        Route::get('/', [HighPriorityRequestController::class, 'index']);
+        Route::post('/create', [HighPriorityRequestController::class, 'create']);
+        Route::post('/show', [HighPriorityRequestController::class, 'show']);
+    });
+    ########End HighPriorityRequest########
     ########SystemIssue########
     Route::group(['prefix' => 'system-issue'], function () {
         Route::get('/', [SystemIssueController::class, 'index']);
         Route::post('/create', [SystemIssueController::class, 'create']);
         Route::post('/show', [SystemIssueController::class, 'show']);
         Route::post('/update', [SystemIssueController::class, 'update']);
-        
     });
     ########End SystemIssue########
 
@@ -116,7 +143,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [FriendController::class, 'index']);
         Route::post('/create', [FriendController::class, 'create']);
         Route::post('/show', [FriendController::class, 'show']);
-        Route::post('/update', [FriendController::class, 'update']);
+        Route::post('/accept', [FriendController::class, 'accept']);
         Route::post('/delete', [FriendController::class, 'delete']);
     });
     ########End Friend route########
@@ -200,9 +227,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########Start SocialMedia########
     Route::group(['prefix' => 'socialMedia'], function () {
         Route::get('/', [SocialMediaController::class, 'index']);
-        Route::post('/create', [SocialMediaController::class, 'create']);
+        Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
         Route::post('/show', [SocialMediaController::class, 'show']);
-        Route::post('/update', [SocialMediaController::class, 'update']);
         Route::post('/delete', [SocialMediaController::class, 'delete']);
     });
     ########End SocialMedia########
@@ -250,6 +276,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/PostsToAccept', [PostController::class, 'listPostsToAccept']);
         Route::post('/acceptPost', [PostController::class, 'AcceptPost']);
         Route::post('/declinePost', [PostController::class, 'declinePost']);
+        Route::post('/controllComments', [PostController::class, 'controllComments']);
+        Route::post('/pinnPost', [PostController::class, 'pinnPost']);
     });
     ########End Post########
 
@@ -296,11 +324,7 @@ Route::middleware('auth:sanctum')->group(function () {
     ######## UserGroup ########
     ####### thesis ########
     Route::group(['prefix' => 'thesis'], function () {
-        Route::get('/', [ThesisController::class, 'index']);
         Route::post('/show', [ThesisController::class, 'show']);
-        Route::post('/create', [ThesisController::class, 'create']);
-        Route::post('/update', [ThesisController::class, 'update']);
-        Route::post('/delete', [ThesisController::class, 'delete']);
         Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);
         Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);
         Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);
@@ -312,5 +336,94 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
     });
     ######## Room ########
+    ######## Week ########
+    Route::group(['prefix' => 'week'], function () {
+        Route::post('/create', [WeekController::class, 'create']);
+        Route::post('/update', [WeekController::class, 'update']);
+        Route::post('/check_freezed_user', [WeekController::class, 'check_freezed_user']); //for testing - to be deleted
+    });
+    ######## Week ########
+
+    ######## Section ########
+    Route::group(['prefix' => 'section'], function () {
+        Route::get('/', [SectionController::class, 'index']);
+        Route::post('/create', [SectionController::class, 'create']);
+        Route::post('/show', [SectionController::class, 'show']);
+        Route::post('/update', [SectionController::class, 'update']);
+        Route::post('/delete', [SectionController::class, 'delete']);
+    });
+    ######## Section ########
+
+    ######## Book-Type ########
+    Route::group(['prefix' => 'book-type'], function () {
+        Route::get('/', [BookTypeController::class, 'index']);
+        Route::post('/create', [BookTypeController::class, 'create']);
+        Route::post('/show', [BookTypeController::class, 'show']);
+        Route::post('/update', [BookTypeController::class, 'update']);
+        Route::post('/delete', [BookTypeController::class, 'delete']);
+    });
+    ######## Book-Type ########
+
+    ######## Exception-Type ########
+    Route::group(['prefix' => 'exception-type'], function () {
+        Route::get('/', [ExceptionTypeController::class, 'index']);
+        Route::post('/create', [ExceptionTypeController::class, 'create']);
+        Route::post('/show', [ExceptionTypeController::class, 'show']);
+        Route::post('/update', [ExceptionTypeController::class, 'update']);
+        Route::post('/delete', [ExceptionTypeController::class, 'delete']);
+    });
+    ######## Exception-Type ########
+
+    ######## Group-Type ########
+    Route::group(['prefix' => 'group-type'], function () {
+        Route::get('/', [GroupTypeController::class, 'index']);
+        Route::post('/create', [GroupTypeController::class, 'create']);
+        Route::post('/show', [GroupTypeController::class, 'show']);
+        Route::post('/update', [GroupTypeController::class, 'update']);
+        Route::post('/delete', [GroupTypeController::class, 'delete']);
+    });
+    ######## Group-Type ########
+
+    ######## Post-Type ########
+    Route::group(['prefix' => 'post-type'], function () {
+        Route::get('/', [PostTypeController::class, 'index']);
+        Route::post('/create', [PostTypeController::class, 'create']);
+        Route::post('/show', [PostTypeController::class, 'show']);
+        Route::post('/update', [PostTypeController::class, 'update']);
+        Route::post('/delete', [PostTypeController::class, 'delete']);
+    });
+    ######## Post-Type ########
+
+    ######## Thesis-Type ########
+    Route::group(['prefix' => 'thesis-type'], function () {
+        Route::get('/', [ThesisTypeController::class, 'index']);
+        Route::post('/create', [ThesisTypeController::class, 'create']);
+        Route::post('/show', [ThesisTypeController::class, 'show']);
+        Route::post('/update', [ThesisTypeController::class, 'update']);
+        Route::post('/delete', [ThesisTypeController::class, 'delete']);
+    });
+    ######## Thesis-Type ########
+
+    ######## Timeline-Type ########
+    Route::group(['prefix' => 'timeline-type'], function () {
+        Route::get('/', [TimelineTypeController::class, 'index']);
+        Route::post('/create', [TimelineTypeController::class, 'create']);
+        Route::post('/show', [TimelineTypeController::class, 'show']);
+        Route::post('/update', [TimelineTypeController::class, 'update']);
+        Route::post('/delete', [TimelineTypeController::class, 'delete']);
+    });
+    ######## Timeline-Type ########
+    ######## Messages ########
+        Route::get('listAllMessages', [MessagesController::class, 'listAllMessages']);
+        Route::post('/updateStatus', [MessagesController::class, 'updateStatus']);
+        Route::post('/sendMessage', [MessagesController::class, 'sendMessage']);
+        Route::post('/listMessage', [MessagesController::class, 'listMessage']);
+        Route::post('/listRoomMessages', [MessagesController::class, 'listRoomMessages']);
+    ######## Messages ########
+    ######## BookStatistics ########
+    Route::group(['prefix'=>'book-stat'], function(){
+        Route::get('/', [BookStatisticsController::class, 'index']);              
+    });
+    ######## BookStatistics ########
 
 });
