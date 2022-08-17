@@ -60,16 +60,11 @@ class SocialMediaController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        
-        if($request->user_id == Auth::id()){
-            $socialMedia = SocialMedia::where('user_id',Auth::id())->first();
+        $socialMedia = SocialMedia::where('user_id',$request->user_id)->first();
             if($socialMedia){
                 return $this->jsonResponseWithoutMessage(new socialMediaResource($socialMedia), 'data',200);
             } else {
                 throw new NotFound;
             }
-        } else {
-            throw new NotAuthorized;
         }
-    }
 }
