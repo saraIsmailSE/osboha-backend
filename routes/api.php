@@ -338,7 +338,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => 'week'], function () {
         Route::post('/create', [WeekController::class, 'create']);
         Route::post('/update', [WeekController::class, 'update']);
-        Route::post('/check_freezed_user', [WeekController::class, 'check_freezed_user']); //for testing - to be deleted
+        Route::post('/get_last_weeks_ids', [WeekController::class, 'get_last_weeks_ids']); //for testing - to be deleted
     });
     ######## Week ########
 
@@ -412,15 +412,15 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     ######## Timeline-Type ########
     ######## Messages ########
-        Route::get('listAllMessages', [MessagesController::class, 'listAllMessages']);
-        Route::post('/updateStatus', [MessagesController::class, 'updateStatus']);
-        Route::post('/sendMessage', [MessagesController::class, 'sendMessage']);
-        Route::post('/listMessage', [MessagesController::class, 'listMessage']);
-        Route::post('/listRoomMessages', [MessagesController::class, 'listRoomMessages']);
+    Route::get('listAllMessages', [MessagesController::class, 'listAllMessages']);
+    Route::post('/updateStatus', [MessagesController::class, 'updateStatus']);
+    Route::post('/sendMessage', [MessagesController::class, 'sendMessage']);
+    Route::post('/listMessage', [MessagesController::class, 'listMessage']);
+    Route::post('/listRoomMessages', [MessagesController::class, 'listRoomMessages']);
     ######## Messages ########
     ######## BookStatistics ########
-    Route::group(['prefix'=>'book-stat'], function(){
-        Route::get('/', [BookStatisticsController::class, 'index']);              
+    Route::group(['prefix' => 'book-stat'], function () {
+        Route::get('/', [BookStatisticsController::class, 'index']);
     });
     ######## BookStatistics ########
 
