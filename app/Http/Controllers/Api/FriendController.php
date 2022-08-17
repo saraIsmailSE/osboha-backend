@@ -30,7 +30,7 @@ class FriendController extends Controller
     {
         $friends = DB::table('friends')
         ->where('user_id', Auth::id())
-        ->orWhere('receiver_id', Auth::id())
+        ->orWhere('friend_id', Auth::id())
         ->groupBy('friend_id')
         ->get();
         
