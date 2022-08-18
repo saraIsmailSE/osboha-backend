@@ -224,10 +224,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########End Article########
     ########Start SocialMedia########
     Route::group(['prefix' => 'socialMedia'], function () {
-        Route::get('/', [SocialMediaController::class, 'index']);
         Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
         Route::post('/show', [SocialMediaController::class, 'show']);
-        Route::post('/delete', [SocialMediaController::class, 'delete']);
     });
     ########End SocialMedia########
 
