@@ -181,7 +181,7 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('edit comment');
         $role3->givePermissionTo('create RequestAmbassador');
         $role3->givePermissionTo('edit RequestAmbassador');
-        $role3->givePermissionTo('create highPriorityRequest');
+        $role3->givePermissionTo('create highPriorityRequestAmbassador');
 
         $role4->givePermissionTo('create post');
         $role4->givePermissionTo('delete post');

@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\BooktypeController;
 use App\Http\Controllers\Api\ExceptionTypeController;
 use App\Http\Controllers\Api\GroupTypeController;
+use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\PostTypeController;
 use App\Http\Controllers\Api\ThesisTypeController;
 use App\Http\Controllers\Api\TimelineTypeController;
@@ -423,5 +424,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [BookStatisticsController::class, 'index']);              
     });
     ######## BookStatistics ########
+    ######## Home ########
+    Route::group(['prefix'=>'home'], function(){
+        Route::get('/', [HomeController::class, 'index']);              
+    });
+    ######## Home ########
 
 });
