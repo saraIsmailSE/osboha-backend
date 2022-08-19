@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use phpDocumentor\Reflection\Types\This;
 
-Trait ThesisTraits
+trait ThesisTraits
 {
     use ResponseJson;
 
@@ -44,18 +44,18 @@ Trait ThesisTraits
     public function createThesis($thesis)
     {
         //get thesis type
-        $thesis_type = ThesisType::find($thesis['type_id'], ['type']);
+        $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
 
-        $week_id = Week::all('id')->last()->id;
+        $week_id = Week::latest('id')->first()->id;
 
         $mark_record = Mark::where('user_id', Auth::id())
             ->where('week_id', $week_id)
             ->first(['id', 'total_pages', 'total_thesis', 'total_screenshot', 'out_of_90', 'support']);
 
         if ($mark_record) {
-            $max_length = (array_key_exists('max_length',$thesis) ? $thesis['max_length'] : 0);
-            $total_thesis = (array_key_exists('max_length',$thesis)? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
-            $total_screenshots = (array_key_exists('total_screenshots',$thesis) ? $thesis['total_screenshots'] : 0);
+            $max_length = (array_key_exists('max_length', $thesis) ? $thesis['max_length'] : 0);
+            $total_thesis = (array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
+            $total_screenshots = (array_key_exists('total_screenshots', $thesis) ? $thesis['total_screenshots'] : 0);
             $thesis_mark = 0;
 
             $thesis_data_to_insert = array(
@@ -123,7 +123,7 @@ Trait ThesisTraits
         }
     }
 
-    public function updateThesis( $thesisToUpdate)
+    public function updateThesis($thesisToUpdate)
     {
 
         $thesis = Thesis::where('comment_id', $thesisToUpdate['comment_id'])->first(
@@ -134,7 +134,7 @@ Trait ThesisTraits
         );
 
         if ($thesis) {
-            $week_id = Week::all('id')->last()->id;
+            $week_id = Week::latest('id')->first()->id;
 
             $mark_record = Mark::where('id', $thesis->mark_id)
                 ->where('user_id', Auth::id())
@@ -144,7 +144,7 @@ Trait ThesisTraits
             if ($mark_record) {
                 if ($week_id == $mark_record->week_id) {
                     //get thesis type
-                    $thesis_type = ThesisType::find($thesis->type_id, ['type']);
+                    $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
 
                     $max_length = ($thesisToUpdate['max_length'] ? $thesisToUpdate['max_length'] : 0);
                     $total_thesis = ($thesisToUpdate['max_length'] ? ($thesisToUpdate['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
@@ -353,12 +353,12 @@ Trait ThesisTraits
 
     public function calculate_mark_for_ramadan_thesis($total_pages, $max_length, $total_screenshots, $thesis_type)
     {
-        if ($max_length <= 0 && $thesis_type <= 0) { //if no thesis -- it is considered as normal thesis
+        if ($max_length <= 0 && $total_screenshots <= 0) { //if no thesis -- it is considered as normal thesis
             return $this->calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots);
         }
 
         $mark = 0;
-
+        $number_of_parts = 0;
         if ($thesis_type === RAMADAN_THESIS_TYPE) {
             $number_of_parts = (int) ($total_pages / RAMADAN_PART_PAGES);
         }
@@ -393,5 +393,4 @@ Trait ThesisTraits
 
         return $mark;
     }
-
 }

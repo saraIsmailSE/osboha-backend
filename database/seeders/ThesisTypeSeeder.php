@@ -15,10 +15,10 @@ class ThesisTypeSeeder extends Seeder
     public function run()
     {
 
-        $thesis_type = ['noraml', 'ramadan', 'young', 'kids'];
+        $thesis_type = ['normal', 'ramadan', 'tafseer', 'young', 'kids'];
         //THESIS TYPE
         $i = 0;
-        while ($i <= 3) {
+        while ($i <= 4) {
             DB::table('thesis_types')->insert([
 
                 'type' => $thesis_type[$i],
