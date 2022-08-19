@@ -30,7 +30,8 @@ use App\Http\Controllers\Api\UserGroupController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\RejectedThesesController;
 use App\Http\Controllers\Api\MessagesController;
-/*
+use App\Http\Controllers\Api\CPanelController;
+/* 
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
@@ -317,4 +318,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create', [MessagesController::class, 'create']);
 });
      ######## Messages ########
+
+       ######## CPanel ########
+     Route::group(['prefix' => 'cpanel'], function () {
+     Route::get('/', [CPanelController::class, 'index']);
+     Route::post('getUserByEmail', [CPanelController::class, 'getUserByEmail']);
+     Route::post('/assignRole', [CPanelController::class, 'assign_role']);
+      ######## Cpanel########
+});
 });

@@ -46,7 +46,7 @@ class UserGroupController extends Controller
 
         $userGroup = UserGroup::find($request->user_group_id);
 
-        if($userGroup){
+         if($userGroup){
             return $this->jsonResponseWithoutMessage(new UserGroupResource($userGroup), 'data', 200);
         }else{
             throw new NotFound;
