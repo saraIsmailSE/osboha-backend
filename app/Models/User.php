@@ -94,7 +94,7 @@ class User extends Authenticatable
     }
     public function rooms()
     {
-        return $this->belongsToMany(Room::class,"participants");
+        return $this->belongsToMany(Room::class,'participants')->withPivot('type');
     }
 
     public function posts(){
