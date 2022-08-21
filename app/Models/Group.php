@@ -14,6 +14,7 @@ class Group extends Model
         'name',
         'description',
         'type_id',
+        'cover_picture',
         'creator_id',
         'timeline_id'
     ];

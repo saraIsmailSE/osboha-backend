@@ -16,6 +16,7 @@ class CreateInfographicsTable extends Migration
         Schema::create('infographics', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('media_id');
             $table->integer('designer_id');
             $table->integer('section_id');
             $table->integer('series_id')->nullable();

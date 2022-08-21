@@ -11,10 +11,16 @@ class Infographic extends Model
 
     protected $fillable = [
         'title',
+        'media_id',
         'designer_id',
         'section_id',
         'series_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'designer_id');
+    }
 
     public function series()
     {

@@ -24,7 +24,7 @@ class User extends Authenticatable
         'password',
         'gender',
         'request_id',
-       // 'user_type',
+        'user_type',
         'email_verified_at',
         'is_blocked',
         'is_hold',
@@ -80,11 +80,11 @@ class User extends Authenticatable
     public function groups(){
         return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type','termination_reason');
     }
-    public function LeaderRrequest()
+    public function LeaderRequest()
     {
         return $this->hasMany(leader_request::class,'leader_id');
     }
-    public function AmbassadorRrequest()
+    public function AmbassadorRequest()
     {
         return $this->belongsToOne(leader_request::class);
     }

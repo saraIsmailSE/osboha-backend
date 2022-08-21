@@ -16,9 +16,9 @@ class CreateAuditMarksTable extends Migration
         Schema::create('audit_marks', function (Blueprint $table) {
             $table->id();
             $table->integer('week_id');
-            $table->integer('aduitor_id');
+            $table->integer('auditor_id');
             $table->integer('leader_id');
-            $table->text('aduitMarks');
+            $table->text('auditMarks');
             $table->text('note')->nullable();
             $table->integer('status')->default(0);
             $table->timestamps();

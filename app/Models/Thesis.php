@@ -16,7 +16,7 @@ class Thesis extends Model
         'user_id',
         'max_length',
         'book_id',
-        'thesis_type_id',
+        'type_id',
         'mark_id',
         'total_pages',
         'total_screenshots',

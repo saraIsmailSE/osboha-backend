@@ -14,4 +14,14 @@ class Week extends Model
         'title',
         'is_vacation',
     ];
+
+    public function marks()
+    {
+        return $this->hasMany(Mark::class);
+    }
+
+    public function exceptions()
+    {
+        return $this->hasMany(Exception::class);
+    }
 }

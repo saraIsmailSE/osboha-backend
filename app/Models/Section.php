@@ -10,7 +10,6 @@ class Section extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id',
         'section',  
     ];
 
@@ -21,7 +20,7 @@ class Section extends Model
 
     public function infographics()
     {
-        return $this->hasMany(Infogaphic::class);
+        return $this->hasMany(Infographic::class);
     }
 
     public function infographiSeries()

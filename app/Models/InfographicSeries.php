@@ -12,6 +12,7 @@ class InfographicSeries extends Model
     protected $fillable = [
         'title',
         'section_id',
+        'media_id'
     ];
 
     public function Infographics()

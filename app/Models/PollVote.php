@@ -10,7 +10,6 @@ class PollVote extends Model
     use HasFactory;
 
     protected $fillable = [
-        'poll_vote_id',
         'user_id', 
         'post_id', 
         'option'

@@ -15,6 +15,7 @@ class LeaderRequest extends Model
         'gender',
         'leader_id',
         'current_team_count',
+        'is_done',
     ];
     public function user()
     {

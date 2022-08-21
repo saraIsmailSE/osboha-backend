@@ -16,6 +16,7 @@ class Comment extends Model
         'user_id',
         'post_id',
         'comment_id',
+        'media_id',
         'type',
     ];
 
@@ -52,6 +53,11 @@ class Comment extends Model
     public function thesis()
     {
         return $this->hasOne(Thesis::class);
+    }
+
+    public function rate()
+    {
+        return $this->hasMany(Rate::class);
     }
     
 }

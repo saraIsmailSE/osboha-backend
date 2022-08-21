@@ -9,8 +9,17 @@ class Media extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'media',
+        'post_id',
+        'comment_id',
+        'reaction_id',
+        'infographic_series_id',
+        'infographic_id ',
+        'book_id',
+        'group_id',
         'type' => 'required',
-        'user_id' => 'required'
+        'user_id' => 'required',
+
 
     ];
 

@@ -17,6 +17,7 @@ class CreatePostsTable extends Migration
             $table->id();
             $table->text('body');
             $table->integer('user_id');
+            $table->integer('media_id');
             $table->integer('timeline_id');
             $table->integer('type_id');
             $table->boolean('allow_comments')->default(1);

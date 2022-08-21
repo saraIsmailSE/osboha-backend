@@ -9,7 +9,7 @@ class AuditMark extends Model
 {
     use HasFactory;
     protected $fillable = [ 
-        'leader_id', 'aduitMarks', 'note', 'status' ,'week_id', 'aduitor_id'
+        'leader_id', 'auditMarks', 'note', 'status' ,'week_id', 'auditor_id'
     ];
 
     public function week()
@@ -17,10 +17,10 @@ class AuditMark extends Model
         return $this->belongsTo(Week::class);
     }
 
-    //each audit marks belongsTo specific aduitor(user)
-    public function aduitor()
+    //each audit marks belongsTo specific auditor(user)
+    public function auditor()
     {
-        return $this->belongsTo(User::class ,'aduitor_id');
+        return $this->belongsTo(User::class ,'auditor_id');
     }
 
 
