@@ -16,4 +16,8 @@ class UserGroup extends Model
         'termination_reason',
     ];
 
+    public function group(){
+        return $this->belongsTo(Group::class,'group_id');
+    }
+
 }
