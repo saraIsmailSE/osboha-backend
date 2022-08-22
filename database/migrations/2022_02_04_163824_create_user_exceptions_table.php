@@ -17,13 +17,11 @@ class CreateUserExceptionsTable extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('week_id');
-            $table->string('reason');
+            $table->text('reason');
             $table->integer('type_id');
-            $table->integer('duration'); // in days
-            $table->string('status')->default('pending');
-            $table->date('start_at')->nullable();
-            $table->string('leader_note')->nullable();
-            $table->string('advisor_note')->nullable();
+            $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->date('end_at');
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

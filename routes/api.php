@@ -183,11 +183,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     #########UserException########
     Route::group(['prefix' => 'userexception'], function () {
-        Route::get('/', [UserExceptionController::class, 'index']);
+        Route::post('/groupExceptions', [UserExceptionController::class, 'groupExceptions']);
         Route::post('/create', [UserExceptionController::class, 'create']);
         Route::get('/show', [UserExceptionController::class, 'show']);
         Route::post('/update', [UserExceptionController::class, 'update']);
         Route::post('/delete', [UserExceptionController::class, 'delete']);
+        Route::post('/updateStatus', [UserExceptionController::class, 'updateStatus']);
+
     });
     ############End UserException########
 
