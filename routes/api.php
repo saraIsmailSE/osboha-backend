@@ -41,7 +41,7 @@ use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
 use App\Http\Controllers\api\WeekController;
 use App\Http\Controllers\Api\MessagesController;
-
+use App\Http\Controllers\Api\CPanelController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -421,5 +421,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [BookStatisticsController::class, 'index']);
     });
     ######## BookStatistics ########
-
+      ######## CPanel ########
+      Route::group(['prefix' => 'cpanel'], function () {
+        Route::get('/', [CPanelController::class, 'index']);
+        Route::post('getUserByEmail', [CPanelController::class, 'getUserByEmail']);
+        Route::post('/assign_role', [CPanelController::class, 'assign_role']);
+         ######## Cpanel########
+   });
 });
