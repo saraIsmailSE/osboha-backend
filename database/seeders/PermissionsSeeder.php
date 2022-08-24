@@ -98,7 +98,6 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'list role']);
         Permission::create(['name' => 'list transactions']);
         Permission::create(['name' => 'assign role']);
-        Permission::create(['name' => 'delete role']);
         Permission::create(['name' => 'update role']);
     
         ###### SystemIssue ######

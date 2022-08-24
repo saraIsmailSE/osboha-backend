@@ -18,38 +18,19 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
-        // User::factory(20)->create()->each(function($user) {
-        //     Post::factory(rand(1, 4))->create([
-        //         'user_id' => $user->id
-        //     ]);
-        // });
 
-
-        // $this->call(MarksSeeder::class);
-        // $this->call(RejectesThesesSeeder::class);
-        // $this->call(InfographicSeeder::class);
-        // $this->call(InfographicSeriesSeeder::class);
-        // $this->call(ArticleSeeder::class);
 
         $this->call(PermissionsSeeder::class);
-
-        // $this->call(CommentSeeder::class);
-
-
-
         $this->call(GroupSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(PostSeeder::class);
-
-
-        // $this->call(FriendSeeder::class);
-
-        // $this->call(UserGroupSeeder::class);
-
         $this->call(BookSeeder::class);
         $this->call(ThesisTypeSeeder::class);
         $this->call(ThesisSeeder::class);
 
+        // $this->call(FriendSeeder::class);
+
+        // $this->call(UserGroupSeeder::class);
         // $this->call(RateSeeder::class);
         // $this->call(ReactionSeeder::class);
         // $this->call(BookTypeSeeder::class);
@@ -60,5 +41,11 @@ class DatabaseSeeder extends Seeder
         // $this->call(TimelineTypeSeeder::class);
         // $this->call(BookStatisticsSeeder::class);
         // $this->call(WeekSeeder::class);
+        // $this->call(MarksSeeder::class);
+        // $this->call(RejectesThesesSeeder::class);
+        // $this->call(InfographicSeeder::class);
+        // $this->call(InfographicSeriesSeeder::class);
+        // $this->call(ArticleSeeder::class);
+        // $this->call(CommentSeeder::class);
     }
 }

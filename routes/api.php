@@ -195,10 +195,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => 'group'], function () {
         Route::get('/', [GroupController::class, 'index']);
         Route::post('/create', [GroupController::class, 'create']);
-        Route::get('/show', [GroupController::class, 'show']);
+        Route::post('/show', [GroupController::class, 'show']);
         Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
         Route::post('/update', [GroupController::class, 'update']);
         Route::post('/delete', [GroupController::class, 'delete']);
+        Route::get('/userGrops', [GroupController::class, 'userGrops']);
+
     });
     ############End Group############
 
@@ -224,10 +226,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########End Article########
     ########Start SocialMedia########
     Route::group(['prefix' => 'socialMedia'], function () {
-        Route::get('/', [SocialMediaController::class, 'index']);
         Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
         Route::post('/show', [SocialMediaController::class, 'show']);
-        Route::post('/delete', [SocialMediaController::class, 'delete']);
     });
     ########End SocialMedia########
 

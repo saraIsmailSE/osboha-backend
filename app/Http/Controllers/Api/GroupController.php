@@ -33,11 +33,7 @@ class GroupController extends Controller
 
     use ResponseJson, MediaTraits;
 
-    /**
-     * Display groups list
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $group= Group::all();
@@ -72,11 +68,7 @@ class GroupController extends Controller
             throw new NotAuthorized;
         }       
     }
-    /**
-     * Create new group
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create(Request $request)
     {
 
@@ -87,7 +79,6 @@ class GroupController extends Controller
             'description' => 'nullable|string',
             'type_id' => 'required',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
-            'creator_id' => 'required|int'
         ]);
 
         if($validator->fails()){
@@ -96,6 +87,13 @@ class GroupController extends Controller
 
          
         if(Auth::user()->can('create group')){
+            $timeline=new Timeline; 
+            $timeline->name=$request->name;
+            $timeline->description=$request->description;
+            $timeline->type_id=$request->type_id;
+            $timeline->save();
+            $input['creator_id'] = Auth::id();
+            $input['timeline_id'] = $timeline->id;
             $group=Group::create($input);
             if($request->hasFile('image'))
             {  
@@ -110,11 +108,7 @@ class GroupController extends Controller
         }
     }
 
-    /**
-     * Display the specified group.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    //show specific group
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -125,33 +119,23 @@ class GroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         
-         $group=Group::find($request->group_id);
-
-         if($group){
-             $users=$group->user;
-             foreach($users as $user) {
-                 if(Auth::id()==$user->id) {
-                     //return group details with members by resource
-                     return $this->jsonResponseWithoutMessage(new GroupResource($group), 'data', 200);
-                 }
-                 else {
-                     throw new NotAuthorized;
-                 }
-             }
+        $group=Group::find($request->group_id);
+        if($group){
+            $user=UserGroup::where('user_id',Auth::id())->where('group_id',$request->group_id)->exists();
+                if($user || Auth::user()->hasRole('admin')) {
+                    return $this->jsonResponseWithoutMessage(new GroupResource($group), 'data', 200);
+                } else {
+                    throw new NotAuthorized;
+                }
+        
          }//end if group found
 
       //group not found
       else{
           throw new NotFound;
       }
-    }
+    } 
 
-    /**
-     * Update the specified group.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request)
     {
         $input=$request->all();
@@ -161,7 +145,6 @@ class GroupController extends Controller
             'description' => 'nullable|string',
             'type_id' => 'required',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
-            'creator_id' => 'required|int'
         ]);
 
         if($validator->fails()){
@@ -169,10 +152,10 @@ class GroupController extends Controller
           }
 
         $group=Group::find($request->group_id);  
-        $user=UserGroup::find($request->group_id);
+        $user_type = UserGroup::where('group_id',$request->group_id)->where('user_id',Auth::id())->pluck('user_type')->first();
         if($group){
 
-            if(Auth::user()->can('edit group')||$user->user_type!="ambassador")
+            if(Auth::user()->can('edit group') && $user_type !="ambassador")
             {
                 if($request->hasFile('image'))
                 {
@@ -202,17 +185,12 @@ class GroupController extends Controller
         }
     }
 
-    /**
-     * Delete the created group
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'group_id' => 'required',
         ]);
-
+ 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }  
@@ -220,7 +198,8 @@ class GroupController extends Controller
         if(Auth::user()->can('delete group')) {
          $group=Group::find($request->group_id);
          if ($group) {
-             $currentMedia=Media::where('group_id',$group->id)->first();
+
+             $currentMedia = Media::where('group_id',$group->id)->first();
 
              //if exist delete image
              if($currentMedia) {
