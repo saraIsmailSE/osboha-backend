@@ -39,25 +39,3 @@ class RoomSeeder extends Seeder
 
 }
 
-
-
-    /*for($i = 1; $i <= 10; $i++){
-    $users = User::inRandomOrder()->limit(10)->get();
-    $room = Room::where('id',$i)->first();
-    
-    
-    foreach( $users as $user){
-        $room->users()->attach($user->id, ['type' =>'group']);
-    }
- */
-    /*for($i = 1; $i <= 10; $i++){
-        $user = User::inRandomOrder()->first();
-        foreach( $rooms as $room){
-            $user->rooms()->attach($room->id, ['type' =>'group']);
-        }
-    */
-    /*$users = User::all();
-    room::factory(10)
-        ->create(['type' => 'group','creator_id' => 1])
-        ->each(function ($room) use ($users) {
-            $room->users()->attach($users->id, ['type' =>'group']);*/
