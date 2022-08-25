@@ -424,4 +424,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     ######## BookStatistics ########
 
+ ######## CPanel ########
+ Route::group(['prefix' => 'cpanel'], function () {
+    Route::get('/', [CPanelController::class, 'index']);
+    Route::post('getUserByEmail', [CPanelController::class, 'getUserByEmail']);
+    Route::post('/assign_role', [CPanelController::class, 'assign_role']);
+     ######## Cpanel########
+});
 });
