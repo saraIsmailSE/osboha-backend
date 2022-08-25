@@ -14,8 +14,6 @@ class MessageFactory extends Factory
     public function definition()
     {
         return [
-            'receiver_id' => 0,
-            //'status' => rand(0,1),
             'body'=>  $this->faker->paragraph,
         ];
     }

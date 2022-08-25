@@ -15,7 +15,7 @@ class RoomFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'messages_status' => rand(1,2),
+            'messages_status' => rand(0,1),
         ];
     }
 }
