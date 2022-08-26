@@ -74,9 +74,7 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'reject book']);
 
         ###### EXCEPTION ######
-        //update exception [reject or accept]
-        Permission::create(['name' => 'update exception']);
-        Permission::create(['name' => 'list exception']);
+        Permission::create(['name' => 'list pending exception']);
         
 
         ###### STATISTICS ######

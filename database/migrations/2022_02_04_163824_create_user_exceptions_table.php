@@ -19,8 +19,9 @@ class CreateUserExceptionsTable extends Migration
             $table->integer('week_id');
             $table->text('reason');
             $table->integer('type_id');
-            $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'accepted', 'rejected','cancelled','finished'])->default('pending');
             $table->date('end_at');
+            $table->integer('reviewer_id')->nullable();
             $table->string('note')->nullable();
             $table->timestamps();
         });

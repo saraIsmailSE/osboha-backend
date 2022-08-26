@@ -16,8 +16,7 @@ class UserException extends Model
         'type_id',
         'status',
         'end_at',
-        'leader_note',
-        'advisor_note'
+        'note',
     ];
 
     public function User()
