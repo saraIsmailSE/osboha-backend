@@ -9,10 +9,11 @@ class MarkStatistic extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'general_average_reeding',
+        'total_marks_users',
+        'general_average_reading',
         'total_users_have_100',
         'total_pages',
-        'total_thesis',
+        'total_thesises',
         
     ];
 }

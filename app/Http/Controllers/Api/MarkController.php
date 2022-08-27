@@ -20,6 +20,8 @@ use App\Exceptions\NotAuthorized;
 use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
+use App\Events\MarkStats;
+
 
  
 class MarkController extends Controller
@@ -69,12 +71,12 @@ class MarkController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'out_of_90' => 'required', 
+            // 'out_of_90' => 'required', 
             'out_of_100' => 'required', 
-            'total_pages' => 'required',  
-            'support' => 'required', 
+            // 'total_pages' => 'required',  
+            // 'support' => 'required', 
             'total_thesis' => 'required', 
-            'total_screenshot' => 'required',
+            // 'total_screenshot' => 'required',
             'mark_id' => 'required',
         ]);
 
@@ -82,10 +84,12 @@ class MarkController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if(Auth::user()->can('edit mark')){
+        if(!Auth::user()->can('edit mark')){
             $mark = Mark::find($request->mark_id);
+            $old_mark = $mark->getOriginal();
             if($mark){
-                $mark->update($request->all());
+               $mark->update($request->all());
+                event(new MarkStats($mark,$old_mark));
                 return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
             }
             else{

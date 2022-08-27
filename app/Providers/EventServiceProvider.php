@@ -9,7 +9,11 @@ use App\Observers\BookObserver;
 use App\Observers\UserObserver;
 use App\Observers\MarkObserver;
 use Illuminate\Auth\Events\Registered;
+use App\Events\MarkStats;
+use App\Listeners\AddUserToStatistic;
+
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -24,6 +28,12 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        MarkStats::class => [
+            AddMarkToStatistic::class,
+        ]
+    ];
+    protected $subscribe = [
+       AddUserToStatistic::class
     ];
 
     /**
@@ -33,8 +43,8 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Book::observe(BookObserver::class);
-        User::observe(UserObserver::class);
-        Mark::observe(MarkObserver::class);
+        // Book::observe(BookObserver::class);
+        // User::observe(UserObserver::class);
+        // Mark::observe(MarkObserver::class);
     }
 }

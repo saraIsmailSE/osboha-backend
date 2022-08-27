@@ -11,6 +11,7 @@ use App\Models\ProfileSetting;
 use App\Models\LeaderRequest;
 use App\Models\Group;
 use App\Models\UserGroup;
+use App\Events\NewUserStats;
 
 
 use App\Traits\ResponseJson;
@@ -106,6 +107,7 @@ class AuthController extends Controller
                               $result=Sign_up::selectTeam($leader_condition,$ambassador_condition,">","12");
                               if ($result->count() == 0){
                                 $ambassadorWithoutLeader = User::create($ambassador);
+                                event(new NewUserStats());
                                 if($ambassadorWithoutLeader)
                                 {
                                     $ambassadorWithoutLeader->assignRole($ambassador['user_type']);
@@ -163,6 +165,8 @@ class AuthController extends Controller
                 }//end if Check for High Priority Requests
                 else{
                     $exit =  $this->insert_ambassador($ambassador,$result);
+                   
+
                     if($exit == true){
                         echo $this->jsonResponseWithoutMessage("Register Successfully -- High Priority", 'data', 200);
                     }
@@ -181,6 +185,7 @@ class AuthController extends Controller
             $countRequests=Sign_up::countRequests($result->id);
             if ($result->members_num > $countRequests){
             $user =User::create($ambassador);
+            event(new NewUserStats());
             if($user)
             {
                 $user->assignRole($ambassador['user_type']);

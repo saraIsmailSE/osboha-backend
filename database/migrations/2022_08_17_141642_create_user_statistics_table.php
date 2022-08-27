@@ -15,6 +15,7 @@ class CreateUserStatisticsTable extends Migration
     {
         Schema::create('user_statistics', function (Blueprint $table) {
             $table->id();
+            $table->integer('week_id');
             $table->integer('total_new_users')->default(0);
             $table->integer('total_hold_users')->default(0);
             $table->integer('total_excluded_users')->default(0);

@@ -15,10 +15,12 @@ class CreateMarkStatisticsTable extends Migration
     {
         Schema::create('mark_statistics', function (Blueprint $table) {
             $table->id();
-            $table->integer('general_average_reeding')->default(0);
+            $table->integer('week_id');
+            $table->integer('total_marks_users')->default(0);
+            $table->integer('general_average_reading')->default(0);
             $table->integer('total_users_have_100')->default(0);
             $table->integer('total_pages')->default(0);
-            $table->integer('total_thesis')->default(0);
+            $table->integer('total_thesises')->default(0);
             $table->timestamps();
         });
     }
