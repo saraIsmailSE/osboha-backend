@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+
+class Group extends Model
+{
+    use HasFactory;
+
+    protected $fillable=[
+        'name',
+        'description',
+        'type',
+        'creator_id',
+        'timeline_id'
+    ];
+
+    public function User(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type');
+    }
+
+    public function Timeline(){
+        return $this->belongsTo(Timeline::class,'timeline_id');
+    }
+
+    public function medias()
+    {
+        return $this->hasOne(Media::class);
+    } 
+
+
+}
