@@ -13,13 +13,19 @@ class Group extends Model
     protected $fillable=[
         'name',
         'description',
-        'type',
+        'type_id',
         'creator_id',
         'timeline_id'
     ];
 
-    public function User(){
-        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type');
+    public function users(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type','termination_reason');
+    }
+    public function userAmbassador(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','ambassador');
+    }
+    public function admin(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','admin');
     }
 
     public function Timeline(){
@@ -31,5 +37,9 @@ class Group extends Model
         return $this->hasOne(Media::class);
     } 
 
+    public function type()
+    {
+        return $this->belongsTo(GroupType::class,'type_id');
+    }
 
 }
