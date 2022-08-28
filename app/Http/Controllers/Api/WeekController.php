@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Mark;
 use App\Models\User;
 use App\Models\UserException;
+use App\Models\UserGroup;
 use App\Models\Week;
 use App\Traits\ResponseJson;
 use Carbon\Carbon;
@@ -222,6 +223,9 @@ class WeekController extends Controller
             ->orderBy('week_id', 'desc')
             ->get();
 
+        //get user group    
+        $user_group = UserGroup::where('user_id', $user->id)->first();
+
         // $arrayMarks = array_map(function ($mark) {
         //     return (array)$mark;
         // }, $marks->toArray());
@@ -245,14 +249,16 @@ class WeekController extends Controller
                 if ($marks[1]->out_of_100 === 0) {
                     //execlude the user
                     $user->is_excluded = 1;
-                    return $user->save();
+                    $user_group->user_type = 'excluded';
+                    return $user->save() and $user_group->save();
                     //check if the user has been freezed in the week before (2nd of last)
                 } else if (($marks[1]->out_of_100 === -1) and (count($last_week_ids) > 2)) {
                     //check if the user mark is zero in  the week befor (3rd of last)
                     if ($marks[2]->out_of_100 === 0) {
                         //execlude the user
                         $user->is_excluded = 1;
-                        return $user->save();
+                        $user_group->user_type = 'excluded';
+                        return $user->save() and $user_group->save();
                     }
                 }
             }
