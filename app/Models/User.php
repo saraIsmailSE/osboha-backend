@@ -143,5 +143,9 @@ class User extends Authenticatable
     public function media(){
         return $this->hasMany(Media::class);
     }
+
+    public function exception(){
+        return $this->hasMany(UserException::class);
+    }
 }
 
