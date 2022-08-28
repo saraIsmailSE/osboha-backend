@@ -253,7 +253,6 @@ class UserExceptionController extends Controller
         if($validator->fails()){
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-
         $userException = UserException::find($request->exception_id);
 
         if ($userException){
@@ -262,8 +261,11 @@ class UserExceptionController extends Controller
                 if($userException->status == 'pending' || ($userException->week_id == $current_week && $userException->type_id == 1)  ){
                     $userException->delete();
                     return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200);
-                }
-                else {
+                } elseif ($userException->status == 'accepted' && $userException->end_at > Carbon::now()){
+                    $userException->status = 'cancelled';
+                    $userException->update();
+                    return $this->jsonResponseWithoutMessage("User Exception Cancelled", 'data', 200);
+                } else {
                     return $this->jsonResponseWithoutMessage("You Can not Revoke This Exception", 'data', 200);
                 }
             }
@@ -351,7 +353,7 @@ class UserExceptionController extends Controller
         }
     } 
 
-    public function listPindigExceptions(Request $request)
+    public function listPindigExceptions()
     { 
         if(Auth::user()->can('list pending exception')){
             $userExceptions = UserException::where('status', 'pending')->get();
