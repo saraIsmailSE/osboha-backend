@@ -365,7 +365,41 @@ class UserExceptionController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
 
+    public function addExceptions(Request $request)
+    { 
+        $input=$request->all();
+        $validator= Validator::make($input, [
+            'user_email' => 'required|email',
+            'reason' => 'required|string',
+            'type_id' => 'required|int',
+            'end_at' => 'required|date',
+            'note' => 'nullable'
+        ]);
+
+        if($validator->fails()){
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if( Auth::user()->hasRole(['admin','advisor'])){
+            $user = User::where('email',$request->user_email)->pluck('id')->first();
+            if($user){    
+                $current_week = Week::latest()->pluck('id')->first();
+                $input['week_id'] =  $current_week;
+                $input['user_id'] = $user;
+                $input['status'] = 'accepted';
+                $input['reviewer_id'] = Auth::id();
+                $input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
+
+                $userException = UserException::create($input);
+                return $this->jsonResponseWithoutMessage('User Exception created', 'data', 200);
+            } else {
+                throw new NotFound();
+            }
+        } else {
+            throw new NotAuthorized;
+        }
     }
     
 }
