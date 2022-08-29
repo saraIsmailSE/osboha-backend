@@ -161,7 +161,7 @@ class MarkController extends Controller
 
             if (!$weekAuditMarks){
 
-                $groupsID = Group::where('type' ,'reading')->pluck('id');
+                $groupsID = Group::where('type' ,'reading')->pluck('id'); 
 
                 foreach ($groupsID as $key => $groupID) {
 
