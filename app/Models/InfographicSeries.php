@@ -11,7 +11,7 @@ class InfographicSeries extends Model
 
     protected $fillable = [
         'title',
-        'section',
+        'section_id',
     ];
 
     public function Infographics()
@@ -22,5 +22,10 @@ class InfographicSeries extends Model
     public function media()
     {
         return $this->hasOne(Media::class, 'infographic_series_id');
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class, 'section_id');
     }
 }

@@ -18,7 +18,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('generate:auditMark')
+
+        // $schedule->command('inspire')->hourly();
+        //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
+        $schedule->command('weekly:marks')->weekly()->sundays()->at('00:00'); //main part
+        // $schedule->command('weekly:marks')->everyMinute(); //for testing - to be deleted
+
+      //auditMark
+      $schedule->command('generate:auditMark')
                     ->timezone('Asia/Riyadh')
                     ->weeklyOn(6, '6:00'); // every Sundy at 06:00 am (6 => Sundy)
     }
@@ -30,7 +37,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

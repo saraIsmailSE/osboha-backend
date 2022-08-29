@@ -24,7 +24,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_blocked')->default(0);
             $table->boolean('is_hold')->default(0);
             $table->boolean('is_excluded')->default(0);
-            $table->integer('request_id')->default(0);
+            $table->integer('request_id')->nullable();
             $table->timestamps();
         });
     }

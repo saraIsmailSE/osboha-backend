@@ -9,18 +9,19 @@ class Room extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'creator_id' => 'required',
-        'name' => 'required',
-        'type' => 'required',
-        'messages_status' =>'required',
+        'creator_id',
+        'name' ,
+        'type' ,
+        'messages_status' ,
     ];
 
-public function user()
-{
-    return $this->hasMany(User::class,'user_id');
-}
-public function participant()
-{
-    return $this->hasMany(Participant::class,'user_id');
-}
+    public function users()
+    {
+        return $this->belongsToMany(User::class, "participants");
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'user_id');
+    }
 }

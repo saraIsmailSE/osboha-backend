@@ -16,7 +16,7 @@ class Thesis extends Model
         'user_id',
         'max_length',
         'book_id',
-        'type',
+        'type_id',
         'mark_id',
         'total_pages',
         'total_screenshots',
@@ -43,8 +43,8 @@ class Thesis extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function thesis_type()
+    public function type()
     {
-        return $this->belongsTo(ThesisType::class, 'thesis_type_id');
+        return $this->belongsTo(ThesisType::class);
     }
 }

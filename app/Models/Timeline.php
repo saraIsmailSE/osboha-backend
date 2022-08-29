@@ -9,7 +9,7 @@ class Timeline extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','description' ,'type'];
+    protected $fillable = ['type_id'];
 
     public function posts()
     {
@@ -20,11 +20,13 @@ class Timeline extends Model
         return $this->hasMany(Group::class,'timeline_id');
     }
 
-    /* 
+    public function type(){
+        return $this->belongsTo(TimelineType::class);
+    }
+    
     public function profiles()
     {
-        return $this->hasMany(Profile::class,'timeline_id');
+        return $this->hasMany(UserProfile::class,'timeline_id');
     }
-    */
-
+    
 }

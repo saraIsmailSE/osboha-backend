@@ -24,8 +24,7 @@ class NotificationController extends Controller
     public function sendNotification($reciver_id , $message) 
     {
         $reciver = User::where('id',$reciver_id)->first();  
-        $sender = User::where('id',Auth::id())->first();  
-        $reciver->notify(new GeneralNotification($sender,$message));
+        $reciver->notify(new GeneralNotification(Auth::user()->name,$message));
     }
 
     public function listAllNotification() 

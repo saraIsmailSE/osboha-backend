@@ -19,7 +19,7 @@ class CreateBooksTable extends Migration
             $table->string('name');
             $table->string('writer');
             $table->string('publisher');
-            $table->string('brief');
+            $table->longText('brief'); //asmaa
             $table->integer('start_page');
             $table->integer('end_page');
             $table->string('link');

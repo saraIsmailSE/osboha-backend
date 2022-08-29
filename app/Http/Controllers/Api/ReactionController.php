@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
 use Spatie\Permission\PermissionRegistrar;
 use App\Http\Resources\ReactionResource;
 
@@ -22,7 +24,7 @@ class ReactionController extends Controller
     public function index()
     {
         $reactions = Reaction::where('user_id', Auth::id())->get();
-        if($reactions){
+        if($reactions->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(ReactionResource::collection($reactions), 'data',200);
         }
         else{
@@ -76,35 +78,7 @@ class ReactionController extends Controller
                 throw new NotAuthorized;   
             }
         }
-    }
-    public function show(Request $request)
-    {
-        ####Rufi####
-        //validate requested data
-        $validator = Validator::make($request->all(), [
-            'comment_id' => 'required_without:post_id',
-            'post_id' => 'required_without:comment_id',
-        ]);
-        //validator errors response
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        //find reaction belong to auth user and comment
-        if($request->has('comment_id'))
-         $reaction = Reaction::where('comment_id', $request->comment_id)->get();
-        //find reaction belong to auth user and post
-         else if($request->has('post_id'))
-         $reaction = Reaction::where('post_id', $request->post_id)->get();
-        if($reaction){
-            //return found reaction
-            return $this->jsonResponseWithoutMessage(ReactionResource::collection($reaction), 'data',200);
-        }
-        else{
-            //reaction not found response
-            throw new NotFound;
-        }
-    }
-    
+    }    
     public function update(Request $request)
     {
         ####Rufi####
@@ -156,6 +130,33 @@ class ReactionController extends Controller
             }
         }
     }
+    public function show(Request $request)
+    {
+        ####Rufi####
+        //validate requested data
+        $validator = Validator::make($request->all(), [
+            'comment_id' => 'required_without:post_id',
+            'post_id' => 'required_without:comment_id',
+        ]);
+        //validator errors response
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        //find reaction belong to auth user and comment
+        if($request->has('comment_id'))
+         $reaction = Reaction::where('comment_id', $request->comment_id)->get();
+        //find reaction belong to auth user and post
+         else if($request->has('post_id'))
+         $reaction = Reaction::where('post_id', $request->post_id)->get();
+        if($reaction->isNotEmpty()){
+            //return found reaction
+            return $this->jsonResponseWithoutMessage(ReactionResource::collection($reaction), 'data',200);
+        }
+        else{
+            //reaction not found response
+            throw new NotFound;
+        }
+    }
     public function delete(Request $request)
     {
         ####Rufi####
@@ -182,7 +183,7 @@ class ReactionController extends Controller
             //authorized user
             if(Auth::user()->can('delete reaction')){
                 //find reaction
-                $reaction = Reaction::where('reaction_id', $request->reaction_id)->get();
+                $reaction = Reaction::where('id', $request->reaction_id)->get();
                 if($reaction->isNotEmpty()){
                 //update found medias
                 foreach($reaction as $row)

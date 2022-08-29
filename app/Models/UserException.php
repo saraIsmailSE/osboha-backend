@@ -13,12 +13,10 @@ class UserException extends Model
         'user_id',
         'week_id',
         'reason',
-        'type',
-        'duration',
+        'type_id',
         'status',
-        'start_at',
-        'leader_note',
-        'advisor_note'
+        'end_at',
+        'note',
     ];
 
     public function User()
@@ -29,6 +27,11 @@ class UserException extends Model
     public function Week()
     {
         return $this->belongsTo(Week::class);
+    }
+
+    public function Type()
+    {
+        return $this->belongsTo(ExceptionType::class,'type_id');
     }
 
 }

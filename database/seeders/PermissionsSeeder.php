@@ -58,6 +58,13 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'delete reaction']);
         Permission::create(['name' => 'create reaction']);
 
+        ###### REQUEST AMBASSADOR######
+        Permission::create(['name' => 'edit RequestAmbassador']);
+        Permission::create(['name' => 'create RequestAmbassador']);
+
+         ###### HIGH PRIORITY REQUEST######
+         Permission::create(['name' => 'create highPriorityRequestAmbassador']);
+
         ###### BOOK ######
         Permission::create(['name' => 'edit book']);
         Permission::create(['name' => 'delete book']);
@@ -67,9 +74,7 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'reject book']);
 
         ###### EXCEPTION ######
-        //update exception [reject or accept]
-        Permission::create(['name' => 'update exception']);
-        Permission::create(['name' => 'list exception']);
+        Permission::create(['name' => 'list pending exception']);
         
 
         ###### STATISTICS ######
@@ -91,7 +96,6 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'list role']);
         Permission::create(['name' => 'list transactions']);
         Permission::create(['name' => 'assign role']);
-        Permission::create(['name' => 'delete role']);
         Permission::create(['name' => 'update role']);
     
         ###### SystemIssue ######
@@ -99,6 +103,7 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'update systemIssue']);
     
         ###### TimeLine ######
+        Permission::create(['name' => 'main timeline']);
         Permission::create(['name' => 'edit timeline']);
         Permission::create(['name' => 'delete timeline']);
         Permission::create(['name' => 'create timeline']);
@@ -120,16 +125,32 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'create challenge']);
 
         ###### POST ######
+        Permission::create(['name' => 'accept post']);
+        Permission::create(['name' => 'decline post']);
         Permission::create(['name' => 'edit post']);
         Permission::create(['name' => 'delete post']);
         Permission::create(['name' => 'create post']);
+        Permission::create(['name' => 'pin post']);
 
         ###### COMMENT ######
         Permission::create(['name' => 'edit comment']);
         Permission::create(['name' => 'delete comment']);
         Permission::create(['name' => 'create comment']);
+        Permission::create(['name' => 'controll comments']);
 
+        ###### ROOM ######
+        Permission::create(['name' => 'create room']);
+        Permission::create(['name' => 'room control']);
 
+        ###### SECTION ######
+        Permission::create(['name' => 'edit section']);
+        Permission::create(['name' => 'delete section']);
+        Permission::create(['name' => 'create section']);
+
+        ###### Type ######
+        Permission::create(['name' => 'edit type']);
+        Permission::create(['name' => 'delete type']);
+        Permission::create(['name' => 'create type']);
 
         // create roles and assign existing permissions
 
@@ -149,6 +170,7 @@ class PermissionsSeeder extends Seeder
         $role2->givePermissionTo('create comment');
         $role2->givePermissionTo('delete comment');
         $role2->givePermissionTo('edit comment');
+        $role2->givePermissionTo('main timeline');
 
         $role3->givePermissionTo('create post');
         $role3->givePermissionTo('delete post');
@@ -156,6 +178,9 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('create comment');
         $role3->givePermissionTo('delete comment');
         $role3->givePermissionTo('edit comment');
+        $role3->givePermissionTo('create RequestAmbassador');
+        $role3->givePermissionTo('edit RequestAmbassador');
+        $role3->givePermissionTo('create highPriorityRequestAmbassador');
 
         $role4->givePermissionTo('create post');
         $role4->givePermissionTo('delete post');
@@ -163,6 +188,9 @@ class PermissionsSeeder extends Seeder
         $role4->givePermissionTo('create comment');
         $role4->givePermissionTo('delete comment');
         $role4->givePermissionTo('edit comment');
+        $role4->givePermissionTo('create RequestAmbassador');
+        $role4->givePermissionTo('edit RequestAmbassador');
+ 
 
         $role5->givePermissionTo('create post');
         $role5->givePermissionTo('delete post');
@@ -172,51 +200,5 @@ class PermissionsSeeder extends Seeder
         $role5->givePermissionTo('edit comment');
 
 
-        // create demo users
-        $password = bcrypt('password123');
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role1);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Advisor User',
-            'email' => 'advisor@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role2);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Supervisor User',
-            'email' => 'supervisor@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role3);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Leader User',
-            'email' => 'leader@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role4);
-
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Ambassador User',
-            'email' => 'ambassador@example.com',
-            'password' =>$password,
-            'gender'=> 'male'
-
-        ]);
-        $user->assignRole($role5);
     }
 }

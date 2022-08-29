@@ -9,18 +9,17 @@ class Message extends Model
 {
     use HasFactory;
     protected $fillable = [
-            'sender_id' => 'required',
-            'receiver_id' => 'required',
-            'status' => 'required',
-            'room_id' => 'required',
+            'sender_id',
+            'receiver_id',
+            'status',
+            'room_id',
     ];
     public function user()
     {
-        return $this->belongsTo(User::class ,'user_id');
+        return $this->belongsTo(User::class);
     }
-    public function participant()
+    public function room()
     {
-        return $this->hasMany(Participant::class,'user_id');
+        return $this->belongsTo(Room::class);
     }
-}
 }

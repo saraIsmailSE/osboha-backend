@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Week extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        // 'date',
+        'title',
+        'is_vacation',
+    ];
+
+    public function exception(){
+        return $this->hasMany(UserException::class);
+    }
 }

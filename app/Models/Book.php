@@ -17,8 +17,8 @@ class Book extends Model
         'start_page',
         'end_page',
         'link',
-        'section',
-        'type',
+        'section_id',
+        'type_id',
         'level',
         'post_id',
     ];
@@ -30,5 +30,16 @@ class Book extends Model
     {
         return $this->hasMany(Post::class);
     }
+
+    public function section()
+    {
+        return $this->belongsTo(section::class);
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(BookType::class);
+    }
+    
 }
 

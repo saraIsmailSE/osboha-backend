@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Models\Media;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
+use App\Traits\ThesisTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -16,52 +17,75 @@ use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\CommentResource;
-
+use App\Http\Controllers\Api\ThesisController;
+use App\Models\Book;
 
 class CommentController extends Controller
 {
-    use ResponseJson , MediaTraits;
+    use ResponseJson, MediaTraits, ThesisTraits;
 
-    public function create(Request $request){
+    public function create(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
-            'body' => 'required',
-            'post_id' => 'required_without_all:comment_id',
-            'comment_id' => 'required_without_all:post_id',
+            'body' => 'required_without_all:image,screenShots|string',
+            'post_id' => 'required|numeric',
+            'comment_id' => 'numeric',
             'type' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
+            'total_pages' => 'required_if:type,thesis|numeric',
+            'thesis_type_id' => 'required_if:type,thesis|numeric',
+
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $input=$request->all();
-        $input['user_id']= Auth::id();
+        $input = $request->all();
+        $input['user_id'] = Auth::id();
         $comment = Comment::create($input);
+
+        if ($request->type == "thesis") {
+            $thesis['comment_id'] = $comment->id;
+            $thesis['book_id'] = Book::where('post_id', $request->post_id)->pluck('id')[0];
+            $thesis['total_pages'] = $request->total_pages;
+            $thesis['type_id'] = $request->thesis_type_id;
+            if ($request->has('body')) {
+                $thesis['max_length'] = strlen($request->body);
+            }
+            if ($request->has('screenShots')) {
+                $thesis['total_screenshots'] = count($request->screenShots);
+                foreach ($request->screenShots as $screenShot) {
+                    $this->createMedia($screenShot, $comment->id, 'comment');
+                }
+            }
+            $this->createThesis($thesis);
+        }
+
         if ($request->hasFile('image')) {
             // if comment has media
             // upload media
             $this->createMedia($request->file('image'), $comment->id, 'comment');
         }
-        return $this->jsonResponseWithoutMessage("Comment Craeted Successfully", 'data', 200);  
 
+        return $this->jsonResponseWithoutMessage("Comment Created Successfully", 'data', 200);
     }
 
-    public function show(Request $request)
+    public function getPostComments(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'comment_id' => 'required',
+            'post_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
-
-        $comment = Comment::find($request->comment_id);
-        if($comment){
-            return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data',200);
         }
-        else{
+
+        $comments = Comment::where('post_id', $request->post_id)->get();
+        if ($comments->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(CommentResource::collection($comments), 'data', 200);
+        } else {
             throw new NotFound;
         }
     }
@@ -70,24 +94,42 @@ class CommentController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'body' => 'required_without:image',
-            'user_id' => 'required',
-            'comment_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048|required_without:body',
+            'body' => 'required_without_all:image,screenShots|string',
+            'comment_id' => 'numeric',
+            'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
+            'total_pages' => 'required_if:type,thesis|numeric',
         ]);
-        
+
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $comment = Comment::find($request->comment_id);
-        if($comment){
-            if(Auth::id() == $comment->user_id){
-                if($request->hasFile('image')){
+        if ($comment) {
+            if (Auth::id() == $comment->user_id) {
+                if ($comment->type == "thesis") {
+                    $thesis['comment_id'] = $comment->id;
+                    $thesis['book_id'] = Book::where('post_id', $request->post_id)->pluck('id')[0];
+                    $thesis['total_pages'] = $request->total_pages;
+                    $thesis['thesis_type_id'] = $request->thesis_type_id;
+                    if ($request->has('body')) {
+                        $thesis['max_length'] = strlen($request->body);
+                    }
+                    if ($request->has('screenShots')) {
+                        $thesis['total_screenshots'] = count($request->screenShots);
+                        foreach ($request->screenShots as $screenShot) {
+                            $this->createMedia($screenShot, $comment->id, 'comment');
+                        }
+                    }
+                    $this->updateThesis($thesis);
+                }
+
+                if ($request->hasFile('image')) {
                     // if comment has media
                     //check Media
-                    $currentMedia= Media::where('comment_id', $comment->id)->first();
+                    $currentMedia = Media::where('comment_id', $comment->id)->first();
                     // if exists, update
-                    if($currentMedia){
+                    if ($currentMedia) {
                         $this->updateMedia($request->file('image'), $currentMedia->id);
                     }
                     //else create new one
@@ -97,18 +139,14 @@ class CommentController extends Controller
                     }
                 }
                 $comment->update($request->all());
-            
+
                 return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
-            }         
-            else{
-                throw new NotAuthorized;   
+            } else {
+                throw new NotAuthorized;
             }
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }
-            
-        
     }
 
     public function delete(Request $request)
@@ -119,11 +157,17 @@ class CommentController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
         $comment = Comment::find($request->comment_id);
-        if($comment){
-            if(Auth::user()->can('delete comment') || Auth::id() == $comment->user_id){
+        if ($comment) {
+            if (Auth::user()->can('delete comment') || Auth::id() == $comment->user_id) {
+                //delete replies
+                Comment::where('comment_id', $comment->id)->delete();
+                if ($comment->type == "thesis") {
+                    $thesis['comment_id'] = $comment->id;
+                    $this->deleteThesis($thesis);
+                }
                 //check Media
                 $currentMedia = Media::where('comment_id', $comment->id)->first();
                 // if exist, delete
@@ -132,16 +176,11 @@ class CommentController extends Controller
                 }
                 $comment->delete();
                 return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
+            } else {
+                throw new NotAuthorized;
             }
-            
-            else{
-                throw new NotAuthorized;   
-            }
-        }
-        else{
+        } else {
             throw new NotFound;
         }
-        
-        
     }
 }

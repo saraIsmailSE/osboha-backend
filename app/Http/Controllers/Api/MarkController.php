@@ -154,99 +154,105 @@ class MarkController extends Controller
     
     public function generateAuditMarks()
     {
-        $current_week =Week::latest()->pluck('id')->first();
-        $weekAuditMarks = AuditMark::where('week_id',$current_week)->exists();
+        if(Auth::user()->can('audit mark')){
 
-        if (!$weekAuditMarks){
+            $current_week =Week::latest()->pluck('id')->first();
+            $weekAuditMarks = AuditMark::where('week_id',$current_week)->exists();
 
-            $groupsID = Group::where('type' ,'reading')->pluck('id'); 
+            if (!$weekAuditMarks){
 
-            foreach ($groupsID as $key => $groupID) {
+                $groupsID = Group::where('type' ,'reading')->pluck('id'); 
 
-                $leaderID =UserGroup::where('group_id',$groupID )
-                                ->where('user_type','Leader ')
-                                ->pluck('user_id')
-                                ->first();
-                $supervisorID =UserGroup::where('group_id',$groupID )
-                                ->where('user_type','supervisor ')
-                                ->pluck('user_id')
-                                ->first();
-                $advisorID =UserGroup::where('group_id',$groupID )
-                                ->where('user_type','advisor ')
-                                ->pluck('user_id')
-                                ->first();
+                foreach ($groupsID as $key => $groupID) {
 
-                $allAmbassadorsID =UserGroup::where('group_id',$groupID )
-                                ->where('user_type','Ambassador ')
-                                ->pluck('user_id');
+                    $leaderID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','Leader ')
+                                    ->pluck('user_id')
+                                    ->first();
+                    $supervisorID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','supervisor ')
+                                    ->pluck('user_id')
+                                    ->first();
+                    $advisorID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','advisor ')
+                                    ->pluck('user_id')
+                                    ->first();
 
-                // Get 10% of Full Mark
-                $highMark = Mark::whereIn('user_id',$allAmbassadorsID)
-                            ->where('out_of_100' , 100)
-                            ->count();
+                    $allAmbassadorsID =UserGroup::where('group_id',$groupID )
+                                    ->where('user_type','Ambassador ')
+                                    ->pluck('user_id');
 
-                $rateHighMarkToAudit = $highMark * 10 /100;
-                $highMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
-                            ->where('out_of_100' , 100)
-                            ->inRandomOrder()
-                            ->limit($rateHighMarkToAudit)
-                            ->pluck('id')->toArray();
-                   
-                //Get 10% of not Full Mark
-                $lowMark = Mark::whereIn('user_id',$allAmbassadorsID)
-                            ->where('out_of_100', '<' , 100)
-                            ->count();
-                
-                $rateLowMarkToAudit = $lowMark * 10 /100;
-                $lowMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
-                            ->where('out_of_100','!=' , 100)
-                            ->inRandomOrder()
-                            ->limit($rateLowMarkToAudit)
-                            ->pluck('id')->toArray();
-                $supervisorAuditMarks = array_merge($highMarkToAudit ,$lowMarkToAudit);
+                    // Get 10% of Full Mark
+                    $highMark = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100' , 100)
+                                ->count();
 
-                // Save Marks for supervisors
-                $auditMarks=new AuditMark; 
-                $auditMarks->week_id=$current_week;
-                $auditMarks->aduitor_id=$supervisorID;
-                $auditMarks->leader_id=$leaderID;
-                $auditMarks->aduitMarks=serialize($supervisorAuditMarks);
-                $auditMarks->save();
+                    $rateHighMarkToAudit = $highMark * 10 /100;
+                    $highMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100' , 100)
+                                ->inRandomOrder()
+                                ->limit($rateHighMarkToAudit)
+                                ->pluck('id')->toArray();
+                       
+                    //Get 10% of not Full Mark
+                    $lowMark = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100', '<' , 100)
+                                ->count();
+                    
+                    $rateLowMarkToAudit = $lowMark * 10 /100;
+                    $lowMarkToAudit = Mark::whereIn('user_id',$allAmbassadorsID)
+                                ->where('out_of_100','!=' , 100)
+                                ->inRandomOrder()
+                                ->limit($rateLowMarkToAudit)
+                                ->pluck('id')->toArray();
+                    $supervisorAuditMarks = array_merge($highMarkToAudit ,$lowMarkToAudit);
 
-                //Get 10% of supervisor Marks
-                $supervisorMark = Mark::whereIn('id',$supervisorAuditMarks)
-                            ->count();
-                
-                $rateSupervisorMark1  = $lowMark * 10 /100;
-                $advisorMarks1 = Mark::whereIn('id',$supervisorAuditMarks)
-                            ->inRandomOrder()
-                            ->limit($rateSupervisorMark1)
-                            ->pluck('id')->toArray();
+                    // Save Marks for supervisors
+                    $auditMarks=new AuditMark; 
+                    $auditMarks->week_id=$current_week;
+                    $auditMarks->aduitor_id=$supervisorID;
+                    $auditMarks->leader_id=$leaderID;
+                    $auditMarks->aduitMarks=serialize($supervisorAuditMarks);
+                    $auditMarks->save();
 
-                //Get 5% of not supervisor Marks
-                $rateSupervisorMark2 = count($allAmbassadorsID) * 5 /100;
+                    //Get 10% of supervisor Marks
+                    $supervisorMark = Mark::whereIn('id',$supervisorAuditMarks)
+                                ->count();
+                    
+                    $rateSupervisorMark1  = $lowMark * 10 /100;
+                    $advisorMarks1 = Mark::whereIn('id',$supervisorAuditMarks)
+                                ->inRandomOrder()
+                                ->limit($rateSupervisorMark1)
+                                ->pluck('id')->toArray();
 
-                $advisorMarks2 = Mark::whereIn('user_id',$allAmbassadorsID)
-                                    ->whereNotIn('user_id',$supervisorAuditMarks)
-                                    ->limit($rateSupervisorMark2)
-                                    ->pluck('id')->toArray();
+                    //Get 5% of not supervisor Marks
+                    $rateSupervisorMark2 = count($allAmbassadorsID) * 5 /100;
 
-                $advisorAuditMarks = array_merge($advisorMarks1 ,$advisorMarks2);
+                    $advisorMarks2 = Mark::whereIn('user_id',$allAmbassadorsID)
+                                        ->whereNotIn('user_id',$supervisorAuditMarks)
+                                        ->limit($rateSupervisorMark2)
+                                        ->pluck('id')->toArray();
 
-                 // Save Marks for advisor
-                $auditMarks=new AuditMark;
-                $auditMarks->week_id=$current_week;
-                $auditMarks->aduitor_id=$advisorID;
-                $auditMarks->leader_id=$leaderID;
-                $auditMarks->aduitMarks=serialize($advisorAuditMarks);
-                $auditMarks->save();
+                    $advisorAuditMarks = array_merge($advisorMarks1 ,$advisorMarks2);
 
+                     // Save Marks for advisor
+                    $auditMarks=new AuditMark;
+                    $auditMarks->week_id=$current_week;
+                    $auditMarks->aduitor_id=$advisorID;
+                    $auditMarks->leader_id=$leaderID;
+                    $auditMarks->aduitMarks=serialize($advisorAuditMarks);
+                    $auditMarks->save();
+
+                }
+
+               return $this->jsonResponseWithoutMessage("Audit Marks Are Generated Successfully", 'data', 200);
+
+            } else {
+               return $this->jsonResponseWithoutMessage("Audit Marks Already Exist For This Week", 'data', 200);
             }
-
-           return $this->jsonResponseWithoutMessage("Audit Marks Are Generated Successfully", 'data', 200);
-
+        
         } else {
-           return $this->jsonResponseWithoutMessage("Audit Marks Already Exist For This Week", 'data', 200);
+            throw new NotAuthorized;
         }
     }
 
@@ -360,8 +366,5 @@ class MarkController extends Controller
         }
     }
 
-
-
-    
 
 }
