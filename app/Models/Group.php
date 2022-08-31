@@ -29,7 +29,7 @@ class Group extends Model
     }
 
     public function Timeline(){
-        return $this->belongsTo(Timeline::class);
+        return $this->belongsTo(Timeline::class,'timeline_id');
     }
 
     public function medias()
@@ -39,7 +39,7 @@ class Group extends Model
 
     public function type()
     {
-        return $this->belongsTo(GroupType::class);
+        return $this->belongsTo(GroupType::class,'type_id');
     }
 
 }

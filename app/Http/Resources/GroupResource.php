@@ -17,7 +17,7 @@ class GroupResource extends JsonResource
         return [
             'name'=> $this->name,
             'description'=> $this->description,
-            'type'=> $this->type,
+            'type'=> $this->TypeName->type,
           //  'image'=> new MediaResource($this->media)
             'creator_id'=> $this->creator_id,
             'members' => $this->user

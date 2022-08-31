@@ -96,7 +96,6 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'list role']);
         Permission::create(['name' => 'list transactions']);
         Permission::create(['name' => 'assign role']);
-        Permission::create(['name' => 'delete role']);
         Permission::create(['name' => 'update role']);
     
         ###### SystemIssue ######
@@ -152,6 +151,9 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'edit type']);
         Permission::create(['name' => 'delete type']);
         Permission::create(['name' => 'create type']);
+
+        ###### Week ######
+        Permission::create(['name' => 'edit week']);
 
         // create roles and assign existing permissions
 

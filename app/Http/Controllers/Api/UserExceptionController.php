@@ -105,7 +105,7 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, [
             'reason' => 'required|string',
             'type_id' => 'required|int',
-            'end_at' => 'required|date',
+            'end_at' => 'required|date|after:yesterday',
         ]);
         
         if($validator->fails()){
@@ -219,7 +219,7 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, [
             'exception_id' => 'required',
             'reason' => 'required|string',
-            'end_at' => 'required|date',
+            'end_at' => 'required|date|after:yesterday',
         ]);
 
         if($validator->fails()){
@@ -374,7 +374,7 @@ class UserExceptionController extends Controller
             'user_email' => 'required|email',
             'reason' => 'required|string',
             'type_id' => 'required|int',
-            'end_at' => 'required|date',
+            'end_at' => 'required|date|after:yesterday',
             'note' => 'nullable'
         ]);
 
@@ -393,6 +393,10 @@ class UserExceptionController extends Controller
                 $input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
 
                 $userException = UserException::create($input);
+
+                $msg = "You have exception vacation until ". $userException->end_at ;
+                (new NotificationController)->sendNotification($user, $msg);
+
                 return $this->jsonResponseWithoutMessage('User Exception created', 'data', 200);
             } else {
                 throw new NotFound();

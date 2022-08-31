@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Notifications;
-
+ 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -13,7 +13,7 @@ class GeneralNotification extends Notification
     protected $user;
     public function __construct($sender , $msg)
     {
-        $this->sender = $sender->name;
+        $this->sender = $sender;
         $this->msg = $msg;
 
     }

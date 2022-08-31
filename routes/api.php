@@ -154,8 +154,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update', [MarkController::class, 'update']);
         Route::post('/list', [MarkController::class, 'list_user_mark']);
         Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
-        Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);
-        Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);
+        Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);         
+        Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);        
         Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
         //Route::get('/statsmark', [MarkController::class, 'statsMark']);
     });
@@ -170,7 +170,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/list', [RejectedMarkController::class, 'list_user_rejectedmark']);
     });
     ########End RejectedMark ########
-
     ########RejectedTheses########
     Route::group(['prefix' => 'rejected-theses'], function () {
         Route::get('/', [RejectedThesesController::class, 'index']);
@@ -180,7 +179,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/list', [RejectedThesesController::class, 'list_user_rejectedtheses']);
     });
     ########End RejectedTheses ########
-
     #########UserException########
     Route::group(['prefix' => 'userexception'], function () {
         Route::post('/groupExceptions', [UserExceptionController::class, 'groupExceptions']);
@@ -198,10 +196,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => 'group'], function () {
         Route::get('/', [GroupController::class, 'index']);
         Route::post('/create', [GroupController::class, 'create']);
-        Route::get('/show', [GroupController::class, 'show']);
+        Route::post('/show', [GroupController::class, 'show']);
         Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
         Route::post('/update', [GroupController::class, 'update']);
         Route::post('/delete', [GroupController::class, 'delete']);
+        Route::get('/userGrops', [GroupController::class, 'userGrops']);
+
     });
     ############End Group############
 
@@ -227,10 +227,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########End Article########
     ########Start SocialMedia########
     Route::group(['prefix' => 'socialMedia'], function () {
-        Route::get('/', [SocialMediaController::class, 'index']);
         Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
         Route::post('/show', [SocialMediaController::class, 'show']);
-        Route::post('/delete', [SocialMediaController::class, 'delete']);
     });
     ########End SocialMedia########
 

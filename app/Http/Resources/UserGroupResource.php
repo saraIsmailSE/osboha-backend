@@ -3,6 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\GroupResource;
+
 
 class UserGroupResource extends JsonResource
 {
@@ -15,8 +18,8 @@ class UserGroupResource extends JsonResource
     public function toArray($request)
     {
         return [
-            // 'user' => new UserResource($this->whenLoaded('user')),
-            // 'group' => new Group($this->whenLoaded('group')),
+            //'user' => new UserResource($this->whenLoaded('user')),
+            'group' => new GroupResource($this->whenLoaded('group')),
             'user_type' => $this->user_type,
             'termination_reason' => $this->termination_reason,
         ];
