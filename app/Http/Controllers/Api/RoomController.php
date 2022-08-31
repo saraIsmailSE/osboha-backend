@@ -78,11 +78,6 @@ class RoomController extends Controller
         if(Auth::user()->can('room control'))
         {
             $user = User::find($request->user_id);
-            // $participant = new Participant([
-            //     'user_id' => $request->user_id,
-            //     'room_id' => $request->room_id,
-            //     'type' => ''
-            // ]);
 
             if($user){
 
@@ -92,7 +87,6 @@ class RoomController extends Controller
                 }
                 else{
                     //added user to participant table
-                    // $user->participant()->save($participant);
                     $user->rooms()->attach($request->room_id);
 
                     return $this->jsonResponseWithoutMessage("User Added Successfully", 'data', 200); 

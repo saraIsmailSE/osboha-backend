@@ -18,7 +18,7 @@ class CreateRoomsTable extends Migration
             $table->integer('creator_id');
             $table->string('name');
             //type group - workGroup - manegment
-            $table->string('type');
+            $table->string('type')->nullable();
             //messages_status open->1 close->2
             $table->integer('messages_status')->default(1);
             $table->timestamps();

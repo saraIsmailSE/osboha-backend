@@ -44,24 +44,37 @@ class HomeController extends Controller
 
         // Groups timeline
         $my_groups_timelines = UserGroup::join('groups', 'user_groups.group_id', '=', 'groups.id')
-				->select('groups.timeline_id')
-				->where('user_groups.user_id', '=', Auth::id())->get()->toArray();
-        $posts_from_groups = Post::where('timeline_id', $my_groups_timelines)->get()->toArray();
-        $data_to_home_page["posts"] = $posts_from_groups;
+				                        ->select('groups.timeline_id')
+				                        ->where('user_groups.user_id', '=', Auth::id())->get();
+        $posts_from_groups = Post::whereIn('timeline_id', $my_groups_timelines)->get();
+        $data_to_home_page["posts"] = $posts_from_groups->toArray();
 
         // Friends timeline
-        $my_friends_ids = Friend::select('friend_id')->where('user_id', Auth::id())->get()->toArray();
-        $my_friends_timelines = UserProfile::select('timeline_id')->where('user_id', $my_friends_ids)->get()->toArray();
-        $posts_from_friends = Post::where('timeline_id', $my_friends_timelines)->get()->toArray();
+        $my_friends_ids = Friend::select('friend_id')
+                                ->where('user_id', Auth::id())
+                                ->orWhere('friend_id', Auth::id())->get()->toArray();
+        $my_friends_timelines = UserProfile::select('timeline_id')->whereIn('user_id', $my_friends_ids)->get();
+        $posts_from_friends = Post::whereIn('timeline_id', $my_friends_timelines)->get();
         array_push($data_to_home_page["posts"], $posts_from_friends);
 
-        // Main
+        // Main timeline
         $posts_from_main = Post::where('timeline_id', 1)->inRandomOrder()->limit(5)->get();
         array_push($data_to_home_page["posts"], $posts_from_main);
+         
+        // Profile timeline
+        $posts_from_profile = Post::where('timeline_id', 2)->inRandomOrder()->limit(5)->get();
+        array_push($data_to_home_page["posts"], $posts_from_profile);
 
         // Books timeline
         $posts_from_books = Post::where('timeline_id', 3)->inRandomOrder()->limit(5)->get();
         array_push($data_to_home_page["posts"], $posts_from_books);
+
+        // Activity timeline
+        $posts_from_activity = Post::where('timeline_id', 4)->inRandomOrder()->limit(5)->get();
+        array_push($data_to_home_page["posts"], $posts_from_activity);
+
+        // Random all posts
+        shuffle($data_to_home_page["posts"]);
         
         // The system shall display all teams [Groups] that the user is joined to.
         $groups = UserGroup::where('user_id', Auth::id())->get();
