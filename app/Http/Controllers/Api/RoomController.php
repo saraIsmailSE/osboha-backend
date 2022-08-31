@@ -87,7 +87,7 @@ class RoomController extends Controller
                 }
                 else{
                     //added user to participant table
-                    $user->rooms()->attach($request->room_id);
+                    $user->rooms()->attach($request->room_id, ['type' => $request->type]);
 
                     return $this->jsonResponseWithoutMessage("User Added Successfully", 'data', 200); 
                 }
