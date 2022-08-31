@@ -405,5 +405,20 @@ class UserExceptionController extends Controller
             throw new NotAuthorized;
         }
     }
+
+    public function finisfedException()
+    { 
+        $userExceptions = UserException::where('status','accepted')->whereDate('end_at','<',Carbon::now())->get();
+        if(!$userExceptions->isEmpty()) {
+            foreach ($userExceptions as $userException) {
+                $userException['status'] = 'finished';
+                $userException->update();
+            }
+            return $this->jsonResponseWithoutMessage('Done', 'data', 200);
+            
+        } else {
+            return $this->jsonResponseWithoutMessage('all exception are alrady finished', 'data', 200);
+        }
+    }
     
 }
