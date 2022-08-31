@@ -41,7 +41,7 @@ use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
 use App\Http\Controllers\api\WeekController;
 use App\Http\Controllers\Api\MessagesController;
-
+use App\Http\Controllers\Api\CpanelController;
 /*
 |--------------------------------------------------------------------------
 | API Routes

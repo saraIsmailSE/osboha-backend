@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use App\Http\Resources\UserResource;
 use App\Models\Group;
 use App\Models\User;
@@ -42,17 +43,32 @@ class CPanelController extends Controller
 
 
     // display all roles and permissions
-    public function index()
-    { 
+    public function index() { 
+
     $role= Role::with('permissions')->get();
+    $permissions= Permission::all();  
     if ($role->isNotEmpty()) {
         // found roles and permissions response
-        return $this->jsonResponseWithoutMessage($role, 'data', 200);
-    } else {
+        return $this->jsonResponseWithoutMessage(compact('role', 'permissions'), 'data', 200);
+      
+    }
+            else{
         //not found roles and response
         throw new NotFound;
     }
+    
+    /*$permissions= Permission::all();
+    if ($permissions->isNotEmpty()) {
+        // found permissions response
+        return $this->jsonResponseWithoutMessage($permissions, 'data', 200);
+    } else {
+        //not found response
+        throw new NotFound;
+    }
+    
+   */
 }
+
     
     
 
