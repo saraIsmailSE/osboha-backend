@@ -32,10 +32,11 @@ class CPanelController extends Controller
     if($validator->fails()){
         return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
     }
-     $email =$request->email; 
-      $user = User::where('email', $email)->get();
+        $email =$request->email;
+        $user = User::where('email',$email)->first();
+  
       if($user){
-        return $this->jsonResponseWithoutMessage(UserResource::collection($user), 'data', 200);
+        return $this->jsonResponseWithoutMessage(new UserResource($user), 'data', 200);
     }else{
         throw new NotFound;
 }
@@ -47,31 +48,19 @@ class CPanelController extends Controller
 
     $role= Role::with('permissions')->get();
     $permissions= Permission::all();  
-    if ($role->isNotEmpty()) {
+    if ($role->isNotEmpty() && $permissions->isNotEmpty())
+     {
         // found roles and permissions response
         return $this->jsonResponseWithoutMessage(compact('role', 'permissions'), 'data', 200);
-      
-    }
-            else{
-        //not found roles and response
-        throw new NotFound;
-    }
+     }
     
-    /*$permissions= Permission::all();
-    if ($permissions->isNotEmpty()) {
-        // found permissions response
-        return $this->jsonResponseWithoutMessage($permissions, 'data', 200);
-    } else {
+    /* else {
         //not found response
         throw new NotFound;
     }
     
    */
 }
-
-    
-    
-
 
 
     public function assign_role(Request $request){
