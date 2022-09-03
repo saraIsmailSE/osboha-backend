@@ -24,6 +24,7 @@ class CreatePostsTable extends Migration
             $table->text('vote')->nullable();
             $table->timestamp('is_approved')->nullable()->useCurrent();
             $table->boolean('is_pinned')->default(0);
+            $table->integer('book_id')->nullable();
             $table->timestamps();
         });
     }

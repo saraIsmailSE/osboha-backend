@@ -32,6 +32,12 @@ class Kernel extends ConsoleKernel
         //finisfedException 
         $schedule->command('userException:finished')->weekly()->sundays()->at('8:00') ;
 
+
+      //auditMark
+      $schedule->command('generate:auditMark')
+                    ->timezone('Asia/Riyadh')
+                    ->weeklyOn(6, '6:00'); // every Sundy at 06:00 am (6 => Sundy)
+
     }
 
     /**
