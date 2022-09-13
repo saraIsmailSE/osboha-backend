@@ -38,7 +38,7 @@ class AddMarkToStatistic
         //Total Users Have 100 Marks
         if($old_mark['out_of_100'] >= 0 && $mark['out_of_100'] == 100){
             if($old_mark['out_of_100'] !=100)
-            $mark_stats->total_users_have_100 += 1;
+              $mark_stats->total_users_have_100 += 1;
         }
         else if($old_mark['out_of_100'] == 100 && $mark['out_of_100'] != 100){
             $mark_stats->total_users_have_100 -= 1;
@@ -72,7 +72,6 @@ class AddMarkToStatistic
             $total_marks_users  =  $mark_stats->total_marks_users;
             $total_marks_users -=  $old_mark['out_of_100'];
             $total_marks_users += $mark['out_of_100'];
-           
         }
         //General Average of Reading
         $mark_stats->total_marks_users = $total_marks_users;

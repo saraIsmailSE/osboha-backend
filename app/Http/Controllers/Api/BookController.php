@@ -21,6 +21,11 @@ class BookController extends Controller
 {
     use ResponseJson, MediaTraits;
 
+    /**
+     *Read all information about all books in the system
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
         $books = Book::all();
@@ -32,6 +37,12 @@ class BookController extends Controller
         }
     }
 
+    /**
+     *Add a new book to the system (“create book” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -60,7 +71,12 @@ class BookController extends Controller
             throw new NotAuthorized;   
         }
     }
-
+    /**
+     * Find and show an existing book in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -80,7 +96,12 @@ class BookController extends Controller
         }
     }
 
-
+    /**
+     * Update an existing book’s details ( “edit book” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -117,7 +138,12 @@ class BookController extends Controller
         }
         
     }
-
+    /**
+     * Delete an existing book's in the system using its id (“delete book” permission is required). 
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -149,6 +175,12 @@ class BookController extends Controller
         }
     }
 
+    /**
+     * Find and return all books related to a type using type_id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function bookByType(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -166,6 +198,13 @@ class BookController extends Controller
             throw new NotFound;   
         }        
     }
+
+    /**
+     * Find and return all books related to a level using level_id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function bookByLevel(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -184,6 +223,12 @@ class BookController extends Controller
         }        
     }
 
+    /**
+     * Find and return all books related to a section using section_id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function bookBySection(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -201,7 +246,13 @@ class BookController extends Controller
             throw new NotFound;   
         }        
     }
-
+    
+     /**
+     * Find and return all books related to name letters using name_id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function bookByName(Request $request)
     {
         $validator = Validator::make($request->all(), [

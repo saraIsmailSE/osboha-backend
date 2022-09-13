@@ -18,7 +18,7 @@ class SocialMediaController extends Controller
     use ResponseJson;
 
     /**
-     * create user`s social media record or update exsisting accounts.
+     * create user`s social media record or update exsisting accounts..
      *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage ;

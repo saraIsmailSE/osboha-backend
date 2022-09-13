@@ -19,12 +19,11 @@ use Illuminate\Support\Facades\DB;
 class FriendController extends Controller
 {   
     use ResponseJson;
-    
 
-    /**
-     * list all user`s freinds.
+     /**
+     * Return all user`s freinds.
      *
-     * @return jsonResponseWithoutMessage ;
+     * @return jsonResponseWithoutMessage
      */
     public function index()
     {
@@ -39,7 +38,7 @@ class FriendController extends Controller
     }
 
     /**
-     * send freind request if no frienship is exsist.
+     * Send freind request if no frienship is exsist.
      *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage ;
@@ -85,7 +84,7 @@ class FriendController extends Controller
     }
     
     /**
-     * show frienship if exsist.
+     * Find and show an existing frienship in the system by its id.
      *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage ;
@@ -110,7 +109,7 @@ class FriendController extends Controller
     }
 
     /**
-     * accept freind request [only friend_id = Auth can accept].
+     * Accept freind request [only friend_id = Auth can accept].
      *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage ;
@@ -146,7 +145,7 @@ class FriendController extends Controller
     
     
     /**
-     * delete frienship.
+     * Delete frienship in the system using its id[only friend_id = Auth can delete].
      *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage ;

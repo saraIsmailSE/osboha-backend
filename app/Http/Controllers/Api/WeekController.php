@@ -51,6 +51,11 @@ class WeekController extends Controller
         // dd(YEAR_WEEKS);
     }
 
+    /**
+     * Add new weeks to the system(“create type” permission is required).
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function create()
     {
         //get last three weeks ids
@@ -500,6 +505,13 @@ class WeekController extends Controller
             return FALSE;
         }
     }
+    /**
+     * This function will insert new row to user_stats in database when the new week is starting.
+     * Name: add_users_statistics
+     * Arguments: $new_week_id (integer id of the current week id), 
+     * Return: True if the user_stats are done correctly, 
+     *         Exception error if anything wrong happens
+     */
     public function add_users_statistics($new_week_id)
     {
         $user_stats = new UserStatistic();
@@ -510,9 +522,16 @@ class WeekController extends Controller
         if ($user_stats->save()) {
             return $user_stats->id;
         } else {
-            return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
+            return $this->jsonResponseWithoutMessage('Something went wrong, could not add users statistics', 'data', 500);
         }
     }
+    /**
+     * This function will insert new row to mark_stats in database when the new week is starting.
+     * Name: add_users_statistics
+     * Arguments: $new_week_id (integer id of the current week id), 
+     * Return: True if the user_stats are done correctly, 
+     *         Exception error if anything wrong happens
+     */
     public function add_marks_statistics($new_week_id)
     {
         $mark_stats = new MarkStatistic();

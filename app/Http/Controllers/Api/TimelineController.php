@@ -20,7 +20,11 @@ use App\Exceptions\NotAuthorized;
 class TimelineController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Read all information about all timelines in the system (“list timelines” permission is required)
+     * 
+     * @return jsonResponseWithoutMessage ;
+     */
     public function index()
     {
         if(Auth::user()->can('list timelines')){
@@ -34,7 +38,12 @@ class TimelineController extends Controller
            throw new NotAuthorized;   
         }
     }
-
+    /**
+     * Add new timeline to the system (“create timeline” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function create(Request $request)
     {   
         $validator = Validator::make($request->all(), [
@@ -53,7 +62,12 @@ class TimelineController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Find an existing timeline in the system by its id.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -70,7 +84,12 @@ class TimelineController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Update an existing timeline in the system by its id (“edit timeline” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -95,7 +114,12 @@ class TimelineController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Delete an existing timeline in the system by its id (“delete timeline” permission is required).
+     *
+     *  @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

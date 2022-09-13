@@ -23,9 +23,14 @@ class LeaderRequestController extends Controller
 {
     use ResponseJson;
 
+    /**
+     * Read all leader requests in the system.
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
-        $leader_requests = LeaderRequest::where('leader_id', Auth::id())->get();
+        $leader_requests = LeaderRequest::all();
         if($leader_requests){
             return $this->jsonResponseWithoutMessage(LeaderRequestResource::collection($leader_requests), 'data',200);
         }
@@ -33,6 +38,13 @@ class LeaderRequestController extends Controller
             throw new NotFound;
         }
     }
+
+     /**
+     * Add a new leader request to the system (“create RequestAmbassador” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -74,6 +86,13 @@ class LeaderRequestController extends Controller
             throw new NotAuthorized;
         }        
     }
+
+     /**
+     * Find and show an existing leader request in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -91,6 +110,13 @@ class LeaderRequestController extends Controller
             throw new NotFound;
         }
     }
+
+     /**
+     * Update an existing leader request details( “edit RequestAmbassador” permission is required OR the logged in user_id has to match the user_id in the request).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $leader_request = LeaderRequest::find($request->leader_request_id);

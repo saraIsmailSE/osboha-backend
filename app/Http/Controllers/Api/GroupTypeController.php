@@ -19,7 +19,11 @@ use App\Http\Resources\GroupTypeResource;
 class GroupTypeController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Read all group types in the system.
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
         $groupTypes = GroupType::all();
@@ -30,7 +34,12 @@ class GroupTypeController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     *Add a new group type to the system (“create type” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -48,7 +57,12 @@ class GroupTypeController extends Controller
             throw new NotAuthorized;   
         }
     }
-
+    /**
+     * Find and show an existing group type in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -68,6 +82,12 @@ class GroupTypeController extends Controller
         }
     }
 
+    /**
+     * Update an existing group type’s in the system using its id  ( “edit type” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -93,7 +113,12 @@ class GroupTypeController extends Controller
         }
         
     }
-
+    /**
+     * Delete an existing group type’s in the system using its id (“delete type” permission is required). 
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

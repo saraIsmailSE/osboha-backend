@@ -16,7 +16,11 @@ use Illuminate\Http\Request;
 class UserProfileController extends Controller
 {
     use ResponseJson, MediaTraits;
-    
+     /**
+     * Find an existing profile by user id in the system and display it.
+     *
+     * @return jsonResponseWithoutMessage
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -35,7 +39,13 @@ class UserProfileController extends Controller
            throw new NotFound;
         }
     }
-
+    
+    /**
+     * Update an existing profile by the auth user in the system .
+     * 
+     *  @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [

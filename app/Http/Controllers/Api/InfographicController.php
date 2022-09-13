@@ -18,7 +18,11 @@ class InfographicController extends Controller
 {
     use ResponseJson;
     use MediaTraits;
-
+     /**
+     * Get all the information related to all the infographics found in the system
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
         #######ASMAA#######
@@ -34,6 +38,16 @@ class InfographicController extends Controller
         }
     }
 
+    /**
+     * Add new Infographic to the system (“create infographic” permission is required).
+     * Detailed Steps:
+     * 1-  Validate required data and the image format.
+     * 2-  Add new infographic to the database if the permission is valid.
+     * 3-  Add the image to the database using MediaTraits.
+     * 4-  Return success or error message.
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         #######ASMAA#######
@@ -66,7 +80,12 @@ class InfographicController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Find existing infographic in the system by its id and display it.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         #######ASMAA#######
@@ -92,6 +111,19 @@ class InfographicController extends Controller
             throw new NotFound;
         }
     }
+    /**
+     * Update existing infographic in the system (“edit infographic” permission is required)
+     * Detailed Steps : 
+     * 1-  Validate required data and the image format
+     * 2-  Find the requested infographic by id
+     * 3-  Update the requested infographic in the database if the permission is valid
+     * 4-  Find the media related to the infographic by infographicID
+     * 5-  Update the image in the database using MediaTraits
+     * 6-  Return success or error message
+     *
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
 
     public function update(Request $request)
     {
@@ -139,7 +171,19 @@ class InfographicController extends Controller
             throw new NotAuthorized;
         }
     }
+    /**
+     * Find existing infographic in the system by its id then delete it (“delete infographic” permission is required).
+     * Detailed Steps:
+     * 1- Validate required data
+     * 2- Find the requested infographic by id
+     * 3- Delete the requested infographic in the database if the permission is valid
+     * 4- Find the media related to the infographic by infographicID
+     * 5- Delete the image from the database using MediaTraits
+     * 6- Return success or error message
 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function delete(Request $request)
     {
         #######ASMAA#######
@@ -183,7 +227,12 @@ class InfographicController extends Controller
             throw new NotAuthorized;
         }
     }
-
+  /**
+     *  Find all the infographics in the system related to a requested section then return them
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function InfographicBySection(Request $request)
     {
         $validator = Validator::make($request->all(), [

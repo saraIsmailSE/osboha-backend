@@ -9,8 +9,11 @@ use App\Observers\BookObserver;
 use App\Observers\UserObserver;
 use App\Observers\MarkObserver;
 use Illuminate\Auth\Events\Registered;
+use App\Events\UserStats;
 use App\Events\MarkStats;
 use App\Listeners\AddUserToStatistic;
+use App\Listeners\AddMarkToStatistic;
+
 
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 

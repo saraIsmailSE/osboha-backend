@@ -25,6 +25,12 @@ class RoomController extends Controller
 
     }
 
+    /**
+     * Add a new room to the system (“create room” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -63,6 +69,12 @@ class RoomController extends Controller
         //
     }
 
+    /**
+     * Add a new user to the room(“room control” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function addUserToRoom(Request $request)
     {
         $validator = Validator::make($request->all(), [

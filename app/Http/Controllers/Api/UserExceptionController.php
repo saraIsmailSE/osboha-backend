@@ -34,9 +34,10 @@ class UserExceptionController extends Controller
     use ResponseJson;
 
     /**
-     * Display a listing of user exceptions
+     * Read all exceptions for the ambassador in a group by auth user,
+     * oR read all exceptions for members of the group if the auth user has a leader, supervisor or advisor role.
      *
-     * @return \Illuminate\Http\Response
+     * @return jsonResponseWithoutMessage
      */
     
     public function index(Request $request)
@@ -83,17 +84,17 @@ class UserExceptionController extends Controller
         else{
             throw new NotAuthorized;
         }
-        }//end if $user
+        }//end if auth user
 
         else{
             throw new NotFound;
         }
   }
     /**
-     * Create new exception for the user
+     * Add a new user exception to the system.
      * 
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
      */
     public function create(Request $request)
     {
@@ -117,9 +118,10 @@ class UserExceptionController extends Controller
         return $this->jsonResponseWithoutMessage("User Exception Created", 'data', 200);
     }
     /**
-     * Display the details of specified user exception
-     *
-     * @return \Illuminate\Http\Response
+     * Find an existing user exception in the system by its id display it.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
      */
     public function show(Request $request)
     {
@@ -151,11 +153,10 @@ class UserExceptionController extends Controller
     }
 
     /**
-     * Update the specified user exception in database
+     * Update an existing user exception’s details by its id( “update exception” permission is required).
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
      */
     public function update(Request $request)
     {
@@ -194,8 +195,15 @@ class UserExceptionController extends Controller
         }
     }
 
-    /**
-     * revoke the userexception if still not reviewed by leader and advisor
+     /**
+     * Delete an existing user exception in the system by its id.
+     * A user exception can’t be deleted unless: 
+     * 1 - The id of auth user matches the user_id for the specified user exception.
+     * 2 - leader_note is null (meaning the exception hasn’t been reviewed by the leader).
+     * 3 - advisor_note is null (meaning the exception hasn’t been reviewed by an advisor).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
      */
     public function delete(Request $request)
     {
@@ -229,7 +237,9 @@ class UserExceptionController extends Controller
     }
 
     /**
-     * return the current month
+     * return the current month.
+     *
+     * @return currentMonth;
      */
     public function getMonth()
     {

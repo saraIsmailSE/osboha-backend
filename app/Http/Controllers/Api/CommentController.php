@@ -23,7 +23,21 @@ use App\Models\Book;
 class CommentController extends Controller
 {
     use ResponseJson , MediaTraits , ThesisTraits;
-
+    /**
+    * Add a new comment or reply to the system.
+    * Detailed Steps:
+    *  1- Validate required data and the image format.
+    *  2- Add a new comment or reply to the system.
+    *  3- Add the image to the system using MediaTraits if the request has an image.
+    *  4- There is two type for thesis :
+    *      - Thesis has a body.
+    *      - Thesis has an image.
+    * If the thesis has an image (Add the image to the system using MediaTraits).
+    *  5- Add a new thesis to the system if the comment type is “thesis”. 
+    *  6- Return a success or error message.
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -71,7 +85,12 @@ class CommentController extends Controller
         return $this->jsonResponseWithoutMessage("Comment Created Successfully", 'data', 200);  
 
     }
-
+    /**
+     * Find and show an existing article in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function getPostComments(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -91,7 +110,20 @@ class CommentController extends Controller
         }
     }
 
-
+    /**
+     * Update an existing Comment’s details.
+     * In order to update the Comment, the logged in user_id has to match the user_id in the request.
+     * Detailed Steps:
+     *  1- Validate required data and the image format.
+     *  2- Find the requested comment by comment_id.
+     *  3- Update the requested comment in the system if the logged in user_id has to match the user_id in the request.
+     *  4- If comment type is “thesis” update the thesis.
+     *  5- If the requested has image :
+     *      -if image exists, update the image in the system using updateMedia.
+     *      -else image doesn't exists, add the image to the system using MediaTraits
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -153,7 +185,20 @@ class CommentController extends Controller
             
         
     }
-
+   /**
+     * Delete an existing comment using its id(“delete comment” permission is required).
+     * In order to comment the Comment, the logged in user_id has to match the user_id in the request.
+     * Detailed Steps:
+     *  1- Validate required data and the image format.
+     *  2- Find the requested comment by comment_id.
+     *  3- Update the requested comment in the system if the logged in user_id has to match the user_id in the request.
+     *  4- If comment type is “thesis” update the thesis.
+     *  5- If the requested has image :
+     *      -if image exists, update the image in the system using updateMedia.
+     *      -else image doesn't exists, add the image to the system using MediaTraits
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

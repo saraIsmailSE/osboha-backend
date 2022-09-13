@@ -19,7 +19,11 @@ use App\Http\Resources\PollVoteResource;
 class PollVoteController extends Controller
 {
     use ResponseJson;
-   
+    /**
+     * Read all information about all votes in the system.
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
             $votes = PollVote::all();
@@ -31,7 +35,12 @@ class PollVoteController extends Controller
                 throw new NotFound;
             }
     }
-
+    /**
+     * Add a new vote to the system for the auth user.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -49,7 +58,12 @@ class PollVoteController extends Controller
         PollVote::create($input);
         return $this->jsonResponseWithoutMessage("Vote Created Successfully", 'data', 200);
     }
-
+    /**
+     * Find existing vote in the system by its id.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -68,7 +82,12 @@ class PollVoteController extends Controller
            throw new NotFound;
         }
     }
-
+    /**
+     * Update existing vote in the system by the auth user.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -103,7 +122,12 @@ class PollVoteController extends Controller
             throw new NotFound; 
         }
     }
-
+    /**
+     * Delete existing vote in the system by its id and by auth user only.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -128,7 +152,12 @@ class PollVoteController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Read all information about all votes that match requested post_id.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function votesByPostId(Request $request)
     {
         $post_id = $request->post_id;
@@ -142,7 +171,12 @@ class PollVoteController extends Controller
             throw new NotFound();
         }
     }
-    
+    /**
+     * Read all information about all votes that match requested user_id.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function votesByUserId(Request $request)
     {
         $user_id = $request->user_id;

@@ -16,7 +16,11 @@ use Illuminate\Support\Facades\Validator;
 class ArticleController extends Controller
 {
     use ResponseJson;
-    
+    /**
+     * Return all stored articles in the system.
+     *
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
         #######ASMAA#######
@@ -34,6 +38,12 @@ class ArticleController extends Controller
         }
     }
 
+     /**
+     * Add a new article to the system (“create article” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         #######ASMAA#######
@@ -69,7 +79,13 @@ class ArticleController extends Controller
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
     }
-
+    
+     /**
+     * Find and show an existing article in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         #######ASMAA#######
@@ -98,6 +114,13 @@ class ArticleController extends Controller
         }
     }
 
+     /**
+     * Update an existing article’s details ( “edit article” permission is required).
+     * In order to update the article, the logged in user_id has to match the user_id in the request.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         #######ASMAA#######
@@ -138,7 +161,13 @@ class ArticleController extends Controller
             //return $this->jsonResponseWithoutMessage('Unauthorized', 'data', 401);
         }
     }
-
+    
+    /**
+     * Delete an existing article in the system using its id (“delete article” permission is required). 
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         #######ASMAA#######
@@ -176,7 +205,12 @@ class ArticleController extends Controller
         }
     }
     
-    //listAllArticlesByUser used to list all articles related to certain user
+    /**
+     * Find and return all articles related to a user using user_id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */    
     public function listAllArticlesByUser(Request $request)
     {
         #######ASMAA#######
