@@ -14,4 +14,8 @@ class Week extends Model
         'title',
         'is_vacation',
     ];
+
+    public function exception(){
+        return $this->hasMany(UserException::class);
+    }
 }

@@ -16,10 +16,10 @@ class BookTypeSeeder extends Seeder
     public function run()
     {
 
-        $book_type = ['noraml', 'ramadan', 'young', 'kids'];
+        $book_type = ['normal', 'ramadan', 'tafseer', 'young', 'kids'];
         //BOOK TYPE
         $i = 0;
-        while ($i <= 3) {
+        while ($i <= 4) {
             DB::table('book_types')->insert([
 
                 'type' => $book_type[$i],

@@ -55,35 +55,34 @@ class CommentController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $input=$request->all();
-        $input['user_id']= Auth::id();
+        $input = $request->all();
+        $input['user_id'] = Auth::id();
         $comment = Comment::create($input);
-        
-        if($request->type == "thesis"){
-            $thesis['comment_id']=$comment->id;
-            $thesis['book_id'] = Book::where('post_id',$request->post_id)->pluck('id')[0];
-            $thesis['total_pages']=$request->total_pages;
-            $thesis['thesis_type_id']=$request->thesis_type_id;
-            if($request->has('body')){
-                $thesis['max_length']=strlen($request->body);
+
+        if ($request->type == "thesis") {
+            $thesis['comment_id'] = $comment->id;
+            $thesis['book_id'] = Book::where('post_id', $request->post_id)->pluck('id')[0];
+            $thesis['total_pages'] = $request->total_pages;
+            $thesis['type_id'] = $request->thesis_type_id;
+            if ($request->has('body')) {
+                $thesis['max_length'] = strlen($request->body);
             }
-            if($request->has('screenShots')){
-                $thesis['total_screenshots']=count($request->screenShots);
+            if ($request->has('screenShots')) {
+                $thesis['total_screenshots'] = count($request->screenShots);
                 foreach ($request->screenShots as $screenShot) {
                     $this->createMedia($screenShot, $comment->id, 'comment');
                 }
             }
             $this->createThesis($thesis);
         }
-        
+
         if ($request->hasFile('image')) {
             // if comment has media
             // upload media
             $this->createMedia($request->file('image'), $comment->id, 'comment');
         }
 
-        return $this->jsonResponseWithoutMessage("Comment Created Successfully", 'data', 200);  
-
+        return $this->jsonResponseWithoutMessage("Comment Created Successfully", 'data', 200);
     }
     /**
      * Find and show an existing article in the system by its id.
@@ -99,13 +98,12 @@ class CommentController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
-
-        $comments = Comment::where('post_id',$request->post_id)->get();
-        if($comments->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(CommentResource::collection($comments), 'data',200);
         }
-        else{
+
+        $comments = Comment::where('post_id', $request->post_id)->get();
+        if ($comments->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(CommentResource::collection($comments), 'data', 200);
+        } else {
             throw new NotFound;
         }
     }
@@ -138,31 +136,31 @@ class CommentController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $comment = Comment::find($request->comment_id);
-        if($comment){
-            if(Auth::id() == $comment->user_id){
-                if($comment->type == "thesis"){
-                    $thesis['comment_id']=$comment->id;
-                    $thesis['book_id'] = Book::where('post_id',$request->post_id)->pluck('id')[0];
-                    $thesis['total_pages']=$request->total_pages;
-                    $thesis['thesis_type_id']=$request->thesis_type_id;
-                    if($request->has('body')){
-                        $thesis['max_length']=strlen($request->body);
+        if ($comment) {
+            if (Auth::id() == $comment->user_id) {
+                if ($comment->type == "thesis") {
+                    $thesis['comment_id'] = $comment->id;
+                    $thesis['book_id'] = Book::where('post_id', $request->post_id)->pluck('id')[0];
+                    $thesis['total_pages'] = $request->total_pages;
+                    $thesis['thesis_type_id'] = $request->thesis_type_id;
+                    if ($request->has('body')) {
+                        $thesis['max_length'] = strlen($request->body);
                     }
-                    if($request->has('screenShots')){
-                        $thesis['total_screenshots']=count($request->screenShots);
+                    if ($request->has('screenShots')) {
+                        $thesis['total_screenshots'] = count($request->screenShots);
                         foreach ($request->screenShots as $screenShot) {
                             $this->createMedia($screenShot, $comment->id, 'comment');
                         }
                     }
                     $this->updateThesis($thesis);
                 }
-                
-                if($request->hasFile('image')){
+
+                if ($request->hasFile('image')) {
                     // if comment has media
                     //check Media
-                    $currentMedia= Media::where('comment_id', $comment->id)->first();
+                    $currentMedia = Media::where('comment_id', $comment->id)->first();
                     // if exists, update
-                    if($currentMedia){
+                    if ($currentMedia) {
                         $this->updateMedia($request->file('image'), $currentMedia->id);
                     }
                     //else create new one
@@ -172,18 +170,14 @@ class CommentController extends Controller
                     }
                 }
                 $comment->update($request->all());
-            
+
                 return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
-            }         
-            else{
-                throw new NotAuthorized;   
+            } else {
+                throw new NotAuthorized;
             }
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }
-            
-        
     }
    /**
      * Delete an existing comment using its id(“delete comment” permission is required).
@@ -207,17 +201,16 @@ class CommentController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
         $comment = Comment::find($request->comment_id);
-        if($comment){
-            if(Auth::user()->can('delete comment') || Auth::id() == $comment->user_id){
+        if ($comment) {
+            if (Auth::user()->can('delete comment') || Auth::id() == $comment->user_id) {
                 //delete replies
                 Comment::where('comment_id', $comment->id)->delete();
-                if($comment->type == "thesis"){
-                    $thesis['comment_id']=$comment->id;
+                if ($comment->type == "thesis") {
+                    $thesis['comment_id'] = $comment->id;
                     $this->deleteThesis($thesis);
-                    
                 }
                 //check Media
                 $currentMedia = Media::where('comment_id', $comment->id)->first();
@@ -227,16 +220,11 @@ class CommentController extends Controller
                 }
                 $comment->delete();
                 return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
+            } else {
+                throw new NotAuthorized;
             }
-            
-            else{
-                throw new NotAuthorized;   
-            }
-        }
-        else{
+        } else {
             throw new NotFound;
         }
-        
-        
     }
 }

@@ -25,7 +25,7 @@ class ArticleController extends Controller
     {
         #######ASMAA#######
 
-        $articles = Article::all();
+        $articles = Article::with('post')->with('user')->get();
 
         if($articles->isNotEmpty()){
             //found articles response
