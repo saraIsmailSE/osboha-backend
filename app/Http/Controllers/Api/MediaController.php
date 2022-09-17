@@ -16,6 +16,11 @@ class MediaController extends Controller
     use ResponseJson;
     use MediaTraits;
 
+    /**
+     * Read all media in the system.
+     * 
+     * @return jsonResponseWithoutMessage;
+    */
     public function index()
     {
         $media = Media::all();
@@ -24,7 +29,12 @@ class MediaController extends Controller
             return $this->jsonResponseWithoutMessage($media, 'data',200);
         }
     }
-
+    /**
+     *Add a new media to the system.
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -46,6 +56,12 @@ class MediaController extends Controller
     }
 
 
+     /**
+     * Find and show an existing media in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -62,6 +78,12 @@ class MediaController extends Controller
         }
     }
 
+     /**
+     * Update an existing media’s.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -90,6 +112,13 @@ class MediaController extends Controller
             throw new NotFound; //asmaa 
         }        
     }
+
+    /**
+     * Delete an existing media’s in the system using its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

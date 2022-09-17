@@ -20,7 +20,11 @@ use App\Http\Resources\ReactionResource;
 class ReactionController extends Controller
 {
     use ResponseJson , MediaTraits;
-
+    /**
+     * Return all reactions found in the system by the auth user.
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
         $reactions = Reaction::where('user_id', Auth::id())->get();
@@ -31,6 +35,16 @@ class ReactionController extends Controller
             throw new NotFound;
         }
     }
+    /**
+     * Add new reaction to the system.
+     * 
+     * Detailed Steps:
+     *  1- Validate required data and the image format.
+     *  2- If reaction_id != 0 ; user can add new reaction to the post or the comment.
+     *  3- Else if reaction_id == 0 ; user have permission to add new reaction to the system.
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request){
         ####Rufi####
         //validate requested data
@@ -79,6 +93,16 @@ class ReactionController extends Controller
             }
         }
     }    
+     /**
+     * Update an existing reaction in the system.
+     * 
+      * Detailed Steps:
+     *  1- Validate required data and the image format.
+     *  2- If request has media;user have permission to update existing media of reaction in the system.
+     *  3- Else if request doesn't has media;user can update existing reaction in the post or comment in system by the auth user.
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function update(Request $request)
     {
         ####Rufi####
@@ -130,6 +154,12 @@ class ReactionController extends Controller
             }
         }
     }
+    /**
+     * Find an existing reaction in the system by comment id or post id and display it.
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function show(Request $request)
     {
         ####Rufi####
@@ -157,6 +187,16 @@ class ReactionController extends Controller
             throw new NotFound;
         }
     }
+    /**
+     * Delete an existing reaction in the system.
+     * 
+     * Detailed Steps:
+     *  1- Validate required data and the image format.
+     *  2- If request has comment_id or post_id;user can delete existing reaction in the post or the comment in the system by the auth user.
+     *  3- Else ;user have permission to delete existing media of reaction in the system.
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function delete(Request $request)
     {
         ####Rufi####

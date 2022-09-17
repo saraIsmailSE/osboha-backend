@@ -19,7 +19,11 @@ use App\Http\Resources\ThesisTypeResource;
 class ThesisTypeController extends Controller
 {
     use ResponseJson;
-
+     /**
+     * Read all thesis types in the system.
+     * 
+     * @return jsonResponseWithoutMessage ;
+     */
     public function index()
     {
         $thesisTypes = ThesisType::all();
@@ -30,7 +34,12 @@ class ThesisTypeController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Add new thesis type to the system(“create type” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -48,7 +57,12 @@ class ThesisTypeController extends Controller
             throw new NotAuthorized;   
         }
     }
-
+    /**
+     * Find an existing thesis type in the system by its id and display it.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -67,7 +81,12 @@ class ThesisTypeController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Update an existing thesis type in the system by its id(“edit type” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -93,7 +112,12 @@ class ThesisTypeController extends Controller
         }
         
     }
-
+    /**
+     * Delete an existing thesis type in the system  by its id(“delete type” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

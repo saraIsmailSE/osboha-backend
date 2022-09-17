@@ -20,12 +20,19 @@ use App\Exceptions\NotAuthorized;
 use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
+use App\Events\MarkStats;
+
 
  
 class MarkController extends Controller
 {
     use ResponseJson;
 
+     /**
+     * Read all  marks in the current week in the system(“audit mark” permission is required)
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
         if(Auth::user()->can('audit mark')){
@@ -43,6 +50,12 @@ class MarkController extends Controller
         }
     }
 
+    /**
+     * Find and show an existing  mark in the system by its id  ( “audit mark” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -66,15 +79,21 @@ class MarkController extends Controller
         } 
     }
 
+    /**
+     * Update an existing mark ( “edit mark” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'out_of_90' => 'required', 
+            // 'out_of_90' => 'required', 
             'out_of_100' => 'required', 
-            'total_pages' => 'required',  
-            'support' => 'required', 
+            // 'total_pages' => 'required',  
+            // 'support' => 'required', 
             'total_thesis' => 'required', 
-            'total_screenshot' => 'required',
+            // 'total_screenshot' => 'required',
             'mark_id' => 'required',
         ]);
 
@@ -82,10 +101,12 @@ class MarkController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if(Auth::user()->can('edit mark')){
+        if(!Auth::user()->can('edit mark')){
             $mark = Mark::find($request->mark_id);
+            $old_mark = $mark->getOriginal();
             if($mark){
-                $mark->update($request->all());
+               $mark->update($request->all());
+                event(new MarkStats($mark,$old_mark));
                 return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
             }
             else{
@@ -96,7 +117,12 @@ class MarkController extends Controller
             throw new NotAuthorized;   
         }
     }
-
+    /**
+     * Return list of user mark ( audit mark” permission is required OR request user_id == Auth).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function list_user_mark(Request $request){
         $validator = Validator::make($request->all(), [
             'user_id' => 'required_without:week_id',
@@ -147,10 +173,12 @@ class MarkController extends Controller
     }
 
 
-    /*
-        generateAuditMarks Function
-        generate audit marks for supervisor and advisor for each group in current week
-    */
+    /**
+     * Generate audit marks for supervisor and advisor for each reading group in the current week,
+     * (if this week is not vacation) automatically on Sunday at 6:00 A.M Saudi Arabia time.
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     
     public function generateAuditMarks()
     {
@@ -251,11 +279,11 @@ class MarkController extends Controller
     }
 
 
-    /*
-        leadersAuditmarks Function
-        To show all leaders marks for auditor
-        Return: leaders marks for current auditor in current week
-    */
+    /**
+     *  Return all leader marks for auth auditor in current week.
+     * 
+     *  @return jsonResponseWithoutMessage;
+     */
     public function leadersAuditmarks()
     {
         if(Auth::user()->can('audit mark')){
@@ -278,12 +306,11 @@ class MarkController extends Controller
         }
 
     }
-
-    /*
-        showAuditmarks Function
-        To show audit marks and note of a specific leader
-        Take: leader_id
-        Return: audit marks & note & status for specific leader in current week
+    /**
+     *  Return audit marks & note & status for a specific leader in current week 
+     *  by leader_id with “audit mark” permission.
+     *  
+     *  @return jsonResponseWithoutMessage;
     */
     public function showAuditmarks(Request $request)
     {
@@ -328,10 +355,12 @@ class MarkController extends Controller
     }
 
  
-
-    /*
-        To add note and status to audit marks
-    */
+    /**
+     * Update note and status for existing audit marks by its id with “audit mark” permission.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function updateAuditMark(Request $request)
     {
         $validator = Validator::make($request->all(), [

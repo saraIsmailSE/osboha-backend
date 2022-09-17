@@ -5,17 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Week extends Model
+class UserStatistic extends Model
 {
     use HasFactory;
-
     protected $fillable = [
-        'date',
-        'title',
-        'is_vacation',
+        'total_new_users',
+        'total_hold_users',
+        'total_excluded_users',
+        
     ];
-
-    public function exception(){
-        return $this->hasMany(UserException::class);
-    }
 }

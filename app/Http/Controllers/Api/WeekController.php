@@ -10,7 +10,11 @@ use App\Models\User;
 use App\Models\UserException;
 use App\Models\UserGroup;
 use App\Models\Week;
+use App\Models\UserStatistic;
+use App\Models\MarkStatistic;
 use App\Traits\ResponseJson;
+use App\Events\UpdateUserStats;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,9 +53,9 @@ class WeekController extends Controller
     }
 
     /**
-     * Create new Week and new marks
-     *
-     * @return jsonResponseWithoutMessage
+     * Add new weeks to the system(“create type” permission is required).
+     * 
+     * @return jsonResponseWithoutMessage;
      */
     public function create()
     {
@@ -65,6 +69,8 @@ class WeekController extends Controller
             $new_week_id = $this->insert_week();
 
             $this->add_marks_for_all_users($new_week_id, $last_week_ids);
+            $this->add_users_statistics($new_week_id);
+            $this->add_marks_statistics($new_week_id);
 
             DB::commit();
             return $this->jsonResponseWithoutMessage('Marks added Successfully', 'data', 200);
@@ -219,8 +225,8 @@ class WeekController extends Controller
         }
 
         $marks = Mark::select('out_of_100')->where('user_id', $user->id)
-            ->whereIn('week_id', $last_week_ids)
-            ->orderBy('week_id', 'desc')
+           // ->whereIn('week_id', $last_week_ids)
+         //   ->orderBy('week_id', 'desc')
             ->get();
 
         //get user group    
@@ -242,23 +248,26 @@ class WeekController extends Controller
                 //insert new mark record
                 return $this->insert_mark_for_single_user($new_week_id, $user->id);
             }
-
+            $old_user = $user->getOriginal();
             //check if the mark of the last week is zero
             if ($marks[0]->out_of_100 === 0) {
-                //check if the mark of the week before s zero (2nd of last)
+                //check if the mark of the week before is zero (2nd of last)
                 if ($marks[1]->out_of_100 === 0) {
                     //execlude the user
                     $user->is_excluded = 1;
-                    $user_group->user_type = 'excluded';
-                    return $user->save() and $user_group->save();
+                    $user = $user->save();
+                    event(new UpdateUserStats($user,$old_user));
+                    return $user;
+
                     //check if the user has been freezed in the week before (2nd of last)
                 } else if (($marks[1]->out_of_100 === -1) and (count($last_week_ids) > 2)) {
                     //check if the user mark is zero in  the week befor (3rd of last)
                     if ($marks[2]->out_of_100 === 0) {
                         //execlude the user
                         $user->is_excluded = 1;
-                        $user_group->user_type = 'excluded';
-                        return $user->save() and $user_group->save();
+                        $user = $user->save();
+                        event(new UpdateUserStats($user,$old_user));
+                        return $user;
                     }
                 }
             }
@@ -339,7 +348,6 @@ class WeekController extends Controller
             return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
         }
     }
-
     /**
      * This function checks if the user is gonna be freezed this current week 
      * and update the status of the exception if the duration finished through update_exception_status() function
@@ -522,4 +530,47 @@ class WeekController extends Controller
             return FALSE;
         }
     }
+    /**
+     * This function will insert new row to user_stats in database when the new week is starting.
+     * Name: add_users_statistics
+     * Arguments: $new_week_id (integer id of the current week id), 
+     * Return: True if the user_stats are done correctly, 
+     *         Exception error if anything wrong happens
+     */
+    public function add_users_statistics($new_week_id)
+    {
+        $user_stats = new UserStatistic();
+        $user_stats->week_id = $new_week_id;
+        $user_stats->total_new_users = 0;
+        $user_stats->total_hold_users = 0;
+        $user_stats->total_excluded_users = 0;
+        if ($user_stats->save()) {
+            return $user_stats->id;
+        } else {
+            return $this->jsonResponseWithoutMessage('Something went wrong, could not add users statistics', 'data', 500);
+        }
+    }
+    /**
+     * This function will insert new row to mark_stats in database when the new week is starting.
+     * Name: add_users_statistics
+     * Arguments: $new_week_id (integer id of the current week id), 
+     * Return: True if the user_stats are done correctly, 
+     *         Exception error if anything wrong happens
+     */
+    public function add_marks_statistics($new_week_id)
+    {
+        $mark_stats = new MarkStatistic();
+        $mark_stats->week_id = $new_week_id;
+        $mark_stats->total_marks_users = 0;
+        $mark_stats->general_average_reading = 0;
+        $mark_stats->total_users_have_100 = 0;
+        $mark_stats->total_pages = 0;
+        $mark_stats->total_thesises = 0;
+        if ($mark_stats->save()) {
+            return $mark_stats->id;
+        } else {
+            return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
+        }
+    }
+
 }

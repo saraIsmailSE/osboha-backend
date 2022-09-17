@@ -17,7 +17,11 @@ use Illuminate\Http\Request;
 class ProfileSettingController extends Controller
 {
     use ResponseJson, MediaTraits;
-
+    /**
+     * Find existing profile setting in the system by auth user.
+     *
+     * @return jsonResponseWithoutMessage;
+     */
     public function show()
     {
         //Profile Settings belong to Auth user
@@ -29,7 +33,12 @@ class ProfileSettingController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Update existing profile setting in the system by the auth user.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [

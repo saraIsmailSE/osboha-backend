@@ -21,6 +21,11 @@ class RejectedThesesController extends Controller
 {
     use ResponseJson;
 
+     /**
+     * Read all rejected theses in the current week in the system(“audit mark” permission is required)
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
         if(Auth::user()->can('audit mark')){
@@ -38,6 +43,12 @@ class RejectedThesesController extends Controller
         }
     }
 
+    /**
+     *Add a new reject theses to the system (“create mark” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -62,6 +73,12 @@ class RejectedThesesController extends Controller
         }
     }
 
+    /**
+     * Find and show an existing rejected theses in the system by its id  ( “audit mark” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -85,6 +102,12 @@ class RejectedThesesController extends Controller
         }
     }
 
+    /**
+     * Update an existing rejected theses ( audit mark” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -110,7 +133,12 @@ class RejectedThesesController extends Controller
             throw new NotAuthorized;   
         }
     }
-
+    /**
+     * Return list of user rejected theses (”audit mark” permission is required OR request user_id == Auth).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function list_user_rejectedtheses(Request $request){
         $validator = Validator::make($request->all(), [
             'user_id' => 'required_without:week_id',

@@ -17,16 +17,21 @@ use App\Exceptions\NotAuthorized;
 class NotificationController extends Controller
 {
     use ResponseJson;
-
-    /*  function to send notefication 
-        take twon parameter: reciver_id & message
-    */
+    /**
+     * Send notification to a specific user by its id with a message and insert it to the database.
+     * 
+     * @param  $reciver_id , $message
+     */
     public function sendNotification($reciver_id , $message) 
     {
         $reciver = User::where('id',$reciver_id)->first();  
         $reciver->notify(new GeneralNotification(Auth::user()->name,$message));
     }
-
+    /**
+     * To show all notifications for auth user.
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function listAllNotification() 
     {
         $notifications = auth()->user()->notifications()->latest()->limit(20)->get();
@@ -37,7 +42,11 @@ class NotificationController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * To show unread notifications for auth user.
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function listUnreadNotification() 
     {
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
@@ -49,7 +58,11 @@ class NotificationController extends Controller
 
         }
     }
-
+    /**
+     * Make specific notification as read by its id.
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function markAllNotificationAsRead() 
     {
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
@@ -62,7 +75,12 @@ class NotificationController extends Controller
             throw new NotFound;
         }  
     }
-
+    /**
+     * Make all notifications as read for the auth user.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function markOneNotificationAsRead(Request $request) 
     {
         $validator = Validator::make($request->all(), [

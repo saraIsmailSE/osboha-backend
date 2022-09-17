@@ -19,7 +19,12 @@ use phpDocumentor\Reflection\Types\This;
 class ThesisController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Find an existing thesis in the system by its id and display it.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage ;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), ['thesis_id' => 'required']);
@@ -36,7 +41,12 @@ class ThesisController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Get all the theses related to a requested book.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage ;
+     */
     public function list_book_thesis(Request $request)
     {
         $validator = Validator::make($request->all(), ['book_id' => 'required']);
@@ -57,7 +67,12 @@ class ThesisController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Get all the theses related to a requested user.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage ;
+     */
     public function list_user_thesis(Request $request)
     {
         $validator = Validator::make($request->all(), ['user_id' => 'required']);
@@ -78,7 +93,12 @@ class ThesisController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Get all the theses related to a requested week.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage ;
+     */
     public function list_week_thesis(Request $request)
     {
         $validator = Validator::make($request->all(), ['week_id' => 'required']);

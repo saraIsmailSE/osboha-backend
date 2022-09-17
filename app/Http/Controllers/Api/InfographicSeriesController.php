@@ -18,6 +18,11 @@ class InfographicSeriesController extends Controller
 {
     use ResponseJson;
     use MediaTraits;
+     /**
+     *  Get all the information related to all the Infographic Series found in the system
+     * 
+     * @return jsonResponseWithoutMessage
+     */
 
     public function index()
     {
@@ -32,6 +37,17 @@ class InfographicSeriesController extends Controller
             throw new NotFound;
         }
     }
+      /**
+     * Add new Infographic Series to the system with “create infographicSeries” permission
+     * Detailed Steps:
+     * 1- Validate required data and the image format
+     * 2- Add new infographic series to the database if the permission is valid
+     * 3- Add the image to the database using MediaTraits
+     * 4- Return success or error message
+
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
 
     public function create(Request $request)
     {
@@ -66,6 +82,19 @@ class InfographicSeriesController extends Controller
             throw new NotAuthorized;
         }
     }
+    /**
+     * Find existing infographic Series in the system by its id and display it
+     * Detailed Steps:
+     * 1- Validate required data and the image format.
+     * 2- Find the requested infographic series by id.
+     * 3- Update the requested infographic series in the database if the permission is valid.
+     * 4- Find the media related to the infographic series by seriesID.
+     * 5- update the image in the database using MediaTraits.
+     * 6- Return success or error message.
+
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
 
     public function show(Request $request)
     {
@@ -91,7 +120,12 @@ class InfographicSeriesController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     *  Update existing infographic Series in the system with “edit infographicSeries” permission
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function update(Request $request)
     {
         #######ASMAA#######
@@ -136,7 +170,12 @@ class InfographicSeriesController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Find existing infographic Series in the system by its id then delete it with “delete infographicSeries” permission
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function delete(Request $request)
     {
         #######ASMAA#######
@@ -181,6 +220,20 @@ class InfographicSeriesController extends Controller
             throw new NotAuthorized;
         }
     }
+ /**
+     *
+     *  Find all the infographic series in the system related to a requested section then return them
+     *  Detailed Steps:
+     *   1-  Validate required data.
+     *   2-  Find the requested infographicSeries by id.
+     *   3-  Delete the requested infographicSeries in the database if the permission is valid.
+     *   4-  Find the media related to the infographicSeries by SeriesID.
+     *   5-  Delete the image from the database using MediaTraits.
+     *   6-  Return success or error message.
+     *  @param  Request  $request
+     *  @return jsonResponseWithoutMessage;
+     */
+
     public function SeriesBySection(Request $request)
     {
         $validator = Validator::make($request->all(), [

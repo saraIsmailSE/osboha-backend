@@ -22,7 +22,11 @@ use Illuminate\Validation\Rule;
 class UserGroupController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Read all user groups in the system.
+     *
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
         #####Asmaa####
@@ -36,7 +40,12 @@ class UserGroupController extends Controller
             throw new NotFound;
         }
     }
-
+     /**
+     * Find an existing user group in the system by its id and display it.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         #####Asmaa####
@@ -54,6 +63,13 @@ class UserGroupController extends Controller
             throw new NotFound;
         }
     }
+    /**
+     * Assign role to specific user with add him/her to group.
+     * after that,this user will receive a new notification about his/her new role and group(“assgin role” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
 
     public function assign_role(Request $request){
         #####Asmaa####
@@ -94,7 +110,13 @@ class UserGroupController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * remove role to specific user with create group to him/her.
+     * after that,this user will receive a new notification about termination reason(update role” permission is required).
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update_role(Request $request){
         #####Asmaa####
         $validator = Validator::make($request->all(), 
@@ -140,6 +162,12 @@ class UserGroupController extends Controller
             throw new NotFound;
         }        
     }
+    /**
+     * Read all user groups by its id in the system.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function list_user_group(Request $request){
         #####Asmaa####
         

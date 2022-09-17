@@ -15,14 +15,18 @@ use App\Traits\ResponseJson;
 class ActivityController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Return all activities in the system.
+     *
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
         #######ASMAA#######
         //get and display all the activities
         $activity = Activity::all();
         if($activity->isNotEmpty()){
-            // found articles response
+            // found activities response
             return $this->jsonResponseWithoutMessage(ActivityResource::collection($activity), 'data',200);
         }
         else{
@@ -33,6 +37,12 @@ class ActivityController extends Controller
         }
     }
 
+    /**
+     * Add a new activity to the system (“create activity permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         #######ASMAA#######
@@ -66,6 +76,12 @@ class ActivityController extends Controller
         }
     }
 
+    /**
+     * Find and show an existing activity in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         #######ASMAA#######
@@ -94,6 +110,12 @@ class ActivityController extends Controller
         }
     }
 
+    /**
+     * Update an existing activity’s using its id ( “edit activity” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         #######ASMAA#######
@@ -129,6 +151,12 @@ class ActivityController extends Controller
         }
     }
 
+    /**
+     * Delete an existing activity’s in the system using its id (“delete activity” permission is required). 
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */    
     public function delete(Request $request)
     {
         #######ASMAA#######

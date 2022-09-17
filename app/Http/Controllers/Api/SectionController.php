@@ -23,6 +23,11 @@ class SectionController extends Controller
 {
     use ResponseJson;
    
+    /**
+     * Read all sections in the system.
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
             $sections = Section::all();
@@ -34,6 +39,12 @@ class SectionController extends Controller
             }
     }
 
+    /**
+     *Add a new section to the system (“create section” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -52,6 +63,12 @@ class SectionController extends Controller
 
     }
 
+    /**
+     * Find and show an existing section in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -71,7 +88,12 @@ class SectionController extends Controller
         }
     }
 
-
+    /**
+     * Update an existing section’s details ( “edit section” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -97,7 +119,13 @@ class SectionController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Delete an existing section’s in the system using its id (“delete section” permission is required). 
+     * with update section_id in (Book,Infographic,InfographicSeries)to zero.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

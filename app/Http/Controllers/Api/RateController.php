@@ -18,7 +18,11 @@ use App\Http\Resources\RateResource;
 class RateController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Return all rates found in the system by the auth user.
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
         $rates = Rate::where('user_id', Auth::id())->get();
@@ -29,6 +33,12 @@ class RateController extends Controller
             throw new NotFound;
         }
     }
+     /**
+     * Add new rate to the system.
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request){
         $validator = Validator::make($request->all(), [
             'post_id' => 'required_without:comment_id',
@@ -45,6 +55,12 @@ class RateController extends Controller
             return $this->jsonResponseWithoutMessage("Rate Craeted Successfully", 'data', 200);
 
     }
+    /**
+     * Find an existing rate in the system by comment id or post id and display it.
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function show(Request $request)
     { 
         $validator = Validator::make($request->all(), [
@@ -66,6 +82,12 @@ class RateController extends Controller
             throw new NotFound;
         }
     }
+     /**
+     * Update an existing rate in the system by the auth user.
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -88,6 +110,12 @@ class RateController extends Controller
             throw new NotFound;  
         }
     }
+     /**
+     * Delete an existing rate in the system by the auth user.
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

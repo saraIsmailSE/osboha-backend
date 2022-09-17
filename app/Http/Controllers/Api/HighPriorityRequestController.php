@@ -18,6 +18,12 @@ use Illuminate\Support\Carbon;
 class HighPriorityRequestController extends Controller
 {
     use ResponseJson;
+
+     /**
+     * Read all high priority requests in the system.
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
         $high_priority_requests = HighPriorityRequest::all();
@@ -29,7 +35,12 @@ class HighPriorityRequestController extends Controller
         }
     }
 
-
+    /**
+     *Add a new high priority request to the system (“create highPriorityRequestAmbassador” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -54,7 +65,12 @@ class HighPriorityRequestController extends Controller
         }
     }
 
-    
+   /**
+     * Find and show an existing high priority request in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */ 
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [

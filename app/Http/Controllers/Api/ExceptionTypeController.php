@@ -19,7 +19,11 @@ use App\Http\Resources\ExceptionTypeResource;
 class ExceptionTypeController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Read all exception types in the system.
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
         $exceptionTypes = ExceptionType::all();
@@ -31,6 +35,12 @@ class ExceptionTypeController extends Controller
         }
     }
 
+    /**
+     *Add a new exception type to the system (“create type” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -49,6 +59,12 @@ class ExceptionTypeController extends Controller
         }
     }
 
+     /**
+     * Find and show an existing exception type in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -67,7 +83,13 @@ class ExceptionTypeController extends Controller
             throw new NotFound;
         }
     }
-
+    
+    /**
+     * Update an existing exception type’s in the system using its id ( “edit type” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -94,6 +116,12 @@ class ExceptionTypeController extends Controller
         
     }
 
+    /**
+     * Delete an existing exception type’s in the system using its id (“delete type” permission is required). 
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [

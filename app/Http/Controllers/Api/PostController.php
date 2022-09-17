@@ -24,7 +24,11 @@ use App\Http\Resources\PostResource;
 class PostController extends Controller
 {
     use ResponseJson, MediaTraits;
-
+    /**
+     * Read all information about all posts of auth user in the system.
+     * 
+     * @return jsonResponseWithoutMessage
+     */
     public function index()
     {
         //$posts = Post::all();
@@ -37,7 +41,12 @@ class PostController extends Controller
             throw new NotFound;
         }
     }
-
+     /**
+     * Add a new post to the system (“create post” permission is required) 
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function create(Request $request)
     {
         //validate requested data
@@ -102,7 +111,12 @@ class PostController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Find an existing post in the system by its id.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -120,7 +134,12 @@ class PostController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Update an existing post in the system by the auth user.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -175,8 +194,13 @@ class PostController extends Controller
         } else {
             throw new NotFound;
         }
-    }
-
+    }        
+    /**
+     * Delete an existing post in the system by auth user or with “delete post” permission.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -205,7 +229,12 @@ class PostController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Return all posts that match requested timeline_id.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function postByTimelineId(Request $request)
     {
         $timeline_id = $request->timeline_id;
@@ -219,7 +248,12 @@ class PostController extends Controller
             throw new NotFound();
         }
     }
-
+    /**
+     * Return all posts that match requested user_id.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function postByUserId(Request $request)
     {
         $user_id = $request->user_id;
@@ -232,8 +266,13 @@ class PostController extends Controller
             throw new NotFound();
         }
     }
-
-    public function listPostsToAccept(Request $request)
+    /**
+     *Return all posts that match requested timeline_id where is_approved is null.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
+    public function listPostsToAccept (Request $request)
     {
         $validator = Validator::make($request->all(), [
             'timeline_id' => 'required',
@@ -252,7 +291,13 @@ class PostController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Accept post that matches the required post_id where is_approved = null,
+     * give date for this approval and send notification to user
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function AcceptPost(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -274,7 +319,13 @@ class PostController extends Controller
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
         }
     }
-
+    /**
+     * Decline post that matches the required post_id where is_approved = null,
+     * delete post and send notification to user
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
     public function declinePost(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -294,4 +345,82 @@ class PostController extends Controller
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
         }
     }
+    /**
+     * user can control comments in the system (“control comments” permission is required)
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
+    public function controllComments(Request $request){
+        // user can controll comments [allowed or not]  if he is the owner or has a controll comments permission
+        $validator = Validator::make($request->all(), [
+            'allow_comments' => 'required',
+            'post_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        
+        $post = Post::find($request->post_id);
+        if($post){
+            if(Auth::id() == $post->user_id || Auth::user()->can('controll comments')){
+                $post->allow_comments=$request->allow_comments;
+                $post->save();
+
+                if($request->allow_comments == 0 ){
+                    $msg = "Comments Closed Successfully";
+                }
+                else{
+                    $msg = "Comments Opend Successfully";
+                }
+                return $this->jsonResponseWithoutMessage($msg, 'data', 200);
+
+            }    
+            else{
+                throw new NotAuthorized;   
+            }
+        }
+        else{
+            throw new NotFound;   
+        } 
+
+    }
+    /**
+     * User can pin post on his profile or if user has a pin post permission.
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
+    public function pinnPost(Request $request){
+        // user can pin post on his profile or if he has a pin post permission
+        $validator = Validator::make($request->all(), [
+            'is_pinned' => 'required',
+            'post_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        
+        $post = Post::find($request->post_id);
+        if($post){
+            if(Auth::user()->userProfile->timeline_id == $post->timeline_id || Auth::user()->can('pin ')){
+               
+                Post::where('id',$request->post_id)->update(['is_pinned'=>$request->is_pinned]);
+                if($request->is_pinned == 0 ){
+                    $msg = "Post Unpinned Successfully";
+                }
+                else{
+                    $msg = "Post Pinned Successfully";
+                }
+                return $this->jsonResponseWithoutMessage($msg, 'data', 200);
+            }    
+            else{
+                throw new NotAuthorized;   
+            }
+        }
+        else{
+            throw new NotFound;   
+        } 
+    }    
 }

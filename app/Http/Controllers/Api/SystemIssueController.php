@@ -15,7 +15,11 @@ use App\Exceptions\NotAuthorized;
 class SystemIssueController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Return all stored system issues and their details ( “list systemIssue” permission is required).
+     *
+     * @return jsonResponseWithoutMessage ;
+     */
     public function index()
     {
         if(Auth::user()->can('list systemIssue')){
@@ -32,7 +36,12 @@ class SystemIssueController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Add a new system issue to the system.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage ;
+     */
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -51,7 +60,12 @@ class SystemIssueController extends Controller
         SystemIssue::create($input);
         return $this->jsonResponseWithoutMessage("System Issue Created Successfully", 'data', 200);
     }
-
+    /**
+     * Find and show an existing system issue in the system by its id ( “list systemIssue” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage ;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -75,7 +89,12 @@ class SystemIssueController extends Controller
             throw new NotAuthorized;
         }
     }
-
+    /**
+     * Update an existing system issue ( “update systemIssue” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage ;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [

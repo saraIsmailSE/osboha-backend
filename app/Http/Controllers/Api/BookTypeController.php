@@ -19,7 +19,11 @@ use App\Http\Resources\BookTypeResource;
 class BookTypeController extends Controller
 {
     use ResponseJson;
-
+    /**
+     * Read all book types in the system.
+     * 
+     * @return jsonResponseWithoutMessage;
+     */
     public function index()
     {
         $bookTypes = BookType::all();
@@ -31,6 +35,12 @@ class BookTypeController extends Controller
         }
     }
 
+    /**
+     *Add a new book type to the system (“create type” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
     public function create(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -49,6 +59,12 @@ class BookTypeController extends Controller
         }
     }
 
+    /**
+     * Find and show an existing book type in the system by its id.
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function show(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -67,7 +83,12 @@ class BookTypeController extends Controller
             throw new NotFound;
         }
     }
-
+    /**
+     * Update an existing book type’s using its id( “edit type” permission is required).
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -93,7 +114,12 @@ class BookTypeController extends Controller
         }
         
     }
-
+    /**
+     * Delete an existing book type’s in the system using its id (“delete type” permission is required). 
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
     public function delete(Request $request)
     {
         $validator = Validator::make($request->all(), [
