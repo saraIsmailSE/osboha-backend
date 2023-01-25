@@ -28,7 +28,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::all();
+        $books =Book::with('section', 'level','type')->paginate(9);
         if($books->isNotEmpty()){
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
         }
