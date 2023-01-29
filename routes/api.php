@@ -68,6 +68,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/book-by-level', [BookController::class, 'bookByLevel']);
         Route::post('/book-by-section', [BookController::class, 'bookBySection']);
         Route::post('/book-by-name', [BookController::class, 'bookByName']);
+        Route::post('/book-by-language', [BookController::class, 'bookByLanguage']);
+        Route::get('/recent-added-books', [BookController::class, 'getRecentAddedBooks']);
+        Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
+        Route::get('/random-book', [BookController::class, 'getRandomBook']);
     });
     ########End Book########
     ########Start Rate########

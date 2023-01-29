@@ -15,6 +15,7 @@ class BookResource extends JsonResource
     public function toArray($request)
     {
         return[
+            "id" => $this->id,
             "name"=> $this->name,
             "writer"=> $this->writer,
             "publisher"=> $this->publisher,
@@ -25,6 +26,8 @@ class BookResource extends JsonResource
             "section"=> $this->section,
             "type"=> $this->type,
             "level"=> $this->level,
+            "language"=>$this->language,
+            'media' => new MediaResource($this->media),
            // "posts"=> PostResource::collection($this->whenLoaded('post')),
 
         ];

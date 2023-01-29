@@ -35,7 +35,7 @@ trait MediaTraits
                 $media->reaction_id = $type_id;
                 $media->type = $type;
             } else {
-                return 'Type Npt Found';
+                return 'Type Not Found';
             }
             $media->save();
             return $media;

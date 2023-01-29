@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\BookStatistics;
 use Illuminate\Database\Seeder;
-use App\Models\Post;
-use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(GroupSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(PostSeeder::class);
+        $this->call(TypeSectionSeeder::class);
         $this->call(BookStatisticsSeeder::class);
         $this->call(BookSeeder::class);
         $this->call(ThesisTypeSeeder::class);

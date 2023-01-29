@@ -26,6 +26,7 @@ class CreateBooksTable extends Migration
             $table->integer('section_id');
             $table->integer('type_id');
             $table->string('level');
+            $table->integer('language_id');
             $table->timestamps();
         });
     }

@@ -24,6 +24,7 @@ class BookFactory extends Factory
             'section_id' => $this->faker->numberBetween(1, 10),
             'type_id' => $this->faker->numberBetween(1, 2),
             'level' => $this->faker->randomElement(['بسيط', 'متوسط', 'عميق']),
+            'language_id' => rand(1,2),
         ];
     }
 }

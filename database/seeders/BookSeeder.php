@@ -41,7 +41,8 @@ class BookSeeder extends Seeder
         Post::factory(100)->create([
             'user_id' => rand(1, 3),
             'type_id' => 2,
-            'timeline_id' => 1
+            'timeline_id' => 1,
+          
         ])->each(function ($post) {
             Book::factory()->create([
                 'post_id' => $post->id,
