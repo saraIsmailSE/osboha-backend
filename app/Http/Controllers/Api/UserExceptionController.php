@@ -106,7 +106,7 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, [
             'reason' => 'required|string',
             'type_id' => 'required|int',
-            'end_at' => 'required|date',
+            'end_at' => 'required|date|after:yesterday',
         ]);
         
         if($validator->fails()){
@@ -220,7 +220,7 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, [
             'exception_id' => 'required',
             'reason' => 'required|string',
-            'end_at' => 'required|date',
+            'end_at' => 'required|date|after:yesterday',
         ]);
 
         if($validator->fails()){
@@ -376,7 +376,60 @@ class UserExceptionController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
 
+    public function addExceptions(Request $request)
+    { 
+        $input=$request->all();
+        $validator= Validator::make($input, [
+            'user_email' => 'required|email',
+            'reason' => 'required|string',
+            'type_id' => 'required|int',
+            'end_at' => 'required|date|after:yesterday',
+            'note' => 'nullable'
+        ]);
+
+        if($validator->fails()){
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if( Auth::user()->hasRole(['admin','advisor'])){
+            $user = User::where('email',$request->user_email)->pluck('id')->first();
+            if($user){    
+                $current_week = Week::latest()->pluck('id')->first();
+                $input['week_id'] =  $current_week;
+                $input['user_id'] = $user;
+                $input['status'] = 'accepted';
+                $input['reviewer_id'] = Auth::id();
+                $input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
+
+                $userException = UserException::create($input);
+
+                $msg = "You have exception vacation until ". $userException->end_at ;
+                (new NotificationController)->sendNotification($user, $msg);
+
+                return $this->jsonResponseWithoutMessage('User Exception created', 'data', 200);
+            } else {
+                throw new NotFound();
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+    public function finisfedException()
+    { 
+        $userExceptions = UserException::where('status','accepted')->whereDate('end_at','<',Carbon::now())->get();
+        if(!$userExceptions->isEmpty()) {
+            foreach ($userExceptions as $userException) {
+                $userException['status'] = 'finished';
+                $userException->update();
+            }
+            return $this->jsonResponseWithoutMessage('Done', 'data', 200);
+            
+        } else {
+            return $this->jsonResponseWithoutMessage('all exception are alrady finished', 'data', 200);
+        }
     }
     
 }

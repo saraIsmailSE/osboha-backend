@@ -18,7 +18,8 @@ class Post extends Model
         'vote', 
         'is_approved', 
         'is_pinned', 
-        'timeline_id'    
+        'timeline_id',
+        'book_id' 
     ];
 
     public function comments(){

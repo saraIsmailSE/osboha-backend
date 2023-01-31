@@ -15,18 +15,18 @@ class Timeline extends Model
     {
         return $this->hasMany(Post::class,'timeline_id');
     }
-    public function groups()
+    public function group()
     {
-        return $this->hasMany(Group::class,'timeline_id');
+        return $this->hasOne(Group::class,'timeline_id');
     }
 
     public function type(){
         return $this->belongsTo(TimelineType::class);
     }
     
-    public function profiles()
+    public function profile()
     {
-        return $this->hasMany(UserProfile::class,'timeline_id');
+        return $this->hasOne(UserProfile::class,'timeline_id');
     }
     
 }

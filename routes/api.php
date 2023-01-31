@@ -188,7 +188,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/delete', [UserExceptionController::class, 'delete']);
         Route::post('/updateStatus', [UserExceptionController::class, 'updateStatus']);
         Route::get('/listPindigExceptions', [UserExceptionController::class, 'listPindigExceptions']);
-
+        Route::post('/addExceptions', [UserExceptionController::class, 'addExceptions']);
+        Route::get('/finisfedException', [UserExceptionController::class, 'finisfedException']);
 
     });
     ############End UserException########

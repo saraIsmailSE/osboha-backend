@@ -17,6 +17,8 @@ class UserException extends Model
         'status',
         'end_at',
         'note',
+        'reviewer_id',
+
     ];
 
     public function User()
