@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MediaResource extends JsonResource
+class LanguageResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,8 +15,7 @@ class MediaResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'path' => asset('assets/images/' . $this->media),
-            'type' => $this->type,
+            'language' => $this->language,
         ];
     }
 }

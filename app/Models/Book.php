@@ -20,7 +20,6 @@ class Book extends Model
         'section_id',
         'type_id',
         'level',
-        'post_id',
         'language_id',
     ];
 
@@ -42,16 +41,16 @@ class Book extends Model
         return $this->belongsTo(BookType::class);
     }
 
-    public function total(){     
-        return $this->count();
-    }
-
     public function language(){
         return $this->belongsTo(Language::class);
     }
 
     public function media(){
         return $this->hasOne(Media::class);
+    }
+
+    public function theses(){
+        return $this->hasMany(Thesis::class);
     }
     
 }

@@ -19,6 +19,7 @@ class CreatePostsTable extends Migration
             $table->integer('user_id');
             $table->integer('timeline_id');
             $table->integer('type_id');
+            $table->integer('book_id')->nullable(); //asmaa
             $table->boolean('allow_comments')->default(1);
             $table->text('tag')->nullable();
             $table->text('vote')->nullable();

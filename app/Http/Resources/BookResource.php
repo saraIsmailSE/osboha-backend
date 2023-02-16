@@ -23,12 +23,13 @@ class BookResource extends JsonResource
             "start_page"=> $this->start_page,
             "end_page"=> $this->end_page,
             "link"=> $this->link,
-            "section"=> $this->section,
-            "type"=> $this->type,
+            "section"=> new SectionResource($this->section),
+            "type"=> new BookTypeResource($this->type),
             "level"=> $this->level,
-            "language"=>$this->language,
+            "language"=> new LanguageResource($this->language),
             'media' => new MediaResource($this->media),
-           // "posts"=> PostResource::collection($this->whenLoaded('post')),
+            'created_at' => $this->created_at,
+           "posts"=> PostResource::collection($this->whenLoaded('post')),
 
         ];
     }

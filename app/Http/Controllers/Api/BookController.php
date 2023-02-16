@@ -14,6 +14,9 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\BookResource;
 use App\Models\Language;
+use App\Models\PostType;
+use App\Models\Rate;
+use App\Models\TimelineType;
 use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
@@ -67,7 +70,34 @@ class BookController extends Controller
         }
         if (Auth::user()->can('create book')) {
             $book = Book::create($request->all());
-            $this->createMedia($request->file('image'), $book->id, 'book');
+
+            if (!$book) {
+                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            }
+
+            $media = $this->createMedia($request->file('image'), $book->id, 'book');
+
+            if (!$media) {
+                //delete the created book
+                $book->delete();
+                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            }
+
+            //create post for book
+            $post = $book->posts()->create([
+                'user_id' => Auth::user()->id,
+                'body' => $request->brief,
+                'type_id' => PostType::where('type', 'book')->first()->id,
+                'timeline_id' => TimelineType::where('type', 'book')->first()->id,
+            ]);
+
+            if (!$post) {
+                //delete the created book
+                $book->delete();
+                $this->deleteMedia($media->id);
+                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            }
+
             return $this->jsonResponseWithoutMessage("Book Created Successfully", 'data', 200);
         } else {
             throw new NotAuthorized;
@@ -90,8 +120,40 @@ class BookController extends Controller
         }
 
         $book = Book::find($request->book_id);
+
+        $book_post = $book->posts->where('type_id', PostType::where('type', 'book')->first()->id)->first();
+
+        //calculate book rate percentage
+        $rate_sum = $book_post->rates->sum('rate');
+        $rate_total = $book_post->rates->count();
+        $rate = $rate_total > 0 ? (($rate_sum / $rate_total) / 5) * 100  : 0;
+
+        //comments count
+        $comments_count = $book_post->comments ? $book_post->comments->count() : 0;
+
+        //screenshots count from comments collection
+        $screenshots_count = 0;
+        if ($comments_count > 0) {
+            foreach ($book_post->comments as $comment) {
+                $screenshots_count += $comment->medias ? $comment->medias->count() : 0;
+            }
+        }
+
+        //add screenshots count to comments count
+        $comments_count += $screenshots_count;
+
         if ($book) {
-            return $this->jsonResponseWithoutMessage(new BookResource($book), 'data', 200);
+            return $this->jsonResponseWithoutMessage(
+
+                [
+                    'book' => new BookResource($book),
+                    'theses_count' => $book->theses->count(),
+                    'comments_count' => $comments_count,
+                    'rate' => $rate,
+                ],
+                'data',
+                200
+            );
         } else {
             throw new NotFound;
         }
@@ -325,7 +387,7 @@ class BookController extends Controller
     public function getMostReadableBooks()
     {
         $books = Book::select('books.*', DB::raw('count(*) as total'))
-            ->join('theses', 'books.id', '=', 'theses.book_id')                
+            ->join('theses', 'books.id', '=', 'theses.book_id')
             ->groupBy('book_id')
             ->groupBy('user_id')
             ->orderBy('total', 'desc')
