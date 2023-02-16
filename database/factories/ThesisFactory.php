@@ -2,8 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Traits\ThesisTraits;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ThesisFactory extends Factory

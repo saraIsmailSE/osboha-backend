@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Mark;
 use App\Models\Post;
@@ -12,10 +11,7 @@ use App\Models\User;
 use App\Models\Week;
 use App\Traits\ThesisTraits;
 use Carbon\Carbon;
-use Carbon\Factory;
-use Faker\Factory as FakerFactory;
 use Illuminate\Database\Seeder;
-use Illuminate\Foundation\Testing\WithFaker;
 
 class ThesisSeeder extends Seeder
 {

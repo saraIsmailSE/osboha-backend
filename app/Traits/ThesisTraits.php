@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Exceptions\NotFound;
-use App\Http\Controllers\Controller;
 use App\Http\Resources\ThesisResource;
 use App\Models\Comment;
 use App\Models\Mark;
@@ -11,10 +10,7 @@ use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\Week;
 use App\Traits\ResponseJson;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use phpDocumentor\Reflection\Types\This;
 
 trait ThesisTraits
 {
