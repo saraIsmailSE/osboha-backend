@@ -14,7 +14,7 @@ class WeekFactory extends Factory
      */
     public function definition()
     {
-        $title = $this->faker->sentence(2);
+        $title = $this->faker->title;
         $is_vacation = $this->faker->numberBetween(0, 1);
         return [
             'title' => rtrim($title, '.'),
