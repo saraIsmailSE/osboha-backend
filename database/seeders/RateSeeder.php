@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Post;
 use App\Models\Rate;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class RateSeeder extends Seeder
@@ -14,13 +16,18 @@ class RateSeeder extends Seeder
      */
     public function run()
     {
-        for($i=0; $i<200; $i++){	
-            Rate::create([
-                'comment_id' => rand(0, 200) ?: null,
-                'user_id' => rand(1, 200),
-                'post_id' => rand(0, 200) ?: null,
-                'rate' => rand(1, 5)
-            ]);
+        //create unique rate for some posts by some users
+       
+        $posts = Post::inRandomOrder()->limit(10)->get();
+        $users = User::inRandomOrder()->limit(40)->get();
+        foreach ($posts as $post) {
+            foreach ($users as $user) {
+                $rate = new Rate();
+                $rate->post_id = $post->id;
+                $rate->user_id = $user->id;
+                $rate->rate = rand(1, 5);
+                $rate->save();
+            }
         }
     }
 }

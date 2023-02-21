@@ -17,9 +17,11 @@ class UserResource extends JsonResource
         return [
             'name' => $this->name,
             'email' => $this->email,
+            'profile' => new UserProfileResource($this->whenLoaded('userProfile')),
             'is_excluded' => $this->is_excluded,
             'is_hold' => $this->is_hold,
-            'is_blocked'=>$this->is_blocked
+            'is_blocked'=>$this->is_blocked,
+            'roles' => $this->getRoleNames(),
         ];
     }
 }

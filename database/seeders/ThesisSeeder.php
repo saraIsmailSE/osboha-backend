@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Mark;
 use App\Models\Post;
@@ -12,10 +11,7 @@ use App\Models\User;
 use App\Models\Week;
 use App\Traits\ThesisTraits;
 use Carbon\Carbon;
-use Carbon\Factory;
-use Faker\Factory as FakerFactory;
 use Illuminate\Database\Seeder;
-use Illuminate\Foundation\Testing\WithFaker;
 
 class ThesisSeeder extends Seeder
 {
@@ -59,22 +55,22 @@ class ThesisSeeder extends Seeder
                         'user_id' => $users[$i]->id,
                         'week_id' => $week->id
                     ])->each(function ($mark) use ($users, $i, $posts) {
-                        $post_id = $posts[rand(0, count($posts) - 1)]->id;
+                        $post = $posts[rand(0, count($posts) - 1)];
                         Comment::factory(rand(1, 5))->create([
                             'type' => 'thesis',
                             'user_id' => $users[$i],
-                            'post_id' => $post_id,
-                        ])->each(function ($comment) use ($users, $i, $mark, $post_id) {
-                            $book = Book::where('post_id', $post_id)->first();
+                            'post_id' => $post->id,
+                        ])->each(function ($comment) use ($users, $i, $mark, $post) {
+
 
                             Thesis::factory(1)->create([
                                 'comment_id' => $comment->id,
-                                'book_id' => $book->id,
+                                'book_id' => $post->book_id,
                                 'mark_id' => $mark->id,
                                 'user_id' => $users[$i]
                             ])->each(function ($thesis) use ($mark) {
                                 $thesis_type = ThesisType::find($thesis->type_id)->first()->type;
-                                $total_pages = $thesis->total_pages;
+                                $total_pages = $thesis->end_page - $thesis->start_page + 1;
                                 $max_length = $thesis->max_length;
                                 $total_screenshots = $thesis->total_screenshots;
 

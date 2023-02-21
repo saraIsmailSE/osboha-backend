@@ -28,6 +28,7 @@ class CreateUserProfilesTable extends Migration
             $table->string('religion')->nullable();
             $table->string('bio')->nullable();
             $table->string('cover_picture')->nullable();
+            $table->string('profile_picture')->nullable();
             $table->string('fav_writer')->nullable();
             $table->string('fav_book')->nullable();
             $table->string('fav_section')->nullable();

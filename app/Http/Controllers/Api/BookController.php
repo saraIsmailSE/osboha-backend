@@ -10,12 +10,14 @@ use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\BookResource;
+use App\Models\Language;
+use App\Models\PostType;
+use App\Models\Rate;
+use App\Models\TimelineType;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
@@ -28,11 +30,13 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books =Book::with('section', 'level','type')->paginate(9);
-        if($books->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
-        }
-        else{
+        $books = Book::with('section', 'type', 'language')->paginate(9);
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'books' => BookResource::collection($books),
+                'total' => $books->total(),
+            ], 'data', 200);
+        } else {
             throw new NotFound;
         }
     }
@@ -43,7 +47,8 @@ class BookController extends Controller
      * @param  Request  $request
      * @return jsonResponse;
      */
-    public function create(Request $request){
+    public function create(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -57,18 +62,45 @@ class BookController extends Controller
             'type_id' => 'required',
             'image' => 'required',
             'level' => 'required',
+            'language_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
-        if(Auth::user()->can('create book')){
-            $book=Book::create($request->all());
-            $this->createMedia($request->file('image'), $book->id, 'book');
-            return $this->jsonResponseWithoutMessage("Book Created Successfully", 'data', 200);
         }
-        else{
-            throw new NotAuthorized;   
+        if (Auth::user()->can('create book')) {
+            $book = Book::create($request->all());
+
+            if (!$book) {
+                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            }
+
+            $media = $this->createMedia($request->file('image'), $book->id, 'book');
+
+            if (!$media) {
+                //delete the created book
+                $book->delete();
+                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            }
+
+            //create post for book
+            $post = $book->posts()->create([
+                'user_id' => Auth::user()->id,
+                'body' => $request->brief,
+                'type_id' => PostType::where('type', 'book')->first()->id,
+                'timeline_id' => TimelineType::where('type', 'book')->first()->id,
+            ]);
+
+            if (!$post) {
+                //delete the created book
+                $book->delete();
+                $this->deleteMedia($media->id);
+                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            }
+
+            return $this->jsonResponseWithoutMessage("Book Created Successfully", 'data', 200);
+        } else {
+            throw new NotAuthorized;
         }
     }
     /**
@@ -85,13 +117,44 @@ class BookController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
+        }
 
         $book = Book::find($request->book_id);
-        if($book){
-            return $this->jsonResponseWithoutMessage(new BookResource($book), 'data',200);
+
+        $book_post = $book->posts->where('type_id', PostType::where('type', 'book')->first()->id)->first();
+
+        //calculate book rate percentage
+        $rate_sum = $book_post->rates->sum('rate');
+        $rate_total = $book_post->rates->count();
+        $rate = $rate_total > 0 ? (($rate_sum / $rate_total) / 5) * 100  : 0;
+
+        //comments count
+        $comments_count = $book_post->comments ? $book_post->comments->count() : 0;
+
+        //screenshots count from comments collection
+        $screenshots_count = 0;
+        if ($comments_count > 0) {
+            foreach ($book_post->comments as $comment) {
+                $screenshots_count += $comment->medias ? $comment->medias->count() : 0;
+            }
         }
-        else{
+
+        //add screenshots count to comments count
+        $comments_count += $screenshots_count;
+
+        if ($book) {
+            return $this->jsonResponseWithoutMessage(
+
+                [
+                    'book' => new BookResource($book),
+                    'theses_count' => $book->theses->count(),
+                    'comments_count' => $comments_count,
+                    'rate' => $rate,
+                ],
+                'data',
+                200
+            );
+        } else {
             throw new NotFound;
         }
     }
@@ -111,13 +174,13 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if(Auth::user()->can('edit book')){
+        if (Auth::user()->can('edit book')) {
             $book = Book::find($request->book_id);
-            if($book){
+            if ($book) {
                 if ($request->hasFile('image')) {
-                    $currentMedia= Media::where('book_id', $book->id)->first();
+                    $currentMedia = Media::where('book_id', $book->id)->first();
                     // if exists, update
-                    if($currentMedia){
+                    if ($currentMedia) {
                         $this->updateMedia($request->file('image'), $currentMedia->id);
                     }
                     //else create new one
@@ -128,15 +191,12 @@ class BookController extends Controller
                 }
                 $book->update($request->all());
                 return $this->jsonResponseWithoutMessage("Book Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
             }
-            else{
-                throw new NotFound;   
-            }
+        } else {
+            throw new NotAuthorized;
         }
-        else{
-            throw new NotAuthorized;   
-        }
-        
     }
     /**
      * Delete an existing book's in the system using its id (“delete book” permission is required). 
@@ -152,11 +212,11 @@ class BookController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
-        if(Auth::user()->can('delete book')){
+        if (Auth::user()->can('delete book')) {
             $book = Book::find($request->book_id);
-            if($book){
+            if ($book) {
                 //check Media
                 $currentMedia = Media::where('book_id', $book->id)->first();
                 // if exist, delete
@@ -165,12 +225,10 @@ class BookController extends Controller
                 }
                 $book->delete();
                 return $this->jsonResponseWithoutMessage("Book Deleted Successfully", 'data', 200);
-            }
-            else{
+            } else {
                 throw new NotFound;
             }
-        }
-        else{
+        } else {
             throw new NotAuthorized;
         }
     }
@@ -190,13 +248,12 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('type_id',$request->type_id)->get();
-        if($books->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        $books = Book::where('type_id', $request->type_id)->get();
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }        
     }
 
     /**
@@ -214,13 +271,21 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('level',$request->level)->get();
-        if($books->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        $books = Book::where('level', $request->level)->paginate(9);
+
+        // $paginatedCollection = $books;
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'books' => BookResource::collection($books),
+                    'total' => $books->total(),
+                ],
+                'data',
+                200
+            );
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }        
     }
 
     /**
@@ -238,16 +303,15 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('section_id',$request->section_id)->get();
-        if($books->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        $books = Book::where('section_id', $request->section_id)->get();
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }        
     }
-    
-     /**
+
+    /**
      * Find and return all books related to name letters using name_id.
      *
      * @param  Request  $request
@@ -262,13 +326,89 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('name','LIKE','%'.$request->name.'%')->get();
-        if($books->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data',200);
+        $books = Book::where('name', 'LIKE', '%' . $request->name . '%')->paginate(9);
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'books' => BookResource::collection($books),
+                    'total' => $books->total(),
+                ],
+                'data',
+                200
+            );
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }        
     }
 
+    /**
+     * Find and return all books related to language language_id
+     *
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
+    public function bookByLanguage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'language' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $language_id = Language::where('language', $request->language)->pluck('id')->first();
+
+        $books = Book::where('language_id', $language_id)->paginate(9);
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'books' => BookResource::collection($books),
+                    'total' => $books->total(),
+                ],
+                'data',
+                200
+            );
+        } else {
+            throw new NotFound;
+        }
+    }
+
+    public function getRecentAddedBooks()
+    {
+        $books = Book::orderBy('created_at', 'desc')->take(9)->get();
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
+        } else {
+            throw new NotFound;
+        }
+    }
+
+    public function getMostReadableBooks()
+    {
+        $books = Book::select('books.*', DB::raw('count(*) as total'))
+            ->join('theses', 'books.id', '=', 'theses.book_id')
+            ->groupBy('book_id')
+            ->groupBy('user_id')
+            ->orderBy('total', 'desc')
+            ->take(9)
+            ->get();
+
+        if ($books->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
+        } else {
+            throw new NotFound;
+        }
+    }
+
+    public function getRandomBook()
+    {
+        $books = Book::all();
+        $randomBook = $books->random();
+        if ($randomBook) {
+            return $this->jsonResponseWithoutMessage(new BookResource($randomBook), 'data', 200);
+        } else {
+            throw new NotFound;
+        }
+    }
 }

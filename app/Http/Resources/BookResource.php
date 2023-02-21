@@ -15,6 +15,7 @@ class BookResource extends JsonResource
     public function toArray($request)
     {
         return[
+            "id" => $this->id,
             "name"=> $this->name,
             "writer"=> $this->writer,
             "publisher"=> $this->publisher,
@@ -22,10 +23,13 @@ class BookResource extends JsonResource
             "start_page"=> $this->start_page,
             "end_page"=> $this->end_page,
             "link"=> $this->link,
-            "section"=> $this->section,
-            "type"=> $this->type,
+            "section"=> new SectionResource($this->section),
+            "type"=> new BookTypeResource($this->type),
             "level"=> $this->level,
-           // "posts"=> PostResource::collection($this->whenLoaded('post')),
+            "language"=> new LanguageResource($this->language),
+            'media' => new MediaResource($this->media),
+            'created_at' => $this->created_at,
+           "posts"=> PostResource::collection($this->whenLoaded('post')),
 
         ];
     }

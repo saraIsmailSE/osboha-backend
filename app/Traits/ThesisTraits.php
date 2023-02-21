@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Exceptions\NotFound;
-use App\Http\Controllers\Controller;
 use App\Http\Resources\ThesisResource;
 use App\Models\Comment;
 use App\Models\Mark;
@@ -11,10 +10,7 @@ use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\Week;
 use App\Traits\ResponseJson;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use phpDocumentor\Reflection\Types\This;
 
 trait ThesisTraits
 {
@@ -63,36 +59,37 @@ trait ThesisTraits
                 'book_id'           => $thesis['book_id'],
                 'mark_id'           => $mark_record->id,
                 'user_id'           => Auth::id(),
-                'type_id'    => $thesis['type_id'],
-                'total_pages'       => $thesis['total_pages'],
+                'type_id'           => $thesis['type_id'],
+                'start_page'        => $thesis['start_page'],
+                'end_page'          => $thesis['end_page'],
                 'max_length'        => $max_length,
                 'total_screenshots' => $total_screenshots,
             );
 
             $mark_data_to_update = array(
-                'total_pages'      => $mark_record->total_pages + $thesis['total_pages'],
+                'total_pages'      => $mark_record->total_pages + ($thesis['end_page'] - $thesis['start_page'] + 1),
                 'total_thesis'     => $mark_record->total_thesis + $total_thesis,
                 'total_screenshot' => $mark_record->total_screenshot + $total_screenshots,
             );
 
             $mark_out_of_90 = $mark_record->out_of_90;
 
-            if (strtolower($thesis_type->type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis or not completed ramadan/tafseer thesis                    
+            if (strtolower($thesis_type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis or not completed ramadan/tafseer thesis                    
                 $thesis_mark = $this->calculate_mark_for_normal_thesis(
-                    $thesis['total_pages'],
+                    ($thesis['end_page'] - $thesis['start_page'] + 1),
                     $max_length,
                     $total_screenshots,
                 );
             } else if (
-                strtolower($thesis_type->type) === RAMADAN_THESIS_TYPE ||
-                strtolower($thesis_type->type) === TAFSEER_THESIS_TYPE
+                strtolower($thesis_type) === RAMADAN_THESIS_TYPE ||
+                strtolower($thesis_type) === TAFSEER_THESIS_TYPE
             ) { ///calculate mark for ramadan or tafseer thesis             
 
                 $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                    $thesis['total_pages'],
+                    ($thesis['end_page'] - $thesis['start_page'] + 1),
                     $max_length,
                     $total_screenshots,
-                    (strtolower($thesis_type->type) === RAMADAN_THESIS_TYPE ? RAMADAN_THESIS_TYPE : TAFSEER_THESIS_TYPE)
+                    (strtolower($thesis_type) === RAMADAN_THESIS_TYPE ? RAMADAN_THESIS_TYPE : TAFSEER_THESIS_TYPE)
                 );
             }
             $mark_out_of_90 += $thesis_mark;
@@ -128,10 +125,12 @@ trait ThesisTraits
 
         $thesis = Thesis::where('comment_id', $thesisToUpdate['comment_id'])->first(
             [
-                'id', 'type_id', 'total_pages', 'mark_id',
+                'id', 'type_id', 'start_page', 'end_page', 'mark_id',
                 'max_length', 'total_screenshots'
             ]
         );
+
+        $total_pages = ($thesisToUpdate['end_page'] - $thesisToUpdate['start_page'] + 1);
 
         if ($thesis) {
             $week_id = Week::latest('id')->first()->id;
@@ -154,39 +153,39 @@ trait ThesisTraits
                     $old_thesis_mark = 0;
 
                     $thesis_data_to_update = array(
-                        'total_pages'       => $thesisToUpdate['total_pages'],
+                        'total_pages'       => $total_pages,
                         'max_length'        => $max_length,
                         'total_screenshots' => $total_screenshots,
                     );
 
-                    if (strtolower($thesis_type->type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis                     
+                    if (strtolower($thesis_type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis                     
                         $thesis_mark = $this->calculate_mark_for_normal_thesis(
-                            $thesisToUpdate['total_pages'],
+                            $total_pages,
                             $max_length,
                             $total_screenshots
                         );
                         //calculate the old mark to remove it from the total                        
                         $old_thesis_mark = $this->calculate_mark_for_normal_thesis(
-                            $thesis->total_pages,
+                            ($thesis->end_page - $thesis->start_page + 1),
                             $thesis->max_length,
                             $thesis->total_screenshots
                         );
                     } else if (
-                        strtolower($thesis_type->type) === RAMADAN_THESIS_TYPE ||
-                        strtolower($thesis_type->type) === TAFSEER_THESIS_TYPE
+                        strtolower($thesis_type) === RAMADAN_THESIS_TYPE ||
+                        strtolower($thesis_type) === TAFSEER_THESIS_TYPE
                     ) { ///calculate mark for ramadan or tafseer thesis             
                         $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                            $thesisToUpdate['total_pages'],
+                            $total_pages,
                             $max_length,
                             $total_screenshots,
-                            $thesis_type->type,
+                            $thesis_type,
                         );
 
                         $old_thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                            $thesis->total_pages,
+                            ($thesis->end_page - $thesis->start_page + 1),
                             $thesis->max_length,
                             $thesis->total_screenshots,
-                            $thesis_type->type,
+                            $thesis_type,
                         );
                     }
                     $mark_out_of_90 = $thesis_mark + $mark_record->out_of_90 - $old_thesis_mark;
@@ -202,7 +201,7 @@ trait ThesisTraits
                     }
 
                     $mark_data_to_update = array(
-                        'total_pages'      => $mark_record->total_pages - $thesis->total_pages + $thesis->total_pages,
+                        'total_pages'      => $mark_record->total_pages - ($thesis->end_page - $thesis->start_page + 1) + $total_pages,
                         'total_thesis'     => $mark_record->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0) + $total_thesis,
                         'total_screenshot' => $mark_record->total_screenshot - $thesis->total_screenshots + $total_screenshots,
                         'out_of_90' => $mark_out_of_90,
@@ -230,7 +229,7 @@ trait ThesisTraits
     {
         $thesis = Thesis::where('comment_id', $thesisToDelete['comment_id'])->first(
             [
-                'id', 'type_id', 'total_pages', 'mark_id',
+                'id', 'type_id', 'start_page', 'end_page', 'mark_id',
                 'max_length', 'total_screenshots', 'comment_id'
             ]
         );
@@ -262,7 +261,7 @@ trait ThesisTraits
                     }
 
                     $mark_data_to_update = array(
-                        'total_pages'      => $mark_record->total_pages - $thesis->total_pages,
+                        'total_pages'      => $mark_record->total_pages - ($thesis->end_page - $thesis->start_page + 1),
                         'total_thesis'     => $mark_record->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0),
                         'total_screenshot' => $mark_record->total_screenshot - $thesis->total_screenshots,
                         'out_of_90' => $mark_out_of_90,
@@ -287,22 +286,22 @@ trait ThesisTraits
     {
         $total_mark = 0;
 
-        $thesises = Thesis::join('thesis_types', 'thesis_types.id', '=', 'theses.type_id')
+        $theses = Thesis::join('thesis_types', 'thesis_types.id', '=', 'theses.type_id')
             ->where('mark_id', $mark_id)->get([
-                'theses.id', 'type_id', 'total_pages', 'mark_id',
+                'theses.id', 'type_id', 'start_page', 'end_page', 'mark_id',
                 'max_length', 'total_screenshots', 'thesis_types.type'
             ]);
 
-        foreach ($thesises as $thesis) {
+        foreach ($theses as $thesis) {
             if ($thesis->type === NORMAL_THESIS_TYPE) {
                 $total_mark += $this->calculate_mark_for_normal_thesis(
-                    $thesis->total_pages,
+                    ($thesis->end_page - $thesis->start_page + 1),
                     $thesis->max_length,
                     $thesis->total_screenshots
                 );
             } else if ($thesis->type === RAMADAN_THESIS_TYPE || $thesis->type === TAFSEER_THESIS_TYPE) {
                 $total_mark += $this->calculate_mark_for_ramadan_thesis(
-                    $thesis->total_pages,
+                    ($thesis->end_page - $thesis->start_page + 1),
                     $thesis->max_length,
                     $thesis->total_screenshots,
                     $thesis->type
@@ -313,7 +312,7 @@ trait ThesisTraits
         return $total_mark;
     }
 
-    public function calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots) //isNew used to tell if the thesis is new or updated
+    public function calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots)
     {
         $mark = 0;
         $number_of_parts = (int) ($total_pages / PART_PAGES);

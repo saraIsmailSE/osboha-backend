@@ -11,34 +11,32 @@ use App\Traits\ThesisTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\CommentResource;
-use App\Http\Controllers\Api\ThesisController;
 use App\Models\Book;
+use App\Models\Post;
 
 class CommentController extends Controller
 {
-    use ResponseJson , MediaTraits , ThesisTraits;
+    use ResponseJson, MediaTraits, ThesisTraits;
     /**
-    * Add a new comment or reply to the system.
-    * Detailed Steps:
-    *  1- Validate required data and the image format.
-    *  2- Add a new comment or reply to the system.
-    *  3- Add the image to the system using MediaTraits if the request has an image.
-    *  4- There is two type for thesis :
-    *      - Thesis has a body.
-    *      - Thesis has an image.
-    * If the thesis has an image (Add the image to the system using MediaTraits).
-    *  5- Add a new thesis to the system if the comment type is “thesis”. 
-    *  6- Return a success or error message.
+     * Add a new comment or reply to the system.
+     * Detailed Steps:
+     *  1- Validate required data and the image format.
+     *  2- Add a new comment or reply to the system.
+     *  3- Add the image to the system using MediaTraits if the request has an image.
+     *  4- There is two type for thesis :
+     *      - Thesis has a body.
+     *      - Thesis has an image.
+     * If the thesis has an image (Add the image to the system using MediaTraits).
+     *  5- Add a new thesis to the system if the comment type is “thesis”. 
+     *  6- Return a success or error message.
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
-    public function create(Request $request){
+    public function create(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'body' => 'required_without_all:image,screenShots|string',
@@ -47,7 +45,8 @@ class CommentController extends Controller
             'type' => 'required',
             'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
-            'total_pages' => 'required_if:type,thesis|numeric',
+            'start_page' => 'required_if:type,thesis|numeric',
+            'end_page' => 'required_if:type,thesis|numeric',
             'thesis_type_id' => 'required_if:type,thesis|numeric',
 
         ]);
@@ -61,18 +60,45 @@ class CommentController extends Controller
 
         if ($request->type == "thesis") {
             $thesis['comment_id'] = $comment->id;
-            $thesis['book_id'] = Book::where('post_id', $request->post_id)->pluck('id')[0];
-            $thesis['total_pages'] = $request->total_pages;
+            $thesis['book_id'] = Post::find($request->post_id)->book_id;
+            $thesis['start_page'] = $request->start_page;
+            $thesis['end_page'] = $request->end_page;
             $thesis['type_id'] = $request->thesis_type_id;
             if ($request->has('body')) {
                 $thesis['max_length'] = strlen($request->body);
             }
-            if ($request->has('screenShots')) {
-                $thesis['total_screenshots'] = count($request->screenShots);
-                foreach ($request->screenShots as $screenShot) {
-                    $this->createMedia($screenShot, $comment->id, 'comment');
+            /**asmaa **/
+            if ($request->has('screenShots') && count($request->screenShots) > 0) {
+                $total_screenshots = count($request->screenShots);
+                $thesis['total_screenshots'] = $total_screenshots;
+
+                //if the comment has no body, the first screenshot will be added as a comment
+                //the rest will be added as replies with new comment created for each of them
+                if (!$request->has('body')) {
+                    $this->createMedia($request->screenShots[0], $comment->id, 'comment');
+                    for ($i = 1; $i < $total_screenshots; $i++) {
+                        $media_comment = Comment::create([
+                            'user_id' => Auth::id(),
+                            'post_id' => $request->post_id,
+                            'comment_id' => $comment->id,
+                            'type' => 'screenshot',
+                        ]);
+                        $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment');
+                    }
+                } else {
+                    //if the comment has a body, the screenshots will be added as replies with new comment created for each of them
+                    for ($i = 0; $i < $total_screenshots; $i++) {
+                        $media_comment = Comment::create([
+                            'user_id' => Auth::id(),
+                            'post_id' => $request->post_id,
+                            'comment_id' => $comment->id,
+                            'type' => 'screenshot',
+                        ]);
+                        $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment');
+                    }
                 }
             }
+            /**asmaa **/
             $this->createThesis($thesis);
         }
 
@@ -129,7 +155,8 @@ class CommentController extends Controller
             'comment_id' => 'numeric',
             'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
-            'total_pages' => 'required_if:type,thesis|numeric',
+            'start_page' => 'required_if:type,thesis|numeric',
+            'end_page' => 'required_if:type,thesis|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -140,18 +167,53 @@ class CommentController extends Controller
             if (Auth::id() == $comment->user_id) {
                 if ($comment->type == "thesis") {
                     $thesis['comment_id'] = $comment->id;
-                    $thesis['book_id'] = Book::where('post_id', $request->post_id)->pluck('id')[0];
-                    $thesis['total_pages'] = $request->total_pages;
+                    $thesis['book_id'] = Post::find($request->post_id)->book_id;
+                    $thesis['start_page'] = $request->start_page;
+                    $thesis['end_page'] = $request->end_page;
                     $thesis['thesis_type_id'] = $request->thesis_type_id;
                     if ($request->has('body')) {
                         $thesis['max_length'] = strlen($request->body);
                     }
-                    if ($request->has('screenShots')) {
-                        $thesis['total_screenshots'] = count($request->screenShots);
-                        foreach ($request->screenShots as $screenShot) {
-                            $this->createMedia($screenShot, $comment->id, 'comment');
+                    /**asmaa **/
+                    //delete the previous screenshots
+                    $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
+                    $media = Media::whereIn('comment_id', $screenshots_comments->pluck('id'))->get();
+                    foreach ($media as $media_item) {
+                        $this->deleteMedia($media_item->id);
+                    }
+                    $screenshots_comments->each->delete();
+
+                    if ($request->has('screenShots') && count($request->screenShots) > 0) {
+                        $total_screenshots = count($request->screenShots);
+                        $thesis['total_screenshots'] = $total_screenshots;
+
+                        //if the comment has no body, the first screenshot will be added as a comment
+                        //the rest will be added as replies with new comment created for each of them
+                        if (!$request->has('body')) {
+                            $this->createMedia($request->screenShots[0], $comment->id, 'comment');
+                            for ($i = 1; $i < $total_screenshots; $i++) {
+                                $media_comment = Comment::create([
+                                    'user_id' => Auth::id(),
+                                    'post_id' => $request->post_id,
+                                    'comment_id' => $comment->id,
+                                    'type' => 'screenshot',
+                                ]);
+                                $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment');
+                            }
+                        } else {
+                            //if the comment has a body, the screenshots will be added as replies with new comment created for each of them
+                            for ($i = 0; $i < $total_screenshots; $i++) {
+                                $media_comment = Comment::create([
+                                    'user_id' => Auth::id(),
+                                    'post_id' => $request->post_id,
+                                    'comment_id' => $comment->id,
+                                    'type' => 'screenshot',
+                                ]);
+                                $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment');
+                            }
                         }
                     }
+                    /**asmaa **/
                     $this->updateThesis($thesis);
                 }
 
@@ -179,7 +241,7 @@ class CommentController extends Controller
             throw new NotFound;
         }
     }
-   /**
+    /**
      * Delete an existing comment using its id(“delete comment” permission is required).
      * In order to comment the Comment, the logged in user_id has to match the user_id in the request.
      * Detailed Steps:
@@ -211,6 +273,15 @@ class CommentController extends Controller
                 if ($comment->type == "thesis") {
                     $thesis['comment_id'] = $comment->id;
                     $this->deleteThesis($thesis);
+                    /**asmaa */
+                    //delete the screenshots
+                    $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
+                    $media = Media::whereIn('comment_id', $screenshots_comments->pluck('id'))->get();
+                    foreach ($media as $media_item) {
+                        $this->deleteMedia($media_item->id);
+                    }
+                    $screenshots_comments->each->delete();
+                    /**asmaa */
                 }
                 //check Media
                 $currentMedia = Media::where('comment_id', $comment->id)->first();

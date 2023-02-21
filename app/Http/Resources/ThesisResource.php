@@ -17,11 +17,13 @@ class ThesisResource extends JsonResource
         ###Asmaa##
 
         return [
-            // 'book_id' => new BookResource($this->whenLoaded('book', $this->book_id)),
+            'id' => $this->id,
+            'book' => new BookResource($this->whenLoaded('book')),
             // 'mark_id' => new MarkRsource($this->whenLoaded('mark', $this->mark_id)),
-            // 'user_id' => new UserRsource($this->whenLoaded('user', $this->user_id)),
-            // 'comment_id' => new CommentRsource($this->whenLoaded('comment', $this->comment_id)),            
-            'total_pages' => $this->total_pages,
+            'user' => new UserResource($this->whenLoaded('user')),
+            'comment' => new CommentResource($this->comment),
+            'start_page' => $this->start_page,
+            'end_page' => $this->end_page,
             'max_length' => $this->max_length,
             'total_screenshots' => $this->total_screenshots,
         ];

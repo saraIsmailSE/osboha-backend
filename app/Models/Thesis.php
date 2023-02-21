@@ -18,7 +18,8 @@ class Thesis extends Model
         'book_id',
         'type_id',
         'mark_id',
-        'total_pages',
+        'start_page',
+        'end_page',
         'total_screenshots',
         'is_acceptable',
     ];

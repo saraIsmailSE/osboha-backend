@@ -56,13 +56,17 @@ class ThesisController extends Controller
         }
 
         //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
-            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-            ->where('theses.book_id', $request->book_id)
-            ->get();
+        $thesis = Thesis::where('book_id', $request->book_id)->orderBy('created_at', 'desc')->paginate(10);
 
         if ($thesis->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'theses' => ThesisResource::collection($thesis),
+                    'total' => $thesis->total(),
+                ],
+                'data',
+                200
+            );
         } else {
             throw new NotFound;
         }

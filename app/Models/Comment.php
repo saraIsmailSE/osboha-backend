@@ -21,24 +21,22 @@ class Comment extends Model
 
     /**
      * Self Relation.
+     * replies relation means that this model(comment) has many replies
+     * comment relation is the reverse relation of replies relation 
      */
-    public function parent()
+    public function comment()
     {
-        return $this->belongsTo(Comment::class, 'comment_id');
+        return $this->belongsTo(Comment::class);
     }
-    public function children()
+    public function replies()
     {
-        return $this->hasMany(Comment::class, 'comment_id');
+        return $this->hasMany(Comment::class);
     }
 
-    /**
-     * Get all Medias associated with comment
-     * [this case will be when comment is thesis with screenshots].
-    */
-    public function medias()
+    public function media()
     {
-        return $this->hasMany(Media::class);
-    } 
+        return $this->hasOne(Media::class);
+    }
 
     public function user()
     {
@@ -46,12 +44,11 @@ class Comment extends Model
     }
     public function post()
     {
-        return $this->belongsTo(Post::class. 'post_id');
+        return $this->belongsTo(Post::class . 'post_id');
     }
 
     public function thesis()
     {
         return $this->hasOne(Thesis::class);
     }
-    
 }

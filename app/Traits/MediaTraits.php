@@ -3,16 +3,15 @@
 namespace App\Traits;
 
 use App\Models\Media;
-use App\Models\Reaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
-Use \Carbon\Carbon;
 
 trait MediaTraits
 {
-    function createMedia($media, $type_id , $type){
+    function createMedia($media, $type_id, $type)
+    {
         try {
-            $imageName = rand(100000, 999999).time() . '.' . $media->extension();
+            $imageName = rand(100000, 999999) . time() . '.' . $media->extension();
             $media->move(public_path('assets/images'), $imageName);
             // link media with comment
             $media = new Media();
@@ -35,7 +34,7 @@ trait MediaTraits
                 $media->reaction_id = $type_id;
                 $media->type = $type;
             } else {
-                return 'Type Npt Found';
+                return 'Type Not Found';
             }
             $media->save();
             return $media;

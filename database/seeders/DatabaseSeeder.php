@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\BookStatistics;
+use App\Models\Rate;
 use Illuminate\Database\Seeder;
-use App\Models\Post;
-use App\Models\User;
+use Ramsey\Uuid\Type\Time;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,9 +20,12 @@ class DatabaseSeeder extends Seeder
 
 
         $this->call(PermissionsSeeder::class);
+        $this->call(TimelineTypeSeeder::class);
         $this->call(GroupSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(PostSeeder::class);
+        $this->call(RateSeeder::class);
+        $this->call(TypeSectionSeeder::class);
         $this->call(BookStatisticsSeeder::class);
         $this->call(BookSeeder::class);
         $this->call(ThesisTypeSeeder::class);

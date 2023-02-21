@@ -14,7 +14,7 @@ class TypeSectionSeeder extends Seeder
      */
     public function run()
     {
-        $section = ['علمي', 'تاريخي', 'ديني', 'سياسي', 'انجليزي', 'ثقافي', 'تربوي', 'تنمية'];
+        $section = ['علمي', 'تاريخي', 'ديني', 'سياسي', 'انجليزي', 'ثقافي', 'تربوي', 'تنمية', 'سيرة', 'اجتماعي '];
         $i = 0;
         //SECTIONS
         while ($i <= 7) {
@@ -26,7 +26,7 @@ class TypeSectionSeeder extends Seeder
             $i++;
         }
 
-        $book_type = ['noraml', 'ramadan', 'young', 'kids'];
+        $book_type = ['normal', 'ramadan', 'young', 'kids', 'tafseer'];
         //BOOK TYPE
         $i = 0;
         while ($i <= 3) {
@@ -38,7 +38,7 @@ class TypeSectionSeeder extends Seeder
             $i++;
         }
 
-        $thesis_type = ['noraml', 'ramadan', 'young', 'kids'];
+        $thesis_type = ['normal', 'ramadan', 'young', 'kids'];
         //THESIS TYPE
         $i = 0;
         while ($i <= 3) {
@@ -51,7 +51,7 @@ class TypeSectionSeeder extends Seeder
         }
 
 
-        $post_type = ['noraml', 'book', 'article', 'infographic', 'support', 'discussion'];
+        $post_type = ['normal', 'book', 'article', 'infographic', 'support', 'discussion'];
         //POST TYPE
         $i = 0;
         while ($i <= 5) {
@@ -72,6 +72,13 @@ class TypeSectionSeeder extends Seeder
 
             ]);
             $i++;
+        }
+
+        $languages = ['arabic', 'english'];
+        for($i=0; $i<count($languages); $i++){
+            DB::table('languages')->insert([
+                'language' => $languages[$i],
+            ]);
         }
     }
 }

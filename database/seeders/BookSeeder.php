@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Book;
+use App\Models\Media;
 use App\Models\Post;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -38,14 +39,27 @@ class BookSeeder extends Seeder
         //         $i++;    
         //     }
 
-        Post::factory(100)->create([
-            'user_id' => rand(1, 3),
-            'type_id' => 2,
-            'timeline_id' => 1
-        ])->each(function ($post) {
-            Book::factory()->create([
-                'post_id' => $post->id,
-            ]);
+        // Post::factory(100)->create([
+        //     'user_id' => rand(1, 3),
+        //     'type_id' => 2,
+        //     'timeline_id' => 1,
+          
+        // ])->each(function ($post) {
+        //     Book::factory()->create([
+        //         'post_id' => $post->id,
+        //     ]);
+        // });
+
+        Book::factory(100)->create()->each(function ($book) {
+            $user_id = rand(1,3);
+            $book->posts()->save(Post::factory()->create([
+                'user_id' => $user_id,
+                'type_id' => 2,
+                'timeline_id' => 3,
+            ]));
+            $book->media()->save(Media::factory()->create([
+                'user_id' => $user_id
+            ]));
         });
     }
 }
