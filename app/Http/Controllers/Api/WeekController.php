@@ -112,7 +112,20 @@ class WeekController extends Controller
                     $week->title = $request->title;
                 }
                 if ($request->has('is_vacation')) {
-                    $week->is_vacation = $request->is_vacation;
+                    if ($week->is_vacation == 0) { 
+                        $week->is_vacation = $request->is_vacation;
+                        $exceptions = UserException::where('status', 'accepted')->whereDate('end_at', '>', Carbon::now())->get();
+                        foreach ($exceptions as $exception) {
+                            $lengthIndays = Carbon::parse($exception->end_at)->diffInDays();
+                            $exception['end_at'] = (Carbon::parse($exception->end_at)->addDays($lengthIndays))->format('Y-m-d');
+                            $exception->update();
+                    
+                            $msg = "Your accepted exception is extended to ". $exception['end_at'] ." because of vacation";
+                            (new NotificationController)->sendNotification($exception->user_id, $msg);
+                        }
+                    } else { //this week is already vacation
+                        return $this->jsonResponseWithoutMessage('This week is already vacation', 'data', 200);
+                    }
                 }
 
                 if ($week->save()) {

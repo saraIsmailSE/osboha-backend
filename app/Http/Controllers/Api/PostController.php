@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Media;
+use App\Models\Friend;
 use App\Models\Timeline;
 use App\Models\UserGroup;
 use App\Models\Group;
+use App\Models\User;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
@@ -55,19 +57,18 @@ class PostController extends Controller
             'type' => 'required',
             'timeline_id' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
+            'book_id' => 'required_if:type,==,1' //post type = 1 => book
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $user_id = Auth::id();
-
-        if (Auth::user()->can('create post')) {
+         
             $input = $request->all();
             $timeline = Timeline::find($request->timeline_id);
 
             if (!empty($timeline)) {
-                if ($timeline->type == "group") {
+                if ($timeline->type_id == 4) { //timeline type => group
                     $group = Group::where('timeline_id', $timeline->id)->first();
                     $user = UserGroup::where([
                         ['group_id', $group->id],
@@ -75,6 +76,7 @@ class PostController extends Controller
                     ])->first();
                     if ($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader") {
                         $input['is_approved'] = null;
+
                         echo 'waiting for the leader approval';
 
                         $leader = UserGroup::where([
@@ -84,17 +86,41 @@ class PostController extends Controller
                         $msg = "There are new posts need approval";
                         (new NotificationController)->sendNotification($leader->user_id, $msg);
                     }
-                }
 
-                if ($request->has('tag')) {
-                    $input['tag'] = serialize($request->tag);
-                }
+                } elseif ($timeline->type_id == 5) { //timeline type => profile
+                    if($timeline->profile->user_id != Auth::id()) { // post in another profile
+
+                        $user = User::findOrFail($timeline->profile->user_id);
+                        //profileSetting => 1- for public 2- for friends 3- only me
+                        if ( ($user->profileSetting->posts == 2 && !Friend::where('user_id',$user->id)->where('friend_id',Auth::id())->exists()) ||
+                            $user->profileSetting->posts == 3 ) 
+                        {
+
+                            $input['is_approved'] = null;
+                            $msg = "You have a new post in your profile need approval ";
+                            (new NotificationController)->sendNotification($timeline->profile->user_id, $msg);
+
+                        } 
+                    }
+
+                } else { //timeline type => book || news || main (1-2-3)
+                    if (!Auth::user()->can('create post')) {
+                        throw new NotAuthorized;
+                    }
+                } 
 
                 if ($request->has('vote')) {
                     $input['vote'] = serialize($request->vote);
                 }
 
+                if ($request->type == 1) { //post type is book
+                    $input['book_id'] = $request->book_id;
+                } else {
+                    $input['book_id'] = null;
+                }
+
                 $input['user_id'] = Auth::id();
+                $input['type_id'] = $request->type;
 
                 $post = Post::create($input);
 
@@ -107,9 +133,7 @@ class PostController extends Controller
             } else {
                 throw new NotFound;
             }
-        } else {
-            throw new NotAuthorized;
-        }
+        
     }
     /**
      * Find an existing post in the system by its id.
