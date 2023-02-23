@@ -21,11 +21,11 @@ class ThesisResource extends JsonResource
             'book' => new BookResource($this->whenLoaded('book')),
             // 'mark_id' => new MarkRsource($this->whenLoaded('mark', $this->mark_id)),
             'user' => new UserResource($this->whenLoaded('user')),
-            'comment' => new CommentResource($this->comment),
+            'comment' => new CommentResource($this->whenLoaded('comment')),
             'start_page' => $this->start_page,
             'end_page' => $this->end_page,
-            'max_length' => $this->max_length,
-            'total_screenshots' => $this->total_screenshots,
+            // 'max_length' => $this->max_length,
+            // 'total_screenshots' => $this->total_screenshots,
         ];
     }
 }

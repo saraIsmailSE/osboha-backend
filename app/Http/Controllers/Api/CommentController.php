@@ -48,12 +48,12 @@ class CommentController extends Controller
             'body' => [
                 'string',
                 function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('image')) {
+                    if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
                         $fail('The body field is required.');
                     }
                 },
             ],
-            'book_id' => 'required_if:type,thesis|numeric',
+            'book_id' => 'required_without:post_id|numeric',
             'post_id' => 'required_without:book_id|numeric',
             'comment_id' => 'numeric',
             'type' => 'required',
@@ -62,7 +62,7 @@ class CommentController extends Controller
                 'image',
                 'mimes:jpeg,png,jpg,gif,svg|max:2048',
                 function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('body')) {
+                    if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
                         $fail('The image field is required.');
                     }
                 },
@@ -79,7 +79,7 @@ class CommentController extends Controller
         }
         $input = $request->all();
         $input['user_id'] = Auth::id();
-        if ($request->type == "thesis" && !$request->has('post_id')) {
+        if (!$request->has('post_id')) {
             $input['post_id'] = Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
         }
         $comment = Comment::create($input);
@@ -128,17 +128,17 @@ class CommentController extends Controller
                 }
             }
             /**asmaa **/
-            return  $this->createThesis($thesis);
-        } else {
-
-            if ($request->hasFile('image')) {
-                // if comment has media
-                // upload media
-                $this->createMedia($request->file('image'), $comment->id, 'comment');
-            }
-
-            return $this->jsonResponseWithoutMessage("Comment Created Successfully", 'data', 200);
+            $this->createThesis($thesis);
+            $comment->load('thesis');
         }
+
+        if ($request->hasFile('image')) {
+            // if comment has media
+            // upload media
+            $this->createMedia($request->file('image'), $comment->id, 'comment');
+        }
+
+        return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
     }
     /**
      * Find and show an existing article in the system by its id.
@@ -193,7 +193,7 @@ class CommentController extends Controller
             'body' => [
                 'string',
                 function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('image')) {
+                    if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
                         $fail('The body field is required.');
                     }
                 },
@@ -206,7 +206,7 @@ class CommentController extends Controller
                 'image',
                 'mimes:jpeg,png,jpg,gif,svg|max:2048',
                 function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('body')) {
+                    if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
                         $fail('The image field is required.');
                     }
                 },
