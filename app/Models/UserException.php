@@ -25,6 +25,10 @@ class UserException extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function Week()
     {

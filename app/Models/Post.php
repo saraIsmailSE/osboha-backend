@@ -22,6 +22,8 @@ class Post extends Model
         'book_id',
     ];
 
+    protected $with = array('comments','media');
+
     public function comments()
     {
         return $this->hasMany(Comment::class, 'post_id');
