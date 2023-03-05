@@ -16,6 +16,10 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\CommentResource;
 use App\Models\Book;
 use App\Models\Post;
+use App\Models\PostType;
+use App\Models\Thesis;
+use App\Models\ThesisType;
+use Illuminate\Support\Str;
 
 class CommentController extends Controller
 {
@@ -39,16 +43,35 @@ class CommentController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'body' => 'required_without_all:image,screenShots|string',
-            'post_id' => 'required|numeric',
+            //body is required only if the comment is not a thesis and has no image            
+            //in case of read only, body and screenshot are not required
+            'body' => [
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
+                        $fail('The body field is required.');
+                    }
+                },
+            ],
+            'book_id' => 'required_without:post_id|numeric',
+            'post_id' => 'required_without:book_id|numeric',
             'comment_id' => 'numeric',
             'type' => 'required',
-            'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
+            //image is required only if the comment is not a thesis and has no body
+            'image' => [
+                'image',
+                'mimes:jpeg,png,jpg,gif,svg|max:2048',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
+                        $fail('The image field is required.');
+                    }
+                },
+            ],
+            //screenshots have to be an array of images
+            'screenShots' => 'array',
+            'screenShots.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'start_page' => 'required_if:type,thesis|numeric',
             'end_page' => 'required_if:type,thesis|numeric',
-            'thesis_type_id' => 'required_if:type,thesis|numeric',
-
         ]);
 
         if ($validator->fails()) {
@@ -56,16 +79,22 @@ class CommentController extends Controller
         }
         $input = $request->all();
         $input['user_id'] = Auth::id();
+        if (!$request->has('post_id')) {
+            $input['post_id'] = Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
+        }
         $comment = Comment::create($input);
 
         if ($request->type == "thesis") {
+            // $book = Post::find($request->post_id)->book;
+            $book = Book::find($request->book_id);
             $thesis['comment_id'] = $comment->id;
-            $thesis['book_id'] = Post::find($request->post_id)->book_id;
+            $thesis['book_id'] = $book->id;
             $thesis['start_page'] = $request->start_page;
             $thesis['end_page'] = $request->end_page;
-            $thesis['type_id'] = $request->thesis_type_id;
+            $thesis['type_id'] = ThesisType::where('type', $book->type->type)->first()->id;
             if ($request->has('body')) {
-                $thesis['max_length'] = strlen($request->body);
+                // $thesis['max_length'] = strlen(trim($request->body)); //getting the length wrong
+                $thesis['max_length'] = Str::length(trim($request->body));
             }
             /**asmaa **/
             if ($request->has('screenShots') && count($request->screenShots) > 0) {
@@ -79,7 +108,7 @@ class CommentController extends Controller
                     for ($i = 1; $i < $total_screenshots; $i++) {
                         $media_comment = Comment::create([
                             'user_id' => Auth::id(),
-                            'post_id' => $request->post_id,
+                            'post_id' => $input['post_id'],
                             'comment_id' => $comment->id,
                             'type' => 'screenshot',
                         ]);
@@ -90,7 +119,7 @@ class CommentController extends Controller
                     for ($i = 0; $i < $total_screenshots; $i++) {
                         $media_comment = Comment::create([
                             'user_id' => Auth::id(),
-                            'post_id' => $request->post_id,
+                            'post_id' => $input['post_id'],
                             'comment_id' => $comment->id,
                             'type' => 'screenshot',
                         ]);
@@ -100,6 +129,7 @@ class CommentController extends Controller
             }
             /**asmaa **/
             $this->createThesis($thesis);
+            $comment->load('thesis');
         }
 
         if ($request->hasFile('image')) {
@@ -108,7 +138,7 @@ class CommentController extends Controller
             $this->createMedia($request->file('image'), $comment->id, 'comment');
         }
 
-        return $this->jsonResponseWithoutMessage("Comment Created Successfully", 'data', 200);
+        return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
     }
     /**
      * Find and show an existing article in the system by its id.
@@ -151,10 +181,39 @@ class CommentController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'body' => 'required_without_all:image,screenShots|string',
-            'comment_id' => 'numeric',
-            'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
+            // 'body' => 'required_without_all:image,screenShots|string',
+            // 'comment_id' => 'numeric',
+            // 'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // 'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
+            // 'start_page' => 'required_if:type,thesis|numeric',
+            // 'end_page' => 'required_if:type,thesis|numeric',
+
+            //body is required only if the comment is not a thesis and has no image            
+            //in case of read only, body and screenshot are not required
+            'body' => [
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
+                        $fail('The body field is required.');
+                    }
+                },
+            ],
+
+
+            'comment_id' => 'numeric|required',
+            //image is required only if the comment is not a thesis and has no body
+            'image' => [
+                'image',
+                'mimes:jpeg,png,jpg,gif,svg|max:2048',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
+                        $fail('The image field is required.');
+                    }
+                },
+            ],
+            //screenshots have to be an array of images
+            'screenShots' => 'array',
+            'screenShots.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'start_page' => 'required_if:type,thesis|numeric',
             'end_page' => 'required_if:type,thesis|numeric',
         ]);
@@ -166,16 +225,19 @@ class CommentController extends Controller
         if ($comment) {
             if (Auth::id() == $comment->user_id) {
                 if ($comment->type == "thesis") {
+                    $thesis = Thesis::where('comment_id', $comment->id)->first();
                     $thesis['comment_id'] = $comment->id;
-                    $thesis['book_id'] = Post::find($request->post_id)->book_id;
+                    $thesis['book_id'] = $thesis->book_id;
                     $thesis['start_page'] = $request->start_page;
                     $thesis['end_page'] = $request->end_page;
-                    $thesis['thesis_type_id'] = $request->thesis_type_id;
                     if ($request->has('body')) {
-                        $thesis['max_length'] = strlen($request->body);
+                        $thesis['max_length'] = Str::length(trim($request->body));
                     }
                     /**asmaa **/
-                    //delete the previous screenshots
+                    //delete the previous screenshots 
+                    //because the user can't edit the screenshots, so if user kept the screenshots and added new ones, 
+                    //the old ones will be deleted and added again with the new ones
+                    //if the user deleted all screenshots, the old ones will be deleted
                     $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
                     $media = Media::whereIn('comment_id', $screenshots_comments->pluck('id'))->get();
                     foreach ($media as $media_item) {
@@ -194,7 +256,7 @@ class CommentController extends Controller
                             for ($i = 1; $i < $total_screenshots; $i++) {
                                 $media_comment = Comment::create([
                                     'user_id' => Auth::id(),
-                                    'post_id' => $request->post_id,
+                                    'post_id' => $comment->post_id,
                                     'comment_id' => $comment->id,
                                     'type' => 'screenshot',
                                 ]);
@@ -205,7 +267,7 @@ class CommentController extends Controller
                             for ($i = 0; $i < $total_screenshots; $i++) {
                                 $media_comment = Comment::create([
                                     'user_id' => Auth::id(),
-                                    'post_id' => $request->post_id,
+                                    'post_id' => $comment->post_id,
                                     'comment_id' => $comment->id,
                                     'type' => 'screenshot',
                                 ]);
@@ -214,7 +276,8 @@ class CommentController extends Controller
                         }
                     }
                     /**asmaa **/
-                    $this->updateThesis($thesis);
+                    $comment->update($request->all());
+                    return $this->updateThesis($thesis);
                 }
 
                 if ($request->hasFile('image')) {
@@ -272,7 +335,6 @@ class CommentController extends Controller
                 Comment::where('comment_id', $comment->id)->delete();
                 if ($comment->type == "thesis") {
                     $thesis['comment_id'] = $comment->id;
-                    $this->deleteThesis($thesis);
                     /**asmaa */
                     //delete the screenshots
                     $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
@@ -281,7 +343,9 @@ class CommentController extends Controller
                         $this->deleteMedia($media_item->id);
                     }
                     $screenshots_comments->each->delete();
+
                     /**asmaa */
+                    return $this->deleteThesis($thesis);
                 }
                 //check Media
                 $currentMedia = Media::where('comment_id', $comment->id)->first();

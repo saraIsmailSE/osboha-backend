@@ -121,28 +121,16 @@ class BookController extends Controller
 
         $book = Book::find($request->book_id);
 
-        $book_post = $book->posts->where('type_id', PostType::where('type', 'book')->first()->id)->first();
-
-        //calculate book rate percentage
-        $rate_sum = $book_post->rates->sum('rate');
-        $rate_total = $book_post->rates->count();
-        $rate = $rate_total > 0 ? (($rate_sum / $rate_total) / 5) * 100  : 0;
-
-        //comments count
-        $comments_count = $book_post->comments ? $book_post->comments->count() : 0;
-
-        //screenshots count from comments collection
-        $screenshots_count = 0;
-        if ($comments_count > 0) {
-            foreach ($book_post->comments as $comment) {
-                $screenshots_count += $comment->medias ? $comment->medias->count() : 0;
-            }
-        }
-
-        //add screenshots count to comments count
-        $comments_count += $screenshots_count;
-
         if ($book) {
+            $book_post = $book->posts->where('type_id', PostType::where('type', 'book')->first()->id)->first();
+            //calculate book rate percentage
+            $rate_sum = $book_post->rates->sum('rate');
+            $rate_total = $book_post->rates->count();
+            $rate = $rate_total > 0 ? (($rate_sum / $rate_total) / 5) * 100  : 0;
+
+            //comments count
+            $comments_count = $book_post->comments ? $book_post->comments->count() : 0;
+
             return $this->jsonResponseWithoutMessage(
 
                 [

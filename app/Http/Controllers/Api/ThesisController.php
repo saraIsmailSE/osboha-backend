@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CommentResource;
 use App\Http\Resources\ThesisResource;
 use App\Models\Comment;
 use App\Models\Mark;
+use App\Models\Post;
+use App\Models\PostType;
 use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\Week;
@@ -55,14 +58,16 @@ class ThesisController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::where('book_id', $request->book_id)->orderBy('created_at', 'desc')->paginate(10);
+        $post_id = Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
+        $comments = Comment::where('post_id', $post_id)
+            ->where('comment_id', 0)
+            ->with('thesis')->orderBy('created_at', 'desc')->paginate(10);
 
-        if ($thesis->isNotEmpty()) {
+        if ($comments->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
                 [
-                    'theses' => ThesisResource::collection($thesis),
-                    'total' => $thesis->total(),
+                    'theses' => CommentResource::collection($comments),
+                    'total' => $comments->total(),
                 ],
                 'data',
                 200

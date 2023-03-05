@@ -22,6 +22,7 @@ class CommentResource extends JsonResource
             "replies" => CommentResource::collection($this->replies),
             "media" => new MediaResource($this->media),
             "post" => new PostResource($this->whenLoaded('post')),
+            "thesis" => new ThesisResource($this->whenLoaded('thesis')),
             "created_at" => $this->created_at,
         ];
     }

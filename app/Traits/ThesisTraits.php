@@ -10,6 +10,7 @@ use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\Week;
 use App\Traits\ResponseJson;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 trait ThesisTraits
@@ -37,18 +38,49 @@ trait ThesisTraits
         define('TAFSEER_THESIS_TYPE', 'tafseer');
     }
 
+    //asmaa - check if the date is in the current week or not
+    public function checkDateBelongsToCurrentWeek($date)
+    {
+        $current_week_dates = [];
+        //get the date range from sunday to saturday of the current week
+        for ($i = 0; $i < 7; $i++) {
+            array_push($current_week_dates, Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays($i)->format('Y-m-d'));
+        }
+        if (array_search($date, $current_week_dates) !== false) {
+            return true;
+        }
+        return false;
+    }
+
     public function createThesis($thesis)
     {
-        //get thesis type
-        $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
 
-        $week_id = Week::latest('id')->first()->id;
+        //asmaa - check if the week is existed or not
+        $week = Week::latest('id')->first();
+        $week_start_date = $week->created_at->format('Y-m-d');
+
+        if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
+            return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
+        }
+
+        $week_id = $week->id;
 
         $mark_record = Mark::where('user_id', Auth::id())
             ->where('week_id', $week_id)
             ->first(['id', 'total_pages', 'total_thesis', 'total_screenshot', 'out_of_90', 'support']);
 
+        //asmaa - check if the week is vacation or not and create mark record if it is vacation
+        if ($week->is_vacation == 1 && !$mark_record) {
+            $mark_record = Mark::create([
+                'user_id' => Auth::id(),
+                'week_id' => $week_id,
+            ]);
+        }
+
         if ($mark_record) {
+            //get thesis type
+            $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
+
             $max_length = (array_key_exists('max_length', $thesis) ? $thesis['max_length'] : 0);
             $total_thesis = (array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
             $total_screenshots = (array_key_exists('total_screenshots', $thesis) ? $thesis['total_screenshots'] : 0);
@@ -122,7 +154,6 @@ trait ThesisTraits
 
     public function updateThesis($thesisToUpdate)
     {
-
         $thesis = Thesis::where('comment_id', $thesisToUpdate['comment_id'])->first(
             [
                 'id', 'type_id', 'start_page', 'end_page', 'mark_id',
@@ -133,7 +164,14 @@ trait ThesisTraits
         $total_pages = ($thesisToUpdate['end_page'] - $thesisToUpdate['start_page'] + 1);
 
         if ($thesis) {
-            $week_id = Week::latest('id')->first()->id;
+            $week = Week::latest('id')->first();
+            $week_start_date = $week->created_at->format('Y-m-d');
+
+            if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
+                return $this->jsonResponseWithoutMessage('Cannot update thesis', 'data', 500);
+            }
+
+            $week_id = $week->id;
 
             $mark_record = Mark::where('id', $thesis->mark_id)
                 ->where('user_id', Auth::id())
@@ -236,7 +274,14 @@ trait ThesisTraits
         $comment = Comment::where('id', $thesis->comment_id)->first('id');
 
         if ($thesis) {
-            $week_id = Week::all('id')->last()->id;
+            $week = Week::all('id')->last();
+            $week_start_date = $week->created_at->format('Y-m-d');
+
+            if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
+                return $this->jsonResponseWithoutMessage('Cannot delete thesis', 'data', 500);
+            }
+
+            $week_id = $week->id;
 
             $mark_record = Mark::where('id', $thesis->mark_id)
                 ->where('user_id', Auth::id())
@@ -330,10 +375,26 @@ trait ThesisTraits
         $mark = $number_of_parts * READING_MARK;
 
         if ($max_length > 0) {
+
             if ($max_length >= COMPLETE_THESIS_LENGTH) { //COMPLETE THESIS                           
                 $mark += $number_of_parts * THESIS_MARK;
             } else { //INCOMPLETE THESIS
                 $mark += THESIS_MARK;
+
+                if ($total_screenshots > 0) {
+
+                    $number_of_parts -= 1;
+
+                    $screenshots = $total_screenshots;
+                    if ($screenshots >= MAX_SCREENSHOTS) {
+                        $screenshots = MAX_SCREENSHOTS;
+                    }
+                    if ($screenshots > $number_of_parts) {
+                        $screenshots = $number_of_parts;
+                    }
+
+                    $mark += $screenshots * THESIS_MARK;
+                }
             }
         } else if ($total_screenshots > 0) {
             $screenshots = $total_screenshots;
@@ -378,6 +439,21 @@ trait ThesisTraits
                 $mark += $number_of_parts * THESIS_MARK;
             } else { //INCOMPLETE THESIS
                 $mark += THESIS_MARK;
+
+                if ($total_screenshots > 0) {
+
+                    $number_of_parts -= 1;
+
+                    $screenshots = $total_screenshots;
+                    if ($screenshots >= MAX_SCREENSHOTS) {
+                        $screenshots = MAX_SCREENSHOTS;
+                    }
+                    if ($screenshots > $number_of_parts) {
+                        $screenshots = $number_of_parts;
+                    }
+
+                    $mark += $screenshots * THESIS_MARK;
+                }
             }
         } else if ($total_screenshots > 0) {
             $screenshots = $total_screenshots;
