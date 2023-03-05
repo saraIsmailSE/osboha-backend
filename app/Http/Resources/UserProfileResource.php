@@ -18,9 +18,8 @@ class UserProfileResource extends JsonResource
             //'user_id' => new UserProfileResource($this->user_id),
             //"user"=> new UserProfileResource($this->whenLoaded('user')),
             
-            'user_id' => $this->user_id,
-            //'timeline_id' => new TimelineResource($this->timeline_id),
-            'timeline_id' => $this->timeline_id,
+            'user' =>new UserResource($this->user),
+            'timeline' => new TimelineResource($this->Timeline),
             "first_name_ar"=> $this->first_name_ar,
             "middle_name_ar"=> $this->middle_name_ar,
             "last_name_ar"=> $this->last_name_ar,

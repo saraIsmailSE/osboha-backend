@@ -15,6 +15,7 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'profile' => new UserProfileResource($this->whenLoaded('userProfile')),
@@ -22,6 +23,7 @@ class UserResource extends JsonResource
             'is_hold' => $this->is_hold,
             'is_blocked'=>$this->is_blocked,
             'roles' => $this->getRoleNames(),
+            'gender'=>$this->gender
         ];
     }
 }

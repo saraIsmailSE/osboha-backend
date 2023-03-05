@@ -41,6 +41,9 @@ use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
 use App\Http\Controllers\api\WeekController;
 use App\Http\Controllers\Api\MessagesController;
+use App\Http\Controllers\Api\UserBookController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +77,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/random-book', [BookController::class, 'getRandomBook']);
     });
     ########End Book########
+    ########User Book########
+    Route::group(['prefix' => 'user-books'], function () {
+        Route::get('/show/{user_id}', [UserBookController::class, 'show']);
+        Route::post('/update', [UserBookController::class, 'update']);
+        Route::delete('/{id}', [UserBookController::class, 'delete']);
+    });
+    ########End User Book########
     ########Start Rate########
     Route::group(['prefix' => 'rate'], function () {
         Route::get('/', [RateController::class, 'index']);
@@ -299,7 +309,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########End Poll-Vote########
     ########User-Profile########
     Route::group(['prefix' => 'user-profile'], function () {
-        Route::post('/show', [UserProfileController::class, 'show']);
+        Route::get('/show/{user_id}', [UserProfileController::class, 'show']);
+        Route::get('/statistics/{user_id}', [UserProfileController::class, 'profileStatistics']);
         Route::post('/update', [UserProfileController::class, 'update']);
     });
     ########End User-Profile########

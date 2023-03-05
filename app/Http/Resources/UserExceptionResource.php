@@ -21,7 +21,8 @@ class UserExceptionResource extends JsonResource
             'note' => $this->note,
             //'type' => $this->Type->type,
             //'week_id' =>    new WeekResource($this->Week),
-            'user' =>    new UserResource($this->User)
+            'user' =>    new UserResource($this->User),
+            'reviewer' =>    new UserResource($this->reviewer)
         ];
     }
 }

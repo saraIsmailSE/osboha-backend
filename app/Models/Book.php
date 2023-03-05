@@ -23,6 +23,9 @@ class Book extends Model
         'language_id',
     ];
 
+
+    protected $with = array('section','type','language');
+
     /**
      * Get all posts associated with book.
     */
