@@ -48,9 +48,9 @@ class UserProfileController extends Controller
             $profile['post']= PostResource::collection(Post::Where('timeline_id',$profile['info']['timeline_id'])->get()); 
             
             // profile friends
-            $profile['friends']= FriendResource::collection(Friend::where(function ($query) use ($user_id) {
-                $query->Where('user_id',$user_id)->orWhere('friend_id',$user_id);
-            })->where('status', 1)->get()); 
+            $friends=$user->friends()->get();
+            $friendsOf=$user->friendsOf()->get();
+            $profile['friends']= $friends->merge($friendsOf);
             
             // user exceptions => displayed ONLY for Profile Owner
             if($user_id == Auth::id()){
