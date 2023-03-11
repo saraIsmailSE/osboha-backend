@@ -106,7 +106,7 @@ class UserExceptionController extends Controller
         $validator= Validator::make($input, [
             'reason' => 'required|string',
             'type_id' => 'required|int',
-            'end_at' => 'required|date|after:yesterday',
+            // 'end_at' => 'required|date|after:yesterday',
         ]);
         
         if($validator->fails()){
@@ -140,7 +140,7 @@ class UserExceptionController extends Controller
 
         } elseif ($request->type_id == 2) { // exceptional freeze
 
-            $input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
+            //$input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
             $input['status'] = 'pending'; 
             $userException = UserException::create($input);
 
@@ -157,7 +157,7 @@ class UserExceptionController extends Controller
             return $this->jsonResponseWithoutMessage("Your Exceptional Freezing request is under review", 'data', 200);
 
          }  elseif ($request->type_id == 3) { // exams  
-                $input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
+                //$input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
                 $input['status'] = 'pending'; 
                 $userException = UserException::create($input);
     

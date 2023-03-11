@@ -20,23 +20,34 @@ class FriendController extends Controller
 {   
     use ResponseJson;
 
-     /**
+    /**
      * Return all user`s freinds.
-     *
+     * @param  $user_id
      * @return jsonResponseWithoutMessage
      */
-    public function index()
+    public function listByUserId($user_id)
     {
-        $friends = DB::table('friends')
-        ->where('user_id', Auth::id())
-        ->orWhere('friend_id', Auth::id())
-        ->groupBy('friend_id')
-        ->get();
-        
-        return $this->jsonResponseWithoutMessage($friends, 'data', 200);
-            //return $this->jsonResponseWithoutMessage(FriendResource::collection($friends), 'data', 200);
-    }
+        $user = User::find($user_id);
+        $friends=$user->friends()->get();
+        $friendsOf=$user->friendsOf()->get();
+        $allFriends= $friends->merge($friendsOf);
 
+        return $this->jsonResponseWithoutMessage($allFriends, 'data', 200);
+    }
+    /**
+     * Return all unaccepted user`s freinds.
+     * @param  $user_id
+     * @return jsonResponseWithoutMessage
+     */
+    public function listUnAccepted($user_id)
+    {
+        $user = User::find($user_id);
+        $notFriends=$user->notFriends()->get();
+        $notFriendsOf=$user->notFriendsOf()->get();
+        $allRequests= $notFriends->merge($notFriendsOf);
+
+        return $this->jsonResponseWithoutMessage($allRequests, 'data', 200);
+    }
     /**
      * Send freind request if no frienship is exsist.
      *
@@ -86,23 +97,15 @@ class FriendController extends Controller
     /**
      * Find and show an existing frienship in the system by its id.
      *
-     * @param  Request  $request
+     * @param  $friendship_id
      * @return jsonResponseWithoutMessage ;
      */
-    public function show(Request $request)
+    public function show($friendship_id)
     {
-        $validator = Validator::make($request->all(), [
-            'friendship_id' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $friend = Friend::find($request->Friendship);
+        $friend = Friend::find($friendship_id);
         if ($friend) {
-            return $this->jsonResponseWithoutMessage($friend, 'data', 200);
-            //return $this->jsonResponseWithoutMessage(new FriendResource($friend), 'data', 200);
+            return $this->jsonResponseWithoutMessage(new FriendResource($friend), 'data', 200);
         } else {
             throw new NotFound;
         }

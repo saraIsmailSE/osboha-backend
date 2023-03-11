@@ -154,9 +154,10 @@ Route::middleware('auth:sanctum')->group(function () {
     ########End Media route########
     ########Start Friend route########
     Route::group(['prefix' => 'friend'], function () {
-        Route::get('/', [FriendController::class, 'index']);
+        Route::get('/{user_id}', [FriendController::class, 'listByUserId']);
+        Route::get('/un-accepted/{user_id}', [FriendController::class, 'listUnAccepted']);
         Route::post('/create', [FriendController::class, 'create']);
-        Route::post('/show', [FriendController::class, 'show']);
+        Route::get('/show/{friendship_id}', [FriendController::class, 'show']);
         Route::post('/accept', [FriendController::class, 'accept']);
         Route::post('/delete', [FriendController::class, 'delete']);
     });

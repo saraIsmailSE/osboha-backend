@@ -50,6 +50,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    // protected $with = array('roles');
+
     public function userProfile(){
         return $this->hasOne(UserProfile::class);
     }
@@ -132,8 +134,17 @@ class User extends Authenticatable
         return $this->hasMany(RejectedMark::class);
     }
 
-    public function friend(){
-        return $this->hasMany(Friend::class);
+    public function friends(){
+        return $this->belongsToMany(User::class, 'friends' , 'user_id', 'friend_id')->wherePivot('status',1);
+    }
+    public function friendsOf(){
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')->wherePivot('status',1);
+    }
+    public function notFriends(){
+        return $this->belongsToMany(User::class, 'friends' , 'user_id', 'friend_id')->wherePivot('status',0);
+    }
+    public function notFriendsOf(){
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')->wherePivot('status',0);
     }
 
     public function transaction(){
