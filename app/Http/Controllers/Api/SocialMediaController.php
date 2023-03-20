@@ -18,7 +18,7 @@ class SocialMediaController extends Controller
     use ResponseJson;
 
     /**
-     * create user`s social media record or update exsisting accounts..
+     * create user`s social media record or update exsisting one..
      *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage ;
@@ -49,18 +49,12 @@ class SocialMediaController extends Controller
     /**
      * Show user`s social media accounts.
      *
-     * @param  Request  $request
+     * @param  $user_id
      * @return App\Http\Resources\socialMediaResource ;
      */
-    public function show(Request $request)
+    public function show($user_id)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        $socialMedia = SocialMedia::where('user_id',$request->user_id)->first();
+        $socialMedia = SocialMedia::where('user_id',$user_id)->first();
             if($socialMedia){
                 return $this->jsonResponseWithoutMessage(new socialMediaResource($socialMedia), 'data',200);
             } else {
