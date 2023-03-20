@@ -30,11 +30,7 @@ class UserBookController extends Controller
             $query->Where('status', 'in progress')->orWhere('status', 'finished');
         })->where('user_id', $user_id)->get();
 
-        if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage($books, 'data', 200);
-        } else {
-            throw new NotFound;
-        }
     }
 
 

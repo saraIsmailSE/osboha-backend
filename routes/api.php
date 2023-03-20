@@ -154,8 +154,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########End Media route########
     ########Start Friend route########
     Route::group(['prefix' => 'friend'], function () {
-        Route::get('/{user_id}', [FriendController::class, 'listByUserId']);
-        Route::get('/un-accepted/{user_id}', [FriendController::class, 'listUnAccepted']);
+        Route::get('/accepted/{user_id}', [FriendController::class, 'listByUserId']);
+        Route::get('/un-accepted', [FriendController::class, 'listUnAccepted']);
         Route::post('/create', [FriendController::class, 'create']);
         Route::get('/show/{friendship_id}', [FriendController::class, 'show']);
         Route::post('/accept', [FriendController::class, 'accept']);
@@ -196,9 +196,8 @@ Route::middleware('auth:sanctum')->group(function () {
     ########End RejectedTheses ########
     #########UserException########
     Route::group(['prefix' => 'userexception'], function () {
-        Route::post('/groupExceptions', [UserExceptionController::class, 'groupExceptions']);
         Route::post('/create', [UserExceptionController::class, 'create']);
-        Route::get('/show', [UserExceptionController::class, 'show']);
+        Route::get('/show/{exception_id}', [UserExceptionController::class, 'show']);
         Route::post('/update', [UserExceptionController::class, 'update']);
         Route::post('/delete', [UserExceptionController::class, 'delete']);
         Route::post('/updateStatus', [UserExceptionController::class, 'updateStatus']);
@@ -213,11 +212,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => 'group'], function () {
         Route::get('/', [GroupController::class, 'index']);
         Route::post('/create', [GroupController::class, 'create']);
-        Route::post('/show', [GroupController::class, 'show']);
+        Route::get('/show/{group_id}', [GroupController::class, 'show']);
         Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
         Route::post('/update', [GroupController::class, 'update']);
         Route::post('/delete', [GroupController::class, 'delete']);
-        Route::get('/userGrops', [GroupController::class, 'userGrops']);
+        Route::get('/books/{group_id}', [GroupController::class, 'books']);
+        Route::get('/groupExceptions/{group_id}', [GroupController::class, 'groupExceptions']);
+
 
     });
     ############End Group############
@@ -245,7 +246,7 @@ Route::middleware('auth:sanctum')->group(function () {
     ########Start SocialMedia########
     Route::group(['prefix' => 'socialMedia'], function () {
         Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
-        Route::post('/show', [SocialMediaController::class, 'show']);
+        Route::get('/show/{user_id}', [SocialMediaController::class, 'show']);
     });
     ########End SocialMedia########
 
@@ -311,6 +312,7 @@ Route::middleware('auth:sanctum')->group(function () {
     ########User-Profile########
     Route::group(['prefix' => 'user-profile'], function () {
         Route::get('/show/{user_id}', [UserProfileController::class, 'show']);
+        Route::get('/showToUpdate/{user_id}', [UserProfileController::class, 'showToUpdate']);
         Route::get('/statistics/{user_id}', [UserProfileController::class, 'profileStatistics']);
         Route::post('/update', [UserProfileController::class, 'update']);
     });
@@ -330,23 +332,24 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/makeOneAsRead', [NotificationController::class, 'markOneNotificationAsRead']);
     });
     ######## End Notification ########
-    ####### UserGroup ########
-    Route::group(['prefix' => 'userGroup'], function () {
+    ####### Start UserGroup ########
+    Route::group(['prefix' => 'user-group'], function () {
         Route::get('/', [UserGroupController::class, 'index']);
+        Route::get('/users/{group_id}', [UserGroupController::class, 'usersByGroupID']);
         Route::post('/show', [UserGroupController::class, 'show']);
         Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
         Route::post('/updateRole', [UserGroupController::class, 'update_role']);
         Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
     });
-    ######## UserGroup ########
-    ####### thesis ########
+    ######## End UserGroup ########
+    ####### Start Thesis ########
     Route::group(['prefix' => 'thesis'], function () {
         Route::post('/show', [ThesisController::class, 'show']);
         Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);
         Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);
         Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);
     });
-    ######## thesis ########
+    ######## End Thesis ########
     ######## Room ########
     Route::group(['prefix' => 'room'], function () {
         Route::post('/create', [RoomController::class, 'create']);

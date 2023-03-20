@@ -35,66 +35,6 @@ class UserExceptionController extends Controller
     use ResponseJson;
 
     /**
-     * Read all exceptions for the ambassador in a group by auth user,
-     * oR read all exceptions for members of the group if the auth user has a leader, supervisor or advisor role.
-     *
-     * @return jsonResponseWithoutMessage
-     */
-    
-    public function groupExceptions(Request $request)
-    {  
-        $input=$request->all();
-        $validator= Validator::make($input, [
-            'group_id' => 'required|int',
-            'status' => 'nullable',
-            'period' => 'nullable'
-        ]);
-
-        if($validator->fails()){
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $user_type = UserGroup::where('group_id',$request->group_id)
-            ->where('user_id',Auth::id())->pluck('user_type')
-            ->first();
-
-        if($user_type){
-
-            $userExceptions = UserException::query();
-            if (!empty($request->status)) {
-                $userExceptions = $userExceptions->where('status', $request->status);
-            }
-            if (!empty($request->period)) {
-                if($request->period == 'lastWeek'){
-                    $current_week = Week::latest()->first();
-
-                    $userExceptions = $userExceptions->where('week_id', $current_week->id -1);
-                } elseif($request->period == 'lastMonth') {
-                    $userExceptions = $userExceptions->whereMonth('created_at',$this->getMonth());
-                }
-            }
-
-            if($user_type == 'ambassador'){ // ambassador in this group
-
-                $userExceptions = $userExceptions->where('user_id',Auth::id())->get();
-
-            } else { //not ambassador in this group
-
-                $ambassador_id = UserGroup::where('group_id',$request->group_id)
-                ->where('user_type','ambassador')
-                ->pluck('user_id')->toArray();
-
-                $userExceptions = $userExceptions->whereIn('user_id',$ambassador_id)->get();
-
-            }
-            return $this->jsonResponseWithoutMessage(UserExceptionResource::collection($userExceptions), 'data', 200);
-            
-        } else {
-            throw new NotAuthorized;
-        }
-        }//end if auth user
-
-    /**
      * Add a new user exception to the system.
      * 
      * @param  Request  $request
@@ -102,77 +42,72 @@ class UserExceptionController extends Controller
      */
     public function create(Request $request)
     {
-        $input=$request->all();
-        $validator= Validator::make($input, [
+        $input = $request->all();
+        $validator = Validator::make($input, [
             'reason' => 'required|string',
             'type_id' => 'required|int',
             // 'end_at' => 'required|date|after:yesterday',
         ]);
-        
-        if($validator->fails()){
-          return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $current_week = Week::latest()->first();
         $input['user_id'] = Auth::id();
         $input['week_id'] =  $current_week->id;
 
-        if ($request->type_id == 1){ // freeze 
-            if(!Auth::user()->hasRole(['leader','supervisor','advisor','admin'])){
+        if ($request->type_id == 1) { // freeze 
+            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'admin'])) {
                 $laseFreezing = UserException::where('user_id', Auth::id())->where('type_id', 1)->pluck('week_id')->first();
-                if (!$laseFreezing || $laseFreezing+4 < $current_week->id) {
+                if (!$laseFreezing || $laseFreezing + 4 < $current_week->id) {
                     $input['end_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
-                    $input['status']='accepted';
+                    $input['status'] = 'accepted';
                     $userException = UserException::create($input);
 
-                    $group = UserGroup::where('user_id',Auth::id())->where('user_type','ambassador')->pluck('group_id')->first();
-                    $leader_id = UserGroup::where('group_id',$group)->where('user_type','leader')->pluck('user_id')->first();
-                    $msg = "The ambassador ".Auth::user()->name . " used freezing system for this week";
+                    $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
+                    $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
+                    $msg = "The ambassador " . Auth::user()->name . " used freezing system for this week";
                     (new NotificationController)->sendNotification($leader_id, $msg);
 
                     return $this->jsonResponseWithoutMessage("User Exception Created Successfully For One Week", 'data', 200);
                 } else {
                     return $this->jsonResponseWithoutMessage("Sorry, You can use freezing system just once each 4 weeks", 'data', 200);
-
                 }
             } else {
                 return $this->jsonResponseWithoutMessage("Sorry, You can not use freezing system", 'data', 200);
             }
-
         } elseif ($request->type_id == 2) { // exceptional freeze
 
             //$input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
-            $input['status'] = 'pending'; 
+            $input['status'] = 'pending';
             $userException = UserException::create($input);
 
-            $group = UserGroup::where('user_id',Auth::id())->where('user_type','ambassador')->pluck('group_id')->first();
-            $advisor_id = UserGroup::where('group_id',$group)->where('user_type','advisor')->pluck('user_id')->first();
-            $leader_id = UserGroup::where('group_id',$group)->where('user_type','leader')->pluck('user_id')->first();
+            $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
+            $advisor_id = UserGroup::where('group_id', $group)->where('user_type', 'advisor')->pluck('user_id')->first();
+            $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
 
-            $msg = "You have new user exception request from ".Auth::user()->name;
+            $msg = "You have new user exception request from " . Auth::user()->name;
             (new NotificationController)->sendNotification($advisor_id, $msg);
 
-            $msg = "There is a new freezing exception request from ".Auth::user()->name . "needs advisor approval";
+            $msg = "There is a new freezing exception request from " . Auth::user()->name . "needs advisor approval";
             (new NotificationController)->sendNotification($leader_id, $msg);
 
             return $this->jsonResponseWithoutMessage("Your Exceptional Freezing request is under review", 'data', 200);
+        } elseif ($request->type_id == 3) { // exams  
+            //$input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
+            $input['status'] = 'pending';
+            $userException = UserException::create($input);
 
-         }  elseif ($request->type_id == 3) { // exams  
-                //$input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
-                $input['status'] = 'pending'; 
-                $userException = UserException::create($input);
-    
-                $group = UserGroup::where('user_id',Auth::id())->where('user_type','ambassador')->pluck('group_id')->first();
-                $leader_id = UserGroup::where('group_id',$group)->where('user_type','leader')->pluck('user_id')->first();
+            $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
+            $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
 
-                $msg = "You have new user exception request from ".Auth::user()->name;
-                (new NotificationController)->sendNotification($leader_id, $msg);
-    
-                return $this->jsonResponseWithoutMessage("Your Exam Exceptional request is under review", 'data', 200);
+            $msg = "You have new user exception request from " . Auth::user()->name;
+            (new NotificationController)->sendNotification($leader_id, $msg);
+
+            return $this->jsonResponseWithoutMessage("Your Exam Exceptional request is under review", 'data', 200);
         } else {
             throw new NotFound;
         }
-
-        
     }
     /**
      * Find an existing user exception in the system by its id display it.
@@ -180,32 +115,21 @@ class UserExceptionController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function show(Request $request)
+    public function show($exception_id)
     {
-        $validator = Validator::make($request->all(), [
-            'exception_id' => 'required',
-        ]);
-        
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
+        $userException = UserException::find($exception_id);
 
-        $userException = UserException::find($request->exception_id);
-        
-        if($userException){ 
-            if(Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader','supervisor','advisor']))
-            {
-             return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException),'data', 200);
-            }
-
-            else{
+        if ($userException) {
+            if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor'])) {
+                return $this->jsonResponseWithoutMessage(new UserExceptionResource($userException), 'data', 200);
+            } else {
                 throw new NotAuthorized;
             }
-        }//end if $userexception
-        
-        else{
+        } //end if $userexception
+
+        else {
             throw new NotFound;
-         }
+        }
     }
 
     /**
@@ -216,25 +140,24 @@ class UserExceptionController extends Controller
      */
     public function update(Request $request)
     {
-        $input=$request->all();
-        $validator= Validator::make($input, [
+        $input = $request->all();
+        $validator = Validator::make($input, [
             'exception_id' => 'required',
             'reason' => 'required|string',
             'end_at' => 'required|date|after:yesterday',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        
+
         $userException = UserException::find($request->exception_id);
-        if($userException){
-            if(Auth::id() == $userException->user_id && $userException->status == 'pending'){
+        if ($userException) {
+            if (Auth::id() == $userException->user_id && $userException->status == 'pending') {
                 $input['reason'] = $request->reason;
                 $input['end_at'] = Carbon::parse($request->end_at)->format('Y-m-d');
                 $userException->update($input);
                 return $this->jsonResponseWithoutMessage("User Exception Updated", 'data', 200);
-            
             } else {
                 throw new NotAuthorized;
             }
@@ -243,7 +166,7 @@ class UserExceptionController extends Controller
         }
     }
 
-     /**
+    /**
      * Delete an existing user exception in the system by its id.
      * A user exception can’t be deleted unless: 
      * 1 - The id of auth user matches the user_id for the specified user exception.
@@ -259,30 +182,28 @@ class UserExceptionController extends Controller
             'exception_id' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $userException = UserException::find($request->exception_id);
 
-        if ($userException){
+        if ($userException) {
             $current_week = Week::latest()->pluck('id')->first();
-            if(Auth::id() == $userException->user_id ){
-                if($userException->status == 'pending' || ($userException->week_id == $current_week && $userException->type_id == 1)  ){
+            if (Auth::id() == $userException->user_id) {
+                if ($userException->status == 'pending' || ($userException->week_id == $current_week && $userException->type_id == 1)) {
                     $userException->delete();
                     return $this->jsonResponseWithoutMessage("User Exception Revoked", 'data', 200);
-                } elseif ($userException->status == 'accepted' && $userException->end_at > Carbon::now()){
+                } elseif ($userException->status == 'accepted' && $userException->end_at > Carbon::now()) {
                     $userException->status = 'cancelled';
                     $userException->update();
                     return $this->jsonResponseWithoutMessage("User Exception Cancelled", 'data', 200);
                 } else {
                     return $this->jsonResponseWithoutMessage("You Can not Revoke This Exception", 'data', 200);
                 }
-            }
-            else {
+            } else {
                 throw new NotAuthorized;
-            }//end if Auth
-        }
-        else {
+            } //end if Auth
+        } else {
             throw new NotFound();
         }
     }
@@ -294,7 +215,7 @@ class UserExceptionController extends Controller
      */
     public function getMonth()
     {
-        $currentMonth=Carbon::now();
+        $currentMonth = Carbon::now();
         return $currentMonth->month;
     }
 
@@ -302,25 +223,25 @@ class UserExceptionController extends Controller
      * To reject and accept userException
      */
     public function updateStatus(Request $request)
-    {   
-        $input=$request->all();
-        $validator= Validator::make($input, [
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
             'exception_id' => 'required',
             'status' => 'required',
             'note' => 'nullable|string',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         $userException = UserException::find($request->exception_id);
-        if($userException){
-            if($userException->type_id == 2){ //exceptional freezing
-                $group = UserGroup::where('user_id',$userException->user_id)->where('user_type','ambassador')->pluck('group_id')->first();
-                $advisor_id = UserGroup::where('group_id',$group)->where('user_type','advisor')->pluck('user_id')->first();
-                $leader_id = UserGroup::where('group_id',$group)->where('user_type','leader')->pluck('user_id')->first();
-                if(Auth::id() == $advisor_id || Auth::user()->can('list pending exception')){
+        if ($userException) {
+            if ($userException->type_id == 2) { //exceptional freezing
+                $group = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+                $advisor_id = UserGroup::where('group_id', $group)->where('user_type', 'advisor')->pluck('user_id')->first();
+                $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
+                if (Auth::id() == $advisor_id || Auth::user()->can('list pending exception')) {
                     $userException['status'] = $request->status;
                     $userException['note'] = $request->note;
                     $userException['reviewer_id'] = Auth::id();
@@ -329,46 +250,43 @@ class UserExceptionController extends Controller
                     throw new NotAuthorized;
                 }
                 //notify leader
-                $msg = "The " .Auth::user()->name. " is under Exceptional Freezing until ".$userException->end_at;
+                $msg = "The " . Auth::user()->name . " is under Exceptional Freezing until " . $userException->end_at;
                 (new NotificationController)->sendNotification($leader_id, $msg);
                 //notify ambassador
-                $msg = "Your Exceptional Freezing is ". $userException['status'] ;
+                $msg = "Your Exceptional Freezing is " . $userException['status'];
                 (new NotificationController)->sendNotification($userException->user_id, $msg);
 
                 return $this->jsonResponseWithoutMessage("User Exception Updated", 'data', 200);
-
             } elseif ($userException->type_id == 3) { // exam exception
-                $group = UserGroup::where('user_id',$userException->user_id)->where('user_type','ambassador')->pluck('group_id')->first();
-                $leader_id = UserGroup::where('group_id',$group)->where('user_type','leader')->pluck('user_id')->first();
-                if(Auth::id() == $leader_id || Auth::user()->can('list pending exception')){
+                $group = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+                $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
+                if (Auth::id() == $leader_id || Auth::user()->can('list pending exception')) {
                     $userException['status'] = $request->status;
                     $userException['note'] = $request->note;
                     $userException['reviewer_id'] = Auth::id();
                     $userException->update();
 
                     //notify ambassador
-                    $msg = "Your Exam Exception is ". $userException['status'] ;
+                    $msg = "Your Exam Exception is " . $userException['status'];
                     (new NotificationController)->sendNotification($userException->user_id, $msg);
 
                     return $this->jsonResponseWithoutMessage("UserException Status is Updated", 'data', 200);
-
                 } else {
                     throw new NotAuthorized;
                 }
-        
             } else {
                 return $this->jsonResponseWithoutMessage("You Can not change status for this exception ", 'data', 200);
             }
         } else {
             throw new NotFound();
         }
-    } 
+    }
 
     public function listPindigExceptions()
-    { 
-        if(Auth::user()->can('list pending exception')){
+    {
+        if (Auth::user()->can('list pending exception')) {
             $userExceptions = UserException::where('status', 'pending')->get();
-            if($userExceptions){
+            if ($userExceptions) {
                 return $this->jsonResponseWithoutMessage(UserExceptionResource::collection($userExceptions), 'data', 200);
             } else {
                 throw new NotFound();
@@ -379,9 +297,9 @@ class UserExceptionController extends Controller
     }
 
     public function addExceptions(Request $request)
-    { 
-        $input=$request->all();
-        $validator= Validator::make($input, [
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
             'user_email' => 'required|email',
             'reason' => 'required|string',
             'type_id' => 'required|int',
@@ -389,23 +307,23 @@ class UserExceptionController extends Controller
             'note' => 'nullable'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if( Auth::user()->hasRole(['admin','advisor'])){
-            $user = User::where('email',$request->user_email)->pluck('id')->first();
-            if($user){    
+        if (Auth::user()->hasRole(['admin', 'advisor'])) {
+            $user = User::where('email', $request->user_email)->pluck('id')->first();
+            if ($user) {
                 $current_week = Week::latest()->pluck('id')->first();
                 $input['week_id'] =  $current_week;
                 $input['user_id'] = $user;
                 $input['status'] = 'accepted';
                 $input['reviewer_id'] = Auth::id();
-                $input['end_at']=Carbon::parse($request->end_at)->format('Y-m-d');
+                $input['end_at'] = Carbon::parse($request->end_at)->format('Y-m-d');
 
                 $userException = UserException::create($input);
 
-                $msg = "You have exception vacation until ". $userException->end_at ;
+                $msg = "You have exception vacation until " . $userException->end_at;
                 (new NotificationController)->sendNotification($user, $msg);
 
                 return $this->jsonResponseWithoutMessage('User Exception created', 'data', 200);
@@ -418,18 +336,16 @@ class UserExceptionController extends Controller
     }
 
     public function finisfedException()
-    { 
-        $userExceptions = UserException::where('status','accepted')->whereDate('end_at','<',Carbon::now())->get();
-        if(!$userExceptions->isEmpty()) {
+    {
+        $userExceptions = UserException::where('status', 'accepted')->whereDate('end_at', '<', Carbon::now())->get();
+        if (!$userExceptions->isEmpty()) {
             foreach ($userExceptions as $userException) {
                 $userException['status'] = 'finished';
                 $userException->update();
             }
             return $this->jsonResponseWithoutMessage('Done', 'data', 200);
-            
         } else {
             return $this->jsonResponseWithoutMessage('all exception are alrady finished', 'data', 200);
         }
     }
-    
 }
