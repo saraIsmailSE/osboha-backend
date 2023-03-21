@@ -21,8 +21,7 @@ class CreatePostsTable extends Migration
             $table->integer('type_id');
             $table->integer('book_id')->nullable(); //asmaa
             $table->boolean('allow_comments')->default(1);
-            $table->text('tag')->nullable();
-            $table->text('vote')->nullable();
+            $table->text('tags')->nullable();
             $table->timestamp('is_approved')->nullable()->useCurrent();
             $table->boolean('is_pinned')->default(0);
             $table->timestamps();

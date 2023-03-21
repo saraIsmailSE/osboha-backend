@@ -13,28 +13,42 @@ use App\Traits\ResponseJson;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\FriendResource;
+use App\Http\Resources\UserInfoResource;
 use Illuminate\Support\Facades\DB;
 
 
 class FriendController extends Controller
-{   
+{
     use ResponseJson;
 
-     /**
+    /**
      * Return all user`s freinds.
      *
      * @return jsonResponseWithoutMessage
      */
     public function index()
     {
-        $friends = DB::table('friends')
-        ->where('user_id', Auth::id())
-        ->orWhere('friend_id', Auth::id())
-        ->groupBy('friend_id')
-        ->get();
-        
-        return $this->jsonResponseWithoutMessage($friends, 'data', 200);
-            //return $this->jsonResponseWithoutMessage(FriendResource::collection($friends), 'data', 200);
+        // $friends = DB::table('friends')
+        // ->where('user_id', Auth::id())
+        // ->orWhere('friend_id', Auth::id())
+        // ->groupBy('friend_id')
+        // ->get();
+
+        // return $this->jsonResponseWithoutMessage($friends, 'data', 200);
+        //return $this->jsonResponseWithoutMessage(FriendResource::collection($friends), 'data', 200);
+
+        $user = Auth::user();
+
+        $friends = $user->friends()->get();
+        $friendsOf = $user->friendsOf()->get();
+
+        $friends = $friends->merge($friendsOf);
+
+        if ($friends->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(UserInfoResource::collection($friends), 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage("No Friends", 'data', 200);
     }
 
     /**
@@ -52,21 +66,20 @@ class FriendController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if (User::where('id',$request->friend_id)->exists()) {
-            $friend=$request->friend_id;
+        if (User::where('id', $request->friend_id)->exists()) {
+            $friend = $request->friend_id;
 
-            $friendship=Friend::where(function($q) {
+            $friendship = Friend::where(function ($q) {
                 $q->where('user_id', Auth::id())
-                ->orWhere('friend_id', Auth::id());
-                })
-                ->where(function($q) use ($friend){
-                    $q->where('user_id',$friend)
-                    ->orWhere('friend_id',$friend);
-                    })->get();
-                if ($friendship->isNotEmpty()) {
-                    return $this->jsonResponseWithoutMessage("Friendship already exsits", 'data', 200);
-
-                } else {
+                    ->orWhere('friend_id', Auth::id());
+            })
+                ->where(function ($q) use ($friend) {
+                    $q->where('user_id', $friend)
+                        ->orWhere('friend_id', $friend);
+                })->get();
+            if ($friendship->isNotEmpty()) {
+                return $this->jsonResponseWithoutMessage("Friendship already exsits", 'data', 200);
+            } else {
                 $input = $request->all();
                 $input['user_id'] = Auth::id();
                 Friend::create($input);
@@ -74,15 +87,12 @@ class FriendController extends Controller
                 $msg = "You have new friend request";
                 (new NotificationController)->sendNotification($request->friend_id, $msg);
                 return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
-
-                } 
-        }
-        else{
+            }
+        } else {
             return $this->jsonResponseWithoutMessage("user dose not exists", 'data', 200);
         }
-
     }
-    
+
     /**
      * Find and show an existing frienship in the system by its id.
      *
@@ -123,27 +133,24 @@ class FriendController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
+        }
 
         $friendship = Friend::find($request->friendship_id);
-        if($friendship){
+        if ($friendship) {
             // to accept user should not be the auther of the relation
-            if(Auth::id() != $friendship->user_id || Auth::id() == $friendship->friend_id){
-                $friendship->status=1;
+            if (Auth::id() != $friendship->user_id || Auth::id() == $friendship->friend_id) {
+                $friendship->status = 1;
                 $friendship->save();
                 return $this->jsonResponseWithoutMessage("Friend Accepted Successfully", 'data', 200);
+            } else {
+                throw new NotAuthorized;
             }
-            else{
-                throw new NotAuthorized;   
-            }
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        }
-    
     }
-    
-    
+
+
     /**
      * Delete frienship in the system using its id[only friend_id = Auth can delete].
      *
@@ -169,12 +176,8 @@ class FriendController extends Controller
             } else {
                 throw new NotAuthorized;
             }
-        } 
-        else {
+        } else {
             throw new NotFound;
-            
         }
-        
-        
     }
 }

@@ -147,5 +147,14 @@ class User extends Authenticatable
     public function exception(){
         return $this->hasMany(UserException::class);
     }
+
+    public function friends(){
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')->wherePivot('status', 1);
+    }
+
+    public function friendsOf(){
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')->wherePivot('status', 1);
+    }
+    
 }
 

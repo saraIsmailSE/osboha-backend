@@ -15,7 +15,8 @@ class UserInfoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'name' => $this->name,     
+            'id' => $this->id,
+            'name' => $this->name,
             'profile' => new ProfilePictureResource($this->userProfile),
             'roles' => $this->getRoleNames(),
         ];

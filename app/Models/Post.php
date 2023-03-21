@@ -14,8 +14,7 @@ class Post extends Model
         'user_id',
         'type_id',
         'allow_comments',
-        'tag',
-        'vote',
+        'tags',
         'is_approved',
         'is_pinned',
         'timeline_id',
@@ -62,7 +61,8 @@ class Post extends Model
         return $this->belongsTo(PostType::class);
     }
 
-    public function rates(){
+    public function rates()
+    {
         return $this->hasMany(Rate::class, 'post_id');
     }
 }

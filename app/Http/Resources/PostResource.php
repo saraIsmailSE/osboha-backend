@@ -20,18 +20,18 @@ class PostResource extends JsonResource
             //'user_id' => new UserProfileResource($this->user_id),
             //'user_id' => new UserProfileResource($this->whenLoaded('user', $this->user_id))
             //"user"=> new UserProfileResource($this->whenLoaded('user')),
-
-            'user' => new UserResource($this->user),
+            'id' => $this->id,
+            'user' => new UserResource($this->whenLoaded('user')),
             'body' => $this->body,
             'type_id' => $this->type_id,
             'allow_comments' => $this->allow_comments,
-            'tag' => unserialize($this->tag),
-            'vote' => unserialize($this->vote),
+            // 'tags' => UserInfoResource::collection(unserialize($this->tags)),
+            'tags' => unserialize($this->tags),
             'is_approved' => $this->is_approved,
             'is_pinned' => $this->is_pinned,
             'timeline_id' => $this->timeline_id,
-            'comments'=>  $this->comments,
-            'media'=>$this->media
+            'comments' =>  CommentResource::collection($this->comments),
+            'media' => MediaResource::collection($this->media),
         ];
     }
 }
