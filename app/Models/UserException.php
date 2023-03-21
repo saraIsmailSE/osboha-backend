@@ -17,9 +17,15 @@ class UserException extends Model
         'status',
         'end_at',
         'note',
+        'reviewer_id',
+
     ];
 
     public function User()
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function reviewer()
     {
         return $this->belongsTo(User::class);
     }

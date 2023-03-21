@@ -14,10 +14,9 @@ class FriendResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            //    "user"=> new UserResource($this->whenLoaded('user')),
-            //    "friend"=> new UserResource($this->friend),
-
+        return[
+            "user"=> new UserResource($this->user),
+            "friend"=> new UserResource($this->friend),
         ];
     }
 }

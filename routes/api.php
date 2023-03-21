@@ -41,6 +41,9 @@ use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
 use App\Http\Controllers\api\WeekController;
 use App\Http\Controllers\Api\MessagesController;
+use App\Http\Controllers\Api\UserBookController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +55,7 @@ use App\Http\Controllers\Api\MessagesController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 
 Route::group(['prefix' => 'v1'], function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -165,7 +169,6 @@ Route::group(['prefix' => 'v1'], function () {
             //Route::get('/statsmark', [MarkController::class, 'statsMark']);
         });
         ########End Mark########
-
         ########RejectedMark########
         Route::group(['prefix' => 'rejected-mark'], function () {
             Route::get('/', [RejectedMarkController::class, 'index']);
@@ -196,17 +199,18 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ############End UserException########
 
-        ############Group############
-        Route::group(['prefix' => 'group'], function () {
-            Route::get('/', [GroupController::class, 'index']);
-            Route::post('/create', [GroupController::class, 'create']);
-            Route::post('/show', [GroupController::class, 'show']);
-            Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
-            Route::post('/update', [GroupController::class, 'update']);
-            Route::post('/delete', [GroupController::class, 'delete']);
-            Route::get('/userGrops', [GroupController::class, 'userGrops']);
-        });
-        ############End Group############
+    ############Group############
+    Route::group(['prefix' => 'group'], function () {
+        Route::get('/', [GroupController::class, 'index']);
+        Route::post('/create', [GroupController::class, 'create']);
+        Route::get('/show/{group_id}', [GroupController::class, 'show']);
+        Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
+        Route::post('/update', [GroupController::class, 'update']);
+        Route::post('/delete', [GroupController::class, 'delete']);
+        Route::get('/books/{group_id}', [GroupController::class, 'books']);
+        Route::get('/groupExceptions/{group_id}', [GroupController::class, 'groupExceptions']);
+
+
 
         ########Start Activity########
         Route::group(['prefix' => 'activity'], function () {
@@ -234,7 +238,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/show', [SocialMediaController::class, 'show']);
         });
         ########End SocialMedia########
-
         ########Start Timeline ########
         Route::group(['prefix' => 'timeline'], function () {
             Route::get('/', [TimelineController::class, 'index']);
@@ -244,7 +247,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/delete', [TimelineController::class, 'delete']);
         });
         ########End Timeline ########
-
         ########Start Infographic########
         Route::group(['prefix' => 'infographic'], function () {
             Route::get('/', [InfographicController::class, 'index']);
@@ -301,7 +303,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [UserProfileController::class, 'update']);
         });
         ########End User-Profile########
-
         ########Profile-Setting########
         Route::group(['prefix' => 'profile-setting'], function () {
             Route::post('/show', [ProfileSettingController::class, 'show']);
@@ -356,7 +357,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/delete', [SectionController::class, 'delete']);
         });
         ######## Section ########
-
         ######## Book-Type ########
         Route::group(['prefix' => 'book-type'], function () {
             Route::get('/', [BookTypeController::class, 'index']);

@@ -18,11 +18,17 @@ class Group extends Model
         'timeline_id'
     ];
 
+    protected $with = array('Timeline','type');
+
+
     public function users(){
         return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type','termination_reason');
     }
     public function userAmbassador(){
         return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','ambassador');
+    }
+    public function groupAdministrators(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivotIn('user_type',['advisor','supervisor','leader']);
     }
     public function admin(){
         return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','admin');
