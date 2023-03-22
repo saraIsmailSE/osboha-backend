@@ -15,13 +15,12 @@ use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\PostResource;
-
+use App\Models\PollOption;
+use App\Models\PostType;
+use App\Models\TimelineType;
 
 class PostController extends Controller
 {
@@ -43,7 +42,7 @@ class PostController extends Controller
             throw new NotFound;
         }
     }
-     /**
+    /**
      * Add a new post to the system (“create post” permission is required) 
      * 
      * @param  Request  $request
@@ -51,28 +50,30 @@ class PostController extends Controller
      */
     public function create(Request $request)
     {
-        //validate requested data
-        $validator = Validator::make($request->all(), [
-            'body' => 'required_without:image',
-            'type' => 'required',
-            'timeline_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body',
-            'book_id' => 'required_if:type,==,1' //post type = 1 => book
-        ]);
 
+        $validator = $this->validatePost($request);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-         
+
+        $user_id = Auth::id();
+
+        if (Auth::user()->can('create post')) {
+
             $input = $request->all();
-            $timeline = Timeline::find($request->timeline_id);
+
+            $type_id = PostType::where('type', $request->type)->first()->id;
+
+            $input['type_id'] = $type_id;
+
+            $timeline = Timeline::find($request->timeline_id)->first();
 
             if (!empty($timeline)) {
                 if ($timeline->type_id == 4) { //timeline type => group
                     $group = Group::where('timeline_id', $timeline->id)->first();
                     $user = UserGroup::where([
                         ['group_id', $group->id],
-                        ['user_id', Auth::id()]
+                        ['user_id', $user_id]
                     ])->first();
                     if ($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader") {
                         $input['is_approved'] = null;
@@ -86,6 +87,7 @@ class PostController extends Controller
                         $msg = "There are new posts need approval";
                         (new NotificationController)->sendNotification($leader->user_id, $msg);
                     }
+
 
                 } elseif ($timeline->type_id == 5) { //timeline type => profile
                     if($timeline->profile->user_id != Auth::id()) { // post in another profile
@@ -109,6 +111,10 @@ class PostController extends Controller
                     }
                 } 
 
+                if ($request->has('tags')) {
+                    $input['tags'] = serialize($request->tags);
+                }
+
                 if ($request->has('vote')) {
                     $input['vote'] = serialize($request->vote);
                 }
@@ -123,13 +129,22 @@ class PostController extends Controller
                 $input['type_id'] = $request->type;
 
                 $post = Post::create($input);
-
-                if ($request->hasFile('image')) {
-                    // if post has media
-                    // upload media
-                    $this->createMedia($request->file('image'), $post->id, 'post');
+                if ($request->has('votes')) {
+                    foreach ($request->votes as $vote) {
+                        PollOption::create([
+                            'post_id' => $post->id,
+                            'option' => $vote
+                        ]);
+                    }
                 }
-                return $this->jsonResponseWithoutMessage("Post Craeted Successfully", 'data', 200);
+
+                if ($request->has('media')) {
+                    //loop through the media array and upload each media
+                    foreach ($request->media as $media) {
+                        $this->createMedia($media, $post->id, 'post');
+                    }
+                }
+                return $this->jsonResponseWithoutMessage(new PostResource($post), 'data', 200);
             } else {
                 throw new NotFound;
             }
@@ -218,7 +233,7 @@ class PostController extends Controller
         } else {
             throw new NotFound;
         }
-    }        
+    }
     /**
      * Delete an existing post in the system by auth user or with “delete post” permission.
      * 
@@ -296,7 +311,7 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function listPostsToAccept (Request $request)
+    public function listPostsToAccept(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'timeline_id' => 'required',
@@ -322,7 +337,7 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function AcceptPost(Request $request)
+    public function acceptPost(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'post_id' => 'required',
@@ -374,7 +389,8 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function controllComments(Request $request){
+    public function controlComments(Request $request)
+    {
         // user can controll comments [allowed or not]  if he is the owner or has a controll comments permission
         $validator = Validator::make($request->all(), [
             'allow_comments' => 'required',
@@ -384,30 +400,25 @@ class PostController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        
+
         $post = Post::find($request->post_id);
-        if($post){
-            if(Auth::id() == $post->user_id || Auth::user()->can('controll comments')){
-                $post->allow_comments=$request->allow_comments;
+        if ($post) {
+            if (Auth::id() == $post->user_id || Auth::user()->can('controll comments')) {
+                $post->allow_comments = $request->allow_comments;
                 $post->save();
 
-                if($request->allow_comments == 0 ){
+                if ($request->allow_comments == 0) {
                     $msg = "Comments Closed Successfully";
-                }
-                else{
+                } else {
                     $msg = "Comments Opend Successfully";
                 }
                 return $this->jsonResponseWithoutMessage($msg, 'data', 200);
-
-            }    
-            else{
-                throw new NotAuthorized;   
+            } else {
+                throw new NotAuthorized;
             }
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        } 
-
     }
     /**
      * User can pin post on his profile or if user has a pin post permission.
@@ -415,7 +426,8 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function pinnPost(Request $request){
+    public function pinPost(Request $request)
+    {
         // user can pin post on his profile or if he has a pin post permission
         $validator = Validator::make($request->all(), [
             'is_pinned' => 'required',
@@ -425,26 +437,82 @@ class PostController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        
+
         $post = Post::find($request->post_id);
-        if($post){
-            if(Auth::user()->userProfile->timeline_id == $post->timeline_id || Auth::user()->can('pin ')){
-               
-                Post::where('id',$request->post_id)->update(['is_pinned'=>$request->is_pinned]);
-                if($request->is_pinned == 0 ){
+        if ($post) {
+            if (Auth::user()->userProfile->timeline_id == $post->timeline_id || Auth::user()->can('pin ')) {
+
+                Post::where('id', $request->post_id)->update(['is_pinned' => $request->is_pinned]);
+                if ($request->is_pinned == 0) {
                     $msg = "Post Unpinned Successfully";
-                }
-                else{
+                } else {
                     $msg = "Post Pinned Successfully";
                 }
                 return $this->jsonResponseWithoutMessage($msg, 'data', 200);
-            }    
-            else{
-                throw new NotAuthorized;   
+            } else {
+                throw new NotAuthorized;
             }
+        } else {
+            throw new NotFound;
         }
-        else{
-            throw new NotFound;   
-        } 
-    }    
+    }
+
+    //validate data for creating and updating posts
+    public function validatePost(Request $request)
+    {
+        $post_types = PostType::all()->pluck('type')->toArray();
+
+        return Validator::make($request->all(), [
+            'body' => 'required_with:votes|required_without:media|string',
+            'type' => 'required|string|in:' . implode(',', $post_types),
+            'timeline_id' => 'required|integer',
+            'tags' => 'nullable|array',
+            'tags.*' => 'integer',
+            'votes' => 'nullable|array',
+            'votes.*' => 'string',
+            'media' => 'required_without_all:body,votes|array',
+            'media.*' => [
+                function ($attribute, $value, $fail) {
+                    //check if is it image
+                    $is_image = Validator::make(
+                        ['upload' => $value],
+                        ['upload' => 'image|mimes:jpeg,png,jpg']
+                    )->passes();
+
+                    //check if is it video
+                    $is_video = Validator::make(
+                        ['upload' => $value],
+                        ['upload' => 'mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4']
+                    )->passes();
+
+                    //return error if not image or video
+                    if (!$is_video && !$is_image) {
+                        $fail(':attribute must be image (.png, .jpeg, .jpg) or video.');
+                    }
+
+                    //if video, check if it is less than 10MB
+                    if ($is_video) {
+                        $validator = Validator::make(
+                            ['video' => $value],
+                            ['video' => "max:102400"]
+                        );
+                        if ($validator->fails()) {
+                            $fail(":attribute must be 10 megabytes or less.");
+                        }
+                    }
+
+                    //if image, check if it is less than 2MB
+                    if ($is_image) {
+                        $validator = Validator::make(
+                            ['image' => $value],
+                            ['image' => "max:2048"]
+                        );
+                        if ($validator->fails()) {
+                            $fail(":attribute must be two megabytes or less.");
+                        }
+                    }
+                },
+            ],
+        ]);
+    }
 }

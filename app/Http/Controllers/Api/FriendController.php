@@ -13,6 +13,7 @@ use App\Traits\ResponseJson;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\FriendResource;
+use App\Http\Resources\UserInfoResource;
 use Illuminate\Support\Facades\DB;
 
 
@@ -25,6 +26,31 @@ class FriendController extends Controller
      * @param  $user_id
      * @return jsonResponseWithoutMessage
      */
+
+    public function index()
+    {
+        // $friends = DB::table('friends')
+        // ->where('user_id', Auth::id())
+        // ->orWhere('friend_id', Auth::id())
+        // ->groupBy('friend_id')
+        // ->get();
+
+        // return $this->jsonResponseWithoutMessage($friends, 'data', 200);
+        //return $this->jsonResponseWithoutMessage(FriendResource::collection($friends), 'data', 200);
+
+        $user = Auth::user();
+
+        $friends = $user->friends()->get();
+        $friendsOf = $user->friendsOf()->get();
+
+        $friends = $friends->merge($friendsOf);
+
+        if ($friends->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(UserInfoResource::collection($friends), 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage("No Friends", 'data', 200);
+}
     public function listByUserId($user_id)
     {        
         $user = User::find($user_id);
@@ -33,6 +59,7 @@ class FriendController extends Controller
         $allFriends = $friends->merge($friendsOf);
 
         return $this->jsonResponseWithoutMessage($allFriends, 'data', 200);
+
     }
     /**
      * Return all unaccepted user`s freinds.
@@ -129,10 +156,12 @@ class FriendController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
+
         if (Auth::id() == $request->user_id || Auth::id() == $request->friend_id) {
 
             $friendship = Friend::where('user_id', $request->user_id)->where('friend_id', $request->friend_id)->first();
             if ($friendship) {
+
                 $friendship->status = 1;
                 $friendship->save();
                 return $this->jsonResponseWithoutMessage("Friend Accepted Successfully", 'data', 200);
@@ -173,6 +202,7 @@ class FriendController extends Controller
             }
         } else {
             throw new NotAuthorized;
+
         }
     }
 }

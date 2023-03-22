@@ -17,7 +17,6 @@ class FriendResource extends JsonResource
         return[
             "user"=> new UserResource($this->user),
             "friend"=> new UserResource($this->friend),
-
         ];
     }
 }
