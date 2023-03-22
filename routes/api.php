@@ -217,8 +217,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update', [GroupController::class, 'update']);
         Route::post('/delete', [GroupController::class, 'delete']);
         Route::get('/books/{group_id}', [GroupController::class, 'books']);
-        Route::get('/groupExceptions/{group_id}', [GroupController::class, 'groupExceptions']);
-
+        Route::get('/group-exceptions/{group_id}', [GroupController::class, 'groupExceptions']);
+        Route::get('/basic-mark-view/{group_id}', [GroupController::class, 'BasicMarksView']);
+        Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
+        Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
 
     });
     ############End Group############

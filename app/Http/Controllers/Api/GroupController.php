@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\File;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\UserExceptionResource;
+use App\Models\LeaderRequest;
 use App\Models\Mark;
 use App\Models\UserBook;
 use App\Models\UserException;
@@ -259,11 +260,27 @@ class GroupController extends Controller
 
         if ($userInGroup != 'ambassador') {
             $group = Group::with('users')->where('id', $group_id)->first();
-            $exceptions = UserException::whereIn('user_id', $group->pluck('id'))->latest()->get();
+            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->latest()->get();
             return $this->jsonResponseWithoutMessage(UserExceptionResource::collection($exceptions), 'data', 200);
         } else {
             throw new NotAuthorized;
         }
+    }
+
+    public function BasicMarksView($group_id)
+    {
+
+        $group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+        $current_week = Week::latest()->pluck('id')->first();
+        $marks['group_users'] = $group->leaderAndAmbassadors->count();
+        $marks['full'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 100)->count();
+        $marks['incomplete'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->where('out_of_100', '>', 0)->where('out_of_100', '<', 100)->count();
+        $marks['zero'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 0)->count();
+        $marks['random_achevment'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
+        $marks['most_read'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
+
+
+        return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
 
     //the function will return all posts - discuss it later
@@ -275,6 +292,47 @@ class GroupController extends Controller
 
         if ($timeLine) {
             return $timeLine;
+        } else {
+            throw new NotFound;
+        }
+    }
+
+    /**
+     * Add a new leader request (“create RequestAmbassador” permission is required)
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
+    public function createLeaderRequest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'group_id' => 'required',
+            'members_num' => 'required',
+            'gender' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $newRequest['members_num'] = $request->members_num;
+        $newRequest['gender'] = $request->gender;
+        $request['leader_id'] = Auth::id();
+        if (Auth::user()->can('create RequestAmbassador')) {
+            $group = Group::with('userAmbassador')->with('groupLeader')->where('id', $request->group_id)->first();
+            $newRequest['current_team_count'] = $group->userAmbassador->count();
+            $newRequest['leader_id'] = $group->groupLeader[0]->id;
+            $leaderRequest = LeaderRequest::create($newRequest);
+            return $this->jsonResponseWithoutMessage($leaderRequest, 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+    public function lastLeaderRequest($group_id)
+    {
+        $group = Group::with('groupLeader')->where('id', $group_id)->first();
+
+        if ($group) {
+            $leaderRequest = LeaderRequest::where('leader_id', $group->groupLeader[0]->id)->latest()->first();
+            return $this->jsonResponseWithoutMessage($leaderRequest, 'data', 200);
         } else {
             throw new NotFound;
         }
