@@ -149,7 +149,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########End Media route########
         ########Start Friend route########
         Route::group(['prefix' => 'friends'], function () {
-            Route::get('/', [FriendController::class, 'index']);
+            Route::get('/user/{user_id}', [FriendController::class, 'listByUserId'])->where('user_id', '[0-9]+');
             Route::post('/', [FriendController::class, 'create']);
             Route::get('/{friendship-id}', [FriendController::class, 'show'])->where('friendship-id', '[0-9]+');
             Route::patch('/accept-friend-request/{friendship-id}', [FriendController::class, 'accept']);
@@ -199,18 +199,17 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ############End UserException########
 
-    ############Group############
-    Route::group(['prefix' => 'group'], function () {
-        Route::get('/', [GroupController::class, 'index']);
-        Route::post('/create', [GroupController::class, 'create']);
-        Route::get('/show/{group_id}', [GroupController::class, 'show']);
-        Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
-        Route::post('/update', [GroupController::class, 'update']);
-        Route::post('/delete', [GroupController::class, 'delete']);
-        Route::get('/books/{group_id}', [GroupController::class, 'books']);
-        Route::get('/groupExceptions/{group_id}', [GroupController::class, 'groupExceptions']);
-
-
+        ############Group############
+        Route::group(['prefix' => 'group'], function () {
+            Route::get('/', [GroupController::class, 'index']);
+            Route::post('/create', [GroupController::class, 'create']);
+            Route::get('/show/{group_id}', [GroupController::class, 'show']);
+            Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
+            Route::post('/update', [GroupController::class, 'update']);
+            Route::post('/delete', [GroupController::class, 'delete']);
+            Route::get('/books/{group_id}', [GroupController::class, 'books']);
+            Route::get('/groupExceptions/{group_id}', [GroupController::class, 'groupExceptions']);
+        });
 
         ########Start Activity########
         Route::group(['prefix' => 'activity'], function () {
