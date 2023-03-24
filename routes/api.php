@@ -289,19 +289,20 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End InfographicSeries########    
         ########Post########
+        #updated RESTful routes by asmaa#
         Route::group(['prefix' => 'posts'], function () {
-            //Route::get('/', [PostController::class, 'index']);
+            Route::get('/', [PostController::class, 'index']);
             Route::post('/', [PostController::class, 'create']);
-            Route::post('/show', [PostController::class, 'show']);
-            Route::post('/update', [PostController::class, 'update']);
-            Route::post('/delete', [PostController::class, 'delete']);
-            Route::post('/postByTimelineId', [PostController::class, 'postByTimelineId']);
-            Route::post('/postByUserId', [PostController::class, 'postByUserId']);
-            Route::post('/PostsToAccept', [PostController::class, 'listPostsToAccept']);
-            Route::post('/acceptPost', [PostController::class, 'AcceptPost']);
-            Route::post('/declinePost', [PostController::class, 'declinePost']);
-            Route::post('/controllComments', [PostController::class, 'controllComments']);
-            Route::post('/pinnPost', [PostController::class, 'pinnPost']);
+            Route::get('/{id}', [PostController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/{id}', [PostController::class, 'update']);
+            Route::delete('/{id}', [PostController::class, 'delete']);
+            Route::get('/timelines/{timeline-id}', [PostController::class, 'postByTimelineId'])->where('timeline-id', '[0-9]+');
+            Route::get('/users/{user-id}', [PostController::class, 'postByUserId'])->where('user-id', '[0-9]+');
+            Route::get('/pending/timelines/{timeline-id}', [PostController::class, 'listPostsToAccept'])->where('timeline-id', '[0-9]+');
+            Route::get('/accept-post/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
+            Route::get('/decline-post/{id}', [PostController::class, 'declinePost'])->where('id', '[0-9]+');
+            Route::patch('/{id}/control-comments', [PostController::class, 'controlComments']);
+            Route::get('/pin-post/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
         });
         ########End Post########
 
