@@ -150,6 +150,7 @@ class PostController extends Controller
             }
         
     }
+}
     /**
      * Find an existing post in the system by its id.
      * 

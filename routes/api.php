@@ -290,8 +290,8 @@ Route::group(['prefix' => 'v1'], function () {
         ########End InfographicSeries########    
         ########Post########
         Route::group(['prefix' => 'posts'], function () {
-            Route::get('/', [PostController::class, 'index']);
-            Route::post('/create', [PostController::class, 'create']);
+            //Route::get('/', [PostController::class, 'index']);
+            Route::post('/', [PostController::class, 'create']);
             Route::post('/show', [PostController::class, 'show']);
             Route::post('/update', [PostController::class, 'update']);
             Route::post('/delete', [PostController::class, 'delete']);
