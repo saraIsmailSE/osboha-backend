@@ -156,13 +156,17 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End Media route########
         ########Start Friend route########
-        Route::group(['prefix' => 'friend'], function () {
+        Route::group(['prefix' => 'friends'], function () {
+            Route::get('/user/{user_id}', [FriendController::class, 'listByUserId'])->where('user_id', '[0-9]+');
             Route::get('/accepted/{user_id}', [FriendController::class, 'listByUserId']);
             Route::get('/un-accepted', [FriendController::class, 'listUnAccepted']);
             Route::post('/create', [FriendController::class, 'create']);
-            Route::get('/show/{friendship_id}', [FriendController::class, 'show']);
+            Route::get('/{friendship-id}', [FriendController::class, 'show'])->where('friendship-id', '[0-9]+');
+            Route::patch('/accept-friend-request/{friendship-id}', [FriendController::class, 'accept']);
+            Route::delete('/{friendship-id}', [FriendController::class, 'delete']);
             Route::post('/accept', [FriendController::class, 'accept']);
             Route::post('/delete', [FriendController::class, 'delete']);
+            Route::get('/show/{friendship_id}', [FriendController::class, 'show']);
         });
         ########End Friend route########
         ########Mark########

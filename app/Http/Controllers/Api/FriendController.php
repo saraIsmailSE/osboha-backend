@@ -26,40 +26,18 @@ class FriendController extends Controller
      * @param  $user_id
      * @return jsonResponseWithoutMessage
      */
-
-    public function index()
-    {
-        // $friends = DB::table('friends')
-        // ->where('user_id', Auth::id())
-        // ->orWhere('friend_id', Auth::id())
-        // ->groupBy('friend_id')
-        // ->get();
-
-        // return $this->jsonResponseWithoutMessage($friends, 'data', 200);
-        //return $this->jsonResponseWithoutMessage(FriendResource::collection($friends), 'data', 200);
-
-        $user = Auth::user();
-
-        $friends = $user->friends()->get();
-        $friendsOf = $user->friendsOf()->get();
-
-        $friends = $friends->merge($friendsOf);
-
-        if ($friends->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(UserInfoResource::collection($friends), 'data', 200);
-        }
-
-        return $this->jsonResponseWithoutMessage("No Friends", 'data', 200);
-}
     public function listByUserId($user_id)
-    {        
+    {
         $user = User::find($user_id);
         $friends = $user->friends()->get();
         $friendsOf = $user->friendsOf()->get();
         $allFriends = $friends->merge($friendsOf);
 
-        return $this->jsonResponseWithoutMessage($allFriends, 'data', 200);
+        if ($allFriends->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(UserInfoResource::collection($allFriends), 'data', 200);
+        }
 
+        return $this->jsonResponseWithoutMessage('No Friends', 'data', 200);
     }
     /**
      * Return all unaccepted user`s freinds.
@@ -202,7 +180,6 @@ class FriendController extends Controller
             }
         } else {
             throw new NotAuthorized;
-
         }
     }
 }
