@@ -20,6 +20,7 @@ class Mark extends Model
         'total_thesis', 
         'total_screenshot'
     ];
+    protected $with = array('user','week');
 
     public function week()
     {
