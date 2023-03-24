@@ -87,36 +87,28 @@ class PostController extends Controller
                         $msg = "There are new posts need approval";
                         (new NotificationController)->sendNotification($leader->user_id, $msg);
                     }
-
-
                 } elseif ($timeline->type_id == 5) { //timeline type => profile
-                    if($timeline->profile->user_id != Auth::id()) { // post in another profile
+                    if ($timeline->profile->user_id != Auth::id()) { // post in another profile
 
                         $user = User::findOrFail($timeline->profile->user_id);
                         //profileSetting => 1- for public 2- for friends 3- only me
-                        if ( ($user->profileSetting->posts == 2 && !Friend::where('user_id',$user->id)->where('friend_id',Auth::id())->exists()) ||
-                            $user->profileSetting->posts == 3 ) 
-                        {
+                        if (($user->profileSetting->posts == 2 && !Friend::where('user_id', $user->id)->where('friend_id', Auth::id())->exists()) ||
+                            $user->profileSetting->posts == 3
+                        ) {
 
                             $input['is_approved'] = null;
                             $msg = "You have a new post in your profile need approval ";
                             (new NotificationController)->sendNotification($timeline->profile->user_id, $msg);
-
-                        } 
+                        }
                     }
-
                 } else { //timeline type => book || news || main (1-2-3)
                     if (!Auth::user()->can('create post')) {
                         throw new NotAuthorized;
                     }
-                } 
+                }
 
                 if ($request->has('tags')) {
                     $input['tags'] = serialize($request->tags);
-                }
-
-                if ($request->has('vote')) {
-                    $input['vote'] = serialize($request->vote);
                 }
 
                 if ($request->type == 1) { //post type is book
@@ -148,9 +140,9 @@ class PostController extends Controller
             } else {
                 throw new NotFound;
             }
-        
+        }
     }
-}
+
     /**
      * Find an existing post in the system by its id.
      * 
