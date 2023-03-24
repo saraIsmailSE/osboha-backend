@@ -111,14 +111,13 @@ class PostController extends Controller
                     $input['tags'] = serialize($request->tags);
                 }
 
-                if ($request->type == 1) { //post type is book
+                if ($type_id == 1) { //post type is book
                     $input['book_id'] = $request->book_id;
                 } else {
                     $input['book_id'] = null;
                 }
 
                 $input['user_id'] = Auth::id();
-                $input['type_id'] = $request->type;
 
                 $post = Post::create($input);
                 if ($request->has('votes')) {
