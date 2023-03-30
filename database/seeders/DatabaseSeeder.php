@@ -19,17 +19,17 @@ class DatabaseSeeder extends Seeder
 
 
 
-        $this->call(PermissionsSeeder::class);
-        $this->call(TimelineTypeSeeder::class);
-        $this->call(GroupSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(PostSeeder::class);
-        $this->call(RateSeeder::class);
-        $this->call(TypeSectionSeeder::class);
-        $this->call(BookStatisticsSeeder::class);
-        $this->call(BookSeeder::class);
-        $this->call(ThesisTypeSeeder::class);
-        $this->call(ThesisSeeder::class);
+        // $this->call(PermissionsSeeder::class);
+        // $this->call(TimelineTypeSeeder::class);
+        // $this->call(GroupSeeder::class);
+        // $this->call(UserSeeder::class);
+        // $this->call(PostSeeder::class);
+        // $this->call(RateSeeder::class);
+        // $this->call(TypeSectionSeeder::class);
+        // $this->call(BookStatisticsSeeder::class);
+        // $this->call(BookSeeder::class);
+        // $this->call(ThesisTypeSeeder::class);
+        // $this->call(ThesisSeeder::class);
 
         // $this->call(FriendSeeder::class);
 
@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(RateSeeder::class);
         // $this->call(ReactionSeeder::class);
         // $this->call(BookTypeSeeder::class);
-        // $this->call(ExceptionTypeSeeder::class);
+        $this->call(ExceptionTypeSeeder::class);
         // $this->call(GroupTypeSeeder::class);
         // $this->call(PostTypeSeeder::class);
 

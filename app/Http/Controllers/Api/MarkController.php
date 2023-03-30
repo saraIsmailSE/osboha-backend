@@ -21,9 +21,8 @@ use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
 use App\Events\MarkStats;
+use App\Models\Thesis;
 
-
- 
 class MarkController extends Controller
 {
     use ResponseJson;
@@ -389,5 +388,74 @@ class MarkController extends Controller
         }
     }
 
+    /**
+     * get user month achievement
+     * 
+     * @param  $user_id,$filter
+     * @return month achievement;
+     */
+    public function userMonthAchievement($user_id,$filter){
 
+        if($filter == 'current'){
+            $currentMonth = date('m');
+        }
+        if($filter == 'previous'){
+            $currentMonth = date('m')-1;
+        }
+        
+    $weeksInMonth=Week::whereRaw('MONTH(created_at) = ?',[$currentMonth])->get();
+    $month_achievement= Mark::where('user_id', $user_id)->whereIn('week_id', $weeksInMonth->pluck('id'))->get();
+    $response['month_achievement']=  $month_achievement->pluck('out_of_100','week.title');
+    $response['month_achievement_title']= Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
+    return $this->jsonResponseWithoutMessage($response, 'data', 200);
+}
+    /**
+     * get user week achievement
+     * 
+     * @param  $user_id,$filter
+     * @return month achievement;
+     */
+    public function userWeekAchievement($user_id,$filter){
+
+        if($filter == 'current'){
+            $week= Week::latest()->pluck('id')->toArray();
+        }
+        if($filter == 'previous'){
+            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+        }
+        if($filter == 'in_a_month'){
+            $currentMonth = date('m');
+            $week=Week::whereRaw('MONTH(created_at) = ?',[$currentMonth])->pluck('id')->toArray();
+
+        }
+        
+       $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)->first();
+    return $this->jsonResponseWithoutMessage($response, 'data', 200);
+}
+
+    /**
+     * get user mark with theses => list only for group administrators
+     * 
+     * @param  $user_id
+     * @return month achievement;
+     */
+    public function ambassadorMark($user_id){
+        $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+        $group = Group::where('id', $group_id)->with('groupAdministrators')->first();
+
+        $currentWeek= Week::latest()->pluck('id')->toArray();
+        $response['mark']= Mark::where('user_id',$user_id)->where('week_id',$currentWeek)->first();
+        $response['theses']=Thesis::where('mark_id',  $response['mark']->id)->get();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+
+        // if (in_array(Auth::id(), $group->groupAdministrators->pluck('id')->toArray())) {
+
+
+        // }
+        // else {
+        //     throw new NotAuthorized;
+        // }
+
+
+    }
 }

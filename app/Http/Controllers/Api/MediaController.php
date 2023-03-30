@@ -20,13 +20,13 @@ class MediaController extends Controller
      * Read all media in the system.
      * 
      * @return jsonResponseWithoutMessage;
-    */
+     */
     public function index()
     {
         $media = Media::all();
         return $media;
-        if($media){
-            return $this->jsonResponseWithoutMessage($media, 'data',200);
+        if ($media) {
+            return $this->jsonResponseWithoutMessage($media, 'data', 200);
         }
     }
     /**
@@ -52,11 +52,10 @@ class MediaController extends Controller
         $this->createMedia($request->file('image'), $request->type_id, $request->type); //asmaa
 
         return $this->jsonResponseWithoutMessage("Media added Successfully", 'data', 200);
-
     }
 
 
-     /**
+    /**
      * Find and show an existing media in the system by its id.
      *
      * @param  Request  $request
@@ -73,12 +72,12 @@ class MediaController extends Controller
         }
 
         $media = Media::find($request->media_id);
-        if($media){
-            return $this->jsonResponseWithoutMessage($media, 'data',200);
+        if ($media) {
+            return $this->jsonResponseWithoutMessage($media, 'data', 200);
         }
     }
 
-     /**
+    /**
      * Update an existing media’s.
      *
      * @param  Request  $request
@@ -101,16 +100,14 @@ class MediaController extends Controller
 
         // $media->update($request->all()); -- stopped by asmaa
 
-        if($media) //asmaa
+        if ($media) //asmaa
         {
             $this->updateMedia($request->file('media'), $request->media_id); //asmaa
 
             return $this->jsonResponseWithoutMessage("Media Updated Successfully", 'data', 200);
-        }
-        else
-        {
+        } else {
             throw new NotFound; //asmaa 
-        }        
+        }
     }
 
     /**
@@ -133,15 +130,24 @@ class MediaController extends Controller
 
         // $media->delete(); -- stopped by asmaa
 
-        if($media) //asmaa
+        if ($media) //asmaa
         {
             $this->deleteMedia($request->media_id); //asmaa
 
             return $this->jsonResponseWithoutMessage("Media Deleted Successfully", 'data', 200);
-        }
-        else
-        {
+        } else {
             throw new NotFound; //asmaa
-        }          
+        }
+    }
+
+    public function get_image($folder)
+    {
+
+        if (isset($_GET['fileName'])) {
+            $path = public_path() . '/asset/images/' . $folder . '/' . $_GET['fileName'];
+            return response()->download($path, $_GET['fileName']);
+        } else {
+            return $this->sendError('file nout found');
+        }
     }
 }

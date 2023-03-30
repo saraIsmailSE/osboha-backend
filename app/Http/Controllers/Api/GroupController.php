@@ -245,7 +245,7 @@ class GroupController extends Controller
 
 
     /**
-     * Read all exceptions in a group by group Administrators
+     * List all exceptions in a group by group Administrators
      *
      * @param $group_id
      * @return jsonResponseWithoutMessage
@@ -259,28 +259,101 @@ class GroupController extends Controller
             ->first();
 
         if ($userInGroup != 'ambassador') {
-            $group = Group::with('users')->where('id', $group_id)->first();
-            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->latest()->get();
-            return $this->jsonResponseWithoutMessage(UserExceptionResource::collection($exceptions), 'data', 200);
+            $response['week'] = Week::latest()->first();
+            $response['group'] = Group::with('users')->where('id', $group_id)->first();
+            $response['exceptions'] = UserExceptionResource::collection(UserException::whereIn('user_id', $response['group']->users->pluck('id'))->latest()->get());
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
             throw new NotAuthorized;
         }
     }
 
+    /**
+     * Filter group exceptions.
+     * 
+     * @param  exception filter , group _id
+     * @return jsonResponseWithoutMessage
+     */
+    public function exceptionsFilter($filter, $group_id)
+    {
+
+        $group = Group::with('users')->where('id', $group_id)->first();
+        if ($filter == 'oldest') {
+            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->get();
+        } else if ($filter == 'latest') {
+            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        } else if ($filter == 'freez') {
+            $exceptions = UserException::where(function ($q) {
+                $q->where('type_id', 1)
+                    ->orWhere('type_id', 2);
+            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        } else if ($filter == 'exceptional_freez') {
+            $exceptions = UserException::where('type_id', 5)->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        } else if ($filter == 'exams') {
+            $exceptions = UserException::where(function ($q) {
+                $q->where('type_id', 3)
+                    ->orWhere('type_id', 4);
+            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        } else if ($filter == 'accepted') {
+            $exceptions = UserException::where('status', 'accepted')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        } else if ($filter == 'pending') {
+            $exceptions = UserException::where('status', 'pending')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        } else if ($filter == 'rejected') {
+            $exceptions = UserException::where('status', 'rejected')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        } else if ($filter == 'finished') {
+            $exceptions = UserException::where('status', 'finished')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+        }
+
+        return $this->jsonResponseWithoutMessage(UserExceptionResource::collection($exceptions), 'data', 200);
+    }
+
+
     public function BasicMarksView($group_id)
     {
 
-        $group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+        $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $current_week = Week::latest()->pluck('id')->first();
-        $marks['group_users'] = $group->leaderAndAmbassadors->count();
-        $marks['full'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 100)->count();
-        $marks['incomplete'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->where('out_of_100', '>', 0)->where('out_of_100', '<', 100)->count();
-        $marks['zero'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 0)->count();
-        $marks['random_achevment'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
-        $marks['most_read'] = Mark::where('week_id', $current_week)->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
+        $marks['group_users'] =  $marks['group']->leaderAndAmbassadors->count();
+        $marks['full'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 100)->count();
+        $marks['incomplete'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->where('out_of_100', '>', 0)->where('out_of_100', '<', 100)->count();
+        $marks['zero'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 0)->count();
+        $marks['random_achievement'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
+        $marks['most_read'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
 
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
+    }
+
+
+    public function allAchievements($group_id, $week_filter = "current")
+    {
+        if ($week_filter == 'current') {
+            $week = Week::latest()->pluck('id')->toArray();
+        }
+        if ($week_filter == 'previous') {
+            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+        }
+
+
+        $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+        $marks['group_users'] = $marks['group']->leaderAndAmbassadors->count();
+        $marks['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id', $marks['group']->leaderAndAmbassadors->pluck('id'))->get();
+
+        return $this->jsonResponseWithoutMessage($marks, 'data', 200);
+    }
+    public function achievementAsPages($group_id, $week_filter = "current")
+    {
+        if ($week_filter == 'current') {
+            $week = Week::latest()->pluck('id')->toArray();
+        }
+        if ($week_filter == 'previous') {
+            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+        }
+
+        $response['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+        $response['group_users'] = $response['group']->leaderAndAmbassadors->count();
+        $response['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id',  $response['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
     //the function will return all posts - discuss it later
