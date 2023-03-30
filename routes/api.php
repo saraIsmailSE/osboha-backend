@@ -139,11 +139,12 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End Transaction########
         ########Start Comment########
-        Route::group(['prefix' => 'comment'], function () {
-            Route::post('/create', [CommentController::class, 'create']);
-            Route::post('/get-post-comments', [CommentController::class, 'getPostComments']);
-            Route::post('/update', [CommentController::class, 'update']);
-            Route::post('/delete', [CommentController::class, 'delete']);
+        Route::group(['prefix' => 'comments'], function () {
+            Route::post('/', [CommentController::class, 'create']);
+            Route::get('/post/{post_id}', [CommentController::class, 'getPostComments'])->where('post_id', '[0-9]+');
+            Route::put('/', [CommentController::class, 'update']);
+            Route::delete('/delete', [CommentController::class, 'delete']);
+            Route::get('/post/{post_id}/users', [CommentController::class, 'getPostCommentsUsers'])->where('post_id', '[0-9]+');
         });
         ########End Comment########
         ########Start Media########
@@ -296,13 +297,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [PostController::class, 'show'])->where('id', '[0-9]+');
             Route::put('/{id}', [PostController::class, 'update']);
             Route::delete('/{id}', [PostController::class, 'delete']);
-            Route::get('/timelines/{timeline-id}', [PostController::class, 'postByTimelineId'])->where('timeline-id', '[0-9]+');
-            Route::get('/users/{user-id}', [PostController::class, 'postByUserId'])->where('user-id', '[0-9]+');
-            Route::get('/pending/timelines/{timeline-id}', [PostController::class, 'listPostsToAccept'])->where('timeline-id', '[0-9]+');
+            Route::get('/timelines/{timeline_id}', [PostController::class, 'postsByTimelineId'])->where('timeline_id', '[0-9]+');
+            Route::get('/users/{user_id}', [PostController::class, 'postByUserId'])->where('user_id', '[0-9]+');
+            Route::get('/pending/timelines/{timeline_id}', [PostController::class, 'listPostsToAccept'])->where('timeline_id', '[0-9]+');
             Route::get('/accept-post/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
             Route::get('/decline-post/{id}', [PostController::class, 'declinePost'])->where('id', '[0-9]+');
             Route::patch('/{id}/control-comments', [PostController::class, 'controlComments']);
             Route::get('/pin-post/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
+            Route::get('/home', [PostController::class, 'getPostsForMainPage']);
         });
         ########End Post########
 

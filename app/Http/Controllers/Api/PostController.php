@@ -67,9 +67,9 @@ class PostController extends Controller
             $input['type_id'] = $type_id;
 
             $timeline = Timeline::find($request->timeline_id)->first();
-
             if (!empty($timeline)) {
-                if ($timeline->type_id == 4) { //timeline type => group
+                $timeline_type = TimelineType::find($timeline->type_id)->first()->type;
+                if ($timeline_type == 'group') { //timeline type => group
                     $group = Group::where('timeline_id', $timeline->id)->first();
                     $user = UserGroup::where([
                         ['group_id', $group->id],
@@ -78,8 +78,6 @@ class PostController extends Controller
                     if ($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader") {
                         $input['is_approved'] = null;
 
-                        echo 'waiting for the leader approval';
-
                         $leader = UserGroup::where([
                             ['group_id', $group->id],
                             ['user_type', "leader"]
@@ -87,7 +85,7 @@ class PostController extends Controller
                         $msg = "There are new posts need approval";
                         (new NotificationController)->sendNotification($leader->user_id, $msg);
                     }
-                } elseif ($timeline->type_id == 5) { //timeline type => profile
+                } elseif ($timeline_type == 'profile') { //timeline type => profile
                     if ($timeline->profile->user_id != Auth::id()) { // post in another profile
 
                         $user = User::findOrFail($timeline->profile->user_id);
@@ -100,6 +98,10 @@ class PostController extends Controller
                             $msg = "You have a new post in your profile need approval ";
                             (new NotificationController)->sendNotification($timeline->profile->user_id, $msg);
                         }
+                    }
+                } else if ($timeline_type == 'announcement') {
+                    if (!Auth::user()->can('create announcement')) {
+                        throw new NotAuthorized;
                     }
                 } else { //timeline type => book || news || main (1-2-3)
                     if (!Auth::user()->can('create post')) {
@@ -120,6 +122,7 @@ class PostController extends Controller
                 $input['user_id'] = Auth::id();
 
                 $post = Post::create($input);
+
                 if ($request->has('votes')) {
                     foreach ($request->votes as $vote) {
                         PollOption::create([
@@ -129,7 +132,7 @@ class PostController extends Controller
                     }
                 }
 
-                if ($request->has('media')) {
+                if ($request->has('media') && !$request->votes) {
                     //loop through the media array and upload each media
                     foreach ($request->media as $media) {
                         $this->createMedia($media, $post->id, 'post');
@@ -263,21 +266,80 @@ class PostController extends Controller
     /**
      * Return all posts that match requested timeline_id.
      * 
-     * @param  Request  $request
-     * @return jsonResponseWithoutMessage
+     * @param int  $timeline_id
+     * @return jsonResponseWithoutMessage posts collection
      */
-    public function postByTimelineId(Request $request)
+    public function postsByTimelineId($timeline_id)
     {
-        $timeline_id = $request->timeline_id;
-
-        //find posts belong to timeline_id
-        $posts = Post::where('timeline_id', $timeline_id)->get();
+        $posts = Post::where('timeline_id', $timeline_id)
+            ->withCount('comments')
+            ->with('user')
+            ->with('pollOptions')
+            ->latest()
+            ->paginate(25);
 
         if ($posts->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(PostResource::collection($posts), 'data', 200);
-        } else {
-            throw new NotFound();
+            return $this->jsonResponseWithoutMessage([
+                'posts' => PostResource::collection($posts),
+                'last_page' => $posts->lastPage(),
+                'total' => $posts->total(),
+            ], 'data', 200);
         }
+        return $this->jsonResponseWithoutMessage("No Posts Found", 'data', 200);
+    }
+    /**
+     * Get posts for the auth user to display in the home page
+     * Posts are selected from the timelines that the auth user is following.
+     * main timeline, user timeline, groups timelines, friends timelines, friends of timelines.
+     *       
+     * @return jsonResponseWithoutMessage     
+     */
+    public function getPostsForMainPage()
+    {
+        $user = Auth::user()->load('userProfile', 'groups', 'friends.userProfile', 'friendsOf.userProfile');
+
+        $posts = Post::whereIn(
+            'timeline_id',
+            Timeline::whereIn(
+                'type_id',
+                TimelineType::where('type', 'main')->pluck('id')
+            )->orWhere('id', $user->userProfile->timeline_id)
+                ->orWhereIn('id', $user->groups()->pluck('timeline_id'))
+                ->orWhereIn('id', $user->friends()->get()->map(function ($friend) {
+                    return $friend->userProfile->timeline_id;
+                }))
+                ->orWhereIn('id', $user->friendsOf()->get()->map(function ($friend) {
+                    return $friend->userProfile->timeline_id;
+                }))
+                ->pluck('id')
+        )
+            ->where('type_id', '!=', PostType::where('type', 'announcement')->first()->id)
+            ->withCount('comments')
+            ->with('user')
+            ->with('pollOptions')
+            ->latest()
+            ->paginate(25);
+
+        $announcements = null;
+        if ($posts->currentPage() == 1) {
+            $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+                ->withCount('comments')
+                ->with('pollOptions')
+                ->with('user')
+                ->latest()
+                ->take(2)
+                ->get();
+        }
+
+        if ($posts->isNotEmpty() || ($announcements && $announcements->isNotEmpty())) {
+            return $this->jsonResponseWithoutMessage([
+                'posts' => PostResource::collection($posts),
+                'announcements' => $announcements ? PostResource::collection($announcements) : null,
+                'total' => $posts->total(),
+                'last_page' => $posts->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage("No Posts Found", 'data', 200);
     }
     /**
      * Return all posts that match requested user_id.
@@ -449,7 +511,12 @@ class PostController extends Controller
         }
     }
 
-    //validate data for creating and updating posts
+    /**
+     * Validate post request
+     * 
+     * @param  Request  $request
+     * @return Validator
+     */
     public function validatePost(Request $request)
     {
         $post_types = PostType::all()->pluck('type')->toArray();
