@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\CommentResource;
+use App\Http\Resources\UserInfoResource;
 use App\Models\Book;
 use App\Models\Post;
 use App\Models\PostType;
@@ -141,27 +142,52 @@ class CommentController extends Controller
         return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
     }
     /**
-     * Find and show an existing article in the system by its id.
+     * Get all comments for a post.
      *
-     * @param  Request  $request
+     * @param  int  $post_id
      * @return jsonResponseWithoutMessage;
      */
-    public function getPostComments(Request $request)
+    public function getPostComments($post_id)
     {
-        $validator = Validator::make($request->all(), [
-            'post_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $comments = Comment::where('post_id', $request->post_id)->get();
+        $comments = Comment::where('post_id', $post_id)
+            ->where('comment_id', 0)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
         if ($comments->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(CommentResource::collection($comments), 'data', 200);
-        } else {
-            throw new NotFound;
+            return $this->jsonResponseWithoutMessage([
+                'comments' => CommentResource::collection($comments),
+                'last_page' => $comments->lastPage(),
+            ], 'data', 200);
         }
+
+        return $this->jsonResponseWithoutMessage([], 'data', 200);
+    }
+
+    /**
+     * Get all users comments for a post.
+     * @param int $post_id
+     * @return jsonResponseWithoutMessage;
+     */
+
+    public function getPostCommentsUsers($post_id)
+    {
+        //get the user related to the comment and remove the duplicates
+        $users = Comment::where('post_id', $post_id)
+            ->where('comment_id', 0)
+            ->with('user')
+            ->get()
+            ->unique('user_id')
+            ->map(function ($comment) {
+                return $comment->user;
+            });
+
+        //get 10 users
+        $limited = $users->take(10);
+
+        return $this->jsonResponseWithoutMessage([
+            'users' => UserInfoResource::collection($limited),
+            'count' => $users->count(),
+        ], 'data', 200);
     }
 
     /**

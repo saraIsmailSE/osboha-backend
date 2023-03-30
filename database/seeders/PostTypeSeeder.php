@@ -15,7 +15,7 @@ class PostTypeSeeder extends Seeder
     public function run()
     {
 
-        $post_type = ['noraml', 'book', 'article', 'infographic', 'support', 'discussion'];
+        $post_type = ['noraml', 'book', 'article', 'infographic', 'support', 'discussion', 'announcement'];
         //POST TYPE
         $i = 0;
         while ($i <= 5) {
