@@ -21,7 +21,7 @@ class Post extends Model
         'book_id',
     ];
 
-    protected $with = array('comments','media');
+    protected $with = array('media');
 
     public function comments()
     {
@@ -66,5 +66,10 @@ class Post extends Model
     public function rates()
     {
         return $this->hasMany(Rate::class, 'post_id');
+    }
+
+    public function pollOptions()
+    {
+        return $this->hasMany(PollOption::class, 'post_id');
     }
 }
