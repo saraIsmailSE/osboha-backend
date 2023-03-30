@@ -16,11 +16,12 @@ class CreateUserExceptionsTable extends Migration
         Schema::create('user_exceptions', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->integer('week_id');
+            $table->integer('week_id')->nullable();
             $table->text('reason');
             $table->integer('type_id');
             $table->enum('status', ['pending', 'accepted', 'rejected','cancelled','finished'])->default('pending');
-            $table->date('end_at');
+            $table->date('start_at')->nullable();
+            $table->date('end_at')->nullable();
             $table->integer('reviewer_id')->nullable();
             $table->string('note')->nullable();
             $table->timestamps();

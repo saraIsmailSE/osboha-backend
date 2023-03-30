@@ -11,6 +11,10 @@ class GeneralNotification extends Notification
 {
     use Queueable;
     protected $user;
+    protected $sender;
+    protected $msg;
+    
+    
     public function __construct($sender , $msg)
     {
         $this->sender = $sender;

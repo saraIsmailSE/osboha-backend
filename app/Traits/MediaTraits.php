@@ -3,8 +3,10 @@
 namespace App\Traits;
 
 use App\Models\Media;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Image;
 
 trait MediaTraits
 {
@@ -66,5 +68,33 @@ trait MediaTraits
         //delete current media
         File::delete(public_path('assets/images/' . $currentMedia->media));
         $currentMedia->delete();
+    }
+
+    function createProfileMedia($media, $folderName)
+    {
+        $imageName = uniqid('osboha_') . '.' . $media->extension();
+        $media->move(public_path('assets/images/profiles/' . $folderName), $imageName);
+        // return media name
+        return $imageName;
+    }
+
+    function resizeImage($width, $hight, $imagePath, $pathToSave, $imageName)
+    {
+        try {
+            $img = Image::make($imagePath)->resize($width, $hight);
+            $imageName = $width . 'x' . $hight . '_' . $imageName;
+            $img->save($pathToSave . '/' . $imageName);
+        } catch (\Exception $e) {
+
+            return $e->getMessage();
+        }
+    }
+    function deleteTeProfileMedia($id)
+    {
+        $user = User::find($id);
+        //delete current media    
+        File::delete('asset/images/temMedia/' . $user->picture);
+        $user->picture = null;
+        $user->save();
     }
 }

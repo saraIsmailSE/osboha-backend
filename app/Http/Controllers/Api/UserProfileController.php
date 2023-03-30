@@ -12,18 +12,24 @@ use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\UserExceptionResource;
 use App\Models\Friend;
+use App\Models\Group;
 use App\Models\Mark;
 use App\Models\Post;
+use App\Models\Section;
 use App\Models\SocialMedia;
 use App\Models\Thesis;
 use App\Models\User;
 use App\Models\UserBook;
 use App\Models\UserException;
+use App\Models\UserGroup;
+use App\Models\Week;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Throwable;
 
 class UserProfileController extends Controller
 {
@@ -44,9 +50,9 @@ class UserProfileController extends Controller
             $profile['social_media'] = SocialMedia::where('user_id', $user_id)->first();
 
             $user = User::find($user_id);
-            
+
             // user
-            $profile['user']=$user;
+            $profile['user'] = $user;
             // user roles
             $profile['roles'] = $user->getRoleNames();
 
@@ -86,11 +92,10 @@ class UserProfileController extends Controller
      */
     public function showToUpdate($user_id)
     {
-        $profileInfo = new UserProfileResource(UserProfile::where('user_id', $user_id)->first());
-        return $this->jsonResponseWithoutMessage($profileInfo, 'data', 200);
+        $response['profileInfo'] = new UserProfileResource(UserProfile::where('user_id', $user_id)->first());
+        $response['sections']=Section::all();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
-
-
 
     /**
      * Update an existing profile by the auth user in the system .
@@ -103,7 +108,6 @@ class UserProfileController extends Controller
         $validator = Validator::make($request->all(), [
             'first_name_ar' => 'required',
             'last_name_ar' => 'required',
-            'gender' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -112,26 +116,108 @@ class UserProfileController extends Controller
 
         $profile = UserProfile::where('user_id', Auth::id());
         if ($profile) {
-            if ($request->hasFile('image')) {
-                // if profile has media
-                //check Media
-                $currentMedia = Media::where('profile_id', $profile->id)->first();
-                // if exists, update
-                if ($currentMedia) {
-                    $this->updateMedia($request->file('image'), $currentMedia->id);
-                }
-                //else create new one
-                else {
-                    // upload media
-                    $this->createMedia($request->file('image'), $profile->id, 'profile');
-                }
-            }
             $profile->update($request->all());
-            return $this->jsonResponseWithoutMessage("Profile Updated Successfully", 'data', 200);
+            return $this->jsonResponseWithoutMessage("تم التحديث بنجاح", 'data', 200);
         } else {
             throw new NotFound;
         }
     }
+
+    /**
+     * update profile picture.
+     * 
+     *  @param  $request contains profile_picture
+     * @return jsonResponseWithoutMessage
+     */
+    public function updateProfilePic(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "profile_picture" => "required|image|mimes:png,jpg,jpeg,gif,svg",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors());
+        }
+        try {
+            $profile = UserProfile::where('user_id', Auth::id())->first();
+            $folderName = "profile_" . $profile->id;
+            $imageName = $this->createProfileMedia($request->file('profile_picture'), $folderName);
+            $profile->profile_picture = $imageName;
+            $profile->save();
+
+            //resize
+            //60x60
+            $imagePath = 'assets/images/profiles/' . $folderName . '/' . $imageName;
+            $pathToSave = 'assets/images/profiles/' . $folderName;
+            $this->resizeImage(60, 60, $imagePath, $pathToSave, $imageName);
+            //100x100
+            $imagePath = 'assets/images/profiles/' . $folderName . '/' . $imageName;
+            $pathToSave = 'assets/images/profiles/' . $folderName;
+            $this->resizeImage(100, 100, $imagePath, $pathToSave, $imageName);
+            //150x150
+            $imagePath = 'assets/images/profiles/' . $folderName . '/' . $imageName;
+            $pathToSave = 'assets/images/profiles/' . $folderName;
+            $this->resizeImage(150, 150, $imagePath, $pathToSave, $imageName);
+            //512x512
+            $imagePath = 'assets/images/profiles/' . $folderName . '/' . $imageName;
+            $pathToSave = 'assets/images/profiles/' . $folderName;
+            $this->resizeImage(512, 512, $imagePath, $pathToSave, $imageName);
+
+            return $this->jsonResponseWithoutMessage($profile, 'data', 200);
+        } catch (\Exception $e) {
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
+    /**
+     * update profile picture.
+     * 
+     *  @param  $request contains cover_picture
+     * @return jsonResponseWithoutMessage
+     */
+    public function updateProfileCover(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "cover_picture" => "required|image|mimes:png,jpg,jpeg,gif,svg",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors());
+        }
+
+        try {
+            $profile = UserProfile::where('user_id', Auth::id())->first();
+            $folderName = "profile_" . $profile->id;
+            $imageName = $this->createProfileMedia($request->file('cover_picture'), $folderName);
+            $profile->cover_picture = $imageName;
+            $profile->save();
+
+            // //resize
+            // //1300x325
+            $imagePath = 'assets/images/profiles/' . $folderName . '/' . $imageName;
+            $pathToSave = 'assets/images/profiles/' . $folderName;
+            $this->resizeImage(1300, 325, $imagePath, $pathToSave, $imageName);
+
+            return $this->jsonResponseWithoutMessage($profile, 'data', 200);
+        } catch (\Exception $e) {
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
+    public function getImages()
+    {
+
+        if (isset($_GET['fileName']) && isset($_GET['profileID'])) {
+            $folderName = "profile_" . $_GET['profileID'];
+            $path = public_path() . '/assets/images/profiles/' . $folderName . '/' . $_GET['fileName'];
+
+            return response()->download($path, $_GET['fileName']);
+        } else {
+            return $this->sendError('file nout found');
+        }
+    }
+
+
 
     /**
      * Get Statistics for specific user profile.
@@ -141,7 +227,18 @@ class UserProfileController extends Controller
      */
     public function profileStatistics($user_id)
     {
-        $weekMark = Mark::where('week_id', 1)->where('user_id', $user_id)->first();
-        return $this->jsonResponseWithoutMessage($weekMark, 'data', 200);
+        $response['week'] = Week::latest()->first();
+        $group_id = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
+        $users = Group::with('users')->where('id', $group_id);
+        $response['group_week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users->pluck('id'))->avg('out_of_100');
+        $response['week_mark'] = Mark::where('week_id', $response['week']->id)->where('user_id', $user_id)->first();
+
+        $currentMonth = date('m');
+        $weeksInMonth=Week::whereRaw('MONTH(created_at) = ?',[$currentMonth])->get();
+        $month_achievement= Mark::where('user_id', $user_id)->whereIn('week_id', $weeksInMonth->pluck('id'))->get();
+        $response['month_achievement']=  $month_achievement->pluck('out_of_100','week.title');
+        $response['month_achievement_title']= Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }

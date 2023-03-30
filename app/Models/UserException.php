@@ -21,6 +21,8 @@ class UserException extends Model
 
     ];
 
+    protected $with = array('type','user');
+
     public function User()
     {
         return $this->belongsTo(User::class);
@@ -35,7 +37,7 @@ class UserException extends Model
         return $this->belongsTo(Week::class);
     }
 
-    public function Type()
+    public function type()
     {
         return $this->belongsTo(ExceptionType::class,'type_id');
     }

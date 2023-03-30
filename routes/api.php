@@ -61,6 +61,11 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
+
+    Route::get('/profile-image', [UserProfileController::class, 'getImages']);
+
+
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logout', [AuthController::class, 'logout']);
         ########Book########
@@ -171,7 +176,7 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End Friend route########
         ########Mark########
-        Route::group(['prefix' => 'mark'], function () {
+        Route::group(['prefix' => 'marks'], function () {
             Route::get('/', [MarkController::class, 'index']);
             Route::post('/show', [MarkController::class, 'show']);
             Route::post('/update', [MarkController::class, 'update']);
@@ -181,6 +186,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);
             Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
             //Route::get('/statsmark', [MarkController::class, 'statsMark']);
+            Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
+            Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
+            Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
+            
         });
         ########End Mark########
 
@@ -207,8 +216,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/create', [UserExceptionController::class, 'create']);
             Route::get('/show/{exception_id}', [UserExceptionController::class, 'show']);
             Route::post('/update', [UserExceptionController::class, 'update']);
-            Route::post('/delete', [UserExceptionController::class, 'delete']);
-            Route::post('/updateStatus', [UserExceptionController::class, 'updateStatus']);
+            Route::get('/cancel/{exception_id}', [UserExceptionController::class, 'cancelException']);
+            Route::patch('/update-status/{exception_id}', [UserExceptionController::class, 'updateStatus']);
             Route::get('/listPindigExceptions', [UserExceptionController::class, 'listPindigExceptions']);
             Route::post('/addExceptions', [UserExceptionController::class, 'addExceptions']);
             Route::get('/finisfedException', [UserExceptionController::class, 'finisfedException']);
@@ -225,7 +234,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/delete', [GroupController::class, 'delete']);
             Route::get('/books/{group_id}', [GroupController::class, 'books']);
             Route::get('/group-exceptions/{group_id}', [GroupController::class, 'groupExceptions']);
+            Route::get('/exceptions-filter/{filter}/{group_id}', [GroupController::class, 'exceptionsFilter']);
             Route::get('/basic-mark-view/{group_id}', [GroupController::class, 'BasicMarksView']);
+            Route::get('/all-achievements/{group_id}/{week_filter?}', [GroupController::class, 'allAchievements']);
+            Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
         });
@@ -325,6 +337,11 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/showToUpdate/{user_id}', [UserProfileController::class, 'showToUpdate']);
             Route::get('/statistics/{user_id}', [UserProfileController::class, 'profileStatistics']);
             Route::post('/update', [UserProfileController::class, 'update']);
+            Route::post('/update-profile-pic', [UserProfileController::class, 'updateProfilePic']);
+            Route::post('/update-profile-cover', [UserProfileController::class, 'updateProfileCover']);
+            // Route::get('/profile-image/{fileName}/{profileID}', [UserProfileController::class, 'getImages']);
+
+            
         });
         ########End User-Profile########
 
