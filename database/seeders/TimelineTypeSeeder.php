@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Timeline;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,17 +15,22 @@ class TimelineTypeSeeder extends Seeder
      */
     public function run()
     {
-    
+
         $timeline_type = ['main', 'profile', 'book', 'group'];
         //TIMELINE TYPE
         $i = 0;
         while ($i <= 3) {
             DB::table('timeline_types')->insert([
-                'description'=> "simple desc",
+                'description' => "simple desc",
                 'type' => $timeline_type[$i],
 
             ]);
             $i++;
         }
+
+        //main timeline
+        Timeline::create([
+            'type_id' => 1,
+        ]);
     }
 }

@@ -32,7 +32,7 @@ class PermissionsSeeder extends Seeder
         ###### THESIS ######
         // Permission::create(['name' => 'delete thesis']);
         // Permission::create(['name' => 'create thesis']);
-        
+
         ###### ARTICLE ######
         Permission::create(['name' => 'edit article']);
         Permission::create(['name' => 'delete article']);
@@ -62,8 +62,8 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'edit RequestAmbassador']);
         Permission::create(['name' => 'create RequestAmbassador']);
 
-         ###### HIGH PRIORITY REQUEST######
-         Permission::create(['name' => 'create highPriorityRequestAmbassador']);
+        ###### HIGH PRIORITY REQUEST######
+        Permission::create(['name' => 'create highPriorityRequestAmbassador']);
 
         ###### BOOK ######
         Permission::create(['name' => 'edit book']);
@@ -75,7 +75,7 @@ class PermissionsSeeder extends Seeder
 
         ###### EXCEPTION ######
         Permission::create(['name' => 'list pending exception']);
-        
+
 
         ###### STATISTICS ######
         Permission::create(['name' => 'list statistics']);
@@ -97,18 +97,18 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'list transactions']);
         Permission::create(['name' => 'assign role']);
         Permission::create(['name' => 'update role']);
-    
+
         ###### SystemIssue ######
         Permission::create(['name' => 'list systemIssue']);
         Permission::create(['name' => 'update systemIssue']);
-    
+
         ###### TimeLine ######
         Permission::create(['name' => 'main timeline']);
         Permission::create(['name' => 'edit timeline']);
         Permission::create(['name' => 'delete timeline']);
         Permission::create(['name' => 'create timeline']);
         Permission::create(['name' => 'list timelines']);
-        
+
         ###### GROUP ######
         Permission::create(['name' => 'edit group']);
         Permission::create(['name' => 'delete group']);
@@ -132,11 +132,17 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'create post']);
         Permission::create(['name' => 'pin post']);
 
+        ###### ANNOUNCEMENT ######
+        Permission::create(['name' => 'edit announcement']);
+        Permission::create(['name' => 'delete announcement']);
+        Permission::create(['name' => 'create announcement']);
+        Permission::create(['name' => 'pin announcement']);
+
         ###### COMMENT ######
         Permission::create(['name' => 'edit comment']);
         Permission::create(['name' => 'delete comment']);
         Permission::create(['name' => 'create comment']);
-        Permission::create(['name' => 'controll comments']);
+        Permission::create(['name' => 'control comments']);
 
         ###### ROOM ######
         Permission::create(['name' => 'create room']);
@@ -193,7 +199,7 @@ class PermissionsSeeder extends Seeder
         $role4->givePermissionTo('edit comment');
         $role4->givePermissionTo('create RequestAmbassador');
         $role4->givePermissionTo('edit RequestAmbassador');
- 
+
 
         // $role5->givePermissionTo('create post');
         // $role5->givePermissionTo('delete post');
@@ -201,7 +207,5 @@ class PermissionsSeeder extends Seeder
         $role5->givePermissionTo('create comment');
         $role5->givePermissionTo('delete comment');
         $role5->givePermissionTo('edit comment');
-
-
     }
 }

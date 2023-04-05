@@ -32,7 +32,8 @@ class PostResource extends JsonResource
             'timeline_id' => $this->timeline_id,
             'comments' =>  CommentResource::collection($this->whenLoaded('comments')),
             'media' => MediaResource::collection($this->media),
-            'pollOptions' => PollOptionResource::collection($this->whenLoaded('pollOptions')),
+            'pollOptions' => PollOptionResource::collection($this->pollOptions),
+            'votes_count' => $this->poll_votes_count ?? 0,
             "comments_count" => $this->comments_count ?? 0,
             'created_at' => $this->created_at,
         ];

@@ -33,7 +33,7 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function Timeline()
+    public function timeline()
     {
         return $this->belongsTo(Timeline::class, 'timeline_id');
     }
@@ -70,6 +70,11 @@ class Post extends Model
 
     public function pollOptions()
     {
-        return $this->hasMany(PollOption::class, 'post_id');
+        return $this->hasMany(PollOption::class, 'post_id')->withCount('votes');
+    }
+
+    public function pollVotes()
+    {
+        return $this->hasMany(PollVote::class, 'post_id');
     }
 }

@@ -102,12 +102,13 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End Rate########
         ########Reaction########
-        Route::group(['prefix' => 'reaction'], function () {
+        Route::group(['prefix' => 'reactions'], function () {
             Route::get('/', [ReactionController::class, 'index']);
             Route::post('/create', [ReactionController::class, 'create']);
             Route::post('/show', [ReactionController::class, 'show']);
             Route::post('/update', [ReactionController::class, 'update']);
             Route::post('/delete', [ReactionController::class, 'delete']);
+            Route::get('/types', [ReactionController::class, 'getReactionTypes']);
         });
         ########End Reaction########
         ########LeaderRequest########
@@ -189,7 +190,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
             Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
             Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
-            
         });
         ########End Mark########
 
@@ -315,15 +315,16 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/accept-post/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
             Route::get('/decline-post/{id}', [PostController::class, 'declinePost'])->where('id', '[0-9]+');
             Route::patch('/{id}/control-comments', [PostController::class, 'controlComments']);
-            Route::get('/pin-post/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
+            Route::patch('/pin/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
             Route::get('/home', [PostController::class, 'getPostsForMainPage']);
+            Route::get('/announcements', [PostController::class, 'getAnnouncements']);
         });
         ########End Post########
 
         ########Poll-Vote########
-        Route::group(['prefix' => 'poll-vote'], function () {
+        Route::group(['prefix' => 'poll-votes'], function () {
             Route::get('/', [PollVoteController::class, 'index']);
-            Route::post('/create', [PollVoteController::class, 'create']);
+            Route::post('/', [PollVoteController::class, 'create']);
             Route::post('/show', [PollVoteController::class, 'show']);
             Route::post('/votesByPostId', [PollVoteController::class, 'votesByPostId']);
             Route::post('/votesByUserId', [PollVoteController::class, 'votesByUserId']);
@@ -341,7 +342,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update-profile-cover', [UserProfileController::class, 'updateProfileCover']);
             // Route::get('/profile-image/{fileName}/{profileID}', [UserProfileController::class, 'getImages']);
 
-            
+
         });
         ########End User-Profile########
 

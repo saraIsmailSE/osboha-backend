@@ -21,7 +21,7 @@ class CreateMediaTable extends Migration
             $table->integer('user_id');
             $table->integer('post_id')->nullable();
             $table->integer('comment_id')->nullable();
-            $table->integer('reaction_id')->nullable();
+            $table->integer('reaction_type_id')->nullable();
             $table->integer('infographic_series_id')->nullable();
             $table->integer('infographic_id')->nullable();
             $table->integer('book_id')->nullable();

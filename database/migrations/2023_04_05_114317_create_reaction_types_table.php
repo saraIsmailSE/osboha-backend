@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReactionsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateReactionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('reactions', function (Blueprint $table) {
+        Schema::create('reaction_types', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->integer('type_id');
-            $table->integer('post_id')->nullable();
-            $table->integer('comment_id')->nullable();
+            $table->string('type');
+            $table->string('title');
+            $table->string('text_color')->nullable();
+            $table->integer('is_active')->default(1);
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ class CreateReactionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('reactions');
+        Schema::dropIfExists('reaction_types');
     }
-}
+};

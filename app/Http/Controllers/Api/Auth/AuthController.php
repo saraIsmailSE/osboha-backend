@@ -13,17 +13,11 @@ use App\Models\Group;
 use App\Models\UserGroup;
 use App\Events\NewUserStats;
 
-
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 use Illuminate\Support\Facades\DB;
-
-
 
 class AuthController extends Controller
 {
@@ -42,10 +36,9 @@ class AuthController extends Controller
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $authUser = Auth::user();
+
             $success['token'] = $authUser->createToken('sanctumAuth')->plainTextToken;
-            $success['user'] = $authUser;
-            $success['roles'] = $authUser->roles->pluck('name');
-            $success['permissions'] = $authUser->permissions->pluck('name');
+            $success['user'] = $authUser->load('userProfile', 'roles:name', 'permissions:name');
 
             return $this->jsonResponse($success, 'data', 200, 'Login Successfully');
         } else {
@@ -53,8 +46,9 @@ class AuthController extends Controller
             return $this->jsonResponse('UnAuthorized', 'data', 404, 'Email Or Password is Wrong');
         }
     }
-    
-    public function register(Request $request){
+
+    public function register(Request $request)
+    {
         $ambassador = Validator::make($request->all(), [
             // 'name_ar'          => 'required',
             // 'name_en'          => 'required',
@@ -65,7 +59,7 @@ class AuthController extends Controller
             'email'            => 'required|email|unique:users,email',
             'password'         => 'required',
             'user_type'        => 'required',
-         ]);
+        ]);
         if ($ambassador->fails()) {
             return $this->jsonResponseWithoutMessage($ambassador->errors(), 'data', 500);
         }
@@ -76,159 +70,143 @@ class AuthController extends Controller
         $ambassador_gender = $ambassador['gender'];
         if ($ambassador_gender == 'any') {
             $ambassador_condition = array($ambassador_gender);
-          }
-          else{
-            $ambassador_condition = array($ambassador_gender,'any');
-          }
-      
-          if ($leader_gender == "any") {
-            $leader_condition = array('male','female');
-          }
-          else{
+        } else {
+            $ambassador_condition = array($ambassador_gender, 'any');
+        }
+
+        if ($leader_gender == "any") {
+            $leader_condition = array('male', 'female');
+        } else {
             $leader_condition = array($leader_gender);
-        
-          }
-        DB::transaction(function () use($ambassador,$ambassador_condition,$leader_condition) {
-            $exit=false;
-            while (! $exit ) {
-                
+        }
+        DB::transaction(function () use ($ambassador, $ambassador_condition, $leader_condition) {
+            $exit = false;
+            while (!$exit) {
+
                 // Check for High Priority Requests
-                $result = Sign_up::selectHighPriority($leader_condition,$ambassador_condition);
-                if ($result->count() == 0){ 
-                 // Check for SpecialCare
-                 $result = Sign_up::selectSpecialCare($leader_condition,$ambassador_condition);
-                 if ($result->count() == 0){
-                     //Check New Teams
-                     $result = Sign_up::selectTeam($leader_condition,$ambassador_condition);
-                     if ($result->count() == 0){
-                         //Check Teams With Less Than 12 Members
-                         $result=Sign_up::selectTeam_between($leader_condition,$ambassador_condition,"1","12");
+                $result = Sign_up::selectHighPriority($leader_condition, $ambassador_condition);
+                if ($result->count() == 0) {
+                    // Check for SpecialCare
+                    $result = Sign_up::selectSpecialCare($leader_condition, $ambassador_condition);
+                    if ($result->count() == 0) {
+                        //Check New Teams
+                        $result = Sign_up::selectTeam($leader_condition, $ambassador_condition);
+                        if ($result->count() == 0) {
+                            //Check Teams With Less Than 12 Members
+                            $result = Sign_up::selectTeam_between($leader_condition, $ambassador_condition, "1", "12");
 
-                         if ($result->count() == 0){
-                              //Check Teams With Less More 12 Members
-                              $result=Sign_up::selectTeam($leader_condition,$ambassador_condition,">","12");
-                              if ($result->count() == 0){
-                                $ambassadorWithoutLeader = User::create($ambassador);
-                                event(new NewUserStats());
-                                if($ambassadorWithoutLeader)
-                                {
-                                    $ambassadorWithoutLeader->assignRole($ambassador['user_type']);
-                                    UserProfile::create([
-                                        'user_id' => $ambassadorWithoutLeader->id,
-                                    ]);
-                                    ProfileSetting::create([
-                                        'user_id' => $ambassadorWithoutLeader->id,
-                                    ]); 
+                            if ($result->count() == 0) {
+                                //Check Teams With Less More 12 Members
+                                $result = Sign_up::selectTeam($leader_condition, $ambassador_condition, ">", "12");
+                                if ($result->count() == 0) {
+                                    $ambassadorWithoutLeader = User::create($ambassador);
+                                    event(new NewUserStats());
+                                    if ($ambassadorWithoutLeader) {
+                                        $ambassadorWithoutLeader->assignRole($ambassador['user_type']);
+                                        UserProfile::create([
+                                            'user_id' => $ambassadorWithoutLeader->id,
+                                        ]);
+                                        ProfileSetting::create([
+                                            'user_id' => $ambassadorWithoutLeader->id,
+                                        ]);
+                                    }
+                                    $exit = true;
+                                    echo $this->jsonResponseWithoutMessage("Register Successfully --Without Leader", 'data', 200);
+                                } else {
+                                    $exit =  $this->insert_ambassador($ambassador, $result);
+                                    if ($exit == true) {
+                                        echo $this->jsonResponseWithoutMessage("Register Successfully -- Teams With More Than 12 Members", 'data', 200);
+                                    } else {
+                                        continue;
+                                    }
                                 }
-                                 $exit=true;
-                                 echo $this->jsonResponseWithoutMessage("Register Successfully --Without Leader", 'data', 200);
-                             }
-                             else{
-                                 $exit =  $this->insert_ambassador($ambassador,$result);
-                                 if($exit == true){
-                                     echo $this->jsonResponseWithoutMessage("Register Successfully -- Teams With More Than 12 Members", 'data', 200);
-                                 }
-                                 else{
-                                     continue;
-                                 }
-                             }
+                            } //end if Teams With Less Than 12 Members
+                            else {
+                                $exit =  $this->insert_ambassador($ambassador, $result);
+                                if ($exit == true) {
+                                    echo $this->jsonResponseWithoutMessage("Register Successfully -- Teams With Less Than 12 Members", 'data', 200);
+                                } else {
+                                    continue;
+                                }
+                            } //end else Teams With Less Than 12 Members
+                        } //end if Check New Teams
+                        else {
+                            $exit =  $this->insert_ambassador($ambassador, $result);
+                            if ($exit == true) {
+                                echo $this->jsonResponseWithoutMessage("Register Successfully -- New Teams", 'data', 200);
+                            } else {
+                                continue;
+                            }
+                        } //end if Check New Teams
+                    } //end if Check for SpecialCare
+                    else {
+                        $exit =  $this->insert_ambassador($ambassador, $result);
+                        if ($exit == true) {
+                            echo $this->jsonResponseWithoutMessage("Register Successfully -- SpecialCare", 'data', 200);
+                        } else {
+                            continue;
+                        }
+                    } //end else Check for SpecialCare
+                } //end if Check for High Priority Requests
+                else {
+                    $exit =  $this->insert_ambassador($ambassador, $result);
 
 
-                         }//end if Teams With Less Than 12 Members
-                         else{
-                             $exit =  $this->insert_ambassador($ambassador,$result);
-                             if($exit == true){
-                                 echo $this->jsonResponseWithoutMessage("Register Successfully -- Teams With Less Than 12 Members", 'data', 200);
-                             }
-                             else{
-                                 continue;
-                             }
-                         }//end else Teams With Less Than 12 Members
-                     }//end if Check New Teams
-                     else{
-                         $exit =  $this->insert_ambassador($ambassador,$result);
-                         if($exit == true){
-                             echo $this->jsonResponseWithoutMessage("Register Successfully -- New Teams", 'data', 200);
-                         }
-                         else{
-                             continue;
-                         }
-                     }//end if Check New Teams
-                 }//end if Check for SpecialCare
-                 else{
-                     $exit =  $this->insert_ambassador($ambassador,$result);
-                     if($exit == true){
-                         echo $this->jsonResponseWithoutMessage("Register Successfully -- SpecialCare", 'data', 200);
-                     }
-                     else{
-                         continue;
-                     }
-                 }//end else Check for SpecialCare
-                }//end if Check for High Priority Requests
-                else{
-                    $exit =  $this->insert_ambassador($ambassador,$result);
-                   
-
-                    if($exit == true){
+                    if ($exit == true) {
                         echo $this->jsonResponseWithoutMessage("Register Successfully -- High Priority", 'data', 200);
+                    } else {
+                        continue;
                     }
-                    else{
-                     continue;
-                    }
-                 
-                }//end else Check for High Priority Requests
-          
-            }//while     
+                } //end else Check for High Priority Requests
+
+            } //while     
         });
     }
-    public function insert_ambassador($ambassador,$results){
-        foreach($results as $result){
-            $ambassador['request_id'] =$result->id;
-            $countRequests=Sign_up::countRequests($result->id);
-            if ($result->members_num > $countRequests){
-            $user =User::create($ambassador);
-            event(new NewUserStats());
-            if($user)
-            {
-                $user->assignRole($ambassador['user_type']);
-                //create User Profile
-                UserProfile::create([
-                    'user_id' => $user->id,
-                ]);
-                //create Profile Setting
-                ProfileSetting::create([
-                    'user_id' => $user->id,
-                ]);
-                $leader_request= LeaderRequest::find($result->id);
-                $group= Group::where('creator_id',$leader_request->leader_id)->first();
-                //create User Group
-                UserGroup::create([
-                    'user_id'  => $user->id,
-                    'group_id'  => $group->id,
-                    'user_type' => $ambassador['user_type'],
-                ]);
+    public function insert_ambassador($ambassador, $results)
+    {
+        foreach ($results as $result) {
+            $ambassador['request_id'] = $result->id;
+            $countRequests = Sign_up::countRequests($result->id);
+            if ($result->members_num > $countRequests) {
+                $user = User::create($ambassador);
+                event(new NewUserStats());
+                if ($user) {
+                    $user->assignRole($ambassador['user_type']);
+                    //create User Profile
+                    UserProfile::create([
+                        'user_id' => $user->id,
+                    ]);
+                    //create Profile Setting
+                    ProfileSetting::create([
+                        'user_id' => $user->id,
+                    ]);
+                    $leader_request = LeaderRequest::find($result->id);
+                    $group = Group::where('creator_id', $leader_request->leader_id)->first();
+                    //create User Group
+                    UserGroup::create([
+                        'user_id'  => $user->id,
+                        'group_id'  => $group->id,
+                        'user_type' => $ambassador['user_type'],
+                    ]);
+                }
 
-            }
-            
-            $countRequest = $countRequests + 1;
-            if ($result->members_num <= $countRequest) {
+                $countRequest = $countRequests + 1;
+                if ($result->members_num <= $countRequest) {
+                    Sign_up::updateRequest($result->id);
+                    $msg = "You request is done";
+                    // (new NotificationController)->sendNotification($result->leader_id , $msg);
+                }
+                $msg = "You have new user to your team";
+                //(new NotificationController)->sendNotification($result->leader_id , $msg);
+                return true;
+            } else {
                 Sign_up::updateRequest($result->id);
                 $msg = "You request is done";
-               // (new NotificationController)->sendNotification($result->leader_id , $msg);
-            }
-            $msg = "You have new user to your team";
-            //(new NotificationController)->sendNotification($result->leader_id , $msg);
-            return true;
-            }
-            else{
-                Sign_up::updateRequest($result->id);    
-                $msg = "You request is done";
-               // (new NotificationController)->sendNotification($result->leader_id , $msg);           
+                // (new NotificationController)->sendNotification($result->leader_id , $msg);           
                 return false;
             }
         }
-        
-      }
+    }
 
     public function logout()
     {

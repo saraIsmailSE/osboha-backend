@@ -10,9 +10,9 @@ class PollVote extends Model
     use HasFactory;
 
     protected $fillable = [
-        'poll_option_id',
         'user_id',
-        'vote_count',
+        'post_id',
+        'poll_option_id',
     ];
 
     public function user()
@@ -20,8 +20,13 @@ class PollVote extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function post()
+    {
+        return $this->belongsTo(Post::class, 'post_id');
+    }
+
     public function pollOption()
     {
-        return $this->belongsTo(PollOption::class, 'poll_option_id');
+        return $this->belongsTo(PollOption::class, 'poll_option_id')->withCount('votes');
     }
 }

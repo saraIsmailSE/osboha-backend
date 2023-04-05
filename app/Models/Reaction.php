@@ -10,32 +10,28 @@ class Reaction extends Model
     use HasFactory;
     protected $fillable = [
         'user_id',
-        'reaction_id',
+        'type_id',
         'comment_id',
         'post_id'
     ];
-    public function post(){
-        return $this->belongsTo(Post::class,'post_id');
-    }
-    public function user(){
-        return $this->belongsTo(User::class,'user_id');
-    }
-    public function comment(){
-        return $this->belongsTo(Comment::class,'comment_id');
-    }
-    public function media(){
-        return $this->hasOne(Media::class,'media_id');
-    }
-        /**
-     * Self Relation.
-     */
-    public function parent()
+    public function post()
     {
-        return $this->belongsTo(Reaction::class, 'reaction_id');
+        return $this->belongsTo(Post::class, 'post_id');
     }
-    public function children()
+    public function user()
     {
-        return $this->hasMany(Reaction::class, 'reaction_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
-
+    public function comment()
+    {
+        return $this->belongsTo(Comment::class, 'comment_id');
+    }
+    public function media()
+    {
+        return $this->hasOne(Media::class, 'media_id');
+    }
+    public function reactionType()
+    {
+        return $this->belongsTo(ReactionType::class, 'reaction_type_id');
+    }
 }

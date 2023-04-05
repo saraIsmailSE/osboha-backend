@@ -7,17 +7,20 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Image;
+use Termwind\Components\Dd;
 
 trait MediaTraits
 {
-    function createMedia($media, $type_id, $type)
+    function createMedia($media, $type_id, $type, $folderPath = null)
     {
         try {
             $imageName = rand(100000, 999999) . time() . '.' . $media->extension();
-            $media->move(public_path('assets/images'), $imageName);
+            $fullPath = 'assets/images' . ($folderPath ? '/' . $folderPath : '');
+
+            $media->move(public_path($fullPath), $imageName);
             // link media with comment
             $media = new Media();
-            $media->media = $imageName;
+            $media->media = $folderPath . '/' . $imageName;
             $media->type = 'image';
             $media->user_id = Auth::id();
             if ($type == 'comment') {
@@ -65,7 +68,7 @@ trait MediaTraits
     function deleteMedia($media_id)
     {
         $currentMedia = Media::find($media_id);
-        //delete current media
+        //delete current media        
         File::delete(public_path('assets/images/' . $currentMedia->media));
         $currentMedia->delete();
     }
