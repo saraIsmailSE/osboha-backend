@@ -437,18 +437,18 @@ class MarkController extends Controller
      * get user mark with theses => list only for group administrators
      * 
      * @param  $user_id
-     * @return month achievement;
+     * @return mark;
      */
     public function ambassadorMark($user_id){
         $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
-        $group = Group::where('id', $group_id)->with('groupAdministrators')->first();
+        $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
 
-        $currentWeek= Week::latest()->pluck('id')->toArray();
-        $response['mark']= Mark::where('user_id',$user_id)->where('week_id',$currentWeek)->first();
-        $response['theses']=Thesis::where('mark_id',  $response['mark']->id)->get();
+        $response['currentWeek']= Week::latest()->first();
+        $response['mark']= Mark::where('user_id',$user_id)->where('week_id',$response['currentWeek']->id)->first();
+        $response['theses']=Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
 
-        // if (in_array(Auth::id(), $group->groupAdministrators->pluck('id')->toArray())) {
+        // if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
 
 
         // }

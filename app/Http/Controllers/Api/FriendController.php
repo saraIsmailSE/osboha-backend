@@ -31,10 +31,25 @@ class FriendController extends Controller
         $user = User::find($user_id);
         $friends = $user->friends()->get();
         $friendsOf = $user->friendsOf()->get();
-        $allFriends = $friends->merge($friendsOf);
+        $response['allFriends'] = UserInfoResource::collection($friends->merge($friendsOf));
 
-        if ($allFriends->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(UserInfoResource::collection($allFriends), 'data', 200);
+
+        if ($response['allFriends']) {
+            if ($user_id == Auth::id()) {
+                $response['friendsOfAuth'] = false;
+            } else {
+                $authUser = User::find(Auth::id());
+                //Auth Friends
+                $friends = $authUser->friends()->get();
+                $friendsOf = $authUser->friendsOf()->get();
+                $response['friendsOfAuth'] = $friends->merge($friendsOf)->pluck('id');
+
+                //Auth Not Accepted Friends
+                $notFriends = $authUser->notFriends()->get();
+                $notFriendsOf = $authUser->notFriendsOf()->get();
+                $response['notFriendsOfAuth'] = $notFriends->merge($notFriendsOf)->pluck('id');
+            }
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
         }
 
         return $this->jsonResponseWithoutMessage('No Friends', 'data', 200);
@@ -45,17 +60,8 @@ class FriendController extends Controller
      */
     public function listUnAccepted()
     {
-
-        $user = User::find(Auth::id());
-        if ($user) {
-            $notFriends = $user->notFriends()->get();
-            $notFriendsOf = $user->notFriendsOf()->get();
-            $allRequests = $notFriends->merge($notFriendsOf);
-
-            return $this->jsonResponseWithoutMessage($allRequests, 'data', 200);
-        } else {
-            throw new NotFound;
-        }
+        $allRequests = Friend::with('user')->where('friend_id', Auth::id())->where('status', 0)->get();
+        return $this->jsonResponseWithoutMessage($allRequests, 'data', 200);
     }
     /**
      * Send freind request if no frienship is exsist.
@@ -90,7 +96,7 @@ class FriendController extends Controller
                 $input['user_id'] = Auth::id();
                 Friend::create($input);
 
-                $msg = "You have new friend request";
+                $msg = "لديك طلب صداقة جديد";
                 (new NotificationController)->sendNotification($request->friend_id, $msg);
                 return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
             }
@@ -123,31 +129,20 @@ class FriendController extends Controller
      * @return jsonResponseWithoutMessage ;
      */
 
-    public function accept(Request $request)
+    public function accept($friendship_id)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'friend_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-
-        if (Auth::id() == $request->user_id || Auth::id() == $request->friend_id) {
-
-            $friendship = Friend::where('user_id', $request->user_id)->where('friend_id', $request->friend_id)->first();
-            if ($friendship) {
+        $friendship=Friend::find($friendship_id);
+        if ($friendship) {
+            if (Auth::id() == $friendship->friend_id) {
 
                 $friendship->status = 1;
                 $friendship->save();
                 return $this->jsonResponseWithoutMessage("Friend Accepted Successfully", 'data', 200);
             } else {
-                throw new NotFound;
+                throw new NotAuthorized;
             }
         } else {
-            throw new NotAuthorized;
+            throw new NotFound;
         }
     }
 
@@ -169,7 +164,6 @@ class FriendController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-
         if (Auth::id() == $request->user_id || Auth::id() == $request->friend_id) {
             $friendship = Friend::where('user_id', $request->user_id)->where('friend_id', $request->friend_id)->first();
             if ($friendship) {
