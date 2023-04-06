@@ -17,7 +17,8 @@ class PollOptionResource extends JsonResource
         return [
             'id' => $this->id,
             'option' => $this->option,
-            'votes' => PollVoteResource::collection($this->whenLoaded('votes')),
+            'votes_count' => $this->votes_count ?? 0,
+            'selected_by_user' => $this->votes->contains('user_id', auth()->id()),
         ];
     }
 }

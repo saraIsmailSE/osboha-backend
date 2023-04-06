@@ -17,14 +17,10 @@ class PostTypeSeeder extends Seeder
 
         $post_type = ['noraml', 'book', 'article', 'infographic', 'support', 'discussion', 'announcement'];
         //POST TYPE
-        $i = 0;
-        while ($i <= 5) {
+        foreach ($post_type as $type) {
             DB::table('post_types')->insert([
-
-                'type' => $post_type[$i],
-
+                'type' => $type,
             ]);
-            $i++;
         }
     }
 }

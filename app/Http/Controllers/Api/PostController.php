@@ -99,13 +99,16 @@ class PostController extends Controller
                             (new NotificationController)->sendNotification($timeline->profile->user_id, $msg);
                         }
                     }
-                } else if ($timeline_type == 'announcement') {
-                    if (!Auth::user()->can('create announcement')) {
-                        throw new NotAuthorized;
-                    }
                 } else { //timeline type => book || news || main (1-2-3)
                     if (!Auth::user()->can('create post')) {
                         throw new NotAuthorized;
+                    }
+
+                    //only supervisors and above are allowed to create announcements
+                    if ($request->type === 'announcement') {
+                        if (!Auth::user()->can('create announcement')) {
+                            throw new NotAuthorized;
+                        }
                     }
                 }
 
@@ -113,7 +116,7 @@ class PostController extends Controller
                     $input['tags'] = serialize($request->tags);
                 }
 
-                if ($type_id == 1) { //post type is book
+                if ($request->type == 'book') { //post type is book
                     $input['book_id'] = $request->book_id;
                 } else {
                     $input['book_id'] = null;
@@ -135,9 +138,27 @@ class PostController extends Controller
                 if ($request->has('media') && !$request->votes) {
                     //loop through the media array and upload each media
                     foreach ($request->media as $media) {
-                        $this->createMedia($media, $post->id, 'post');
+                        $this->createMedia($media, $post->id, 'post', 'posts/' . Auth::id());
                     }
                 }
+
+                //send notification to the tagged users
+                if ($request->has('tags')) {
+                    foreach ($request->tags as $tag) {
+                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' tagged you in a post');
+                    }
+                }
+
+                //load the post with user
+                $post->load([
+                    'user',
+                    'pollOptions.votes' => function ($query) {
+                        $query->where('user_id', Auth::id());
+                    },
+
+                    'pollVotes.votesCount',
+                ]);
+
                 return $this->jsonResponseWithoutMessage(new PostResource($post), 'data', 200);
             } else {
                 throw new NotFound;
@@ -235,24 +256,18 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function delete(Request $request)
+    public function delete($post_id)
     {
-        $validator = Validator::make($request->all(), [
-            'post_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $post = Post::find($request->post_id);
+        $post = Post::find($post_id);
         if ($post) {
             if (Auth::user()->can('delete post') || Auth::id() == $post->user_id) {
                 //check Media
-                $currentMedia = Media::where('post_id', $post->id)->first();
+                $currentMedia = Media::where('post_id', $post->id)->get();
                 // if exist, delete
-                if ($currentMedia) {
-                    $this->deleteMedia($currentMedia->id);
+                if ($currentMedia->isNotEmpty()) {
+                    foreach ($currentMedia as $media) {
+                        $this->deleteMedia($media->id, 'posts/' . $post->user_id);
+                    }
                 }
                 $post->delete();
                 return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
@@ -274,10 +289,30 @@ class PostController extends Controller
         $posts = Post::where('timeline_id', $timeline_id)
             ->withCount('comments')
             ->with('user')
-            ->with('pollOptions')
+            ->with('pollOptions.votes', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('pollVotes')
             ->latest()
             ->paginate(25);
 
+        $timeline_type = Timeline::find($timeline_id)->type->type;
+        if ($timeline_type === 'group' || $timeline_type === 'profile') {
+            $last_pinned_post = Post::where('timeline_id', $timeline_id)
+                ->where('is_pinned', 1)
+                ->withCount('comments')
+                ->with('user')
+                ->with('pollOptions.votes', function ($query) {
+                    $query->where('user_id', Auth::id());
+                })
+                ->withCount('pollVotes')
+                ->orderBy('updated_at', 'desc')
+                ->first();
+
+            if ($last_pinned_post && $posts->currentPage() == 1) {
+                $posts->prepend($last_pinned_post);
+            }
+        }
         if ($posts->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
                 'posts' => PostResource::collection($posts),
@@ -285,7 +320,7 @@ class PostController extends Controller
                 'total' => $posts->total(),
             ], 'data', 200);
         }
-        return $this->jsonResponseWithoutMessage("No Posts Found", 'data', 200);
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
     /**
      * Get posts for the auth user to display in the home page
@@ -316,19 +351,40 @@ class PostController extends Controller
             ->where('type_id', '!=', PostType::where('type', 'announcement')->first()->id)
             ->withCount('comments')
             ->with('user')
-            ->with('pollOptions')
+            //check which option is selected by the user
+            ->with('pollOptions.votes', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->withCount('pollVotes')
             ->latest()
             ->paginate(25);
 
         $announcements = null;
         if ($posts->currentPage() == 1) {
             $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+                ->where('is_pinned', 1)
                 ->withCount('comments')
-                ->with('pollOptions')
+                ->with('pollOptions.votes', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->withCount('pollVotes')
                 ->with('user')
-                ->latest()
-                ->take(2)
+                ->orderBy('updated_at', 'desc')
+                ->take(1)
                 ->get();
+
+            if ($announcements->isEmpty()) {
+                $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+                    ->withCount('comments')
+                    ->with('pollOptions.votes', function ($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    })
+                    ->withCount('pollVotes')
+                    ->with('user')
+                    ->latest()
+                    ->take(2)
+                    ->get();
+            }
         }
 
         if ($posts->isNotEmpty() || ($announcements && $announcements->isNotEmpty())) {
@@ -339,7 +395,49 @@ class PostController extends Controller
                 'last_page' => $posts->lastPage(),
             ], 'data', 200);
         }
-        return $this->jsonResponseWithoutMessage("No Posts Found", 'data', 200);
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+    /**
+     * Get announcements posts
+     * @return jsonResponseWithoutMessage
+     */
+    public function getAnnouncements()
+    {
+        $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+            ->withCount('comments')
+            ->with('pollOptions.votes', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('pollVotes')
+            ->with('user')
+            ->latest()
+            ->paginate(25);
+
+        $last_pinned_announcement = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+            ->where('is_pinned', 1)
+            ->withCount('comments')
+            ->with('pollOptions.votes', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('pollVotes')
+            ->with('user')
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
+        if ($last_pinned_announcement && $announcements->currentPage() == 1) {
+            $announcements->prepend($last_pinned_announcement);
+        }
+
+        if ($announcements->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'posts' => PostResource::collection($announcements),
+                'total' => $announcements->total(),
+                'last_page' => $announcements->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
     /**
      * Return all posts that match requested user_id.
@@ -443,29 +541,22 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function controlComments(Request $request)
+    public function controlComments($post_id)
     {
-        // user can controll comments [allowed or not]  if he is the owner or has a controll comments permission
-        $validator = Validator::make($request->all(), [
-            'allow_comments' => 'required',
-            'post_id' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
+        $post = Post::find($post_id);
 
-        $post = Post::find($request->post_id);
         if ($post) {
-            if (Auth::id() == $post->user_id || Auth::user()->can('controll comments')) {
-                $post->allow_comments = $request->allow_comments;
+            if (Auth::id() == $post->user_id || (Auth::user()->can('control comments') && $post->timeline->type->type === 'group')) {
+                $post->allow_comments = $post->allow_comments ? 0 : 1;
                 $post->save();
 
-                if ($request->allow_comments == 0) {
-                    $msg = "Comments Closed Successfully";
+                if ($post->allow_comments == 0) {
+                    $msg = "closed";
                 } else {
-                    $msg = "Comments Opend Successfully";
+                    $msg = "openned";
                 }
+
                 return $this->jsonResponseWithoutMessage($msg, 'data', 200);
             } else {
                 throw new NotAuthorized;
@@ -476,31 +567,42 @@ class PostController extends Controller
     }
     /**
      * User can pin post on his profile or if user has a pin post permission.
+     * posts can be pinned only on the timelines ['announcement', 'group', 'profile']
+     * steps:
+     * 1- check if post exist
+     * 2- check if user has a pin post permission or if user is allowed to pin post on his timeline
+     * 3- change is_pinned value to 1 or 0
+     * 4- unpin other posts if the post is pinned
+     * 5- return message
      * 
-     * @param  Request  $request
+     * @param  int  $post_id
      * @return jsonResponseWithoutMessage
      */
-    public function pinPost(Request $request)
+    public function pinPost($post_id)
     {
-        // user can pin post on his profile or if he has a pin post permission
-        $validator = Validator::make($request->all(), [
-            'is_pinned' => 'required',
-            'post_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $post = Post::find($request->post_id);
+        $post = Post::find($post_id);
         if ($post) {
-            if (Auth::user()->userProfile->timeline_id == $post->timeline_id || Auth::user()->can('pin ')) {
+            if ((Auth::id() === $post->user_id && Auth::user()->userProfile->timeline_id === $post->timeline_id) ||
+                (Auth::user()->can('pin post') && $post->timeline->type->type === 'group') ||
+                (Auth::user()->can('pin post') && $post->type->type === 'announcement')
+            ) {
 
-                Post::where('id', $request->post_id)->update(['is_pinned' => $request->is_pinned]);
-                if ($request->is_pinned == 0) {
-                    $msg = "Post Unpinned Successfully";
+                $post->is_pinned = $post->is_pinned ? 0 : 1;
+                $post->save();
+
+                //unpin other posts
+                if ($post->is_pinned === 1) {
+                    Post::where([
+                        ['timeline_id', $post->timeline_id],
+                        ['is_pinned', 1],
+                        ['id', '!=', $post->id]
+                    ])->update(['is_pinned' => 0]);
+                }
+
+                if ($post->is_pinned === 0) {
+                    $msg = "unpinned";
                 } else {
-                    $msg = "Post Pinned Successfully";
+                    $msg = "pinned";
                 }
                 return $this->jsonResponseWithoutMessage($msg, 'data', 200);
             } else {

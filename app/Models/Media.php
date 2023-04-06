@@ -11,7 +11,6 @@ class Media extends Model
     protected $fillable = [
         'type' => 'required',
         'user_id' => 'required'
-
     ];
 
     public function user()
@@ -27,9 +26,9 @@ class Media extends Model
     {
         return $this->belongsTo(Comment::class, 'comment_id');
     }
-    public function reaction()
+    public function reactionType()
     {
-        return $this->belongsTo(Reaction::class, 'reaction_id');
+        return $this->belongsTo(ReactionType::class, 'reaction_type_id');
     }
     public function infographics()
     {
@@ -40,7 +39,8 @@ class Media extends Model
         return $this->belongsTo(InfographicSeries::class, 'infographic_series_id');
     }
 
-    public function book(){
+    public function book()
+    {
         return $this->belongsTo(Book::class, 'book_id');
     }
 }

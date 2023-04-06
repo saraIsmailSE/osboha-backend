@@ -26,14 +26,13 @@ class PollVoteController extends Controller
      */
     public function index()
     {
-            $votes = PollVote::all();
-            
-            if($votes->isNotEmpty()){
-                return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data',200);
-            }
-            else{
-                throw new NotFound;
-            }
+        $votes = PollVote::all();
+
+        if ($votes->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
+        } else {
+            throw new NotFound;
+        }
     }
     /**
      * Add a new vote to the system for the auth user.
@@ -44,19 +43,37 @@ class PollVoteController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'post_id' => 'required',
-            'option' => 'required',
+            'option_id' => 'required',
+            'post_id' => 'required'
         ]);
+
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
-        $input = $request->all();
-        $input['user_id'] = Auth::id();
-        $option = $request->option;
-        $input['option'] = serialize($option);
-        PollVote::create($input);
-        return $this->jsonResponseWithoutMessage("Vote Created Successfully", 'data', 200);
+        $vote = PollVote::where('user_id', Auth::id())->where('post_id', $request->post_id)->where('poll_option_id', $request->option_id)->first();
+        if ($vote) {
+            return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        }
+
+        // Check if the user has already voted for this post
+        $vote = PollVote::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
+
+        if ($vote) {
+            // Update the vote
+            $vote->update([
+                'poll_option_id' => $request->option_id
+            ]);
+            return $this->jsonResponseWithoutMessage("updated", 'data', 200);
+        } else {
+            // Create a new vote
+            $vote = PollVote::create([
+                'user_id' => Auth::id(),
+                'post_id' => $request->post_id,
+                'poll_option_id' => $request->option_id
+            ]);
+            return $this->jsonResponseWithoutMessage("created", 'data', 200);
+        }
     }
     /**
      * Find existing vote in the system by its id.
@@ -72,14 +89,13 @@ class PollVoteController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }    
+        }
 
         $vote = PollVote::find($request->poll_vote_id);
-        if($vote){
-            return $this->jsonResponseWithoutMessage(new PollVoteResource($vote), 'data',200);
-        }
-        else{
-           throw new NotFound;
+        if ($vote) {
+            return $this->jsonResponseWithoutMessage(new PollVoteResource($vote), 'data', 200);
+        } else {
+            throw new NotFound;
         }
     }
     /**
@@ -95,31 +111,29 @@ class PollVoteController extends Controller
             //'user_id' => 'required',
             //'post_id' => 'required',
             'option' => 'required',
-        
+
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $input=$request->all();
+        $input = $request->all();
         $vote = PollVote::find($request->id);
 
-        if($vote){
-            if(Auth::id() == $vote->user_id){
+        if ($vote) {
+            if (Auth::id() == $vote->user_id) {
                 $option = $request->option;
                 $input['option'] = serialize($option);
                 $vote->update($input);
                 //$vote->update($request->all());
 
                 return $this->jsonResponseWithoutMessage("Vote Updated Successfully", 'data', 200);
+            } else {
+                throw new NotAuthorized;
             }
-            else{
-                throw new NotAuthorized;   
-            }
-        }
-        else{
-            throw new NotFound; 
+        } else {
+            throw new NotFound;
         }
     }
     /**
@@ -136,19 +150,17 @@ class PollVoteController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
         $vote = PollVote::find($request->poll_vote_id);
-        if($vote){
-            if(Auth::id() == $vote->user_id){
+        if ($vote) {
+            if (Auth::id() == $vote->user_id) {
                 $vote->delete();
                 return $this->jsonResponseWithoutMessage("Vote Deleted Successfully", 'data', 200);
-            }
-            else{
+            } else {
                 throw new NotAuthorized;
             }
-        }
-        else{
+        } else {
             throw new NotFound;
         }
     }
@@ -165,9 +177,9 @@ class PollVoteController extends Controller
         //find votes belong to post_id
         $votes = PollVote::where('post_id', $post_id)->get();
 
-        if($votes->isNotEmpty()){
+        if ($votes->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
-        }else{
+        } else {
             throw new NotFound();
         }
     }
@@ -183,9 +195,9 @@ class PollVoteController extends Controller
         //find votes belong to user_id
         $votes = PollVote::where('user_id', $user_id)->get();
 
-        if($votes->isNotEmpty()){
+        if ($votes->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(PollVoteResource::collection($votes), 'data', 200);
-        }else{
+        } else {
             throw new NotFound();
         }
     }
