@@ -19,9 +19,11 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\UserExceptionResource;
 use App\Models\LeaderRequest;
 use App\Models\Mark;
+use App\Models\User;
 use App\Models\UserBook;
 use App\Models\UserException;
 use App\Models\Week;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -307,10 +309,14 @@ class GroupController extends Controller
         return $this->jsonResponseWithoutMessage(UserExceptionResource::collection($exceptions), 'data', 200);
     }
 
-
+    /**
+     * Basic group marks.
+     * 
+     * @param  group _id
+     * @return group info , week satistics [100 - 0 -incomplete - most read]
+     */
     public function BasicMarksView($group_id)
     {
-
         $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $current_week = Week::latest()->pluck('id')->first();
         $marks['group_users'] =  $marks['group']->leaderAndAmbassadors->count();
@@ -324,6 +330,12 @@ class GroupController extends Controller
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
 
+    /**
+     * all ambassadors achievments.
+     * 
+     * @param  group _id , week filter [current - previous ]
+     * @return ambassadors achievments
+     */
 
     public function allAchievements($group_id, $week_filter = "current")
     {
@@ -334,13 +346,21 @@ class GroupController extends Controller
             $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
         }
 
-
         $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $marks['group_users'] = $marks['group']->leaderAndAmbassadors->count();
         $marks['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id', $marks['group']->leaderAndAmbassadors->pluck('id'))->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
+
+
+    /**
+     * all ambassadors achievments as pages, order by total pages desc.
+     * 
+     * @param  group _id , week filter [current - previous ]
+     * @return ambassadors achievments as total pages
+     */
+
     public function achievementAsPages($group_id, $week_filter = "current")
     {
         if ($week_filter == 'current') {
@@ -353,6 +373,60 @@ class GroupController extends Controller
         $response['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $response['group_users'] = $response['group']->leaderAndAmbassadors->count();
         $response['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id',  $response['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    /**
+     * ambassador achievment in a week
+     * 
+     * @param  ambassador_name, group _id , week filter [current - previous ]
+     * @return ambassador achievment
+     */
+
+    public function searchForAmbassadorAchievement($ambassador_name, $group_id, $week_filter = "current")
+    {
+        if ($week_filter == 'current') {
+            $week = Week::latest()->pluck('id')->toArray();
+        }
+        if ($week_filter == 'previous') {
+            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+        }
+        $search = UserGroup::join('users', 'users.id', '=', 'user_groups.user_id')
+            ->join('groups', 'groups.id', '=', 'user_groups.group_id')
+            ->where('users.name', 'LIKE', "%{$ambassador_name}%")
+            ->where('groups.id', $group_id)
+            ->pluck('user_id')->toArray();
+        $response['ambassador_achievement'] = Mark::where('week_id', $week)->whereIn('user_id',  $search)->limit(3)->get();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+
+    /**
+     * search for ambassador in group
+     * 
+     * @param  ambassador_name, group _id 
+     * @return ambassador achievment
+     */
+
+    public function searchForAmbassador($ambassador_name, $group_id)
+    {
+
+        $search = UserGroup::join('users', 'users.id', '=', 'user_groups.user_id')
+            ->join('groups', 'groups.id', '=', 'user_groups.group_id')
+            ->where('users.name', 'LIKE', "%{$ambassador_name}%")
+            ->where('groups.id', $group_id)
+            ->pluck('user_id')->toArray();
+
+        //$response['users'] = User::with('groups')->whereIn('id',  $search)->get();
+        $response['users'] = User::with(['groups' => function ($query) use ($group_id) {
+            $query->where('groups.id', $group_id);
+        }])
+            // ->whereHas('groups', function ($q) use ($group_id) {
+            //         $q->where('groups.id',  $group_id);
+            //     })
+            ->whereIn('id',  $search)->get();
+        // $response['users'] = UserGroup::where('group_id', $group_id)->whereIn('user_id',  $search)->with('users')->get();
+
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 

@@ -171,7 +171,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{friendship-id}', [FriendController::class, 'show'])->where('friendship-id', '[0-9]+');
             Route::patch('/accept-friend-request/{friendship-id}', [FriendController::class, 'accept']);
             Route::delete('/{friendship-id}', [FriendController::class, 'delete']);
-            Route::post('/accept', [FriendController::class, 'accept']);
+            Route::get('/accept/{friendship_id}', [FriendController::class, 'accept']);
             Route::post('/delete', [FriendController::class, 'delete']);
             Route::get('/show/{friendship_id}', [FriendController::class, 'show']);
         });
@@ -237,7 +237,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/exceptions-filter/{filter}/{group_id}', [GroupController::class, 'exceptionsFilter']);
             Route::get('/basic-mark-view/{group_id}', [GroupController::class, 'BasicMarksView']);
             Route::get('/all-achievements/{group_id}/{week_filter?}', [GroupController::class, 'allAchievements']);
-            Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
+            Route::get('/search-for-ambassador-achievement/{ambassador_name}/{group_id}/{week_filter?}', [GroupController::class, 'searchForAmbassadorAchievement']);
+            Route::get('/search-for-ambassador/{ambassador_name}/{group_id}', [GroupController::class, 'searchForAmbassador']);
+             Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
         });
@@ -335,7 +337,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########User-Profile########
         Route::group(['prefix' => 'user-profile'], function () {
             Route::get('/show/{user_id}', [UserProfileController::class, 'show']);
-            Route::get('/showToUpdate/{user_id}', [UserProfileController::class, 'showToUpdate']);
+            Route::get('/show-to-update', [UserProfileController::class, 'showToUpdate']);
             Route::get('/statistics/{user_id}', [UserProfileController::class, 'profileStatistics']);
             Route::post('/update', [UserProfileController::class, 'update']);
             Route::post('/update-profile-pic', [UserProfileController::class, 'updateProfilePic']);
@@ -372,7 +374,7 @@ Route::group(['prefix' => 'v1'], function () {
         ######## End UserGroup ########
         ####### Start Thesis ########
         Route::group(['prefix' => 'thesis'], function () {
-            Route::post('/show', [ThesisController::class, 'show']);
+            Route::get('/show/{thesis_id}', [ThesisController::class, 'show']);
             Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);
             Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);
             Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);

@@ -28,15 +28,10 @@ class ThesisController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage ;
      */
-    public function show(Request $request)
+    public function show($thesis_id)
     {
-        $validator = Validator::make($request->all(), ['thesis_id' => 'required']);
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $thesis = Thesis::find($request->thesis_id);
+        $thesis = Thesis::with('comment')->find($thesis_id);
 
         if ($thesis) {
             return $this->jsonResponseWithoutMessage(new ThesisResource($thesis), 'data', 200);

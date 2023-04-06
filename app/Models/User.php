@@ -50,7 +50,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // protected $with = array('roles');
+    protected $with = array('userProfile');
+
 
     public function userProfile()
     {

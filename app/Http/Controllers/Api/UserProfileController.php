@@ -73,9 +73,20 @@ class UserProfileController extends Controller
             $friendsOf = $user->friendsOf()->get();
             $profile['friends'] = $friends->merge($friendsOf);
 
-            // user exceptions => displayed ONLY for Profile Owner
             if ($user_id == Auth::id()) {
+                // user exceptions => displayed ONLY for Profile Owner
                 $profile['exceptions'] = UserExceptionResource::collection(UserException::where('user_id', $user_id)->get());
+            }
+            else{
+                // friend with auth or not
+                $profile['friendWithAuth']=Friend::where(function ($q) use ($user_id) {
+                    $q->where('user_id', Auth::id())
+                        ->Where('friend_id', $user_id);
+                })->orWhere(function ($q) use ($user_id) {
+                    $q->where('user_id', $user_id)
+                        ->Where('friend_id', Auth::id());
+                })->exists();
+
             }
 
             return $this->jsonResponseWithoutMessage($profile, 'data', 200);
@@ -88,11 +99,11 @@ class UserProfileController extends Controller
      * Find an existing profile by user id in the system and display it.
      *
      * @param user_id
-     * @return jsonResponse[profile:info,posts,friends,exceptions]
+     * @return jsonResponse[profile:info]
      */
-    public function showToUpdate($user_id)
-    {
-        $response['profileInfo'] = new UserProfileResource(UserProfile::where('user_id', $user_id)->first());
+    public function showToUpdate()
+    {   
+        $response['profileInfo'] = new UserProfileResource(UserProfile::where('user_id', Auth::id())->first());
         $response['sections']=Section::all();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
@@ -234,7 +245,7 @@ class UserProfileController extends Controller
         $response['week_mark'] = Mark::where('week_id', $response['week']->id)->where('user_id', $user_id)->first();
 
         $currentMonth = date('m');
-        $weeksInMonth=Week::whereRaw('MONTH(created_at) = ?',[$currentMonth])->get();
+        $weeksInMonth=Week::whereRaw('MONTH(created_at) = ?',$currentMonth)->get();
         $month_achievement= Mark::where('user_id', $user_id)->whereIn('week_id', $weeksInMonth->pluck('id'))->get();
         $response['month_achievement']=  $month_achievement->pluck('out_of_100','week.title');
         $response['month_achievement_title']= Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
