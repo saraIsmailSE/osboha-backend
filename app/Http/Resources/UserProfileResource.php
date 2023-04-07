@@ -15,8 +15,6 @@ class UserProfileResource extends JsonResource
     public function toArray($request)
     {
         return [
-            //'user_id' => new UserProfileResource($this->user_id),
-            //"user"=> new UserProfileResource($this->whenLoaded('user')),
             "id"=> $this->id,            
             'user' =>new UserResource($this->user),
             'timeline' => new TimelineResource($this->Timeline),

@@ -43,7 +43,7 @@ class UserProfileController extends Controller
      */
     public function show($user_id)
     {
-        $profile['info'] = new UserProfileResource(UserProfile::where('user_id', $user_id)->first());
+        $profile['info'] = UserProfile::where('user_id', $user_id)->first();
         if ($profile['info']) {
 
             // social media
