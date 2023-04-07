@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAuditMarksTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,10 @@ class CreateAuditMarksTable extends Migration
      */
     public function up()
     {
-        Schema::create('audit_marks', function (Blueprint $table) {
+        Schema::create('audit_types', function (Blueprint $table) {
             $table->id();
-            $table->integer('week_id');
-            $table->integer('aduitor_id');
-            $table->integer('group_id');
-            // 0- ongoing 1- done
-            $table->integer('status')->default(0);
+            // full - variant
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ class CreateAuditMarksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('audit_marks');
+        Schema::dropIfExists('audit_types');
     }
-}
+};

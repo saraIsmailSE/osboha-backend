@@ -441,12 +441,19 @@ class MarkController extends Controller
      */
     public function ambassadorMark($user_id){
         $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
-        $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
+        if($group_id){
+            $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
 
-        $response['currentWeek']= Week::latest()->first();
-        $response['mark']= Mark::where('user_id',$user_id)->where('week_id',$response['currentWeek']->id)->first();
-        $response['theses']=Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
-        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+            $response['currentWeek']= Week::latest()->first();
+            $response['mark']= Mark::where('user_id',$user_id)->where('week_id',$response['currentWeek']->id)->first();
+            $response['theses']=Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                
+        }
+        else{ 
+            return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
+
+        }
 
         // if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
 

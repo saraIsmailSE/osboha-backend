@@ -158,7 +158,7 @@ class UserExceptionController extends Controller
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'admin'])) {
                 $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
                 $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
-                $response['user_exception'] = new UserExceptionResource($userException);
+                $response['user_exception'] = $userException;
 
                 //last freez
                 $response['last_freez'] = UserException::where(function ($q) {
