@@ -16,13 +16,12 @@ use App\Traits\ResponseJson;
 use App\Events\UpdateUserStats;
 
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-
-use function PHPUnit\Framework\isNull;
 
 class WeekController extends Controller
 {
@@ -41,21 +40,25 @@ class WeekController extends Controller
         );
 
         define('EXCEPTION_STATUS', 'accepted');
-        define('FREEZING_TYPE', 'freeze');
-        define('EXCEPTIONAL_FREEZING_TYPE', 'exceptional freeze');
-        define('EXAMS_TYPE', 'exams');
-        define('MINIMUM_EXAM_MARK', 36);
+        define('FREEZ_THIS_WEEK_TYPE', 'تجميد الأسبوع الحالي');
+        define('FREEZ_NEXT_WEEK_TYPE', 'تجميد الأسبوع القادم');
+        define('EXCEPTIONAL_FREEZING_TYPE', 'تجميد استثنائي');
         define('SUPPORT_MARK', 10);
-        define('MARK_OUT_OF_90', 90);
-        define('MARK_OUT_OF_100', 100);
-
-        // dd(YEAR_WEEKS);
+        define('READING_MARK', 50);
+        define('WRITING_MARK', 40);
+        define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
+        define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
     }
 
     /**
-     * Add new weeks to the system(“create type” permission is required).
-     * 
-     * @return jsonResponseWithoutMessage;
+     * Add new week with mark records for all users in the system
+     * @author Asmaa     
+     * @todo get last three weeks ids
+     * @todo add new week to the system
+     * @todo add marks for all users
+     * @todo add users statistics
+     * @todo add marks statistics
+     * @return ResponseJson
      */
     public function create()
     {
@@ -82,12 +85,10 @@ class WeekController extends Controller
     }
 
     /**
-     * This function update week data based on certain permission
-     * 
-     * Name: update
+     * update week data based on certain permission
+     * @author Asmaa - Sara
      * @param Request $request (array of data to be updated)
-     * @return jsonResponseWithoutMessage (if the validation of data failed or the updating failed/
-     *                                     if the updating of data succeed)
+     * @return jsonResponse (if the validation of data failed or the updating failed/if the updating of data succeed)
      * @return NotFound Exception if the week to be updated is not found                 
      * @return NotAuthorized Exception if the user does not have permission            
      */
@@ -95,9 +96,9 @@ class WeekController extends Controller
     {
         //validate requested data
         $validator = Validator::make($request->all(), [
-            'title'        => 'required_without:is_vacation',
-            'is_vacation'     => 'required_without:title|numeric',
-            'week_id' => 'required'
+            'title'       => 'required_without:is_vacation',
+            'is_vacation' => 'required_without:title|in:1',
+            'week_id'     => 'required|numeric'
         ]);
 
 
@@ -106,21 +107,21 @@ class WeekController extends Controller
         }
 
         if (Auth::user()->can('edit week')) {
-            $week = Week::where('id', $request->week_id)->first();
+            $week = Week::find($request->week_id);
             if ($week) {
                 if ($request->has('title')) {
                     $week->title = $request->title;
                 }
                 if ($request->has('is_vacation')) {
-                    if ($week->is_vacation == 0) { 
+                    if ($week->is_vacation == 0) {
                         $week->is_vacation = $request->is_vacation;
                         $exceptions = UserException::where('status', 'accepted')->whereDate('end_at', '>', Carbon::now())->get();
                         foreach ($exceptions as $exception) {
                             $lengthIndays = Carbon::parse($exception->end_at)->diffInDays();
-                            $exception['end_at'] = (Carbon::parse($exception->end_at)->addDays($lengthIndays))->format('Y-m-d');
+                            $exception->end_at = (Carbon::parse($exception->end_at)->addDays($lengthIndays))->format('Y-m-d');
                             $exception->update();
-                    
-                            $msg = "Your accepted exception is extended to ". $exception['end_at'] ." because of vacation";
+
+                            $msg = "تم تمديد الحالة الاستثنائية لك حتى " . $exception->end_at . " بسبب الإجازة";
                             (new NotificationController)->sendNotification($exception->user_id, $msg);
                         }
                     } else { //this week is already vacation
@@ -142,12 +143,11 @@ class WeekController extends Controller
     }
 
     /**
-     * This function will search among the weeks titles of the year and give back the week title of the new week
-     * 
-     * Name: search_for_week_title
-     * @param date $date (date of biginning week), 
-     * @param array $year_weeks(array of year weeks dates and titles)
-     * @return string title of the passed week date
+     * search for week title based on the date of the week
+     * @author Asmaa     
+     * @param Date $date (date of biginning week), 
+     * @param Array $year_weeks(array of year weeks dates and titles)
+     * @return String title of the passed week date
      * @return Null if not found
      */
     public function search_for_week_title($date, $year_weeks)
@@ -161,23 +161,18 @@ class WeekController extends Controller
     }
 
     /**
-     * This function will insert a new week into weeks table 
-     * 
-     * Name: insert_week
-     * Arguments: None
-     * @return int new_week_id in case of SUCCESS, 
-     * @return jsonResponseWithoutMessage in case of FAIL
+     * insert new week into weeks table
+     * @author Asmaa         
+     * @return Int new_week_id in case of SUCCESS, 
+     * @return jsonResponse in case of FAIL
      */
     public function insert_week()
     {
         $week = new Week();
+
         //to be changed based on the full global array of weeks names
-
-        // dd(Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d'));
-
         $week->title = $this->search_for_week_title(Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d'), YEAR_WEEKS);
         $week->is_vacation = 0;
-        // $week->date = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
 
         if ($week->save()) { //insert new week
             return $week->id;
@@ -187,10 +182,9 @@ class WeekController extends Controller
     }
 
     /**
-     * This function will get the last three weeks without vacations from the system
-     * 
-     * Name: get_last_weeks_ids
-     * Arguments: None
+     * get the last three weeks without vacations from the system
+     * @author Asmaa
+     * @param int $limit = 3
      * @return array of week_ids of last three weeks,
      * @return Null if no weeks were found
      */
@@ -201,7 +195,6 @@ class WeekController extends Controller
 
         // dd($last_weeks);
         $last_week_ids = array();
-
 
         if ($last_weeks) {
             //fill week ids into array
@@ -214,14 +207,21 @@ class WeekController extends Controller
     }
 
     /**
-     * This function will get the marks of a single user in the last three weeks
-     * then check if he/she is execluded and update data 
-     * then if he/she is not excluded insert mark through insert_mark_for_single_user() function
-     * 
-     * Name: update_excluded_user_then_add_mark
-     * @param array $user (model array containing user data), 
-     * @param  array $last_week_ids (array of last week ids integer), 
-     * @param int $new_week_id (the current week id integer)
+     * update excluded user then add mark
+     * @author Asmaa     
+     * @todo 1- check exam exception for user and update status if finished
+     * @todo 2- if there are less than 2 weeks in the system then insert mark for single user without checking for excluded users
+     * @todo 3- if there are more than 2 weeks in the system 
+     * @todo 3.1- get last week marks for the user
+     * @todo 3.2- check if the user excluded (two consecutive zeros, zero - freezed - zero)
+     * @todo 3.3- if the user is excluded then update the status of the user to excluded
+     * @todo 3.4- if the user is not excluded then insert mark for single user
+     * @param Object $user 
+     * @param Array $last_week_ids
+     * @param Int $new_week_id
+     * @uses insert_mark_for_single_user()
+     * @uses check_exams_exception_for_user()
+     * @uses UpdateUserStats Event
      * @return True if the updating excluded member or inserting new mark record is done correctly, 
      * @return Null if anything wrong happens 
      * 
@@ -229,7 +229,7 @@ class WeekController extends Controller
     public function update_excluded_user_then_add_mark($user, $last_week_ids, $new_week_id)
     {
         if (count($last_week_ids) > 0) {
-            //check if the userhas exams exception then update the previous mark
+            //check if the user has exams exception then update the status if finished
             $this->check_exams_exception_for_user($new_week_id, $user->id);
         }
 
@@ -237,49 +237,45 @@ class WeekController extends Controller
             return $this->insert_mark_for_single_user($new_week_id, $user->id);
         }
 
-        $marks = Mark::select('out_of_100')->where('user_id', $user->id)
-           // ->whereIn('week_id', $last_week_ids)
-         //   ->orderBy('week_id', 'desc')
+        $marks = Mark::where('user_id', $user->id)
+            ->whereIn('week_id', $last_week_ids)
+            ->orderBy('week_id', 'desc')
             ->get();
 
-        //get user group    
-        $user_group = UserGroup::where('user_id', $user->id)->first();
-
-        // $arrayMarks = array_map(function ($mark) {
-        //     return (array)$mark;
-        // }, $marks->toArray());
-
-        // dd($marks[0]->out_of_100);
-
         if ($marks) {
+            $mark_last_week = $marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support;
+            $mark_second_last_week = $marks[1]->reading_mark + $marks[1]->writing_mark + $marks[1]->support;
+            $mark_third_last_week = $marks[2]->reading_mark + $marks[2]->writing_mark + $marks[2]->support;
+
             //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
-            if (($marks[0]->out_of_100 != 0) ||
-                ($marks[0]->out_of_100 === 0 && $marks[1]->out_of_100 > 0) ||
-                ($marks[0]->out_of_100 === 0 && $marks[1]->out_of_100 === -1 && count($last_week_ids) <= 2) ||
-                ($marks[0]->out_of_100 === 0 && $marks[1]->out_of_100 === -1 && count($last_week_ids) > 2 && $marks[2]->out_of_100 > 0)
+            if (($mark_last_week !== 0) ||
+                ($mark_last_week === 0 && $mark_second_last_week > 0) ||
+                ($mark_last_week === 0 && $marks[1]->is_freezed && count($last_week_ids) <= 2) ||
+                ($mark_last_week === 0 && $marks[1]->is_freezed && count($last_week_ids) > 2 && $mark_third_last_week > 0)
             ) {
                 //insert new mark record
                 return $this->insert_mark_for_single_user($new_week_id, $user->id);
             }
+
             $old_user = $user->getOriginal();
             //check if the mark of the last week is zero
-            if ($marks[0]->out_of_100 === 0) {
+            if ($mark_last_week === 0) {
                 //check if the mark of the week before is zero (2nd of last)
-                if ($marks[1]->out_of_100 === 0) {
+                if ($mark_second_last_week === 0) {
                     //execlude the user
                     $user->is_excluded = 1;
                     $user = $user->save();
-                    event(new UpdateUserStats($user,$old_user));
+                    event(new UpdateUserStats($user, $old_user));
                     return $user;
 
                     //check if the user has been freezed in the week before (2nd of last)
-                } else if (($marks[1]->out_of_100 === -1) and (count($last_week_ids) > 2)) {
+                } else if (($marks[1]->is_freezed) and (count($last_week_ids) > 2)) {
                     //check if the user mark is zero in  the week befor (3rd of last)
-                    if ($marks[2]->out_of_100 === 0) {
+                    if ($mark_third_last_week === 0) {
                         //execlude the user
                         $user->is_excluded = 1;
                         $user = $user->save();
-                        event(new UpdateUserStats($user,$old_user));
+                        event(new UpdateUserStats($user, $old_user));
                         return $user;
                     }
                 }
@@ -290,17 +286,15 @@ class WeekController extends Controller
     }
 
     /**
-     * This function will get all the users (without excluded and hold ones) 
-     * then chunck the data to begin checking on those who are excluded
-     * then begin DB Transaction 
-     * then update data for excluded members
-     * then insert new marks records for those who are not excluded
-     * then commit transaction
-     * Note: update excluded members and inserting marks are done through update_excluded_user_then_add_mark() function
-     * 
-     * Name: add_marks_for_all_users
-     * @param int $new_week_id (of the current week id), 
+     * add mark record for each user, except the excluded and hold users
+     * @author Asmaa
+     * @todo get all the users except the excluded and hold users
+     * @todo chunk the data to begin checking on those who are excluded
+     * @todo update the excluded users
+     * @todo insert new marks records for those who are not excluded
+     * @param Int $new_week_id (of the current week id), 
      * @param array $last_week_ids (array of last week ids integers)  
+     * @uses update_excluded_user_then_add_mark() 
      * @return True if the marks and updating exculded members are done correctly, 
      * @return Exception error if anything wrong happens
      */
@@ -309,7 +303,7 @@ class WeekController extends Controller
     {
         //get all the users and update their records if they are excluded
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
-            // ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
+            ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
             ->orderBy('id')
             ->chunkByID(100, function ($users) use ($last_week_ids, $new_week_id) {
                 try {
@@ -332,28 +326,27 @@ class WeekController extends Controller
     }
 
     /**
-     * This function insert new mark record for a specific user
-     * 
-     * Name: insert_mark_for_single_user
-     * @param int $new_week_id (of the current week), 
-     * @param int $user_id (of the user you want to insert mark for), 
-     * @param boolean $is_freezed (user is freezed or not)
-     * @return int inserted_mark_id if the inserting succeed
-     * @return jsonResponseWithoutMessage if the inserting went wrong  
+     * insert new mark record for a specific user
+     * @author Asmaa
+     * @param Int $week_id
+     * @param Int $user_id      
+     * @return Int inserted_mark_id if the inserting succeed
+     * @return jsonResponse if the inserting went wrong  
      */
-    public function insert_mark_for_single_user($new_week_id, $user_id)
+    public function insert_mark_for_single_user($week_id, $user_id)
     {
-        $is_freezed = $this->check_freezed_user($user_id, $new_week_id);
+        $is_freezed = $this->check_freezed_user($user_id, $week_id);
 
         $mark = new Mark();
         $mark->user_id = $user_id;
-        $mark->week_id = $new_week_id;
-        $mark->out_of_90 = ($is_freezed ? -1 : 0);
-        $mark->out_of_100 = ($is_freezed ? -1 : 0);
+        $mark->week_id = $week_id;
+        $mark->reading_mark = 0;
+        $mark->writing_mark = 0;
         $mark->total_pages = 0;
         $mark->support = 0;
         $mark->total_thesis = 0;
         $mark->total_screenshot = 0;
+        $mark->is_freezed = $is_freezed;
 
         if ($mark->save()) {
             return $mark->id;
@@ -361,30 +354,27 @@ class WeekController extends Controller
             return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
         }
     }
+
     /**
-     * This function checks if the user is gonna be freezed this current week 
-     * and update the status of the exception if the duration finished through update_exception_status() function
-     * 
-     * Name: check_freezed_user
-     * @param int $new_week_id (of the current week), 
-     * @param int $user_id (of the user you want to check exception freezing for), 
+     * check if the user is gonna be freezed or not
+     * @author Asmaa     
+     * @todo get the exception record of the user of types freeze
+     * @todo check if the exception duration finished, update the status of the exception if it finished  
+     * @param Int $user_id 
      * @return True if the user going to be freezed
-     * @return False if the user finished his/her exception period or he/she has not an exception 
+     * @return False if the user finished his/her exception period or he/she has no exception 
      */
-    public function check_freezed_user($user_id, $new_week_id)
+    public function check_freezed_user($user_id)
     {
         //get the duration and starting week id of the exception case if the user has one
-        $user_exception = UserException::select('user_exceptions.id', 'user_exceptions.week_id', 'user_exceptions.end_at')
-            ->join('exception_types', 'exception_types.id', '=', 'user_exceptions.type_id')
-            ->where('user_exceptions.user_id', $user_id)
-            ->where('user_exceptions.status', EXCEPTION_STATUS)
-            ->where(
-                function ($query) { //could be changed to the ids of the types if they are fixed in the database
-                    return $query->where('exception_types.type', FREEZING_TYPE)
-                        ->orWhere('exception_types.type', EXCEPTIONAL_FREEZING_TYPE);
-                }
-            )
-            ->latest('user_exceptions.id')
+        $user_exception = UserException::where('user_id', $user_id)
+            ->where('status', EXCEPTION_STATUS)
+            ->with('type', function ($query) {
+                $query->where('type', FREEZ_THIS_WEEK_TYPE)
+                    ->orWhere('type', FREEZ_NEXT_WEEK_TYPE)
+                    ->orWhere('type', EXCEPTIONAL_FREEZING_TYPE);
+            })
+            ->latest('id')
             ->first();
 
         if ($user_exception === null) {
@@ -400,71 +390,42 @@ class WeekController extends Controller
         } else { //exception duration still in progress
             return TRUE;
         }
-
-        // //get the weeks from the beginning week of the exception till the duration of the exception
-        // $weeks_of_exception = Week::where('id', '>=', $user_exception->week_id)
-        //     // ->where('id', '!=', $new_week_id)
-        //     ->limit($user_exception->duration)
-        //     ->get();
-
-        // // $freezed_marks = Mark::select('out_of_100')
-        // //     ->where('user_id', $user_id)
-        // //     ->where('out_of_100', -1)
-        // //     ->where('week_id', '>=', $user_exception->week_id)
-        // //     ->where('week_id', '!=', $new_week_id)
-        // //     ->get();
-
-        // if (count($weeks_of_exception) == $user_exception->duration) { //exception duration finished
-        //     $this->update_exception_status($user_exception->id, 'finished');
-        //     return TRUE;
-        // }
-        // // else if(count($weeks_of_exception) > $user_exception->duration){
-        // //     return FALSE;
-        // // }    
-        // else if (count($weeks_of_exception) < $user_exception->duration) { //exception duration still in progress
-        //     return TRUE;
-        // }
-        // //add duration to the starting week id to check the duration
-        // $duration_from_starting_week = $user_exception->week_id + $user_exception->duration;
-
-        // //subtract the new week id from the 
-        // $remaining_duration = $duration_from_starting_week - $new_week_id;
-        // $is_freezed = ($remaining_duration > 0 ? TRUE : FALSE);
     }
 
     /**
-     * This function update the user exception status to a new one
-     * 
-     * Name: update_exception_status
-     * @param int $user_exception_id (of the current exception), 
-     * @param string $new_status (of the new status), 
+     * update the status of the exception
+     * @author Asmaa     
+     * @todo get the exception record of the user
+     * @todo update record with the new status
+     * @param Int $user_exception_id 
+     * @param string $new_status
      * @return True if the status updated successfully
-     * @return jsonResponseWithoutMessage if the updating went wrong 
+     * @return jsonResponse if the updating went wrong 
      */
     public function update_exception_status($user_exception_id, $new_status)
     {
         //get the exception record of the user
         $user_exception = UserException::where('id', $user_exception_id)
-            ->latest('user_exceptions.id')
+            ->latest('id')
             ->first();
 
         //update record with the new status    
         $user_exception->status = $new_status;
         if ($user_exception->save()) {
-            return FALSE;
+            return TRUE;
         } else {
             return $this->jsonResponseWithoutMessage('could not update user exception', 'data', 500);
         }
     }
 
-    /**
-     * This function checks if the user is having exams exception this current week 
-     * and update the mark of the user if the rules are satisfied through update_exams_mark_for_user() function
-     * and update the status of the exception if the duration finished through update_exception_status() function
-     * 
-     * Name: check_exams_exception_for_user
-     * @param int $new_week_id (of the current week), 
-     * @param int $user_id (of the user you want to check exams exception for), 
+    /**  
+     * check if the user is having exams exception this current week   
+     * @todo get the exception record of the user of type exams
+     * @todo check if the exception duration finished, update the status of the exception if it finished     
+     * @author Asmaa
+     * @param Int $new_week_id
+     * @param Int $user_id
+     * @uses update_exception_status()
      * @return True if the user going to have exams exception
      * @return False if the user finished his/her exception period, 
      *               or he/she has not an exception, 
@@ -473,24 +434,18 @@ class WeekController extends Controller
     public function check_exams_exception_for_user($new_week_id, $user_id)
     {
         //get the user exams exception 
-        $user_exception = UserException::select('user_exceptions.id', 'user_exceptions.week_id', 'user_exceptions.end_at')
-            ->join('exception_types', 'exception_types.id', '=', 'user_exceptions.type_id')
-            ->where('user_exceptions.user_id', $user_id)
-            ->where('user_exceptions.status', EXCEPTION_STATUS)
-            ->where('exception_types.type', EXAMS_TYPE)
-            ->latest('user_exceptions.id')
+        $user_exception = UserException::where('user_id', Auth::id())
+            ->where('status', EXCEPTION_STATUS)
+            ->with('type', function ($query) {
+                $query->where('type', EXAMS_MONTHLY_TYPE)
+                    ->orWhere('type', EXAMS_SEASONAL_TYPE);
+            })
+            ->latest('id')
             ->first();
-
 
         if ($user_exception === null) {
             return FALSE;
         }
-
-        //get previous week
-        $previous_week_id = Week::where('id', '!=', $new_week_id)->latest('id')->limit(1)->first()->id;
-
-        //upadate user mark
-        $this->update_exams_mark_for_user($user_id, $previous_week_id);
 
         $end_at = Carbon::parse($user_exception->end_at)->format('Y-m-d');
         $current_date = Carbon::now()->format('Y-m-d');
@@ -501,54 +456,14 @@ class WeekController extends Controller
         } else { //exception duration still in progress
             return TRUE;
         }
-
-        // //get the weeks from the beginning week of the exception till the duration of the exception
-        // $weeks_of_exception = Week::where('id', '>=', $user_exception->week_id)
-        //     ->where('id', '!=', $new_week_id)
-        //     ->limit($user_exception->duration)
-        //     ->get();
-
-        // if (count($weeks_of_exception) == $user_exception->duration) { //exception finished            
-        //     return $this->update_exception_status($user_exception->id, 'finished');
-        // } else if (count($weeks_of_exception) < $user_exception->duration) { //exception duration still in progress
-        //     return TRUE;
-        // }
     }
 
     /**
-     * This function update the user mark for exams exception
-     * 
-     * Name: update_exams_mark_for_user
-     * @param int $user_id (of the user you want to update mark for), 
-     * @param int $previous_week_id (of the week of the user mark)
-     * @return True if the mark updated successfully
-     * @return Fales if the user does not satisfy the exams rules
-     * @return jsonResponseWithoutMessage if the updating went wrong 
-     */
-    public function update_exams_mark_for_user($user_id, $previous_week_id)
-    {
-        //get user mark record
-        $user_mark = Mark::where('user_id', $user_id)->where('week_id', $previous_week_id)->first();
-
-        //RULES OF EXAMS EXCEPTION
-        if ($user_mark->out_of_90 >= MINIMUM_EXAM_MARK and $user_mark->support == SUPPORT_MARK) {
-            $user_mark->out_of_90 = MARK_OUT_OF_90;
-            $user_mark->out_of_100 = MARK_OUT_OF_100;
-            if ($user_mark->save()) {
-                return TRUE;
-            } else {
-                return $this->jsonResponseWithoutMessage('could not update user mark', 'data', 500);
-            }
-        } else {
-            return FALSE;
-        }
-    }
-    /**
-     * This function will insert new row to user_stats in database when the new week is starting.
-     * Name: add_users_statistics
-     * Arguments: $new_week_id (integer id of the current week id), 
-     * Return: True if the user_stats are done correctly, 
-     *         Exception error if anything wrong happens
+     * insert new row to user_stats in database when the new week is starting.
+     * @author Sara     
+     * @param Int $new_week_id (integer id of the current week id), 
+     * @return Int $user_statistic (integer id of the new row in user_statistic table)
+     * @return JsonResponse error if anything wrong happens
      */
     public function add_users_statistics($new_week_id)
     {
@@ -563,12 +478,13 @@ class WeekController extends Controller
             return $this->jsonResponseWithoutMessage('Something went wrong, could not add users statistics', 'data', 500);
         }
     }
+
     /**
-     * This function will insert new row to mark_stats in database when the new week is starting.
-     * Name: add_users_statistics
-     * Arguments: $new_week_id (integer id of the current week id), 
-     * Return: True if the user_stats are done correctly, 
-     *         Exception error if anything wrong happens
+     * insert new row to mark_stats in database when the new week is starting.
+     * @author Sara     
+     * @param Int $new_week_id (integer id of the current week id),
+     * @return Int $mark_statistic_id (integer id of the new row in mark_statistic table)
+     * @return JsonResponse error if anything wrong happens     
      */
     public function add_marks_statistics($new_week_id)
     {
@@ -585,5 +501,4 @@ class WeekController extends Controller
             return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
         }
     }
-
 }

@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
         $this->call(TimelineTypeSeeder::class);
         $this->call(BookStatisticsSeeder::class);
         $this->call(WeekSeeder::class);
-        $this->call(MarksSeeder::class);
+        // $this->call(MarksSeeder::class);
         // $this->call(RejectesThesesSeeder::class);
         // $this->call(InfographicSeeder::class);
         // $this->call(InfographicSeriesSeeder::class);

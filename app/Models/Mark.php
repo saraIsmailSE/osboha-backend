@@ -13,14 +13,15 @@ class Mark extends Model
     protected $fillable = [
         'user_id',
         'week_id',
-        'out_of_90', 
-        'out_of_100', 
-        'total_pages',  
-        'support', 
-        'total_thesis', 
-        'total_screenshot'
+        'reading_mark',
+        'writing_mark',
+        'total_pages',
+        'support',
+        'total_thesis',
+        'total_screenshot',
+        'is_freezed'
     ];
-    protected $with = array('user','week');
+    protected $with = array('user', 'week');
 
     public function week()
     {

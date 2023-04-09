@@ -42,7 +42,6 @@ class CommentController extends Controller
      */
     public function create(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             //body is required only if the comment is not a thesis and has no image            
             //in case of read only, body and screenshot are not required
@@ -104,6 +103,9 @@ class CommentController extends Controller
 
                 //if the comment has no body, the first screenshot will be added as a comment
                 //the rest will be added as replies with new comment created for each of them
+
+                //comments/theses/book_id/user_id/
+                $folder_path = 'comments/theses/' . $book->id . '/' . Auth::id();
                 if (!$request->has('body')) {
                     $this->createMedia($request->screenShots[0], $comment->id, 'comment');
                     for ($i = 1; $i < $total_screenshots; $i++) {
@@ -113,7 +115,7 @@ class CommentController extends Controller
                             'comment_id' => $comment->id,
                             'type' => 'screenshot',
                         ]);
-                        $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment');
+                        $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment', $folder_path);
                     }
                 } else {
                     //if the comment has a body, the screenshots will be added as replies with new comment created for each of them
@@ -124,7 +126,7 @@ class CommentController extends Controller
                             'comment_id' => $comment->id,
                             'type' => 'screenshot',
                         ]);
-                        $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment');
+                        $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment', $folder_path);
                     }
                 }
             }
@@ -136,7 +138,7 @@ class CommentController extends Controller
         if ($request->hasFile('image')) {
             // if comment has media
             // upload media
-            $this->createMedia($request->file('image'), $comment->id, 'comment');
+            $this->createMedia($request->file('image'), $comment->id, 'comment', 'comments/' . Auth::id());
         }
 
         return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
@@ -207,13 +209,6 @@ class CommentController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // 'body' => 'required_without_all:image,screenShots|string',
-            // 'comment_id' => 'numeric',
-            // 'image' => 'required_without_all:body,screenShots|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // 'screenShots' => 'array|required_if:type,thesis|required_without_all:image,body',
-            // 'start_page' => 'required_if:type,thesis|numeric',
-            // 'end_page' => 'required_if:type,thesis|numeric',
-
             //body is required only if the comment is not a thesis and has no image            
             //in case of read only, body and screenshot are not required
             'body' => [
@@ -224,8 +219,6 @@ class CommentController extends Controller
                     }
                 },
             ],
-
-
             'comment_id' => 'numeric|required',
             //image is required only if the comment is not a thesis and has no body
             'image' => [
@@ -264,7 +257,13 @@ class CommentController extends Controller
                     //because the user can't edit the screenshots, so if user kept the screenshots and added new ones, 
                     //the old ones will be deleted and added again with the new ones
                     //if the user deleted all screenshots, the old ones will be deleted
-                    $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
+                    $screenshots_comments =
+                        Comment::where('type', 'screenshot')
+                        ->where(function ($query) use ($comment) {
+                            $query->where('comment_id', $comment->id)
+                                ->orWhere('id', $comment->id);
+                        })
+                        ->get();
                     $media = Media::whereIn('comment_id', $screenshots_comments->pluck('id'))->get();
                     foreach ($media as $media_item) {
                         $this->deleteMedia($media_item->id);
@@ -344,17 +343,9 @@ class CommentController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
-    public function delete(Request $request)
+    public function delete($comment_id)
     {
-        $validator = Validator::make($request->all(), [
-            'comment_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $comment = Comment::find($request->comment_id);
+        $comment = Comment::find($comment_id);
         if ($comment) {
             if (Auth::user()->can('delete comment') || Auth::id() == $comment->user_id) {
                 //delete replies
