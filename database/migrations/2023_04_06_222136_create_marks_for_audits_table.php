@@ -23,6 +23,8 @@ return new class extends Migration
             $table->enum('status', ['acceptable','unacceptable','not_audited'])->default('not_audited');
             $table->bigInteger("type_id")->unsigned()->index();
             $table->foreign("type_id")->references("id")->on("audit_types");
+            $table->timestamps();
+
         });
     }
 

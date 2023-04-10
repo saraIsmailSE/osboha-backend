@@ -28,7 +28,13 @@ class Group extends Model
         return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','ambassador');
     }
     public function groupLeader(){
-        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','leader');
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','leader')->latest()->take(1);
+    }
+    public function groupSupervisor(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','supervisor')->latest()->take(1);
+    }
+    public function groupAdvisor(){
+        return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivot('user_type','advisor')->latest()->take(1);
     }
     public function groupAdministrators(){
         return $this->belongsToMany(User::class,'user_groups')->withPivot('user_type')->wherePivotIn('user_type',['advisor','supervisor','leader']);
