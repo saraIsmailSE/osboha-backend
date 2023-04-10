@@ -145,7 +145,7 @@ class PostController extends Controller
                 //send notification to the tagged users
                 if ($request->has('tags')) {
                     foreach ($request->tags as $tag) {
-                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' tagged you in a post');
+                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور');
                     }
                 }
 

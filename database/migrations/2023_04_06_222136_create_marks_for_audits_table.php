@@ -20,7 +20,7 @@ return new class extends Migration
             $table->bigInteger("mark_id")->unsigned()->index();
             $table->foreign("mark_id")->references("id")->on("marks");
             // acceptable or unacceptable
-            $table->enum('status', ['acceptable','unacceptable','not_audited'])->default('not_audited');
+            $table->enum('status', ['acceptable', 'unacceptable', 'not_audited'])->default('not_audited');
             $table->bigInteger("type_id")->unsigned()->index();
             $table->foreign("type_id")->references("id")->on("audit_types");
         });
@@ -33,6 +33,11 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::table('marks_for_audits', function (Blueprint $table) {
+            $table->dropForeign('audit_marks_id');
+            $table->dropForeign('mark_id');
+            $table->dropForeign('type_id');
+        });
         Schema::dropIfExists('marks_for_audits');
     }
 };
