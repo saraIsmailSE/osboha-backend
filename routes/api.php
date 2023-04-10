@@ -149,7 +149,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [CommentController::class, 'create']);
             Route::get('/post/{post_id}', [CommentController::class, 'getPostComments'])->where('post_id', '[0-9]+');
             Route::put('/', [CommentController::class, 'update']);
-            Route::delete('/delete', [CommentController::class, 'delete']);
+            Route::delete('/{id}', [CommentController::class, 'delete']);
             Route::get('/post/{post_id}/users', [CommentController::class, 'getPostCommentsUsers'])->where('post_id', '[0-9]+');
         });
         ########End Comment########
@@ -239,7 +239,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/all-achievements/{group_id}/{week_filter?}', [GroupController::class, 'allAchievements']);
             Route::get('/search-for-ambassador-achievement/{ambassador_name}/{group_id}/{week_filter?}', [GroupController::class, 'searchForAmbassadorAchievement']);
             Route::get('/search-for-ambassador/{ambassador_name}/{group_id}', [GroupController::class, 'searchForAmbassador']);
-             Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
+            Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
         });
@@ -387,10 +387,10 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## Room ########
         ######## Week ########
-        Route::group(['prefix' => 'week'], function () {
-            Route::post('/create', [WeekController::class, 'create']);
+        Route::group(['prefix' => 'weeks'], function () {
+            Route::post('/', [WeekController::class, 'create']);
             Route::post('/update', [WeekController::class, 'update']);
-            Route::post('/get_last_weeks_ids', [WeekController::class, 'get_last_weeks_ids']); //for testing - to be deleted
+            Route::get('/', [WeekController::class, 'get_last_weeks_ids']); //for testing - to be deleted
         });
         ######## Week ########
 

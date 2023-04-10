@@ -129,9 +129,15 @@ class GroupController extends Controller
                 $response['post'] = Timeline::find($response['info']->id);
 
                 //week avg
-                $response['week'] = Week::latest()->first();
-                $users = UserGroup::where('group_id', $group_id)->pluck('user_id')->toArray();
-                $response['week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users)->avg('out_of_100');
+                $response['week'] = Week::latest('id')->first();
+                $users = Group::with('users')->where('id', $group_id);
+
+                $response['week_avg'] = Mark::where('week_id', $response['week']->id)
+                    ->whereIn('user_id', $users->pluck('id'))
+                    //avg from (reading_mark + writing_mark + support)
+                    ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
+                    ->first()
+                    ->out_of_100;
 
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {

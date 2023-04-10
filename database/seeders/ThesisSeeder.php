@@ -74,7 +74,7 @@ class ThesisSeeder extends Seeder
                                 $max_length = $thesis->max_length;
                                 $total_screenshots = $thesis->total_screenshots;
 
-                                $new_mark = 0;
+                                $new_mark = [];
                                 if ($thesis_type == 'normal') {
                                     $new_mark = $this->calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots);
                                 } else {
@@ -84,15 +84,16 @@ class ThesisSeeder extends Seeder
                                 $mark->total_pages += $total_pages;
                                 $mark->total_screenshot += $total_screenshots;
                                 $mark->total_thesis += ($max_length > 0 ? 1 : 0);
-                                $mark->out_of_90 += $new_mark;
+                                $mark->reading_mark = $new_mark['reading_mark'];
+                                $mark->writing_mark = $new_mark['writing_mark'];
 
-                                if ($mark->out_of_90 > 90) {
-                                    $mark->out_of_90 = 90;
+
+                                if ($mark->reading_mark > 50) {
+                                    $mark->reading_mark = 50;
                                 }
-                                $mark->out_of_100 = $mark->out_of_90;
 
-                                if ($mark->support == SUPPORT_MARK && $mark->out_of_100 > 0) {
-                                    $mark->out_of_100 += SUPPORT_MARK;
+                                if ($mark->writing_mark > 40) {
+                                    $mark->writing_mark = 40;
                                 }
 
                                 $mark->save();

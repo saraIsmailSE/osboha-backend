@@ -15,14 +15,17 @@ class CreateMarksTable extends Migration
     {
         Schema::create('marks', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->integer('week_id');
-            $table->integer('out_of_90')->default(0);
-            $table->integer('out_of_100')->default(0);
+            $table->bigInteger('user_id')->unsigned()->index();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->bigInteger('week_id')->unsigned()->index();
+            $table->foreign('week_id')->references('id')->on('weeks');
+            $table->integer('reading_mark')->default(0);
+            $table->integer('writing_mark')->default(0);
             $table->integer('total_pages')->default(0);
             $table->integer('support')->default(0);
             $table->integer('total_thesis')->default(0);
             $table->integer('total_screenshot')->default(0);
+            $table->integer('is_freezed')->default(0);
             $table->timestamps();
         });
     }
@@ -34,6 +37,10 @@ class CreateMarksTable extends Migration
      */
     public function down()
     {
+        Schema::table('marks', function (Blueprint $table) {
+            $table->dropForeign('user_id');
+            $table->dropForeign('week_id');
+        });
         Schema::dropIfExists('marks');
     }
 }
