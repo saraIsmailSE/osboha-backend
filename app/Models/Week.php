@@ -13,6 +13,10 @@ class Week extends Model
         'date',
         'title',
         'is_vacation',
+        'main_timer',
+        'audit_timer',
+        'modify_timer',
+
     ];
 
     public function exception(){

@@ -18,6 +18,9 @@ class CreateWeeksTable extends Migration
             // $table->date('date');
             $table->string('title');
             $table->integer('is_vacation')->nullable();
+            $table->timestamp('main_timer')->nullable();
+            $table->timestamp('audit_timer')->nullable();
+            $table->timestamp('modify_timer')->nullable();
             $table->timestamps();
         });
     }
