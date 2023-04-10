@@ -15,7 +15,8 @@ class Group extends Model
         'description',
         'type_id',
         'creator_id',
-        'timeline_id'
+        'timeline_id',
+        'is_active'
     ];
 
     protected $with = array('Timeline','type');

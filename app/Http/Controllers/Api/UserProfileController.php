@@ -29,6 +29,7 @@ use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class UserProfileController extends Controller
@@ -241,12 +242,17 @@ class UserProfileController extends Controller
         $response['week'] = Week::latest()->first();
         $group_id = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
         $users = Group::with('users')->where('id', $group_id);
-        $response['group_week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users->pluck('id'))->avg('out_of_100');
+        // $response['group_week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users->pluck('id'))    
+        // ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
+        // ->out_of_100;
+        
         $response['week_mark'] = Mark::where('week_id', $response['week']->id)->where('user_id', $user_id)->first();
 
         $currentMonth = date('m');
         $weeksInMonth=Week::whereRaw('MONTH(created_at) = ?',$currentMonth)->get();
         $month_achievement= Mark::where('user_id', $user_id)->whereIn('week_id', $weeksInMonth->pluck('id'))->get();
+        return $this->jsonResponseWithoutMessage($month_achievement, 'data', 200);
+
         $response['month_achievement']=  $month_achievement->pluck('out_of_100','week.title');
         $response['month_achievement_title']= Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
 

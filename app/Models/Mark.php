@@ -21,7 +21,7 @@ class Mark extends Model
         'total_screenshot',
         'is_freezed'
     ];
-    protected $with = array('user', 'week');
+    protected $with = array('user', 'week','out_of_100');
 
     public function week()
     {
@@ -36,5 +36,10 @@ class Mark extends Model
     public function thesis()
     {
         return $this->hasMany(Thesis::class);
+    }
+    public function out_of_100()
+    {
+
+        return $this->reading_mark + $this->writing_mark + $this->support;
     }
 }

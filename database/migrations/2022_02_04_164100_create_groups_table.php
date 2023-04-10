@@ -22,6 +22,7 @@ class CreateGroupsTable extends Migration
             $table->string('cover_picture')->nullable();
             $table->integer('creator_id');
             $table->integer('timeline_id');
+            $table->boolean('is_active')->default(1);
             $table->timestamps();
         });
     }
