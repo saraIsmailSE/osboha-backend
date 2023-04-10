@@ -8,4 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 class MarksForAudit extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'audit_marks_id',
+        'mark_id',
+        'status',
+        'type_id',        
+    ];
+
+    protected $with = array('type');
+
+    public function type()
+    {
+        return $this->belongsTo(AuditType::class, 'type_id');
+    }
+
+    public function auditMark()
+    {
+        return $this->belongsTo(AuditMark::class, 'audit_marks_id');
+    }
+
+
 }
