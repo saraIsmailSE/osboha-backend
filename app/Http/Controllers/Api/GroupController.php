@@ -119,7 +119,8 @@ class GroupController extends Controller
     public function show($group_id)
     {
 
-        $response['info'] = Group::with('users', 'groupAdministrators')->withCount('userAmbassador')->where('id', $group_id)->first();
+        //$response['info'] = Group::with('users', 'groupAdministrators')->withCount('userAmbassador')->where('id', $group_id)->first();
+        $response['info'] = Group::with('users')->where('id', $group_id)->first();
 
         if ($response['info']) {
             $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
@@ -130,15 +131,12 @@ class GroupController extends Controller
 
                 //week avg
                 $response['week'] = Week::latest('id')->first();
-                $users = Group::with('users')->where('id', $group_id);
 
                 $response['week_avg'] = Mark::where('week_id', $response['week']->id)
-                    ->whereIn('user_id', $users->pluck('id'))
+                    ->whereIn('user_id', $response['info']->users->pluck('id'))
                     //avg from (reading_mark + writing_mark + support)
                     ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-                    ->first()
-                    ->out_of_100;
-
+                    ->first();
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
