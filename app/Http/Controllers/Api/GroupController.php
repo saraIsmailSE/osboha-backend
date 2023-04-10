@@ -119,9 +119,8 @@ class GroupController extends Controller
     public function show($group_id)
     {
 
-        //$response['info'] = Group::with('users', 'groupAdministrators')->withCount('userAmbassador')->where('id', $group_id)->first();
-        $response['info'] = Group::with('users')->where('id', $group_id)->first();
-
+        $response['info'] = Group::with('users', 'groupAdministrators')->withCount('userAmbassador')->where('id', $group_id)->first();
+        
         if ($response['info']) {
             $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
             if ($response['authInGroup'] || Auth::user()->hasRole('admin')) {
