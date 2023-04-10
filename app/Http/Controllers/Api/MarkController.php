@@ -207,15 +207,16 @@ class MarkController extends Controller
                      */
 
                     // All Full Mark
-                    $highMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->where('out_of_100', 100)
+                    $fullMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
+                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                        ->having('out_of_100', 100)
                         ->where('week_id', $current_week)
                         ->count();
-
                     // 10% of Full Mark
-                    $ratioFullMarkToAudit = round($highMark * 0.10);
+                    $ratioFullMarkToAudit = round($fullMark * 0.10);
                     $fullMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->where('out_of_100', 100)
+                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                    ->having('out_of_100', 100)
                         ->inRandomOrder()
                         ->where('week_id', $current_week)
                         ->limit($ratioFullMarkToAudit)
@@ -224,14 +225,16 @@ class MarkController extends Controller
 
                     //NOT Full Mark
                     $lowMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->where('out_of_100', '<', 100)
+                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                    ->having('out_of_100', '<', 100)
                         ->where('week_id', $current_week)
                         ->count();
 
                     //Get 10% of NOT Full Mark                
                     $ratioVariantMarkToAudit = $lowMark * 10 / 100;
                     $variantMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->where('out_of_100', '!=', 100)
+                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                    ->having('out_of_100', '<', 100)
                         ->inRandomOrder()
                         ->limit($ratioVariantMarkToAudit)
                         ->where('week_id', $current_week)

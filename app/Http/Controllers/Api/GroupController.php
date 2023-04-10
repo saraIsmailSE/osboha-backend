@@ -325,9 +325,25 @@ class GroupController extends Controller
         $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $current_week = Week::latest()->pluck('id')->first();
         $marks['group_users'] =  $marks['group']->leaderAndAmbassadors->count();
-        $marks['full'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 100)->count();
-        $marks['incomplete'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->where('out_of_100', '>', 0)->where('out_of_100', '<', 100)->count();
-        $marks['zero'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->where('out_of_100', 0)->count();
+        
+        $marks['full'] = Mark::where('week_id', $current_week)
+        ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+        ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+        ->having('out_of_100', 100)
+        ->count();
+        
+        $marks['incomplete'] = Mark::where('week_id', $current_week)
+        ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+        ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+        ->having('out_of_100', '<', 100)
+        ->having('out_of_100', '>', 0)
+        ->count();
+        
+        $marks['zero'] = Mark::where('week_id', $current_week)
+        ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+        ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+        ->having('out_of_100', 0)
+        ->count();
         $marks['random_achievement'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
         $marks['most_read'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
 
