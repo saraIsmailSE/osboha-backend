@@ -12,12 +12,16 @@ use App\Models\LeaderRequest;
 use App\Models\Group;
 use App\Models\UserGroup;
 use App\Events\NewUserStats;
-
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
@@ -212,5 +216,48 @@ class AuthController extends Controller
     {
         auth()->user()->tokens()->delete();
         return $this->jsonResponseWithoutMessage('You are Logged Out Successfully', 'data', 200);
+    }
+
+    protected function sendResetLinkResponse(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if ($status === Password::RESET_LINK_SENT)
+            return $this->sendResponse(__($status), 'Send Successfully!');
+        else
+            return $this->sendError('ERROR', ['email' => __($status)]);
+    }
+
+    protected function sendResetResponse(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors());
+        }
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->createToken('random key')->accessToken;
+
+                $user->save();
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET)
+            return $this->sendResponse(__($status), 'Updated Successfully!');
+        else
+            return $this->sendError('ERROR', ['email' => __($status)]);
     }
 }

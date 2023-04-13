@@ -135,7 +135,8 @@ class GroupController extends Controller
                     ->whereIn('user_id', $response['info']->users->pluck('id'))
                     //avg from (reading_mark + writing_mark + support)
                     ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-                    ->first();
+                    ->first()
+                    ->out_of_100;
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;

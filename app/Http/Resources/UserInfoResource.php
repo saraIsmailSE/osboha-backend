@@ -17,6 +17,7 @@ class UserInfoResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'gender' => $this->gender,
             'profile' => new ProfilePictureResource($this->userProfile),
             'roles' => $this->getRoleNames(),
         ];

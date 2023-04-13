@@ -208,15 +208,15 @@ class MarkController extends Controller
 
                     // All Full Mark
                     $fullMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
                         ->having('out_of_100', 100)
                         ->where('week_id', $current_week)
                         ->count();
                     // 10% of Full Mark
                     $ratioFullMarkToAudit = round($fullMark * 0.10);
                     $fullMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
-                    ->having('out_of_100', 100)
+                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                        ->having('out_of_100', 100)
                         ->inRandomOrder()
                         ->where('week_id', $current_week)
                         ->limit($ratioFullMarkToAudit)
@@ -225,16 +225,16 @@ class MarkController extends Controller
 
                     //NOT Full Mark
                     $lowMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
-                    ->having('out_of_100', '<', 100)
+                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                        ->having('out_of_100', '<', 100)
                         ->where('week_id', $current_week)
                         ->count();
 
                     //Get 10% of NOT Full Mark                
                     $ratioVariantMarkToAudit = $lowMark * 10 / 100;
                     $variantMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                    ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
-                    ->having('out_of_100', '<', 100)
+                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                        ->having('out_of_100', '<', 100)
                         ->inRandomOrder()
                         ->limit($ratioVariantMarkToAudit)
                         ->where('week_id', $current_week)
@@ -471,7 +471,11 @@ class MarkController extends Controller
         }
 
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->get();
-        $month_achievement = Mark::where('user_id', $user_id)->whereIn('week_id', $weeksInMonth->pluck('id'))->get();
+        $month_achievement = Mark::where('user_id', $user_id)
+            ->whereIn('week_id', $weeksInMonth->pluck('id'))
+            ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
+            ->groupBy('week_id')->get();
+
         $response['month_achievement'] =  $month_achievement->pluck('out_of_100', 'week.title');
         $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
@@ -487,16 +491,20 @@ class MarkController extends Controller
 
         if ($filter == 'current') {
             $week = Week::latest()->pluck('id')->toArray();
+            $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)->first();
         }
         if ($filter == 'previous') {
             $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+            $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)->first();
         }
         if ($filter == 'in_a_month') {
             $currentMonth = date('m');
             $week = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->pluck('id')->toArray();
-        }
+            $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)
+            ->select(DB::raw('sum(total_thesis) as total_thesis , sum(total_screenshot) as total_screenshot'))
+            ->first();
 
-        $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)->first();
+        }
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 

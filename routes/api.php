@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\BookStatisticsController;
 use App\Http\Controllers\Api\PostController;
@@ -64,10 +65,14 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::get('/profile-image', [UserProfileController::class, 'getImages']);
 
+    Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
 
+    Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logout', [AuthController::class, 'logout']);
+        Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         ########Book########
         Route::group(['prefix' => 'book'], function () {
             Route::get('/', [BookController::class, 'index']);
