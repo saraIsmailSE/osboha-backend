@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->integer('book_id');
             $table->integer('user_id');
-            $table->enum('status', ['in progress', 'later','finished']);
+            $table->integer('counter')->default(1);
+            $table->enum('status', ['in progress', 'later', 'finished']);
             $table->timestamps();
         });
     }

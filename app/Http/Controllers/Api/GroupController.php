@@ -120,7 +120,7 @@ class GroupController extends Controller
     {
 
         $response['info'] = Group::with('users', 'groupAdministrators')->withCount('userAmbassador')->where('id', $group_id)->first();
-        
+
         if ($response['info']) {
             $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
             if ($response['authInGroup'] || Auth::user()->hasRole('admin')) {
@@ -135,7 +135,8 @@ class GroupController extends Controller
                     ->whereIn('user_id', $response['info']->users->pluck('id'))
                     //avg from (reading_mark + writing_mark + support)
                     ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-                    ->first();
+                    ->first()
+                    ->out_of_100;
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
@@ -322,25 +323,25 @@ class GroupController extends Controller
         $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $current_week = Week::latest()->pluck('id')->first();
         $marks['group_users'] =  $marks['group']->leaderAndAmbassadors->count();
-        
+
         $marks['full'] = Mark::where('week_id', $current_week)
-        ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
-        ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
-        ->having('out_of_100', 100)
-        ->count();
-        
+            ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+            ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+            ->having('out_of_100', 100)
+            ->count();
+
         $marks['incomplete'] = Mark::where('week_id', $current_week)
-        ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
-        ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
-        ->having('out_of_100', '<', 100)
-        ->having('out_of_100', '>', 0)
-        ->count();
-        
+            ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+            ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+            ->having('out_of_100', '<', 100)
+            ->having('out_of_100', '>', 0)
+            ->count();
+
         $marks['zero'] = Mark::where('week_id', $current_week)
-        ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
-        ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
-        ->having('out_of_100', 0)
-        ->count();
+            ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+            ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+            ->having('out_of_100', 0)
+            ->count();
         $marks['random_achievement'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
         $marks['most_read'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
 

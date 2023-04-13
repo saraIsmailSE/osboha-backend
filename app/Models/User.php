@@ -112,12 +112,12 @@ class User extends Authenticatable
         return $this->hasMany(Reaction::class);
     }
 
-    public function comment()
+    public function comments()
     {
         return $this->hasMany(Comment::class);
     }
 
-    public function thesis()
+    public function theses()
     {
         return $this->hasMany(Thesis::class);
     }
@@ -141,12 +141,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Mark::class);
     }
-
-    public function rejectedMark()
-    {
-        return $this->hasMany(RejectedMark::class);
-    }
-
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')->wherePivot('status', 1);
@@ -177,5 +171,10 @@ class User extends Authenticatable
     public function exception()
     {
         return $this->hasMany(UserException::class);
+    }
+
+    public function userBooks()
+    {
+        return $this->hasMany(UserBook::class);
     }
 }

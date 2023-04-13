@@ -38,7 +38,7 @@ class AuthController extends Controller
             $authUser = Auth::user();
 
             $success['token'] = $authUser->createToken('sanctumAuth')->plainTextToken;
-            $success['user'] = $authUser->load('userProfile', 'roles:name', 'permissions:name');
+            $success['user'] = $authUser->load('userProfile', 'roles:id,name', 'roles.permissions:id,name');
 
             return $this->jsonResponse($success, 'data', 200, 'Login Successfully');
         } else {

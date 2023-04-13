@@ -45,6 +45,11 @@ class ThesisSeeder extends Seeder
         // $datetime = Carbon::createFromFormat('Y-m-d H:i:s', '2022-01-23 11:53:20');        
         for ($j = 0; $j < $number; $j++) {
             $date = $datetime->startOfWeek(Carbon::SUNDAY)->addWeeks();
+            //if $date = '2023-03-26 00:00:00' then $date = '2023-03-26 01:00:00'
+            if ($date == '2023-03-26 00:00:00') {
+                $date = '2023-03-26 01:00:00';
+            }
+
             Week::factory(1)->create([
                 'created_at' => $date,
                 'updated_at' => $date,

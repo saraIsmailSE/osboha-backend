@@ -4,10 +4,12 @@ namespace App\Traits;
 
 use App\Exceptions\NotFound;
 use App\Http\Resources\ThesisResource;
+use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Mark;
 use App\Models\Thesis;
 use App\Models\ThesisType;
+use App\Models\UserBook;
 use App\Models\UserException;
 use App\Models\Week;
 use App\Traits\ResponseJson;
@@ -171,6 +173,8 @@ trait ThesisTraits
 
             $thesis = Thesis::create($thesis_data_to_insert);
 
+            $this->createOrUpdateUserBook($thesis);
+
             if ($thesis) {
                 $mark_record->update($mark_data_to_update);
                 return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
@@ -290,6 +294,7 @@ trait ThesisTraits
 
                 $thesis->update($thesis_data_to_update);
                 $mark_record->update($mark_data_to_update);
+                $this->createOrUpdateUserBook($thesis);
 
                 return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis updated successfully!');
             } else {
@@ -360,6 +365,7 @@ trait ThesisTraits
                 );
 
                 $mark_record->update($mark_data_to_update);
+                $this->createOrUpdateUserBook($thesis, true);
 
                 return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis deleted successfully!');
             } else {
@@ -600,5 +606,56 @@ trait ThesisTraits
         }
 
         return $is_exams_exception;
+    }
+
+    /**
+     * Create a user book record if it doesn't exist, or update it if it exists
+     * @param Thesis $thesis
+     * @return void
+     */
+    public function createOrUpdateUserBook($thesis, $isDeleted = false)
+    {
+        $book_id = $thesis->book_id;
+        $user_id = Auth::id();
+
+        //get the latest user book related to the user and the book
+        $user_book = UserBook::where('user_id', $user_id)
+            ->where('book_id', $book_id)
+            ->latest()
+            ->first();
+
+        //if the user book doesn't exist
+        if (!$user_book) {
+            //if the thesis is deleted
+            if ($isDeleted) {
+                //if the user book status is finished, decrease the counter and change the status to in progress
+                if ($user_book->status == 'finished') {
+                    $user_book->status = 'in progress';
+                    $user_book->counter = $user_book->counter - 1;
+                    $user_book->save();
+                }
+            } else {
+                //if new thesis is added, create a new user book record
+                $book = Book::find($book_id);
+                $user_book = UserBook::create([
+                    'user_id' => $user_id,
+                    'book_id' => $book_id,
+                    'status' => $book->end_page >= $thesis->end_page ? 'finished' : 'in progress',
+                ]);
+            }
+        } else {
+            //if user book exists, update the status based on the thesis end page
+            if ($thesis->end_page >= $user_book->book->end_page) {
+                $user_book->status = 'finished';
+                $user_book->counter = $user_book->counter + 1;
+                $user_book->save();
+            }
+
+            //is status "later", uptade it to "in progress" as the user will start reading the book
+            else if ($user_book->status == 'later' || $user_book->status == 'finished') {
+                $user_book->status = 'in progress';
+                $user_book->save();
+            }
+        }
     }
 }

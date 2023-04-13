@@ -8,21 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class UserBook extends Model
 {
     use HasFactory;
-    protected $fillable=[
+    protected $fillable = [
         'user_id',
         'book_id',
-        'status'
+        'status',
+        'counter'
     ];
-    
-    protected $with = array('user','book');
 
-    public function user(){
-        return $this->belongsTo(User::class, 'user_id' );
+    protected $with = array('user', 'book');
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function book(){
-        return $this->belongsTo( Book::class, 'book_id' );
+    public function book()
+    {
+        return $this->belongsTo(Book::class, 'book_id');
     }
-
-
 }

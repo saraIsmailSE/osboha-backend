@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\BookResource;
+use App\Http\Resources\ThesisResource;
 use App\Models\Language;
 use App\Models\PostType;
 use App\Models\Rate;
@@ -106,20 +107,14 @@ class BookController extends Controller
     /**
      * Find and show an existing book in the system by its id.
      *
-     * @param  Request  $request
-     * @return jsonResponseWithoutMessage;
+     * @param  Int  $book_id
+     * @return jsonResponse
      */
-    public function show(Request $request)
+    public function show($book_id)
     {
-        $validator = Validator::make($request->all(), [
-            'book_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $book = Book::find($request->book_id);
+        $book = Book::where('id', $book_id)->with('userBooks', function ($query) {
+            $query->where('user_id', Auth::user()->id);
+        })->first();
 
         if ($book) {
             $book_post = $book->posts->where('type_id', PostType::where('type', 'book')->first()->id)->first();
@@ -131,13 +126,21 @@ class BookController extends Controller
             //comments count
             $comments_count = $book_post->comments ? $book_post->comments->count() : 0;
 
-            return $this->jsonResponseWithoutMessage(
+            //get last added thesis on this book by this user with greatest end page
+            $last_thesis = Auth::user()
+                ->theses()
+                ->where('book_id', $book_id)
 
+                ->orderBy('end_page', 'desc')
+                ->orderBy('updated_at', 'desc')->first();
+
+            return $this->jsonResponseWithoutMessage(
                 [
                     'book' => new BookResource($book),
                     'theses_count' => $book->theses->count(),
                     'comments_count' => $comments_count,
                     'rate' => $rate,
+                    'last_thesis' => $last_thesis ? new ThesisResource($last_thesis) : null,
                 ],
                 'data',
                 200
@@ -189,21 +192,13 @@ class BookController extends Controller
     /**
      * Delete an existing book's in the system using its id (“delete book” permission is required). 
      *
-     * @param  Request  $request
+     * @param  Int  $book_id
      * @return jsonResponseWithoutMessage;
      */
-    public function delete(Request $request)
+    public function delete($book_id)
     {
-        $validator = Validator::make($request->all(), [
-            'book_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
         if (Auth::user()->can('delete book')) {
-            $book = Book::find($request->book_id);
+            $book = Book::find($book_id);
             if ($book) {
                 //check Media
                 $currentMedia = Media::where('book_id', $book->id)->first();
@@ -224,19 +219,12 @@ class BookController extends Controller
     /**
      * Find and return all books related to a type using type_id.
      *
-     * @param  Request  $request
+     * @param  Int $type_id
      * @return jsonResponseWithoutMessage;
      */
-    public function bookByType(Request $request)
+    public function bookByType($type_id)
     {
-        $validator = Validator::make($request->all(), [
-            'type_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        $books = Book::where('type_id', $request->type_id)->get();
+        $books = Book::where('type_id', $type_id)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -279,19 +267,12 @@ class BookController extends Controller
     /**
      * Find and return all books related to a section using section_id.
      *
-     * @param  Request  $request
+     * @param  Int $section_id
      * @return jsonResponseWithoutMessage;
      */
-    public function bookBySection(Request $request)
+    public function bookBySection($section_id)
     {
-        $validator = Validator::make($request->all(), [
-            'section_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        $books = Book::where('section_id', $request->section_id)->get();
+        $books = Book::where('section_id', $section_id)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {

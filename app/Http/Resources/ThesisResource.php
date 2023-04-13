@@ -24,6 +24,7 @@ class ThesisResource extends JsonResource
             'comment' => new CommentResource($this->whenLoaded('comment')),
             'start_page' => $this->start_page,
             'end_page' => $this->end_page,
+            'status' => $this->status,
             // 'max_length' => $this->max_length,
             // 'total_screenshots' => $this->total_screenshots,
         ];
