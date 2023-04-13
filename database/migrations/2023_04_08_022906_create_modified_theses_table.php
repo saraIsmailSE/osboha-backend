@@ -23,10 +23,12 @@ return new class extends Migration
             $table->foreign('week_id')->references('id')->on('weeks');
             $table->bigInteger('modifier_id')->unsigned()->index();
             $table->foreign('modifier_id')->references('id')->on('users');
-            $table->string('modifier_note');
-            $table->bigInteger('head_modifier_id')->unsigned()->index();
+            $table->bigInteger('modifier_reason_id')->unsigned();
+            $table->foreign('modifier_reason_id')->references('id')->on('modification_reasons');
+            $table->bigInteger('head_modifier_id')->unsigned()->nullable();
             $table->foreign('head_modifier_id')->references('id')->on('users');
-            $table->string('head_modifier_note');
+            $table->bigInteger('head_modifier_reason_id')->unsigned()->nullable();
+            $table->foreign('head_modifier_reason_id')->references('id')->on('modification_reasons');
             $table->enum('status', ['accepted', 'rejected', 'not_audited'])->default('not_audited');
             $table->timestamps();
         });

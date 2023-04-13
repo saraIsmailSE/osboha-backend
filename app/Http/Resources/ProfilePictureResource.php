@@ -15,8 +15,9 @@ class ProfilePictureResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'profile_picture' => asset('assets/images/' . $this->profile_picture),
-            'cover_picture' => asset('assets/images/' . $this->cover_picture),
+            'id' => $this->id,
+            'profile_picture' => $this->profile_picture ?  asset('assets/images/' . $this->profile_picture) : null,
+            'cover_picture' => $this->cover_picture ? asset('assets/images/' . $this->cover_picture) : null,
         ];
     }
 }

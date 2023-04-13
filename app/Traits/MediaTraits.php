@@ -48,16 +48,17 @@ trait MediaTraits
             return false;
         }
     }
-    function updateMedia($media, $media_id)
+    function updateMedia($media, $media_id, $folderPath = null)
     {
         //get current media
         $currentMedia = Media::find($media_id);
         //delete current media
         File::delete(public_path('assets/images/' . $currentMedia->media));
 
+        $fullPath = 'assets/images' . ($folderPath ? '/' . $folderPath : '');
         // upload new media
         $imageName = time() . '.' . $media->extension();
-        $media->move(public_path('assets/images'), $imageName);
+        $media->move(public_path($fullPath), $imageName);
 
         // update current media
         $currentMedia->media = $imageName;

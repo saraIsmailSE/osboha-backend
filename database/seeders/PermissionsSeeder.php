@@ -26,8 +26,8 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'delete mark']);
         Permission::create(['name' => 'create mark']);
         Permission::create(['name' => 'audit mark']);
-        Permission::create(['name' => 'reject mark']);
-        Permission::create(['name' => 'accept mark']);
+        Permission::create(['name' => 'reject thesis']);
+        Permission::create(['name' => 'accept thesis']);
 
         ###### THESIS ######
         // Permission::create(['name' => 'delete thesis']);

@@ -624,7 +624,7 @@ class PostController extends Controller
         $post_types = PostType::all()->pluck('type')->toArray();
 
         return Validator::make($request->all(), [
-            'body' => 'required_with:votes|required_without:media|string',
+            'body' => 'required_with:votes|required_without:media|nullable|string',
             'type' => 'required|string|in:' . implode(',', $post_types),
             'timeline_id' => 'required|integer',
             'tags' => 'nullable|array',

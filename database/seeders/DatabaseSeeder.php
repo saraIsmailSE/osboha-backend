@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Rate;
 use Illuminate\Database\Seeder;
-use Ramsey\Uuid\Type\Time;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,9 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-
-
-
         $this->call(PermissionsSeeder::class);
         $this->call(TimelineTypeSeeder::class);
         $this->call(GroupSeeder::class);
@@ -36,7 +31,7 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(UserGroupSeeder::class);
         // $this->call(RateSeeder::class);
-        // $this->call(ReactionSeeder::class);
+        $this->call(ReactionSeeder::class);
         $this->call(ExceptionTypeSeeder::class);
         $this->call(GroupTypeSeeder::class);
         $this->call(PostTypeSeeder::class);
@@ -45,7 +40,8 @@ class DatabaseSeeder extends Seeder
         $this->call(BookStatisticsSeeder::class);
         $this->call(WeekSeeder::class);
         // $this->call(MarksSeeder::class);
-        // $this->call(RejectesThesesSeeder::class);
+        $this->call(ModificationReasonSeeder::class);
+        $this->call(ModifiedThesesSeeder::class);
         // $this->call(InfographicSeeder::class);
         // $this->call(InfographicSeriesSeeder::class);
         // $this->call(ArticleSeeder::class);

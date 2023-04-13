@@ -64,27 +64,25 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/register', [AuthController::class, 'register']);
 
     Route::get('/profile-image', [UserProfileController::class, 'getImages']);
-
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
-
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
-
+    
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         ########Book########
-        Route::group(['prefix' => 'book'], function () {
+        Route::group(['prefix' => 'books'], function () {
             Route::get('/', [BookController::class, 'index']);
-            Route::post('/create', [BookController::class, 'create']);
-            Route::post('/show', [BookController::class, 'show']);
-            Route::post('/update', [BookController::class, 'update']);
-            Route::post('/delete', [BookController::class, 'delete']);
-            Route::post('/book-by-type', [BookController::class, 'bookByType']);
-            Route::post('/book-by-level', [BookController::class, 'bookByLevel']);
-            Route::post('/book-by-section', [BookController::class, 'bookBySection']);
-            Route::post('/book-by-name', [BookController::class, 'bookByName']);
-            Route::post('/book-by-language', [BookController::class, 'bookByLanguage']);
+            Route::post('/', [BookController::class, 'create']);
+            Route::get('/{id}', [BookController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/', [BookController::class, 'update']);
+            Route::delete('/{id}', [BookController::class, 'delete']);
+            Route::get('/type/{type_id}', [BookController::class, 'bookByType'])->where('type_id', '[0-9]+');
+            Route::post('/level', [BookController::class, 'bookByLevel']);
+            Route::get('/section/{section_id}', [BookController::class, 'bookBySection'])->where('section_id', '[0-9]+');
+            Route::post('/name', [BookController::class, 'bookByName']);
+            Route::post('/language', [BookController::class, 'bookByLanguage']);
             Route::get('/recent-added-books', [BookController::class, 'getRecentAddedBooks']);
             Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
@@ -153,6 +151,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'comments'], function () {
             Route::post('/', [CommentController::class, 'create']);
             Route::get('/post/{post_id}', [CommentController::class, 'getPostComments'])->where('post_id', '[0-9]+');
+            Route::post('/edit', [CommentController::class, 'update']); //for testing
             Route::put('/', [CommentController::class, 'update']);
             Route::delete('/{id}', [CommentController::class, 'delete']);
             Route::get('/post/{post_id}/users', [CommentController::class, 'getPostCommentsUsers'])->where('post_id', '[0-9]+');
@@ -208,14 +207,23 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End RejectedMark ########
         ########RejectedTheses########
-        Route::group(['prefix' => 'rejected-theses'], function () {
+        Route::group(['prefix' => 'modified-theses'], function () {
             Route::get('/', [RejectedThesesController::class, 'index']);
-            Route::post('/create', [RejectedThesesController::class, 'create']);
-            Route::post('/show', [RejectedThesesController::class, 'show']);
-            Route::post('/update', [RejectedThesesController::class, 'update']);
-            Route::post('/list', [RejectedThesesController::class, 'list_user_rejectedtheses']);
+            Route::post('/', [RejectedThesesController::class, 'create']);
+            Route::get('/{id}', [RejectedThesesController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/', [RejectedThesesController::class, 'update']);
+            Route::get('/user/{user_id}', [RejectedThesesController::class, 'listUserModifiedtheses'])->where('user_id', '[0-9]+');
+            Route::get('/week/{week_id}', [RejectedThesesController::class, 'listModifiedthesesByWeek'])->where('week_id', '[0-9]+');
+            Route::get('/user/{user_id}/week/{week_id}', [RejectedThesesController::class, 'listUserModifiedthesesByWeek'])->where('user_id', '[0-9]+')->where('week_id', '[0-9]+');
         });
         ########End RejectedTheses ########
+
+        ########Start ModificationReasons ########
+        Route::group(['prefix' => 'modification-reasons'], function () {
+            Route::get('/leader', [ModificationReasonsController::class, 'getReasonsForLeader']);
+        });
+        ########End ModificationReasons ########
+
         #########UserException########
         Route::group(['prefix' => 'userexception'], function () {
             Route::post('/create', [UserExceptionController::class, 'create']);
@@ -316,7 +324,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [PostController::class, 'show'])->where('id', '[0-9]+');
             Route::put('/{id}', [PostController::class, 'update']);
             Route::delete('/{id}', [PostController::class, 'delete']);
-            Route::get('/timelines/{timeline_id}', [PostController::class, 'postsByTimelineId'])->where('timeline_id', '[0-9]+');
+            Route::get('/timeline/{timeline_id}', [PostController::class, 'postsByTimelineId'])->where('timeline_id', '[0-9]+');
             Route::get('/users/{user_id}', [PostController::class, 'postByUserId'])->where('user_id', '[0-9]+');
             Route::get('/pending/timelines/{timeline_id}', [PostController::class, 'listPostsToAccept'])->where('timeline_id', '[0-9]+');
             Route::get('/accept-post/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
@@ -378,11 +386,11 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## End UserGroup ########
         ####### Start Thesis ########
-        Route::group(['prefix' => 'thesis'], function () {
-            Route::get('/show/{thesis_id}', [ThesisController::class, 'show']);
-            Route::post('/listBookThesis', [ThesisController::class, 'list_book_thesis']);
-            Route::post('/listUserThesis', [ThesisController::class, 'list_user_thesis']);
-            Route::post('/listWeekThesis', [ThesisController::class, 'list_week_thesis']);
+        Route::group(['prefix' => 'theses'], function () {
+            Route::get('/{thesis_id}', [ThesisController::class, 'show'])->where('thesis_id', '[0-9]+');
+            Route::get('/book/{book_id}', [ThesisController::class, 'listBookThesis'])->where('book_id', '[0-9]+');
+            Route::get('/user/{user_id}', [ThesisController::class, 'listUserThesis'])->where('user_id', '[0-9]+');
+            Route::get('/week/{week_id}', [ThesisController::class, 'listWeekThesis'])->where('week_id', '[0-9]+');
         });
         ######## End Thesis ########
         ######## Room ########

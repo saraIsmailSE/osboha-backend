@@ -20,6 +20,8 @@ class UserInfoResource extends JsonResource
             'gender' => $this->gender,
             'profile' => new ProfilePictureResource($this->userProfile),
             'roles' => $this->getRoleNames(),
+            'gender' => $this->gender,
+            'userBooks' => UserBookResource::collection($this->whenLoaded('userBooks')),
         ];
     }
 }

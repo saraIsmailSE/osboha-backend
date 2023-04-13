@@ -20,6 +20,7 @@ class CommentResource extends JsonResource
             "user" => new UserInfoResource($this->user),
             "body" => $this->body,
             "type" => $this->type,
+            "comment_id" => $this->comment_id,
             "replies" => CommentResource::collection($this->replies),
             "media" => new MediaResource($this->media),
             "post" => new PostResource($this->whenLoaded('post')),
