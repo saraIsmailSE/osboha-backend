@@ -36,7 +36,7 @@ class NotificationController extends Controller
     {
         $notifications = auth()->user()->notifications()->latest()->limit(20)->get();
     
-        if (!empty($notifications["data"])){
+        if (!$notifications->isEmpty()){
             return $this->jsonResponseWithoutMessage($notifications, 'data',200);
         } else {
             throw new NotFound;
@@ -49,9 +49,11 @@ class NotificationController extends Controller
      */
     public function listUnreadNotification() 
     {
+
+        //return $this->jsonResponseWithoutMessage(auth()->user()->unreadNotifications()->get(),'data',200);
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
 
-        if (!empty($unreadNotifications["data"])){
+        if (!$unreadNotifications->isEmpty()){
             return $this->jsonResponseWithoutMessage($unreadNotifications,'data',200);
         } else {
             throw new NotFound;
@@ -66,7 +68,7 @@ class NotificationController extends Controller
     public function markAllNotificationAsRead() 
     {
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
-        if (!empty($unreadNotifications["data"])){
+        if (!$unreadNotifications->isEmpty()){
             foreach ($unreadNotifications as $unreadNotification) {
                 $unreadNotification->markAsRead();
             }
@@ -90,7 +92,7 @@ class NotificationController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $notification = auth()->user()->notifications()->where('id', $request->notification_id)->first();
-        if (!empty($notification["data"])) {
+        if (!$notification->isEmpty()) {
             $notification->markAsRead();
             return $this->jsonResponseWithoutMessage('Done','data',200);
         } else {
