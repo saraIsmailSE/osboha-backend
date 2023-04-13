@@ -24,11 +24,11 @@ class Book extends Model
     ];
 
 
-    protected $with = array('section','type','language');
+    protected $with = array('section', 'type', 'language');
 
     /**
      * Get all posts associated with book.
-    */
+     */
     public function posts()
     {
         return $this->hasMany(Post::class);
@@ -44,17 +44,23 @@ class Book extends Model
         return $this->belongsTo(BookType::class);
     }
 
-    public function language(){
+    public function language()
+    {
         return $this->belongsTo(Language::class);
     }
 
-    public function media(){
+    public function media()
+    {
         return $this->hasOne(Media::class);
     }
 
-    public function theses(){
+    public function theses()
+    {
         return $this->hasMany(Thesis::class);
     }
-    
-}
 
+    public function userBooks()
+    {
+        return $this->hasMany(UserBook::class);
+    }
+}

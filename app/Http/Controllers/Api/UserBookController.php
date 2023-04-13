@@ -26,11 +26,11 @@ class UserBookController extends Controller
      */
     public function show($user_id)
     {
-        $books = UserBook::where(function ($query){
+        $books = UserBook::where(function ($query) {
             $query->Where('status', 'in progress')->orWhere('status', 'finished');
         })->where('user_id', $user_id)->get();
 
-            return $this->jsonResponseWithoutMessage($books, 'data', 200);
+        return $this->jsonResponseWithoutMessage($books, 'data', 200);
     }
 
 
@@ -52,15 +52,28 @@ class UserBookController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $user_book = UserBook::find($request->user_profile_id);
         try {
-            $user_book=UserBook::where('user_id', $request->user_id)
-            ->where('book_id', $request->book_id)
-            ->update(['status' => $request->status]);
-            return $this->jsonResponse($user_book, 'data', 200,'updated successfully');
+            $user_book = UserBook::where('user_id', $request->user_id)
+                ->where('book_id', $request->book_id)
+                ->update(['status' => $request->status]);
+            return $this->jsonResponse($user_book, 'data', 200, 'updated successfully');
         } catch (\Illuminate\Database\QueryException $error) {
             return $this->jsonResponseWithoutMessage($error, 'data', 500);
         }
+    }
 
+    public function startBookAgain($book_id)
+    {
+        $user_book = UserBook::where('user_id', Auth::user()->id)
+            ->where('book_id', $book_id)->first();
+
+        if (!$user_book) {
+            return $this->jsonResponseWithoutMessage('book not found', 'data', 404);
+        }
+
+        $user_book->status = 'in progress';
+        $user_book->counter = $user_book->counter + 1;
+        $user_book->save();
+        return $this->jsonResponse($user_book, 'data', 200, 'updated successfully');
     }
 }

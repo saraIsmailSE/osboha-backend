@@ -42,18 +42,12 @@ class ThesisController extends Controller
     /**
      * Get all the theses related to a requested book.
      * 
-     * @param  Request  $request
+     * @param  Integer  $book_id
      * @return jsonResponseWithoutMessage ;
      */
-    public function list_book_thesis(Request $request)
+    public function listBookThesis($book_id)
     {
-        $validator = Validator::make($request->all(), ['book_id' => 'required']);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $post_id = Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
+        $post_id = Post::where('book_id', $book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
         $comments = Comment::where('post_id', $post_id)
             ->where('comment_id', 0)
             ->with('thesis')->orderBy('created_at', 'desc')->paginate(10);
@@ -74,25 +68,15 @@ class ThesisController extends Controller
     /**
      * Get all the theses related to a requested user.
      * 
-     * @param  Request  $request
+     * @param  Integer  $user_id
      * @return jsonResponseWithoutMessage ;
      */
-    public function list_user_thesis(Request $request)
+    public function listUserThesis($user_id)
     {
-        $validator = Validator::make($request->all(), ['user_id' => 'required']);
+        $theses = Comment::where('user_id', $user_id)->where('type', 'thesis')->where('comment_id', 0)->with('thesis')->orderBy('created_at', 'desc')->get();
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::join('comments', 'comments.id', '=', 'theses.comment_id')
-            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-            ->where('theses.user_id', $request->user_id)
-            ->get();
-
-        if ($thesis->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
+        if ($theses->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(CommentResource::collection($theses), 'data', 200);
         } else {
             throw new NotFound;
         }
@@ -100,28 +84,17 @@ class ThesisController extends Controller
     /**
      * Get all the theses related to a requested week.
      * 
-     * @param  Request  $request
+     * @param  Integer $week_id
      * @return jsonResponseWithoutMessage ;
      */
-    public function list_week_thesis(Request $request)
+    public function listWeekThesis($week_id)
     {
-        $validator = Validator::make($request->all(), ['week_id' => 'required']);
+        $theses = Comment::where('type', 'thesis')->where('comment_id', 0)->whereHas('thesis.mark', function ($query) use ($week_id) {
+            $query->where('week_id', $week_id);
+        })->with('thesis')->orderBy('created_at', 'desc')->get();
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        //select function to be added in order to reduce the data retrieved
-        $thesis = Thesis::select('theses.*')
-            ->join('marks', 'marks.id', '=', 'theses.mark_id')
-            ->join('weeks', 'weeks.id', '=', 'marks.week_id')
-            ->join('comments', 'comments.id', '=', 'theses.comment_id')
-            ->leftJoin('media', 'comments.id', '=', 'media.comment_id')
-            ->where('marks.week_id', $request->week_id)
-            ->get();
-
-        if ($thesis->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(ThesisResource::collection($thesis), 'data', 200);
+        if ($theses->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(CommentResource::collection($theses), 'data', 200);
         } else {
             throw new NotFound;
         }
