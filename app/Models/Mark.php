@@ -37,6 +37,10 @@ class Mark extends Model
     {
         return $this->hasMany(Thesis::class);
     }
+    public function audit()
+    {
+        return $this->hasMany(MarksForAudit::class,'mark_id');
+    }
     // public function out_of_100()
     // {
 

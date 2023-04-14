@@ -16,13 +16,13 @@ class GroupTypeSeeder extends Seeder
     public function run()
     {
 
-        $group_type = ['reading', 'supervising','advising','working'];
+        $audit_type = ['full', 'variant', 'of_supervisor_audit','not_of_supervisor_audit'];
         //GROUP TYPE
         $i = 0;
         while ($i <= 3) {
-            DB::table('group_types')->insert([
+            DB::table('audit_types')->insert([
 
-                'type' => $group_type[$i],
+                'type' => $audit_type[$i],
 
             ]);
             $i++;

@@ -61,4 +61,9 @@ class Group extends Model
         return $this->belongsTo(GroupType::class,'type_id');
     }
 
+    public function audits()
+    {
+        return $this->hasMany(AuditMark::class, 'group_id');
+    }
+
 }
