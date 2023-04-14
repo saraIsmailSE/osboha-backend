@@ -225,45 +225,41 @@ class CommentController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            //body is required only if the comment is not a thesis and has no image            
-            //in case of read only, body and screenshot are not required
-            'body' => [
-                'string',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
-                        $fail('The body field is required.');
-                    }
-                },
-            ],
-            'comment_id' => 'numeric|required',
-            //image is required only if the comment is not a thesis and has no body
-            'image' => [
-                'image',
-                'mimes:jpeg,png,jpg,gif,svg|max:2048',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
-                        $fail('The image field is required.');
-                    }
-                },
-            ],
-            //screenshots have to be an array of images
+            'body' => 'string',
+            'u_comment_id' => 'required|numeric',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'screenShots' => 'array',
             'screenShots.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'start_page' => 'required_if:type,thesis|numeric',
-            'end_page' => 'required_if:type,thesis|numeric',
+            'start_page' => 'numeric',
+            'end_page' => 'numeric',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $input = $request->all();
-        $comment = Comment::find($request->comment_id);
+        $comment = Comment::find($request->u_comment_id);
+
+        if ($comment->type === 'thesis' || $comment->type === 'screenshot') {
+            if (!$request->has('start_page') || !$request->start_page) {
+                return $this->jsonResponseWithoutMessage('start page is required', 'data', 500);
+            }
+
+            if (!$request->has('end_page') || !$request->end_page) {
+                return $this->jsonResponseWithoutMessage('end page is required', 'data', 500);
+            }
+        } else {
+            if ((!$request->has('body') || !$request->body) && (!$request->hasFile('image'))) {
+                return $this->jsonResponseWithoutMessage('Body is required without image and vise versa', 'data', 500);
+            }
+        }
+
         if ($comment) {
             if (Auth::id() == $comment->user_id) {
                 DB::beginTransaction();
 
                 try {
-                    if ($comment->type == "thesis") {
+                    if ($comment->type === "thesis" || $comment->type === "screenshot") {
                         $thesis = Thesis::where('comment_id', $comment->id)->first();
                         $thesis['comment_id'] = $comment->id;
                         $thesis['book_id'] = $thesis->book_id;
@@ -288,7 +284,12 @@ class CommentController extends Controller
                         foreach ($media as $media_item) {
                             $this->deleteMedia($media_item->id);
                         }
-                        $screenshots_comments->each->delete();
+
+                        $screenshots_comments->each(function ($screenshot) use ($comment) {
+                            if ($screenshot->id !== $comment->id) {
+                                $screenshot->delete();
+                            }
+                        });
 
                         if ($request->has('screenShots') && count($request->screenShots) > 0) {
                             $total_screenshots = count($request->screenShots);
@@ -343,9 +344,11 @@ class CommentController extends Controller
                     if (!$request->has('body')) {
                         $input['body'] = null;
                     }
+
                     $comment->update($input);
+
                     DB::commit();
-                    return $this->jsonResponseWithoutMessage("Comment Updated Successfully", 'data', 200);
+                    return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
                 } catch (\Exception $e) {
                     DB::rollback();
                     return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
@@ -375,30 +378,67 @@ class CommentController extends Controller
         $comment = Comment::find($comment_id);
         if ($comment) {
             if (Auth::user()->can('delete comment') || Auth::id() == $comment->user_id || Auth::user()->hasRole('admin')) {
-                //delete replies
-                Comment::where('comment_id', $comment->id)->delete();
-                if ($comment->type == "thesis") {
-                    $thesis['comment_id'] = $comment->id;
-                    /**asmaa */
-                    //delete the screenshots
-                    $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
-                    $media = Media::whereIn('comment_id', $screenshots_comments->pluck('id'))->get();
-                    foreach ($media as $media_item) {
-                        $this->deleteMedia($media_item->id);
-                    }
-                    $screenshots_comments->each->delete();
 
-                    /**asmaa */
-                    return $this->deleteThesis($thesis);
+                DB::beginTransaction();
+
+                try {
+                    if ($comment->type == "thesis" || $comment->type == "screenshot") {
+                        $thesis['comment_id'] = $comment->id;
+                        /**asmaa */
+                        //delete the screenshots
+                        $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
+                        $media = Media::whereIn('comment_id', $screenshots_comments->pluck('id'))->get();
+
+                        foreach ($media as $media_item) {
+                            $this->deleteMedia($media_item->id);
+                        }
+
+                        $this->deleteThesis($thesis);
+
+                        $screenshots_comments->each(function ($screenshot) {
+                            $screenshot->delete();
+                        });
+                    }
+                    //check Media
+                    $currentMedia = Media::where('comment_id', $comment->id)->first();
+                    // if exist, delete
+                    if ($currentMedia) {
+                        $this->deleteMedia($currentMedia->id);
+                    }
+
+                    //delete reactions on this comment
+                    $comment->reactions()->delete();
+
+                    //delete replies
+                    $replies = Comment::where('comment_id', $comment->id);
+
+                    //delete replies reactions
+                    $replies->each(function ($reply) {
+                        $reply->reactions()->delete();
+                    });
+
+                    //delete replies media
+                    $replies->each(function ($reply) {
+                        if ($reply->media) {
+
+                            $this->deleteMedia($reply->media->id);
+                        }
+                    });
+
+                    //delete replies
+                    $replies->each(function ($reply) {
+                        $reply->delete();
+                    });
+
+                    echo 'replies pass';
+                    $comment->delete();
+
+                    DB::commit();
+                    return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
                 }
-                //check Media
-                $currentMedia = Media::where('comment_id', $comment->id)->first();
-                // if exist, delete
-                if ($currentMedia) {
-                    $this->deleteMedia($currentMedia->id);
-                }
-                $comment->delete();
-                return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
             } else {
                 throw new NotAuthorized;
             }

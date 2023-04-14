@@ -67,7 +67,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
-    
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
@@ -151,8 +151,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'comments'], function () {
             Route::post('/', [CommentController::class, 'create']);
             Route::get('/post/{post_id}', [CommentController::class, 'getPostComments'])->where('post_id', '[0-9]+');
-            Route::post('/edit', [CommentController::class, 'update']); //for testing
-            Route::put('/', [CommentController::class, 'update']);
+            Route::post('/update', [CommentController::class, 'update']); //for testing
+            Route::put('/', [CommentController::class, 'update']); //gives errors from axios
             Route::delete('/{id}', [CommentController::class, 'delete']);
             Route::get('/post/{post_id}/users', [CommentController::class, 'getPostCommentsUsers'])->where('post_id', '[0-9]+');
         });
