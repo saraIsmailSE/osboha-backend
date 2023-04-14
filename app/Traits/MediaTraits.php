@@ -20,7 +20,7 @@ trait MediaTraits
             $media->move(public_path($fullPath), $imageName);
             // link media with comment
             $media = new Media();
-            $media->media = $folderPath . '/' . $imageName;
+            $media->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
             $media->type = 'image';
             $media->user_id = Auth::id();
             if ($type == 'comment') {
@@ -61,7 +61,7 @@ trait MediaTraits
         $media->move(public_path($fullPath), $imageName);
 
         // update current media
-        $currentMedia->media = $imageName;
+        $currentMedia->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
         $currentMedia->save();
     }
 

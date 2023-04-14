@@ -50,7 +50,7 @@ class ThesisSeeder extends Seeder
                 $date = '2023-03-26 01:00:00';
             }
 
-            Week::factory(1)->create([
+            Week::factory()->create([
                 'created_at' => $date,
                 'updated_at' => $date,
             ])->each(function ($week) use ($posts) {

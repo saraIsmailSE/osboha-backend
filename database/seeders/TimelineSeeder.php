@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Timeline;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,6 +15,9 @@ class TimelineSeeder extends Seeder
      */
     public function run()
     {
-        //
+        //main timeline
+        Timeline::create([
+            'type_id' => 1,
+        ]);
     }
 }
