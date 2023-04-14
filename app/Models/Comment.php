@@ -51,4 +51,9 @@ class Comment extends Model
     {
         return $this->hasOne(Thesis::class);
     }
+
+    public function reactions()
+    {
+        return $this->hasMany(Reaction::class);
+    }
 }

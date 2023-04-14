@@ -322,7 +322,7 @@ trait ThesisTraits
     public function deleteThesis($thesisToDelete)
     {
         $thesis = Thesis::where('comment_id', $thesisToDelete['comment_id'])->first();
-        $comment = Comment::where('id', $thesis->comment_id)->first('id');
+        // $comment = Comment::where('id', $thesis->comment_id)->first('id');
 
         if ($thesis) {
             $week = Week::latest('id')->first();
@@ -341,7 +341,7 @@ trait ThesisTraits
 
             if ($mark_record) {
                 $thesis->delete();
-                $comment->delete();
+                // $comment->delete();
 
                 $thesis_mark = $this->calculate_mark_for_all_thesis($thesis->mark_id);
 
@@ -656,6 +656,19 @@ trait ThesisTraits
                 $user_book->status = 'in progress';
                 $user_book->save();
             }
+        }
+
+        //fix counter and status (updating and deleting will cause some mistakes in the status and counter)
+        $allThesis = Auth::user()->theses()->where('book_id', $book_id)->count();
+        if ($allThesis <= 0) {
+            if ($user_book->status != 'later') {
+                $user_book->delete();
+            }
+        } else {
+            $completeTheses = Auth::user()->theses()->where('end_page', $user_book->book->end_page)->where('book_id', $book_id)->count();
+            $user_book->counter = $completeTheses;
+            $user_book->status = $allThesis > $completeTheses ? 'in progress' : 'finished';
+            $user_book->save();
         }
     }
 }
