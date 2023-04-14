@@ -24,6 +24,7 @@ use App\Events\MarkStats;
 use App\Models\AuditType;
 use App\Models\MarksForAudit;
 use App\Models\Thesis;
+use Carbon\Carbon;
 
 class MarkController extends Controller
 {
@@ -51,28 +52,19 @@ class MarkController extends Controller
     }
 
     /**
-     * Find and show an existing  mark in the system by its id  ( “audit mark” permission is required).
+     * Find an existing  mark in the system by its id  ( “audit mark” permission is required).
      *
-     * @param  Request  $request
+     * @param  $mark_id
      * @return jsonResponseWithoutMessage;
      */
-    public function show(Request $request)
+    public function show($mark_id)
     {
-        $validator = Validator::make($request->all(), [
-            'mark_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
         if (Auth::user()->can('audit mark')) {
-            $mark = Mark::find($request->mark_id);
-            if ($mark) {
-                return $this->jsonResponseWithoutMessage(new MarkResource($mark), 'data', 200);
-            } else {
-                throw new NotFound;
-            }
+            $response['mark'] = Mark::find($mark_id);
+            $group_id= UserGroup::where('user_id',$response['mark']->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+            $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
+            $response['theses'] = Thesis::with('book')->where('mark_id',  $mark_id)->get();
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
             throw new NotAuthorized;
         }
@@ -175,180 +167,183 @@ class MarkController extends Controller
     public function generateAuditMarks()
     {
         try {
+            $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+            if ($previous_week) {
+                $previous_week->audit_timer = Carbon::now()->addDays(3);
+                $previous_week->save();
+                $groupsID = Group::whereHas('type', function ($q) {
+                    $q->where('type', '=', 'reading');
+                })->pluck('id');
 
-            $current_week = Week::latest()->pluck('id')->first();
-            $groupsID = Group::whereHas('type', function ($q) {
-                $q->where('type', '=', 'reading');
-            })->pluck('id');
-
-            //Audit type [full - variant] ]
-            $fullAudit = AuditType::where('name', 'full')->first();
-            $variantAudit = AuditType::where('name', 'variant')->first();
-            $ofSupervisorAudit = AuditType::where('name', 'of_supervisor_audit')->first();
-            $notOfSupervisorAudit = AuditType::where('name', 'not_of_supervisor_audit')->first();
-
-
-            #### Start Supervisor Audit ####
-
-            foreach ($groupsID as $key => $groupID) {
-                $weekAuditMarks = AuditMark::where('week_id', $current_week)->where('group_id', $groupID)->exists();
-
-                if (!$weekAuditMarks) {
-                    $group = Group::where('id', $groupID)->with('userAmbassador')->with('groupSupervisor')->first();
-
-                    if (!$group->groupSupervisor->pluck('id')->first()) {
-                        continue;
-                    }
-                    /**
-                     *
-                     * for each reading group 20% of marks:
-                     * 10% of full marks
-                     * 10% not full marks
-                     */
-
-                    // All Full Mark
-                    $fullMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
-                        ->having('out_of_100', 100)
-                        ->where('week_id', $current_week)
-                        ->count();
-                    // 10% of Full Mark
-                    $ratioFullMarkToAudit = round($fullMark * 0.10);
-                    $fullMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
-                        ->having('out_of_100', 100)
-                        ->inRandomOrder()
-                        ->where('week_id', $current_week)
-                        ->limit($ratioFullMarkToAudit)
-                        ->pluck('id')->toArray();
+                //Audit type [full - variant - of_supervisor_audit - not_of_supervisor_audit] ]
+                $fullAudit = AuditType::where('name', 'full')->first();
+                $variantAudit = AuditType::where('name', 'variant')->first();
+                $ofSupervisorAudit = AuditType::where('name', 'of_supervisor_audit')->first();
+                $notOfSupervisorAudit = AuditType::where('name', 'not_of_supervisor_audit')->first();
 
 
-                    //NOT Full Mark
-                    $lowMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
-                        ->having('out_of_100', '<', 100)
-                        ->where('week_id', $current_week)
-                        ->count();
+                #### Start Supervisor Audit ####
 
-                    //Get 10% of NOT Full Mark                
-                    $ratioVariantMarkToAudit = $lowMark * 10 / 100;
-                    $variantMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
-                        ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
-                        ->having('out_of_100', '<', 100)
-                        ->inRandomOrder()
-                        ->limit($ratioVariantMarkToAudit)
-                        ->where('week_id', $current_week)
-                        ->pluck('id')->toArray();
+                foreach ($groupsID as $key => $groupID) {
+                    $weekAuditMarks = AuditMark::where('week_id', $previous_week->id)->where('group_id', $groupID)->exists();
+
+                    if (!$weekAuditMarks) {
+                        $group = Group::where('id', $groupID)->with('userAmbassador')->with('groupSupervisor')->first();
+
+                        if (!$group->groupSupervisor->pluck('id')->first()) {
+                            continue;
+                        }
+                        /**
+                         *
+                         * for each reading group 20% of marks:
+                         * 10% of full marks
+                         * 10% not full marks
+                         */
+
+                        // All Full Mark
+                        $fullMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
+                            ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                            ->having('out_of_100', 100)
+                            ->where('week_id', $previous_week->id)
+                            ->count();
+                        // 10% of Full Mark
+                        $ratioFullMarkToAudit = round($fullMark * 0.10);
+                        $fullMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
+                            ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                            ->having('out_of_100', 100)
+                            ->inRandomOrder()
+                            ->where('week_id', $previous_week->id)
+                            ->limit($ratioFullMarkToAudit)
+                            ->pluck('id')->toArray();
+
+                        //NOT Full Mark
+                        $lowMark = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
+                            ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                            ->having('out_of_100', '<', 100)
+                            ->where('week_id', $previous_week->id)
+                            ->count();
+                        //Get 10% of NOT Full Mark                
+                        $ratioVariantMarkToAudit = $lowMark * 10 / 100;
+                        $variantMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
+                            ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
+                            ->having('out_of_100', '<', 100)
+                            ->inRandomOrder()
+                            ->limit($ratioVariantMarkToAudit)
+                            ->where('week_id', $previous_week->id)
+                            ->pluck('id')->toArray();
 
 
-                    // create audit_marks record for supervisor [ week_id, auditor_id,	group_id]
+                        // create audit_marks record for supervisor [ week_id, auditor_id,	group_id]
 
-                    $supervisorAuditMarks = new AuditMark;
-                    $supervisorAuditMarks->week_id = $current_week;
-                    $supervisorAuditMarks->auditor_id = $group->groupSupervisor->pluck('id')->first();
-                    $supervisorAuditMarks->group_id = $group->id;
-                    $supervisorAuditMarks->save();
+                        $supervisorAuditMarks = new AuditMark;
+                        $supervisorAuditMarks->week_id = $previous_week->id;
+                        $supervisorAuditMarks->auditor_id = $group->groupSupervisor->pluck('id')->first();
+                        $supervisorAuditMarks->group_id = $group->id;
+                        $supervisorAuditMarks->save();
+                        //create marks_for_audits record/s [audit_marks_id	mark_id	type_id	[type could be full - variant] ]
 
-                    //create marks_for_audits record/s [audit_marks_id	mark_id	type_id	[type could be full - variant] ]
+                        // 1- Full Mark
+                        foreach ($fullMarkToAudit as $mark) {
+                            MarksForAudit::create([
+                                'audit_marks_id' => $supervisorAuditMarks->id,
+                                'mark_id' => $mark,
+                                'type_id' => $fullAudit->id,
+                            ]);
+                        }
 
-                    // 1- Full Mark
-                    foreach ($fullMarkToAudit as $mark) {
-                        MarksForAudit::create([
-                            'audit_marks_id' => $supervisorAuditMarks->id,
-                            'mark_id' => $mark,
-                            'type_id' => $fullAudit->id,
-                        ]);
-                    }
-                    // 1- Variant Mark
-                    foreach ($variantMarkToAudit as $mark) {
-                        MarksForAudit::create([
-                            'audit_marks_id' => $supervisorAuditMarks->id,
-                            'mark_id' => $mark,
-                            'type_id' => $variantAudit->id,
-                        ]);
-                    }
-                }
-            }
 
-            #### END Supervisor Audit ####
-
-            #### Start Advisor Audit ####
-            //get all advisors
-            $advisors = User::with("roles")->whereHas("roles", function ($q) {
-                $q->where("name", "advisor");
-            })->pluck('id');
-
-            // get all groups for each advisor
-            foreach ($advisors as $key => $advisor) {
-                // create audit_marks record for advisor for this supervisor [ week_id, auditor_id,	group_id]
-
-                $advisorAuditMarks = new AuditMark;
-                $advisorAuditMarks->week_id = $current_week;
-                $advisorAuditMarks->auditor_id = $advisor;
-                $advisorAuditMarks->save();
-
-                // get all groups 
-                $groupsID = UserGroup::where('user_id', $advisor)->pluck('group_id');
-                // get supervisors of $advisor
-                $supervisors = UserGroup::where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->distinct()->get(['user_id']);
-
-                // get Audit [in the current week] for each $supervisor
-                foreach ($supervisors as $key => $supervisor) {
-                    // get audit marks [in the current week] for each $supervisor
-                    $auditMarks = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id', $current_week)->get()->pluck('id');
-                    // get count of marks of supervisor audit 
-                    $supervisorAudit = MarksForAudit::whereIn('audit_marks_id', $auditMarks)->get()->pluck('mark_id');
-
-                    // 10% supervisorAuditCount
-                    $ratioToAudit = round(count($supervisorAudit) * 0.10);
-                    $marksOfSupervisorAudit = Mark::whereIn('id', $supervisorAudit)
-                        ->inRandomOrder()
-                        ->limit($ratioToAudit)
-                        ->pluck('id')->toArray();
-
-                    // 5% of OTHER Marks 
-                    /* get all related Ambassadors
-             * 1- get all supervisor groups
-             * 2- get ambassadors
-             */
-                    $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
-                    $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
-                    // get 5% of ther marks that NOT in supervisorAudit
-                    $ratioToAudit = round(count($ambassadors) * 0.05);
-                    $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
-                        ->where('week_id', $current_week)
-                        ->inRandomOrder()
-                        ->limit($ratioToAudit)
-                        ->pluck('id')->toArray();
-
-                    //1- ofSupervisorAudit
-                    foreach ($marksOfSupervisorAudit as $mark) {
-                        MarksForAudit::create([
-                            'audit_marks_id' => $advisorAuditMarks->id,
-                            'mark_id' => $mark,
-                            'type_id' => $ofSupervisorAudit->id,
-                        ]);
-                    }
-                    // 1- NotSupervisorAudit
-                    foreach ($marksOfNotSupervisorAudit as $mark) {
-                        MarksForAudit::create([
-                            'audit_marks_id' => $advisorAuditMarks->id,
-                            'mark_id' => $mark,
-                            'type_id' => $notOfSupervisorAudit->id,
-                        ]);
+                        // 1- Variant Mark
+                        foreach ($variantMarkToAudit as $mark) {
+                            MarksForAudit::create([
+                                'audit_marks_id' => $supervisorAuditMarks->id,
+                                'mark_id' => $mark,
+                                'type_id' => $variantAudit->id,
+                            ]);
+                        }
                     }
                 }
+
+                #### END Supervisor Audit ####
+
+                #### Start Advisor Audit ####
+                //get all advisors
+                $advisors = User::with("roles")->whereHas("roles", function ($q) {
+                    $q->where("name", "advisor");
+                })->pluck('id');
+
+                // get all groups for each advisor
+                foreach ($advisors as $key => $advisor) {
+                    // create audit_marks record for advisor for this supervisor [ week_id, auditor_id,	group_id]
+
+                    $advisorAuditMarks = new AuditMark;
+                    $advisorAuditMarks->week_id = $previous_week->id;
+                    $advisorAuditMarks->auditor_id = $advisor;
+                    $advisorAuditMarks->save();
+
+                    // get all groups 
+                    $groupsID = UserGroup::where('user_id', $advisor)->pluck('group_id');
+                    // get supervisors of $advisor
+                    $supervisors = UserGroup::where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->distinct()->get(['user_id']);
+
+                    // get Audit [in the current week] for each $supervisor
+                    foreach ($supervisors as $key => $supervisor) {
+                        // get audit marks [in the current week] for each $supervisor
+                        $auditMarks = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id', $previous_week->id)->get()->pluck('id');
+                        // get count of marks of supervisor audit 
+                        $supervisorAudit = MarksForAudit::whereIn('audit_marks_id', $auditMarks)->get()->pluck('mark_id');
+
+                        // 10% supervisorAuditCount
+                        $ratioToAudit = round(count($supervisorAudit) * 0.10);
+                        $marksOfSupervisorAudit = Mark::whereIn('id', $supervisorAudit)
+                            ->inRandomOrder()
+                            ->limit($ratioToAudit)
+                            ->pluck('id')->toArray();
+
+                        // 5% of OTHER Marks 
+                        /* get all related Ambassadors
+                  * 1- get all supervisor groups
+                  * 2- get ambassadors
+                  */
+                        $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
+                        $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
+                        // get 5% of ther marks that NOT in supervisorAudit
+                        $ratioToAudit = round(count($ambassadors) * 0.05);
+                        $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
+                            ->where('week_id', $previous_week->id)
+                            ->inRandomOrder()
+                            ->limit($ratioToAudit)
+                            ->pluck('id')->toArray();
+
+                        //1- ofSupervisorAudit
+                        foreach ($marksOfSupervisorAudit as $mark) {
+                            MarksForAudit::create([
+                                'audit_marks_id' => $advisorAuditMarks->id,
+                                'mark_id' => $mark,
+                                'type_id' => $ofSupervisorAudit->id,
+                            ]);
+                        }
+                        // 1- NotSupervisorAudit
+                        foreach ($marksOfNotSupervisorAudit as $mark) {
+                            MarksForAudit::create([
+                                'audit_marks_id' => $advisorAuditMarks->id,
+                                'mark_id' => $mark,
+                                'type_id' => $notOfSupervisorAudit->id,
+                            ]);
+                        }
+                    }
+                }
+
+                #### End Advisor Audit ####
+
+                return $this->jsonResponseWithoutMessage('generated successfully', 'data', 200);
+            } else {
+                return $this->jsonResponseWithoutMessage('No week', 'data', 200);
             }
-
-            #### End Advisor Audit ####
-
-            return $this->jsonResponseWithoutMessage('generated successfully', 'data', 200);
         } catch (\Exception $e) {
 
             return $e->getMessage();
         }
     }
-
     /**
      *  Return all leader marks for auth auditor in current week.
      * 
@@ -501,9 +496,8 @@ class MarkController extends Controller
             $currentMonth = date('m');
             $week = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->pluck('id')->toArray();
             $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)
-            ->select(DB::raw('sum(total_thesis) as total_thesis , sum(total_screenshot) as total_screenshot'))
-            ->first();
-
+                ->select(DB::raw('sum(total_thesis) as total_thesis , sum(total_screenshot) as total_screenshot'))
+                ->first();
         }
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
@@ -519,23 +513,22 @@ class MarkController extends Controller
         $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
         if ($group_id) {
             $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
+            if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
 
-            $response['currentWeek'] = Week::latest()->first();
-            $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
-            $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
-            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                $response['currentWeek'] = Week::latest()->first();
+                $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
+                $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
+                return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    
+            }
+            else {
+                throw new NotAuthorized;
+            }
+    
+
         } else {
             return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
         }
-
-        // if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
-
-
-        // }
-        // else {
-        //     throw new NotAuthorized;
-        // }
-
 
     }
 }

@@ -23,6 +23,8 @@ use App\Models\User;
 use App\Models\UserBook;
 use App\Models\UserException;
 use App\Models\Week;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -288,16 +290,18 @@ class GroupController extends Controller
         } else if ($filter == 'latest') {
             $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->latest()->get();
         } else if ($filter == 'freez') {
-            $exceptions = UserException::where(function ($q) {
-                $q->where('type_id', 1)
-                    ->orWhere('type_id', 2);
+            $exceptions = UserException::whereHas('type', function ($query) {
+                $query->where('type', 'تجميد الأسبوع الحالي')
+                    ->orWhere('type', 'تجميد الأسبوع القادم');
             })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
         } else if ($filter == 'exceptional_freez') {
-            $exceptions = UserException::where('type_id', 5)->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            $exceptions = UserException::whereHas('type', function ($query) {
+                $query->where('type', 'تجميد استثنائي');
+            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
         } else if ($filter == 'exams') {
-            $exceptions = UserException::where(function ($q) {
-                $q->where('type_id', 3)
-                    ->orWhere('type_id', 4);
+            $exceptions = UserException::whereHas('type', function ($query) {
+                $query->where('type', 'نظام امتحانات - شهري')
+                    ->orWhere('type', 'نظام امتحانات - فصلي');
             })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
         } else if ($filter == 'accepted') {
             $exceptions = UserException::where('status', 'accepted')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
@@ -449,6 +453,35 @@ class GroupController extends Controller
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
+
+    /**
+     * get group audit for specific week.
+     * 
+     * @param  group _id , week filter [current - previous ]
+     * @return group audit marks
+     */
+
+    public function auditMarks($group_id, $week_filter = "current")
+    {
+        if ($week_filter == 'current') {
+            $week = Week::latest()->pluck('id')->toArray();
+        }
+        if ($week_filter == 'previous') {
+            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+        }
+
+        $userInGroup = UserGroup::where('group_id', $group_id)
+            ->where('user_id', Auth::id())->pluck('user_type')
+            ->first();
+
+        if (($userInGroup != 'ambassador' && $userInGroup != 'leader' && $userInGroup != 'support_leader')) {
+
+            $response = Group::with('audits')->where('id', $group_id)->first();
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
     //the function will return all posts - discuss it later
     public function list_group_posts($group_id)
     {

@@ -12,9 +12,15 @@ class AuditMark extends Model
         'group_id', 'status' ,'week_id', 'auditor_id'
     ];
 
+    protected $with = array('marksForAudit','auditNotes');
+
     public function week()
     {
         return $this->belongsTo(Week::class);
+    }
+    public function group()
+    {
+        return $this->belongsTo(Group::class ,'group_id');
     }
 
     //each audit marks belongsTo specific aduitor(user)

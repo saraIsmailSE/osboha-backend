@@ -164,6 +164,7 @@ class PermissionsSeeder extends Seeder
         // create roles and assign existing permissions
 
         $role1 = Role::create(['name' => 'admin']);
+        $role6 = Role::create(['name' => 'consultant']);
         $role2 = Role::create(['name' => 'advisor']);
         $role3 = Role::create(['name' => 'supervisor']);
         $role4 = Role::create(['name' => 'leader']);
@@ -171,6 +172,7 @@ class PermissionsSeeder extends Seeder
 
 
         $role1->givePermissionTo(Permission::all());
+        $role6->givePermissionTo(Permission::all());
 
         $role2->givePermissionTo('create group');
         $role2->givePermissionTo('create post');

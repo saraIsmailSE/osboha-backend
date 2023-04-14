@@ -183,7 +183,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########Mark########
         Route::group(['prefix' => 'marks'], function () {
             Route::get('/', [MarkController::class, 'index']);
-            Route::post('/show', [MarkController::class, 'show']);
+            Route::get('/{mark_id}', [MarkController::class, 'show']);
             Route::post('/update', [MarkController::class, 'update']);
             Route::post('/list', [MarkController::class, 'list_user_mark']);
             Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
@@ -237,7 +237,7 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ############End UserException########
 
-        ############Group############
+        ############ Start Group ############
         Route::group(['prefix' => 'group'], function () {
             Route::get('/', [GroupController::class, 'index']);
             Route::post('/create', [GroupController::class, 'create']);
@@ -255,6 +255,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
+            Route::get('/audit-marks/{group_id}', [GroupController::class, 'auditMarks']);
         });
         ############End Group############
 
