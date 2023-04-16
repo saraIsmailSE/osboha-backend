@@ -84,18 +84,16 @@ class GroupController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'type_id' => 'required',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'image' => 'image|mimes:jpg,jpeg,png,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 400);
         }
 
 
         if (Auth::user()->can('create group')) {
             $timeline = new Timeline;
-            $timeline->name = $request->name;
-            $timeline->description = $request->description;
             $timeline->type_id = $request->type_id;
             $timeline->save();
             $input['creator_id'] = Auth::id();
@@ -105,7 +103,7 @@ class GroupController extends Controller
                 $file = $request->file('image');
                 $this->createMedia($file, $group->id, 'group');
             }
-            return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 200);
+            return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 201);
         } else {
             throw new NotAuthorized;
         }
