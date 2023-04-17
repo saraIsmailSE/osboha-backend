@@ -11,6 +11,10 @@ use App\Models\ProfileSetting;
 use App\Models\LeaderRequest;
 use App\Models\Group;
 use App\Models\UserGroup;
+use App\Models\Userbook;
+use App\Models\Thesis;
+
+
 use App\Events\NewUserStats;
 
 use App\Traits\ResponseJson;
@@ -39,13 +43,65 @@ class AuthController extends Controller
 
             $success['token'] = $authUser->createToken('sanctumAuth')->plainTextToken;
             $success['user'] = $authUser->load('userProfile', 'roles:name', 'permissions:name');
-
+            $success['books'] = $this->show_books_inprogress(Auth::id());
+            $success['user_group'] = $this->show_user_group(Auth::id());
+            $success['user_book'] = $this->show_user_book(Auth::id());
             return $this->jsonResponse($success, 'data', 200, 'Login Successfully');
+            
         } else {
 
             return $this->jsonResponse('UnAuthorized', 'data', 404, 'Email Or Password is Wrong');
         }
     }
+    /**
+     * Find tow books 'status'='inprogress' belongs to specific user.
+     *
+     * @param user_id
+     * @return jsonResponse[user books]
+     */
+    public function show_books_inprogress($user_id)
+    {
+        $books = UserBook::where('status', 'in progress')
+                          ->where('user_id', $user_id)
+                          ->limit(2)
+                          ->get();
+
+            return $this->jsonResponseWithoutMessage($books, 'data', 200);
+    }
+    /**
+     * Find active group to specific user.
+     *
+     * @param user_id
+     * @return jsonResponse[user group]
+     */
+    public function show_user_group($user_id)
+    {
+        $user_group = UserGroup::where('user_type', 'ambassador')
+                               ->where('user_id', $user_id)
+                               ->with('groupActive')
+                               ->get();
+       
+        return $this->jsonResponseWithoutMessage($user_group, 'data', 200);
+    }
+     /**
+     * Find  books of user with show  the percentage for has been accomplished
+     *
+     * @param user_id
+     * @return jsonResponse[user books]
+     */
+    public function show_user_book($user_id)
+    {
+        $books = Thesis::where('user_id', $user_id)
+                            ->with('book')
+                            ->get();
+        $array = array();
+        foreach($books as $book) {
+        $number= (((($book->book->end_page) - ($book->end_page))/($book->book->end_page))*100);
+        $user_books[] = number_format($number, 2, '.', '');
+        }         
+        return $this->jsonResponseWithoutMessage($user_books, 'data', 200);
+    }
+
 
     public function register(Request $request)
     {

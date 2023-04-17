@@ -501,4 +501,10 @@ class WeekController extends Controller
             return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
         }
     }
+    public function timer(){
+        $timer = Week::latest()->first();
+        echo $timer; 
+
+
+    }
 }
