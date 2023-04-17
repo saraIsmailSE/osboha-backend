@@ -24,6 +24,7 @@ use App\Events\MarkStats;
 use App\Models\AuditType;
 use App\Models\MarksForAudit;
 use App\Models\Thesis;
+use App\Models\UserException;
 use Carbon\Carbon;
 
 class MarkController extends Controller
@@ -51,19 +52,47 @@ class MarkController extends Controller
         }
     }
 
+
+
     /**
-     * Find an existing  mark in the system by its id  ( “audit mark” permission is required).
+     * get audit marks with group exceptions => list only for group administrators
+     *  @param  group_id
+     * @return mark with Achievement
+     */
+    public function groupAuditMarks($group_id)
+    {
+        $response['group'] = Group::with('leaderAndAmbassadors')->find($group_id);
+        $response['week'] = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        $response['audit_mark'] = AuditMark::where('week_id', $response['week']->id)->where('group_id', $group_id)->first();
+        //Audit Marks by type [full - variant]
+        $response['fullAudit'] = MarksForAudit::whereHas('type', function ($q) {
+            $q->where('name', '=', 'full');
+        })->where('audit_marks_id',  $response['audit_mark']->id)->get();
+        $response['variantAudit'] = MarksForAudit::whereHas('type', function ($q) {
+            $q->where('name', '=', 'variant');
+        })->where('audit_marks_id',  $response['audit_mark']->id)->get();
+
+        $response['exceptions'] = UserException::with('User')->whereIn('user_id', $response['group']->leaderAndAmbassadors->pluck('id'))->where('week_id',$response['week']->id)->latest()->get();
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+
+    }
+
+    /**
+     * Find an existing  mark for audit by audit record id  ( “audit mark” permission is required).
      *
      * @param  $mark_id
      * @return jsonResponseWithoutMessage;
      */
-    public function show($mark_id)
+    public function markForAudit($mark_for_audit_id)
     {
         if (Auth::user()->can('audit mark')) {
-            $response['mark'] = Mark::find($mark_id);
-            $group_id= UserGroup::where('user_id',$response['mark']->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+            $response['mark_for_audit'] = MarksForAudit::with('auditMark')->find($mark_for_audit_id);
+            $response['week'] = Week::where('id', $response['mark_for_audit']->auditMark->week_id)->first();
+            $group_id = UserGroup::where('user_id', $response['mark_for_audit']->mark->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
             $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
-            $response['theses'] = Thesis::with('book')->where('mark_id',  $mark_id)->get();
+
+            $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark_for_audit']->mark_id)->get();
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
             throw new NotAuthorized;
@@ -519,16 +548,11 @@ class MarkController extends Controller
                 $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
                 $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
-    
-            }
-            else {
+            } else {
                 throw new NotAuthorized;
             }
-    
-
         } else {
             return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
         }
-
     }
 }
