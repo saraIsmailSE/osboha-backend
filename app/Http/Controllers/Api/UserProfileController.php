@@ -76,7 +76,7 @@ class UserProfileController extends Controller
 
             if ($user_id == Auth::id()) {
                 // user exceptions => displayed ONLY for Profile Owner
-                $profile['exceptions'] = UserExceptionResource::collection(UserException::where('user_id', $user_id)->get());
+                $profile['exceptions'] = UserException::where('user_id', $user_id)->get();
             }
             else{
                 // friend with auth or not
