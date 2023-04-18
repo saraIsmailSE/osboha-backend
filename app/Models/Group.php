@@ -32,7 +32,11 @@ class Group extends Model
         return $this->belongsToMany(User::class,'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type','leader')->latest()->take(1);
     }
     public function groupSupervisor(){
-        return $this->belongsToMany(User::class,'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type','supervisor')->latest()->take(1);
+        return $this->belongsToMany(User::class,'user_groups')->whereNull('user_groups.termination_reason')
+        ->withPivot('user_type')->wherePivot('user_type','supervisor')->latest()->limit(1);
+
+//      return $this->belongsToMany(User::class,'user_groups')->whereNull('user_groups.termination_reason')
+//       ->withPivot('user_type')->wherePivot('user_type','supervisor')->latest()->take(1);
     }
     public function groupAdvisor(){
         return $this->belongsToMany(User::class,'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type','advisor')->latest()->take(1);

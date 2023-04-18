@@ -183,8 +183,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########Mark########
         Route::group(['prefix' => 'marks'], function () {
             Route::get('/', [MarkController::class, 'index']);
-            Route::get('/mark-for-audit/{mark_for_audit_id}', [MarkController::class, 'markForAudit']);
-            Route::get('/group-audit-marks/{group_id}', [MarkController::class, 'groupAuditMarks']);
+            Route::get('/{mark_id}', [MarkController::class, 'show']);
             Route::post('/update', [MarkController::class, 'update']);
             Route::post('/list', [MarkController::class, 'list_user_mark']);
             Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
@@ -195,6 +194,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
             Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
             Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
+            
         });
         ########End Mark########
 
@@ -257,6 +257,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
             Route::get('/audit-marks/{group_id}', [GroupController::class, 'auditMarks']);
+            Route::get('/all/forSupervisor', [GroupController::class, 'allSupervisorGroups']);
+            Route::get('/all/Supervisors/foradvisor', [GroupController::class, 'allSupervisorsForAdvisor']);
         });
         ############End Group############
 

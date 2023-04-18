@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(InfographicSeeder::class);
         // $this->call(InfographicSeriesSeeder::class);
         // $this->call(ArticleSeeder::class);
-        // $this->call(CommentSeeder::class);
+        // $this->call(CommentSeeder::class);*/
+        $this->call(AuditTypeSeeder::class);
     }
 }

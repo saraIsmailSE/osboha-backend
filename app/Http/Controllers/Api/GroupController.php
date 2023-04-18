@@ -536,4 +536,68 @@ class GroupController extends Controller
             throw new NotFound;
         }
     }
+
+    public function allSupervisorGroups()
+    {
+        if (Auth::user()->hasRole('supervisor')){
+            // get all groups for auth supervisor
+            $groupsID = UserGroup::where('user_id', Auth::id())->where('user_type', 'supervisor')->pluck('group_id');
+            $response['groups'] = Group::withCount('leaderAndAmbassadors')->whereIn('id', $groupsID)->without('Timeline')->get();
+            $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
+        
+            foreach ($response['groups']  as $key => $group) {
+                $week_avg = Mark::where('week_id', $previous_week)
+                ->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))
+                //avg from (reading_mark + writing_mark + support)
+                ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
+                ->first()
+                ->out_of_100;
+                //add marks_week_avg to group object
+                $group->setAttribute('marks_week_avg',$week_avg);
+            }
+
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+    public function allSupervisorsForAdvisor()
+    {
+        if (Auth::user()->hasRole('advisor')){
+            $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
+            // get all groups ID for this advisor
+            $groupsID = UserGroup::where('user_id', Auth::id())->where('user_type', 'advisor')->pluck('group_id');
+            // all supervisors of advisor (unique)
+            $supervisors = UserGroup::with('group')->where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->get()->unique('user_id');
+            foreach ($supervisors as $key => $supervisor) { //for each supervisor of advisor 
+                // supervisor name
+                $supervisorinfo['name']= $supervisor->group->groupSupervisor->pluck('name');
+                //all group for $supervisor
+                $groups = UserGroup::with('group')->where('user_type', 'supervisor')->where('user_id',$supervisor->user_id)->get(['group_id']);
+                // num of leaders
+                $supervisorinfo['num of leaders']= $groups->count();
+                // marks week_avg for each group
+                $total_marks_week = 0;
+                foreach ($groups as $group) {
+                    $week_avg = Mark::where('week_id', $previous_week)
+                    ->whereIn('user_id', $group->group->leaderAndAmbassadors->pluck('id'))
+                    //avg from (reading_mark + writing_mark + support)
+                    ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
+                    ->first()
+                    ->out_of_100;
+                    $total_marks_week += $week_avg;
+                }
+                // marks week avg for all $supervisor groups
+                $supervisorinfo['marks week avg']= $total_marks_week/$supervisorinfo['num of leaders'];
+                $response[$key]= $supervisorinfo;              
+            }
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+
+        } else {
+            throw new NotAuthorized;
+        }
+      
+    }
 }

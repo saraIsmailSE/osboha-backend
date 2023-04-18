@@ -17,7 +17,7 @@ class AuditTypeSeeder extends Seeder
     {
 
         $audit_type = ['full', 'variant', 'of_supervisor_audit','not_of_supervisor_audit'];
-        //Audit TYPE
+        //GROUP TYPE
         $i = 0;
         while ($i <= 3) {
             DB::table('audit_types')->insert([
