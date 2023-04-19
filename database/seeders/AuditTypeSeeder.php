@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class GroupTypeSeeder extends Seeder
+class AuditTypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -17,12 +17,12 @@ class GroupTypeSeeder extends Seeder
     {
 
         $audit_type = ['full', 'variant', 'of_supervisor_audit','not_of_supervisor_audit'];
-        //GROUP TYPE
+        //Audit TYPE
         $i = 0;
         while ($i <= 3) {
             DB::table('audit_types')->insert([
 
-                'type' => $audit_type[$i],
+                'name' => $audit_type[$i],
 
             ]);
             $i++;

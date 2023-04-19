@@ -183,7 +183,8 @@ Route::group(['prefix' => 'v1'], function () {
         ########Mark########
         Route::group(['prefix' => 'marks'], function () {
             Route::get('/', [MarkController::class, 'index']);
-            Route::get('/{mark_id}', [MarkController::class, 'show']);
+            Route::get('/mark-for-audit/{mark_for_audit_id}', [MarkController::class, 'markForAudit']);
+            Route::get('/group-audit-marks/{group_id}', [MarkController::class, 'groupAuditMarks']);
             Route::post('/update', [MarkController::class, 'update']);
             Route::post('/list', [MarkController::class, 'list_user_mark']);
             Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
