@@ -177,15 +177,15 @@ class PermissionsSeeder extends Seeder
         $role2->givePermissionTo('create group');
         $role2->givePermissionTo('create post');
         $role2->givePermissionTo('delete post');
-        //$role2->givePermissionTo('edit post');
+        $role2->givePermissionTo('edit post');
         $role2->givePermissionTo('create comment');
         $role2->givePermissionTo('delete comment');
         $role2->givePermissionTo('edit comment');
         $role2->givePermissionTo('main timeline');
 
-        //$role3->givePermissionTo('create post');
-        //$role3->givePermissionTo('delete post');
-        //$role3->givePermissionTo('edit post');
+        $role3->givePermissionTo('create post');
+        $role3->givePermissionTo('delete post');
+        $role3->givePermissionTo('edit post');
         $role3->givePermissionTo('create comment');
         $role3->givePermissionTo('delete comment');
         $role3->givePermissionTo('edit comment');
@@ -193,9 +193,9 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('edit RequestAmbassador');
         $role3->givePermissionTo('create highPriorityRequestAmbassador');
 
-        //$role4->givePermissionTo('create post');
-        //$role4->givePermissionTo('delete post');
-        //$role4->givePermissionTo('edit post');
+        $role4->givePermissionTo('create post');
+        $role4->givePermissionTo('delete post');
+        $role4->givePermissionTo('edit post');
         $role4->givePermissionTo('create comment');
         $role4->givePermissionTo('delete comment');
         $role4->givePermissionTo('edit comment');
@@ -203,9 +203,9 @@ class PermissionsSeeder extends Seeder
         $role4->givePermissionTo('edit RequestAmbassador');
 
 
-        // $role5->givePermissionTo('create post');
-        // $role5->givePermissionTo('delete post');
-        //$role5->givePermissionTo('edit post');
+        $role5->givePermissionTo('create post');
+        $role5->givePermissionTo('delete post');
+        $role5->givePermissionTo('edit post');
         $role5->givePermissionTo('create comment');
         $role5->givePermissionTo('delete comment');
         $role5->givePermissionTo('edit comment');

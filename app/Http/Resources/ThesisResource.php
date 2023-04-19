@@ -19,14 +19,14 @@ class ThesisResource extends JsonResource
         return [
             'id' => $this->id,
             'book' => new BookResource($this->whenLoaded('book')),
-            // 'mark_id' => new MarkRsource($this->whenLoaded('mark', $this->mark_id)),
+            'mark' => new MarkRsource($this->whenLoaded('mark')),
             'user' => new UserResource($this->whenLoaded('user')),
             'comment' => new CommentResource($this->whenLoaded('comment')),
             'start_page' => $this->start_page,
             'end_page' => $this->end_page,
             'status' => $this->status,
-            // 'max_length' => $this->max_length,
-            // 'total_screenshots' => $this->total_screenshots,
+            'max_length' => $this->max_length,
+            'total_screenshots' => $this->total_screenshots,
         ];
     }
 }

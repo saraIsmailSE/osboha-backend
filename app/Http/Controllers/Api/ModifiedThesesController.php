@@ -11,6 +11,7 @@ use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\ModifiedThesesResource;
 use App\Models\ModifiedTheses;
+use App\Models\Thesis;
 use App\Models\Week;
 
 class ModifiedThesesController extends Controller
@@ -39,28 +40,38 @@ class ModifiedThesesController extends Controller
     }
 
     /**
-     *Add a new reject theses to the system (“create mark” permission is required)
-     * 
+     * Add a new reject theses to the system (“audit mark” permission is required)
+     *    
      * @param  Request  $request
      * @return jsonResponse;
      */
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'modifier_reason_id' => 'required|numeric',
-            'user_id' => 'required|numeric',
+            'modifier_reason_id' => 'required_if:status,rejected,one_thesis|numeric',
             'thesis_id' => 'required|numeric',
-            'week_id' => 'required|numeric',
+            'status' => 'required|string|in:accepted,rejected,one_thesis',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if (Auth::user()->can('reject thesis')) {
-            $input = $request->all();
-            $input['modifier_id'] = Auth::id();
-            ModifiedTheses::create($input);
+        if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader'])) {
+            $thesis = Thesis::find($request->thesis_id);
+            $thesis->status = $request->status;
+            $thesis->save();
+
+            if ($request->status !== 'accepted') {
+                $input['modifier_reason_id'] = $request->modifier_reason_id;
+                $input['thesis_id'] = $request->thesis_id;
+                $input['modifier_id'] = Auth::id();
+                $input['user_id'] = $thesis->user_id;
+                $input['week_id'] = $thesis->mark->week_id;
+
+                ModifiedTheses::create($input);
+            }
+
             return $this->jsonResponseWithoutMessage("Modified Theses Craeted Successfully", 'data', 200);
         } else {
             throw new NotAuthorized;

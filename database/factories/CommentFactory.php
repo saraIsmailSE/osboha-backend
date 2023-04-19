@@ -14,7 +14,7 @@ class CommentFactory extends Factory
     public function definition()
     {
         return [
-            'body'=>  $this->faker->paragraph,   
+            'body' =>  $this->faker->randomElement([null, $this->faker->text(random_int(200, 400))])
         ];
     }
 }
