@@ -454,6 +454,8 @@ class GroupController extends Controller
     }
 
 
+
+    //NEED REVIEW
     /**
      * get group audit for specific week.
      * 
@@ -482,6 +484,7 @@ class GroupController extends Controller
             throw new NotAuthorized;
         }
     }
+    
     //the function will return all posts - discuss it later
     public function list_group_posts($group_id)
     {

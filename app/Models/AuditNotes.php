@@ -9,16 +9,16 @@ class AuditNotes extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'audit_marks_id',
+        'mark_for_audit_id',
         'from_id',
         'to_id',
         'body',
         'status',
     ];
 
-    public function auditMark()
+    public function mark()
     {
-        return $this->belongsTo(AuditMark::class, 'audit_marks_id');
+        return $this->belongsTo(MarksForAudit::class, 'mark_for_audit_id');
     }
     public function from()
     {
