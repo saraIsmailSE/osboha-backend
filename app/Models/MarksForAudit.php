@@ -16,7 +16,7 @@ class MarksForAudit extends Model
         'type_id',        
     ];
 
-    protected $with = array('type','mark');
+    protected $with = array('type','mark','auditNotes');
 
     public function type()
     {
@@ -31,4 +31,9 @@ class MarksForAudit extends Model
     {
         return $this->belongsTo(Mark::class, 'mark_id');
     }
+    public function auditNotes()
+    {
+        return $this->hasMany(AuditNotes::class, 'mark_for_audit_id');
+    }
+
 }

@@ -33,5 +33,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(InfographicSeriesSeeder::class);
         // $this->call(ArticleSeeder::class);
         // $this->call(CommentSeeder::class);
+        $this->call(AuditTypeSeeder::class);
     }
 }

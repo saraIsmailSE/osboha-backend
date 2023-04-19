@@ -12,7 +12,7 @@ class AuditMark extends Model
         'group_id', 'status' ,'week_id', 'auditor_id'
     ];
 
-    protected $with = array('marksForAudit','auditNotes');
+    protected $with = array('marksForAudit');
 
     public function week()
     {
@@ -32,10 +32,5 @@ class AuditMark extends Model
     {
         return $this->hasMany(MarksForAudit::class, 'audit_marks_id');
     }
-    public function auditNotes()
-    {
-        return $this->hasMany(AuditNotes::class, 'audit_marks_id');
-    }
-
     
 }

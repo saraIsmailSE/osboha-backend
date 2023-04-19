@@ -25,6 +25,9 @@ class CreateUsersTable extends Migration
             $table->boolean('is_hold')->default(0);
             $table->boolean('is_excluded')->default(0);
             $table->integer('request_id')->nullable();
+            $table->bigInteger("parent_id")->nullable()->unsigned()->index();
+            $table->foreign("parent_id")->references("id")->on("users");
+
             $table->timestamps();
         });
     }

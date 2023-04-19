@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('audit_notes', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger("audit_marks_id")->unsigned()->index();
-            $table->foreign("audit_marks_id")->references("id")->on("audit_marks");
+            $table->bigInteger("mark_for_audit_id")->unsigned()->index();
+            $table->foreign("mark_for_audit_id")->references("id")->on("marks_for_audits");
             $table->integer('from_id');
             $table->integer('to_id');
             $table->text('body');

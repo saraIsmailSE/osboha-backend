@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\SystemIssueController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\MarkController;
+use App\Http\Controllers\Api\AuditMarkController;
 use App\Http\Controllers\Api\RejectedMarkController;
 use App\Http\Controllers\Api\UserExceptionController;
 use App\Http\Controllers\Api\GroupController;
@@ -185,11 +186,8 @@ Route::group(['prefix' => 'v1'], function () {
         ########Mark########
         Route::group(['prefix' => 'marks'], function () {
             Route::get('/', [MarkController::class, 'index']);
-            Route::get('/mark-for-audit/{mark_for_audit_id}', [MarkController::class, 'markForAudit']);
-            Route::get('/group-audit-marks/{group_id}', [MarkController::class, 'groupAuditMarks']);
             Route::post('/update', [MarkController::class, 'update']);
             Route::post('/list', [MarkController::class, 'list_user_mark']);
-            Route::get('/audit/generate', [MarkController::class, 'generateAuditMarks']);
             Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);
             Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);
             Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
@@ -199,6 +197,18 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
         });
         ########End Mark########
+
+        ######## Start Audit Mark ########
+        Route::group(['prefix' => 'audit-marks'], function () {
+            Route::get('/generate', [AuditMarkController::class, 'generateAuditMarks']);
+            Route::get('/mark-for-audit/{mark_for_audit_id}', [AuditMarkController::class, 'markForAudit']);
+            Route::get('/group-audit-marks/{group_id}', [AuditMarkController::class, 'groupAuditMarks']);
+            Route::patch('/update-mark-for-audit-status/{id}', [AuditMarkController::class, 'updateMarkForAuditStatus']);
+            Route::get('/groups-audit/{supervisor_id}', [AuditMarkController::class, 'groupsAudit']);
+            Route::get('/supervisors-audit', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
+            
+        });
+        ######## End Audit Mark ########
 
         ########RejectedMark########
         Route::group(['prefix' => 'rejected-mark'], function () {
