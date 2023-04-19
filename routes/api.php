@@ -42,6 +42,8 @@ use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
 use App\Http\Controllers\api\WeekController;
 use App\Http\Controllers\Api\MessagesController;
+use App\Http\Controllers\Api\ModificationReasonController;
+use App\Http\Controllers\Api\ModifiedThesesController;
 use App\Http\Controllers\Api\UserBookController;
 
 
@@ -207,21 +209,21 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/list', [RejectedMarkController::class, 'list_user_rejectedmark']);
         });
         ########End RejectedMark ########
-        ########RejectedTheses########
+        ########Modified Theses########
         Route::group(['prefix' => 'modified-theses'], function () {
-            Route::get('/', [RejectedThesesController::class, 'index']);
-            Route::post('/', [RejectedThesesController::class, 'create']);
-            Route::get('/{id}', [RejectedThesesController::class, 'show'])->where('id', '[0-9]+');
-            Route::put('/', [RejectedThesesController::class, 'update']);
-            Route::get('/user/{user_id}', [RejectedThesesController::class, 'listUserModifiedtheses'])->where('user_id', '[0-9]+');
-            Route::get('/week/{week_id}', [RejectedThesesController::class, 'listModifiedthesesByWeek'])->where('week_id', '[0-9]+');
-            Route::get('/user/{user_id}/week/{week_id}', [RejectedThesesController::class, 'listUserModifiedthesesByWeek'])->where('user_id', '[0-9]+')->where('week_id', '[0-9]+');
+            Route::get('/', [ModifiedThesesController::class, 'index']);
+            Route::post('/', [ModifiedThesesController::class, 'create']);
+            Route::get('/{id}', [ModifiedThesesController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/', [ModifiedThesesController::class, 'update']);
+            Route::get('/user/{user_id}', [ModifiedThesesController::class, 'listUserModifiedtheses'])->where('user_id', '[0-9]+');
+            Route::get('/week/{week_id}', [ModifiedThesesController::class, 'listModifiedthesesByWeek'])->where('week_id', '[0-9]+');
+            Route::get('/user/{user_id}/week/{week_id}', [ModifiedThesesController::class, 'listUserModifiedthesesByWeek'])->where('user_id', '[0-9]+')->where('week_id', '[0-9]+');
         });
-        ########End RejectedTheses ########
+        ########End Modified Theses ########
 
         ########Start ModificationReasons ########
         Route::group(['prefix' => 'modification-reasons'], function () {
-            Route::get('/leader', [ModificationReasonsController::class, 'getReasonsForLeader']);
+            Route::get('/leader', [ModificationReasonController::class, 'getReasonsForLeader']);
         });
         ########End ModificationReasons ########
 
@@ -406,6 +408,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [WeekController::class, 'create']);
             Route::post('/update', [WeekController::class, 'update']);
             Route::get('/', [WeekController::class, 'get_last_weeks_ids']); //for testing - to be deleted
+            Route::get('/title', [WeekController::class, 'getDateWeekTitle']);
+            Route::post('/insert_week', [WeekController::class, 'insert_week']);
         });
         ######## Week ########
 

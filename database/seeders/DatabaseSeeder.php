@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(PermissionsSeeder::class);
         $this->call(TypeSectionSeeder::class); //contains all the types and sections
+        $this->call(TimelineSeeder::class);
         $this->call(GroupSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(PostSeeder::class);
@@ -23,17 +24,11 @@ class DatabaseSeeder extends Seeder
         $this->call(BookStatisticsSeeder::class);
         $this->call(BookSeeder::class);
         $this->call(ThesisSeeder::class);
-
         $this->call(FriendSeeder::class);
-
-        // $this->call(UserGroupSeeder::class);
-        // $this->call(RateSeeder::class);
         $this->call(ReactionSeeder::class);
-
-        $this->call(BookStatisticsSeeder::class);
-        // $this->call(MarksSeeder::class);
         $this->call(ModificationReasonSeeder::class);
         $this->call(ModifiedThesesSeeder::class);
+        // $this->call(RateSeeder::class);
         // $this->call(InfographicSeeder::class);
         // $this->call(InfographicSeriesSeeder::class);
         // $this->call(ArticleSeeder::class);

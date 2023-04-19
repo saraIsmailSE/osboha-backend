@@ -240,9 +240,14 @@ class GroupController extends Controller
      */
     public function books($group_id)
     {
-        $group = Group::with('users')->where('id', $group_id)->first();
-        $books = UserBook::whereIn('user_id', $group->pluck('id'))->get();
+        /*wrong query*/
+        /*editted by @asmaa*/
 
+        // $group = Group::with('users')->where('id', $group_id)->first();
+        // $books = UserBook::whereIn('user_id', $group->pluck('id'))->get();
+
+        $users = UserGroup::where('group_id', $group_id)->pluck('user_id');
+        $books = UserBook::whereIn('user_id', $users)->get();
         if ($books) {
             return $this->jsonResponseWithoutMessage($books, 'data', 200);
         } else {

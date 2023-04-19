@@ -19,5 +19,10 @@ class TimelineSeeder extends Seeder
         Timeline::create([
             'type_id' => 1,
         ]);
+
+        //book timeline
+        Timeline::create([
+            'type_id' => 3,
+        ]);
     }
 }

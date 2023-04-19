@@ -14,9 +14,12 @@ class PostFactory extends Factory
     public function definition()
     {
         $datetime = $this->faker->dateTimeBetween('-1 month', 'now');
+        //add hour to datetime
+        $datetime->setTime($datetime->format('H') + 1, $datetime->format('i'), $datetime->format('s'));
+
 
         return [
-            'body'=>  $this->faker->paragraph,
+            'body' =>  $this->faker->paragraph,
             'created_at' => $datetime,
             'updated_at' => $datetime
         ];

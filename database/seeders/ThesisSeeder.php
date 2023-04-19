@@ -4,18 +4,87 @@ namespace Database\Seeders;
 
 use App\Models\Comment;
 use App\Models\Mark;
+use App\Models\Media;
 use App\Models\Post;
-use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\User;
 use App\Models\Week;
 use App\Traits\ThesisTraits;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ThesisSeeder extends Seeder
 {
     use ThesisTraits;
+
+    private function search_for_week_title($date, $year_weeks)
+    {
+        foreach ($year_weeks as $val) {
+            if ($val['date'] === $date) {
+                return $val['title'];
+            }
+        }
+        return null;
+    }
+
+    private function weeks()
+    {
+        //get date of first day of first week of february 2023
+        $date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
+        return array(
+            array('title' => 'الاول من فبراير', 'date' => $date),
+            array('title' => 'الثاني من فبراير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d')),
+            array('title' => 'الثالث من فبراير', 'date' => Carbon::parse($date)->addWeeks(2)->format('Y-m-d')),
+            array('title' => 'الرابع من فبراير', 'date' => Carbon::parse($date)->addWeeks(3)->format('Y-m-d')),
+            array('title' => 'الاول من مارس', 'date' => Carbon::parse($date)->addWeeks(4)->format('Y-m-d')),
+            array('title' => 'الثاني من مارس', 'date' => Carbon::parse($date)->addWeeks(5)->format('Y-m-d')),
+            array('title' => 'الثالث من مارس', 'date' => Carbon::parse($date)->addWeeks(6)->format('Y-m-d')),
+            array('title' => 'الرابع من مارس', 'date' => Carbon::parse($date)->addWeeks(7)->format('Y-m-d')),
+            array('title' => 'الاول من ابريل', 'date' => Carbon::parse($date)->addWeeks(8)->format('Y-m-d')),
+            array('title' => 'الثاني من ابريل', 'date' => Carbon::parse($date)->addWeeks(9)->format('Y-m-d')),
+            array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(10)->format('Y-m-d')),
+            array('title' => 'الرابع من ابريل', 'date' => Carbon::parse($date)->addWeeks(11)->format('Y-m-d')),
+            array('title' => 'الخامس من ابريل', 'date' => Carbon::parse($date)->addWeeks(12)->format('Y-m-d')),
+            array('title' => 'الاول من مايو', 'date' => Carbon::parse($date)->addWeeks(13)->format('Y-m-d')),
+            array('title' => 'الثاني من مايو', 'date' => Carbon::parse($date)->addWeeks(14)->format('Y-m-d')),
+            array('title' => 'الثالث من مايو', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d')),
+            array('title' => 'الرابع من مايو', 'date' => Carbon::parse($date)->addWeeks(16)->format('Y-m-d')),
+            array('title' => 'الاول من يونيو', 'date' => Carbon::parse($date)->addWeeks(17)->format('Y-m-d')),
+            array('title' => 'الثاني من يونيو', 'date' => Carbon::parse($date)->addWeeks(18)->format('Y-m-d')),
+            array('title' => 'الثالث من يونيو', 'date' => Carbon::parse($date)->addWeeks(19)->format('Y-m-d')),
+            array('title' => 'الرابع من يونيو', 'date' => Carbon::parse($date)->addWeeks(20)->format('Y-m-d')),
+            array('title' => 'الاول من يوليو', 'date' => Carbon::parse($date)->addWeeks(21)->format('Y-m-d')),
+            array('title' => 'الثاني من يوليو', 'date' => Carbon::parse($date)->addWeeks(22)->format('Y-m-d')),
+            array('title' => 'الثالث من يوليو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d')),
+            array('title' => 'الرابع من يوليو', 'date' => Carbon::parse($date)->addWeeks(24)->format('Y-m-d')),
+            array('title' => 'الخامس من يوليو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d')),
+            array('title' => 'الاول من اغسطس', 'date' => Carbon::parse($date)->addWeeks(26)->format('Y-m-d')),
+            array('title' => 'الثاني من اغسطس', 'date' => Carbon::parse($date)->addWeeks(27)->format('Y-m-d')),
+            array('title' => 'الثالث من اغسطس', 'date' => Carbon::parse($date)->addWeeks(28)->format('Y-m-d')),
+            array('title' => 'الرابع من اغسطس', 'date' => Carbon::parse($date)->addWeeks(29)->format('Y-m-d')),
+            array('title' => 'الاول من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(30)->format('Y-m-d')),
+            array('title' => 'الثاني من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(31)->format('Y-m-d')),
+            array('title' => 'الثالث من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(32)->format('Y-m-d')),
+            array('title' => 'الرابع من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(33)->format('Y-m-d')),
+            array('title' => 'الخامس من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(34)->format('Y-m-d')),
+            array('title' => 'الاول من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(35)->format('Y-m-d')),
+            array('title' => 'الثاني من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(36)->format('Y-m-d')),
+            array('title' => 'الثالث من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(37)->format('Y-m-d')),
+            array('title' => 'الرابع من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(38)->format('Y-m-d')),
+            array('title' => 'الخامس من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(39)->format('Y-m-d')),
+            array('title' => 'الاول من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(40)->format('Y-m-d')),
+            array('title' => 'الثاني من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(41)->format('Y-m-d')),
+            array('title' => 'الثالث من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(42)->format('Y-m-d')),
+            array('title' => 'الرابع من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(43)->format('Y-m-d')),
+            array('title' => 'الاول من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(44)->format('Y-m-d')),
+            array('title' => 'الثاني من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(45)->format('Y-m-d')),
+            array('title' => 'الثالث من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(46)->format('Y-m-d')),
+            array('title' => 'الرابع من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(47)->format('Y-m-d')),
+            array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(48)->format('Y-m-d')),
+        );
+    }
+
     /**
      * Run the database seeds.
      *
@@ -23,90 +92,72 @@ class ThesisSeeder extends Seeder
      */
     public function run()
     {
-        // for ($i = 0; $i < 200; $i++) {
-        //     $timestamp = mt_rand(1, time());
-        //     $arr = [date("Y-m-d H:i:s", $timestamp), 0];
-        //     Thesis::create([
-        //         'comment_id' => rand(1, 200),
-        //         'user_id' => rand(1, 200),
-        //         'max_length' => rand(0, 1000),
-        //         'book_id' => rand(1, 200),
-        //         'type_id' => rand(1, 4),
-        //         'mark_id' => rand(1, 2000),
-        //         'total_pages' => rand(0, 100),
-        //         'total_screenshots' => rand(0, 5),
-        //         'is_acceptable' => array_rand($arr) ? date("Y-m-d H:i:s", $timestamp) : null,
-        //     ]);
-        // }
-        $number = 10;
+        $number = 3;
         $posts = Post::where('type_id', 2)->get();
-        $datetime = Carbon::now()->startOfMonth()->subMonth(2);
-        // $date_range = Carbon::createFromTimestamp($this->faker->dateTimeBetween($startDate = '-2 months', $endDate = 'now')->getTimeStamp());
-        // $datetime = Carbon::createFromFormat('Y-m-d H:i:s', '2022-01-23 11:53:20');        
+        // $datetime = Carbon::now()->startOfMonth()->subMonth(2);
+        $datetime = Carbon::now()->startOfMonth();
         for ($j = 0; $j < $number; $j++) {
-            $date = $datetime->startOfWeek(Carbon::SUNDAY)->addWeeks();
-            //if $date = '2023-03-26 00:00:00' then $date = '2023-03-26 01:00:00'
-            if ($date == '2023-03-26 00:00:00') {
-                $date = '2023-03-26 01:00:00';
-            }
+            $date = $datetime->startOfWeek(Carbon::SUNDAY)->addWeek();
 
-            Week::factory()->create([
+            $week_id =  Week::create([
+                'title' => $this->search_for_week_title(Carbon::parse($date)->format('Y-m-d'), $this->weeks()),
+                // 'is_vacation' => rand(0, 1),
+                'is_vacation' => 0,
+                'main_timer' =>  Carbon::parse($date)->addDays(6)->addHours(23)->addMinutes(59)->addSeconds(59),
                 'created_at' => $date,
                 'updated_at' => $date,
-            ])->each(function ($week) use ($posts) {
-                $users = User::where('is_excluded', 0)->where('is_hold', 0)->get();
-                for ($i = 0; $i < count($users); $i++) {
-                    Mark::factory(1)->create([
-                        'user_id' => $users[$i]->id,
-                        'week_id' => $week->id
-                    ])->each(function ($mark) use ($users, $i, $posts) {
-                        $post = $posts[rand(0, count($posts) - 1)];
-                        Comment::factory(rand(1, 5))->create([
-                            'type' => 'thesis',
-                            'user_id' => $users[$i],
-                            'post_id' => $post->id,
-                        ])->each(function ($comment) use ($users, $i, $mark, $post) {
+            ])->id;
+            $users = User::where('is_excluded', 0)->where('is_hold', 0)->get();
+            for ($i = 0; $i < count($users); $i++) {
+                $mark_id =  Mark::factory()->create([
+                    'user_id' => $users[$i]->id,
+                    'week_id' => $week_id
+                ])->id;
+                $post = $posts[random_int(0, count($posts) - 1)];
+                Comment::factory(random_int(1, 2))->create([
+                    'type' => 'thesis',
+                    'user_id' => $users[$i],
+                    'post_id' => $post->id,
+                ])->each(function ($comment) use ($post, $mark_id, $users, $i) {
+                    $thesis['comment_id'] = $comment->id;
+                    $thesis['book_id'] = $post->book_id;
+                    $thesis['max_length'] = $comment->body ? Str::length(trim($comment->body)) : 0;
+                    $thesis['total_screenshots'] = $thesis['max_length'] > 0 ? 0 : random_int(0, random_int(1, 5));
+                    $thesis['start_page'] = random_int(0, random_int(6, 30));
+                    $thesis['end_page'] =  $thesis['start_page'] > 0 ? random_int($thesis['start_page'] + 6, 50) : 0;
+                    $thesis['type_id'] =  ThesisType::where('type', $post->book->type->type)->first()->id;
+                    $thesis['user_id'] = $users[$i]->id;
+                    $thesis['mark_id'] = $mark_id;
 
+                    //to add media for thesis - uncomment this if you want to add media for thesis
+                    // if ($thesis['total_screenshots'] > 0) {
+                    //     //create media for first comment
+                    //     $comment->type = 'screenshot';
+                    //     $comment->save();
 
-                            Thesis::factory(1)->create([
-                                'comment_id' => $comment->id,
-                                'book_id' => $post->book_id,
-                                'mark_id' => $mark->id,
-                                'user_id' => $users[$i]
-                            ])->each(function ($thesis) use ($mark) {
-                                $thesis_type = ThesisType::find($thesis->type_id)->first()->type;
-                                $total_pages = $thesis->end_page - $thesis->start_page + 1;
-                                $max_length = $thesis->max_length;
-                                $total_screenshots = $thesis->total_screenshots;
+                    //     Media::factory()->create([
+                    //         'user_id' => $users[$i]->id,
+                    //         'comment_id' => $comment->id,
+                    //     ]);
 
-                                $new_mark = [];
-                                if ($thesis_type == 'normal') {
-                                    $new_mark = $this->calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots);
-                                } else {
-                                    $new_mark = $this->calculate_mark_for_ramadan_thesis($total_pages, $max_length, $total_screenshots, $thesis_type);
-                                }
+                    //     for ($k = 1; $k < $thesis['total_screenshots']; $k++) {
+                    //         $reply =  Comment::create([
+                    //             'type' => 'screenshot',
+                    //             'user_id' => $users[$i]->id,
+                    //             'post_id' => $post->id,
+                    //             'comment_id' => $comment->id,
+                    //         ]);
 
-                                $mark->total_pages += $total_pages;
-                                $mark->total_screenshot += $total_screenshots;
-                                $mark->total_thesis += ($max_length > 0 ? 1 : 0);
-                                $mark->reading_mark = $new_mark['reading_mark'];
-                                $mark->writing_mark = $new_mark['writing_mark'];
+                    //         Media::factory()->create([
+                    //             'user_id' => $users[$i]->id,
+                    //             'comment_id' => $reply->id,
+                    //         ]);
+                    //     }
+                    // }
 
-
-                                if ($mark->reading_mark > 50) {
-                                    $mark->reading_mark = 50;
-                                }
-
-                                if ($mark->writing_mark > 40) {
-                                    $mark->writing_mark = 40;
-                                }
-
-                                $mark->save();
-                            });
-                        });
-                    });
-                }
-            });
+                    return $this->createThesis($thesis, true);
+                });
+            }
         }
 
 

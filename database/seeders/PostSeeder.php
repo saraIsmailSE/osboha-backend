@@ -29,6 +29,9 @@ class PostSeeder extends Seeder
             'type_id' => 1,
             'timeline_id' => 1
         ])->each(function ($post) {
+            $post->taggedUsers()->create([
+                'user_id' => rand(4, 150),
+            ]);
             Comment::factory(rand(1, 20))->create([
                 'type' => 'normal',
                 'user_id' => rand(1, 150),
@@ -43,9 +46,5 @@ class PostSeeder extends Seeder
                 ]);
             });
         });
-
-
-
-
     }
 }
