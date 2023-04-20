@@ -101,7 +101,7 @@ class UserExceptionController extends Controller
                     $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
                     $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
                     $msg = "قام السفير " . Auth::user()->name . " باستخدام نظام التجميد";
-                    (new NotificationController)->sendNotification($leader_id, $msg);
+                    (new NotificationController)->sendNotification($leader_id, $msg,'leader_exceptions');
 
                     return $this->jsonResponseWithoutMessage("تم رفع طلب التجميد", 'data', 200);
                 } else {
@@ -123,7 +123,7 @@ class UserExceptionController extends Controller
             $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
 
             $msg = "قام السفير " . Auth::user()->name . " بطلب نظام امتحانات";
-            (new NotificationController)->sendNotification($leader_id, $msg);
+            (new NotificationController)->sendNotification($leader_id, $msg,'leader_exceptions');
 
             return $this->jsonResponseWithoutMessage("تم رفع طلبك لنظام الامتحانات، انتظر موافقة القائد", 'data', 200);
         } elseif ($request->type_id == $exceptionalFreez->id) { // تجميد استثنائي
@@ -144,10 +144,10 @@ class UserExceptionController extends Controller
             //Notify Advisor
 
             $msg = "قام السفير :  " . Auth::user()->name . "بطلب نظام تجميد استثنائي";
-            (new NotificationController)->sendNotification($advisor_id, $msg);
+            (new NotificationController)->sendNotification($advisor_id, $msg,'advisor_exceptions');
             //Notify Leader
             $msg = "قام السفير :  " . Auth::user()->name . "بطلب نظام تجميد استثنائي";
-            (new NotificationController)->sendNotification($leader_id, $msg);
+            (new NotificationController)->sendNotification($leader_id, $msg,'leader_exceptions');
 
             return $this->jsonResponseWithoutMessage("تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة", 'data', 200);
         } else {
@@ -373,7 +373,7 @@ class UserExceptionController extends Controller
                         //notify leader
                         $leader_id = UserGroup::where('group_id', $group)->where('user_type', 'leader')->pluck('user_id')->first();
                         $msg = "السفير:  " . Auth::user()->name . " تحت التجميد الاستثنائي لغاية:  " . $userException->end_at;
-                        (new NotificationController)->sendNotification($leader_id, $msg);
+                        (new NotificationController)->sendNotification($leader_id, $msg,'leader_exceptions');
                     } else {
                         // رفض
                         $userException->status = 'rejected';
@@ -391,7 +391,7 @@ class UserExceptionController extends Controller
                     );
 
                     $msg = "حالة طلبك للتجميد الاستثنائي هي " . $status;
-                    (new NotificationController)->sendNotification($userToNotify->id, $msg);
+                    (new NotificationController)->sendNotification($userToNotify->id, $msg,'user_exceptions');
 
                     return $this->jsonResponseWithoutMessage("تم التعديل بنجاح", 'data', 200);
                 } else {
@@ -432,7 +432,7 @@ class UserExceptionController extends Controller
                         //notify leader
                         $leader_id = UserGroup::where('group_id', $group_id)->where('user_type', 'leader')->pluck('user_id')->first();
                         $msg = "السفير:  " . Auth::user()->name . " تحت نظام الامتحانات لغاية:  " . $userException->end_at;
-                        (new NotificationController)->sendNotification($leader_id, $msg);
+                        (new NotificationController)->sendNotification($leader_id, $msg,'leader_exceptions');
                     } else {
                         // رفض
                         $userException->status = 'rejected';
@@ -447,7 +447,7 @@ class UserExceptionController extends Controller
                     $userToNotify->notify(new \App\Notifications\UpdateExceptionStatus($status, $userException->note, $userException->start_at, $userException->end_at));
 
                     $msg = "حالة طلبك لنظام الامتحانات هي " . $status;
-                    (new NotificationController)->sendNotification($userToNotify->id, $msg);
+                    (new NotificationController)->sendNotification($userToNotify->id, $msg,'user_exceptions');
 
                     return $this->jsonResponseWithoutMessage("تم التعديل بنجاح", 'data', 200);
                 } else {
@@ -501,7 +501,7 @@ class UserExceptionController extends Controller
                 $userException = UserException::create($input);
 
                 $msg = "You have exception vacation until " . $userException->end_at;
-                (new NotificationController)->sendNotification($user, $msg);
+                (new NotificationController)->sendNotification($user, $msg,'user_exceptions');
 
                 return $this->jsonResponseWithoutMessage('User Exception created', 'data', 200);
             } else {

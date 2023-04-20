@@ -22,10 +22,10 @@ class NotificationController extends Controller
      * 
      * @param  $reciver_id , $message
      */
-    public function sendNotification($reciver_id , $message) 
+    public function sendNotification($reciver_id , $message,$type) 
     {
         $reciver = User::where('id',$reciver_id)->first();  
-        $reciver->notify(new GeneralNotification(Auth::user()->name,$message));
+        $reciver->notify(new GeneralNotification(Auth::user()->name,$message,$type));
     }
     /**
      * To show all notifications for auth user.

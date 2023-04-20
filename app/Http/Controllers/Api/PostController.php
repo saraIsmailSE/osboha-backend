@@ -88,7 +88,7 @@ class PostController extends Controller
                             ['user_type', "leader"]
                         ])->first();
                         $msg = "يوجد منشور جديد في المجموعة ( " . $group->name . " ) يحتاج موافقة ";
-                        (new NotificationController)->sendNotification($leader->user_id, $msg);
+                        (new NotificationController)->sendNotification($leader->user_id, $msg,'group_posts');
                     }
                 } elseif ($timeline_type == 'profile') { //timeline type => profile
                     if ($timeline->profile->user_id != Auth::id()) { // post in another profile
@@ -101,7 +101,7 @@ class PostController extends Controller
 
                             $input['is_approved'] = null;
                             $msg = "يوجد منشور جديد في صفحتك الشخصية يحتاج موافقة ";
-                            (new NotificationController)->sendNotification($timeline->profile->user_id, $msg);
+                            (new NotificationController)->sendNotification($timeline->profile->user_id, 'user_posts');
                         }
                     }
                 } else { //timeline type => book || news || main (1-2-3)        
@@ -127,7 +127,7 @@ class PostController extends Controller
                         $post->taggedUsers()->create([
                             'user_id' => $tag
                         ]);
-                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور');
+                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور','tags');
                     }
                 }
 
@@ -518,7 +518,7 @@ class PostController extends Controller
             $post->update();
 
             $msg = "Your post is approved successfully";
-            (new NotificationController)->sendNotification($post->user_id, $msg);
+            (new NotificationController)->sendNotification($post->user_id, $msg,'user_posts');
             return $this->jsonResponseWithoutMessage("The post is approved successfully", 'data', 200);
         } else {
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
@@ -544,7 +544,7 @@ class PostController extends Controller
         if ($post->is_approved == Null) {
             $post->delete();
             $msg = "Your post is declined";
-            (new NotificationController)->sendNotification($post->user_id, $msg);
+            (new NotificationController)->sendNotification($post->user_id, $msg,'user_posts');
             return $this->jsonResponseWithoutMessage("The post is deleted successfully", 'data', 200);
         } else {
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
