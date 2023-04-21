@@ -20,8 +20,6 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\PostResource;
 use App\Models\PollOption;
 use App\Models\PostType;
-use App\Models\Tag;
-use App\Models\TaggedUser;
 use App\Models\TimelineType;
 
 class PostController extends Controller
@@ -62,9 +60,7 @@ class PostController extends Controller
 
         if (Auth::user()->can('create post')) {
 
-            $input['body'] = $request->body;
-            $input['timeline_id'] = $request->timeline_id;
-            $input['user_id'] = $user_id;
+            $input = $request->all();
 
             $type_id = PostType::where('type', $request->type)->first()->id;
 
@@ -72,22 +68,21 @@ class PostController extends Controller
 
             $timeline = Timeline::find($request->timeline_id)->first();
             if (!empty($timeline)) {
-                $timeline_type = $timeline->type->type;
+                $timeline_type = TimelineType::find($timeline->type_id)->first()->type;
                 if ($timeline_type == 'group') { //timeline type => group
                     $group = Group::where('timeline_id', $timeline->id)->first();
-                    $user_types = UserGroup::where([
+                    $user = UserGroup::where([
                         ['group_id', $group->id],
                         ['user_id', $user_id]
-                    ])->pluck('user_type')->toArray();
-                    $allowed_types = ['advisor', 'supervisor', 'leader'];
-                    if (!array_intersect($allowed_types, $user_types)) {
+                    ])->first();
+                    if ($user->user_type != "advisor" || $user->user_type != "supervisor" || $user->user_type != "leader") {
                         $input['is_approved'] = null;
 
                         $leader = UserGroup::where([
                             ['group_id', $group->id],
                             ['user_type', "leader"]
                         ])->first();
-                        $msg = "يوجد منشور جديد في المجموعة ( " . $group->name . " ) يحتاج موافقة ";
+                        $msg = "There are new posts need approval";
                         (new NotificationController)->sendNotification($leader->user_id, $msg);
                     }
                 } elseif ($timeline_type == 'profile') { //timeline type => profile
@@ -100,11 +95,15 @@ class PostController extends Controller
                         ) {
 
                             $input['is_approved'] = null;
-                            $msg = "يوجد منشور جديد في صفحتك الشخصية يحتاج موافقة ";
+                            $msg = "You have a new post in your profile need approval ";
                             (new NotificationController)->sendNotification($timeline->profile->user_id, $msg);
                         }
                     }
-                } else { //timeline type => book || news || main (1-2-3)        
+                } else { //timeline type => book || news || main (1-2-3)
+                    if (!Auth::user()->can('create post')) {
+                        throw new NotAuthorized;
+                    }
+
                     //only supervisors and above are allowed to create announcements
                     if ($request->type === 'announcement') {
                         if (!Auth::user()->can('create announcement')) {
@@ -113,23 +112,19 @@ class PostController extends Controller
                     }
                 }
 
+                if ($request->has('tags')) {
+                    $input['tags'] = serialize($request->tags);
+                }
+
                 if ($request->type == 'book') { //post type is book
                     $input['book_id'] = $request->book_id;
                 } else {
                     $input['book_id'] = null;
                 }
 
-                $post = Post::create($input);
+                $input['user_id'] = Auth::id();
 
-                if ($request->has('tags')) {
-                    // $input['tags'] = serialize($request->tags);
-                    foreach ($request->tags as $tag) {
-                        $post->taggedUsers()->create([
-                            'user_id' => $tag
-                        ]);
-                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور');
-                    }
-                }
+                $post = Post::create($input);
 
                 if ($request->has('votes')) {
                     foreach ($request->votes as $vote) {
@@ -147,14 +142,21 @@ class PostController extends Controller
                     }
                 }
 
+                //send notification to the tagged users
+                if ($request->has('tags')) {
+                    foreach ($request->tags as $tag) {
+                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور');
+                    }
+                }
+
                 //load the post with user
                 $post->load([
                     'user',
                     'pollOptions.votes' => function ($query) {
                         $query->where('user_id', Auth::id());
                     },
+
                     'pollVotes.votesCount',
-                    'taggedUsers.user',
                 ]);
 
                 return $this->jsonResponseWithoutMessage(new PostResource($post), 'data', 200);
@@ -267,15 +269,6 @@ class PostController extends Controller
                         $this->deleteMedia($media->id, 'posts/' . $post->user_id);
                     }
                 }
-
-                //get tags
-                $tags = $post->taggedUsers;
-                //if exist, delete
-                if ($tags->isNotEmpty()) {
-                    foreach ($tags as $tag) {
-                        $tag->delete();
-                    }
-                }
                 $post->delete();
                 return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
             } else {
@@ -300,7 +293,6 @@ class PostController extends Controller
                 $query->where('user_id', Auth::id());
             })
             ->withCount('pollVotes')
-            ->with('taggedUsers.user')
             ->latest()
             ->paginate(25);
 
@@ -314,7 +306,6 @@ class PostController extends Controller
                     $query->where('user_id', Auth::id());
                 })
                 ->withCount('pollVotes')
-                ->with('taggedUsers.user')
                 ->orderBy('updated_at', 'desc')
                 ->first();
 
@@ -365,7 +356,6 @@ class PostController extends Controller
                 $query->where('user_id', $user->id);
             })
             ->withCount('pollVotes')
-            ->with('taggedUsers.user')
             ->latest()
             ->paginate(25);
 
@@ -379,7 +369,6 @@ class PostController extends Controller
                 })
                 ->withCount('pollVotes')
                 ->with('user')
-                ->with('taggedUsers.user')
                 ->orderBy('updated_at', 'desc')
                 ->take(1)
                 ->get();
@@ -392,7 +381,6 @@ class PostController extends Controller
                     })
                     ->withCount('pollVotes')
                     ->with('user')
-                    ->with('taggedUsers.user')
                     ->latest()
                     ->take(2)
                     ->get();
@@ -423,7 +411,6 @@ class PostController extends Controller
             })
             ->withCount('pollVotes')
             ->with('user')
-            ->with('taggedUsers.user')
             ->latest()
             ->paginate(25);
 
@@ -436,7 +423,6 @@ class PostController extends Controller
             })
             ->withCount('pollVotes')
             ->with('user')
-            ->with('taggedUsers.user')
             ->orderBy('updated_at', 'desc')
             ->first();
 

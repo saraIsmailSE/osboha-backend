@@ -320,4 +320,5 @@ class MarkController extends Controller
             return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
         }
     }
+ 
 }

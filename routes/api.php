@@ -195,6 +195,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
             Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
             Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
+            Route::post('/accept/support/vote/{comment_user_id}', [MarkController::class, 'acceptSupportVote']);
+            Route::post('/decline/support/vote/{comment_user_id}', [MarkController::class, 'declineSupportVote']);
         });
         ########End Mark########
 
@@ -347,6 +349,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/pin/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
             Route::get('/home', [PostController::class, 'getPostsForMainPage']);
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);
+            Route::post('/support/{group_id}', [PostController::class, 'supportPost']);
         });
         ########End Post########
 
