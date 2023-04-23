@@ -14,14 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(PermissionsSeeder::class);
-        $this->call(TypeSectionSeeder::class); //contains all the types and sections
-        $this->call(GroupSeeder::class);
+        // $this->call(PermissionsSeeder::class);
+        // $this->call(TypeSectionSeeder::class); //contains all the types and sections
+        // $this->call(GroupSeeder::class);
         $this->call(UserSeeder::class);
-        $this->call(PostSeeder::class);
-        $this->call(RateSeeder::class);
-        $this->call(BookStatisticsSeeder::class);
-        $this->call(BookSeeder::class);
+        // $this->call(PostSeeder::class);
+        // $this->call(RateSeeder::class);
+        // $this->call(BookStatisticsSeeder::class);
+        // $this->call(BookSeeder::class);
         $this->call(ThesisSeeder::class);
 
         $this->call(FriendSeeder::class);
