@@ -70,7 +70,10 @@ class PostController extends Controller
 
             $input['type_id'] = $type_id;
 
-            $timeline = Timeline::find($request->timeline_id)->first();
+            $timeline = Timeline::find($request->timeline_id);
+
+            $notification = new NotificationController();
+
             if (!empty($timeline)) {
                 $timeline_type = $timeline->type->type;
                 if ($timeline_type == 'group') { //timeline type => group
@@ -88,7 +91,7 @@ class PostController extends Controller
                             ['user_type', "leader"]
                         ])->first();
                         $msg = "يوجد منشور جديد في المجموعة ( " . $group->name . " ) يحتاج موافقة ";
-                        (new NotificationController)->sendNotification($leader->user_id, $msg,'group_posts');
+                        $notification->sendNotification($leader->user_id, $msg, GROUP_POSTS);
                     }
                 } elseif ($timeline_type == 'profile') { //timeline type => profile
                     if ($timeline->profile->user_id != Auth::id()) { // post in another profile
@@ -100,9 +103,11 @@ class PostController extends Controller
                         ) {
 
                             $input['is_approved'] = null;
-                            $msg = "يوجد منشور جديد في صفحتك الشخصية يحتاج موافقة ";
-                            (new NotificationController)->sendNotification($timeline->profile->user_id, 'user_posts');
+                            $msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية يحتاج موافقة';
+                        } else {
+                            $msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية';
                         }
+                        $notification->sendNotification($timeline->profile->user_id, $msg, PROFILE_POSTS);
                     }
                 } else { //timeline type => book || news || main (1-2-3)        
                     //only supervisors and above are allowed to create announcements
@@ -122,12 +127,11 @@ class PostController extends Controller
                 $post = Post::create($input);
 
                 if ($request->has('tags')) {
-                    // $input['tags'] = serialize($request->tags);
                     foreach ($request->tags as $tag) {
                         $post->taggedUsers()->create([
                             'user_id' => $tag
                         ]);
-                        (new NotificationController)->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور','tags');
+                        $notification->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور', TAGS);
                     }
                 }
 
@@ -147,6 +151,8 @@ class PostController extends Controller
                     }
                 }
 
+                $post = $post->fresh();
+
                 //load the post with user
                 $post->load([
                     'user',
@@ -157,7 +163,13 @@ class PostController extends Controller
                     'taggedUsers.user',
                 ]);
 
-                return $this->jsonResponseWithoutMessage(new PostResource($post), 'data', 200);
+                $successMsg = 'تم إضافة المنشور بنجاح';
+
+                if ($post->is_approved === null) {
+                    $successMsg = 'تم إضافة المنشور, يرجى الانتظار حتى يتم الموافقة عليه';
+                }
+
+                return $this->jsonResponse(new PostResource($post), 'data', 200, $successMsg);
             } else {
                 throw new NotFound;
             }
@@ -294,6 +306,7 @@ class PostController extends Controller
     public function postsByTimelineId($timeline_id)
     {
         $posts = Post::where('timeline_id', $timeline_id)
+            ->whereNotNull('is_approved')
             ->withCount('comments')
             ->with('user')
             ->with('pollOptions.votes', function ($query) {
@@ -307,6 +320,7 @@ class PostController extends Controller
         $timeline_type = Timeline::find($timeline_id)->type->type;
         if ($timeline_type === 'group' || $timeline_type === 'profile') {
             $last_pinned_post = Post::where('timeline_id', $timeline_id)
+                ->whereNotNull('is_approved')
                 ->where('is_pinned', 1)
                 ->withCount('comments')
                 ->with('user')
@@ -358,6 +372,7 @@ class PostController extends Controller
                 ->pluck('id')
         )
             ->where('type_id', '!=', PostType::where('type', 'announcement')->first()->id)
+            ->whereNotNull('is_approved')
             ->withCount('comments')
             ->with('user')
             //check which option is selected by the user
@@ -366,6 +381,10 @@ class PostController extends Controller
             })
             ->withCount('pollVotes')
             ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->latest()
             ->paginate(25);
 
@@ -373,6 +392,7 @@ class PostController extends Controller
         if ($posts->currentPage() == 1) {
             $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
                 ->where('is_pinned', 1)
+                ->whereNotNull('is_approved')
                 ->withCount('comments')
                 ->with('pollOptions.votes', function ($query) use ($user) {
                     $query->where('user_id', $user->id);
@@ -380,12 +400,14 @@ class PostController extends Controller
                 ->withCount('pollVotes')
                 ->with('user')
                 ->with('taggedUsers.user')
+                ->withCount('reactions')
                 ->orderBy('updated_at', 'desc')
                 ->take(1)
                 ->get();
 
             if ($announcements->isEmpty()) {
                 $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+                    ->whereNotNull('is_approved')
                     ->withCount('comments')
                     ->with('pollOptions.votes', function ($query) use ($user) {
                         $query->where('user_id', $user->id);
@@ -393,6 +415,7 @@ class PostController extends Controller
                     ->withCount('pollVotes')
                     ->with('user')
                     ->with('taggedUsers.user')
+                    ->withCount('reactions')
                     ->latest()
                     ->take(2)
                     ->get();
@@ -417,6 +440,7 @@ class PostController extends Controller
     {
         $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
             ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+            ->whereNotNull('is_approved')
             ->withCount('comments')
             ->with('pollOptions.votes', function ($query) {
                 $query->where('user_id', Auth::id());
@@ -430,6 +454,7 @@ class PostController extends Controller
         $last_pinned_announcement = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
             ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
             ->where('is_pinned', 1)
+            ->whereNotNull('is_approved')
             ->withCount('comments')
             ->with('pollOptions.votes', function ($query) {
                 $query->where('user_id', Auth::id());
@@ -518,7 +543,7 @@ class PostController extends Controller
             $post->update();
 
             $msg = "Your post is approved successfully";
-            (new NotificationController)->sendNotification($post->user_id, $msg,'user_posts');
+            (new NotificationController)->sendNotification($post->user_id, $msg, 'user_posts');
             return $this->jsonResponseWithoutMessage("The post is approved successfully", 'data', 200);
         } else {
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
@@ -544,7 +569,7 @@ class PostController extends Controller
         if ($post->is_approved == Null) {
             $post->delete();
             $msg = "Your post is declined";
-            (new NotificationController)->sendNotification($post->user_id, $msg,'user_posts');
+            (new NotificationController)->sendNotification($post->user_id, $msg, 'user_posts');
             return $this->jsonResponseWithoutMessage("The post is deleted successfully", 'data', 200);
         } else {
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);

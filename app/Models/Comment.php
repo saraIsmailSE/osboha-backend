@@ -54,6 +54,6 @@ class Comment extends Model
 
     public function reactions()
     {
-        return $this->hasMany(Reaction::class);
+        return $this->hasMany(Reaction::class)->where('type_id', 1); // 1 is the id of like type (for now)
     }
 }

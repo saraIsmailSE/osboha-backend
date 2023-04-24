@@ -82,4 +82,9 @@ class Post extends Model
     {
         return $this->hasMany(TaggedUser::class, 'post_id');
     }
+
+    public function reactions()
+    {
+        return $this->hasMany(Reaction::class, 'post_id')->where('type_id', 1); //get likes only (just for now)
+    }
 }

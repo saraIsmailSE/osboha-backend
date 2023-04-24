@@ -260,4 +260,42 @@ class ReactionController extends Controller
             throw new NotFound;
         }
     }
+
+    public function reactOnPost($post_id, $type_id)
+    {
+        $user_id = Auth::id();
+
+        $reaction = Reaction::where('user_id', $user_id)->where('post_id', $post_id)->where('type_id', $type_id)->first();
+
+        if ($reaction) {
+            $reaction->delete();
+            return $this->jsonResponseWithoutMessage(false, 'data', 200);
+        } else {
+            $reaction = Reaction::create([
+                'user_id' => $user_id,
+                'post_id' => $post_id,
+                'type_id' => $type_id
+            ]);
+            return $this->jsonResponseWithoutMessage(true, 'data', 200);
+        }
+    }
+
+    public function reactOnComment($comment_id, $type_id)
+    {
+        $user_id = Auth::id();
+
+        $reaction = Reaction::where('user_id', $user_id)->where('comment_id', $comment_id)->where('type_id', $type_id)->first();
+
+        if ($reaction) {
+            $reaction->delete();
+            return $this->jsonResponseWithoutMessage(false, 'data', 200);
+        } else {
+            $reaction = Reaction::create([
+                'user_id' => $user_id,
+                'comment_id' => $comment_id,
+                'type_id' => $type_id
+            ]);
+            return $this->jsonResponseWithoutMessage(true, 'data', 200);
+        }
+    }
 }

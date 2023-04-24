@@ -169,6 +169,10 @@ class CommentController extends Controller
     {
         $comments = Comment::where('post_id', $post_id)
             ->where('comment_id', 0)
+            ->with('reactions', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('reactions')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
         if ($comments->isNotEmpty()) {
