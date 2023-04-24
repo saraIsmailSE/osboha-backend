@@ -107,13 +107,16 @@ class GroupController extends Controller
 $parent = $child->parent;
 
 while ($parent !== null) {
+
+    $parentRole = $parent->roles()->orderBy('id', 'asc')->first();
+
     $userGroup = UserGroup::create([ 
         'user_id' => $parent->id,
     'group_id' => $group->id,
-    'user_type', $parent->roles[0]->name]);
-$userGroup->save();
+    'user_type', $parentRole]);
+    $userGroup->save();
     $child = $parent;
-    $parent = $child->parent;
+    $parent = $child->parentRole;
 }
 
             return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 201);
@@ -150,7 +153,7 @@ $userGroup->save();
                     ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
                     ->first()
                     ->out_of_100;
-                return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                return $this->jsonResponseWitYhoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
             }

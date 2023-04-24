@@ -94,26 +94,30 @@ class UserGroupController extends Controller
         $validatedData = $request->validate([
             'email' => 'required',
             'group_id' => 'required', 
-            'group_id' => 'required', 
+            'user_type' => 'required', 
         ]);
     
     
-        $user = User::find($validatedData['email']); 
+        $user = User::where('email' ,'=',$validatedData['email']); 
         if(!$user){
             return $this->jsonResponseWithoutMessage('email not found', 'data', 404);
         }else if(!is_null( $user->parent_id)){
-            return $this->jsonResponseWithoutMessage('user is registerd', 'data', 404);
+            $user->parent_id = Auth::id();
+        }else if(!$user->hasRole(validatedData['uesr_type'])){
+            return $this->jsonResponseWithoutMessage('User does not have the required role', 'data', 401);
         }
-        $user->parent_id = Auth::id();
+
+
+   
         $user->save();
-        $userGroup = UserGroup::create(['user_id' => $user->id,'group_id' =>  $validatedData['group_id'], 'user_type' => 'ambassador']);
+        $userGroup = UserGroup::create(['user_id' => $user->id,'group_id' =>  $validatedData['group_id'],validatedData['uesr_type']]);
      
         $userGroup->save();
     
       
         return response()->json([
             'status' => 'success',
-            'message' => 'User created successfully',
+            'message' => 'User added successfully',
             'data' => $user,
         ]);
     }
