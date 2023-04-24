@@ -12,6 +12,9 @@ use App\Models\LeaderRequest;
 use App\Models\Group;
 use App\Models\UserGroup;
 use App\Events\NewUserStats;
+use App\Models\Thesis;
+use App\Models\UserBook;
+use App\Models\Week;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -259,5 +262,45 @@ class AuthController extends Controller
             return $this->sendResponse(__($status), 'Updated Successfully!');
         else
             return $this->sendError('ERROR', ['email' => __($status)]);
+    }
+
+    /**
+     *get auth user session data for frontend.
+     * 
+     * @return jsonResponse;
+     */
+
+    public function sessionData()
+    {
+        // last book whereHas 'status'='in progress' 
+        $book_in_progress = UserBook::where('status', 'in progress')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->pluck('book_id')->first();
+
+        if ($book_in_progress) {
+            $last_thesis = Thesis::where('user_id', Auth::id())
+                ->where('book_id', $book_in_progress)
+                ->with('book')
+                ->latest()->first();
+            $response['book_in_progress'] = $last_thesis->book;
+            $response['progress'] = ($last_thesis->end_page / $last_thesis->book->end_page) * 100;
+        } else {
+            $response['book_in_progress'] = null;
+            $response['progress']=null;
+        }
+
+        //reading group [where auth is ambassador]
+        $response['reading_team'] = UserGroup::where('user_id', Auth::id())
+            ->where('user_type', 'ambassador')
+            ->whereNull('termination_reason')
+            ->with('group')
+            ->first();
+
+        //main timer
+        $response['timer'] = Week::latest()->first();
+
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }

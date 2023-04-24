@@ -24,25 +24,66 @@ trait ThesisTraits
     ##########ASMAA##########
     public function __construct()
     {
-        define('MAX_PARTS', 5);
-        define('MAX_SCREENSHOTS', 5);
-        define('MAX_AYAT', 5);
-        define('PART_READING_MARK', 10);
-        define('PART_THESIS_MARK', 8);
-        define('FULL_READING_MARK', 50);
-        define('FULL_WRITING_MARK', 40);
-        define('COMPLETE_THESIS_LENGTH', 400);
-        define('PART_PAGES', 6);
-        define('RAMADAN_PART_PAGES', 3);
-        define('MIN_VALID_REMAINING', 3);
-        define('INCREMENT_VALUE', 1);
-        define('SUPPORT_MARK', 10);
-        define('NORMAL_THESIS_TYPE', 'normal');
-        define('RAMADAN_THESIS_TYPE', 'ramadan');
-        define('TAFSEER_THESIS_TYPE', 'tafseer');
-        define('EXCEPTION_STATUS', 'accepted');
-        define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
-        define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
+        if (!defined('MAX_PARTS')) {
+            define('MAX_PARTS', 5);
+        }
+        if (!defined('MAX_SCREENSHOTS')) {
+
+            define('MAX_SCREENSHOTS', 5);
+        }
+        if (!defined('MAX_AYAT')) {
+            define('MAX_AYAT', 5);
+        }
+        if (!defined('PART_READING_MARK')) {
+            define('PART_READING_MARK', 10);
+        }
+        if (!defined('PART_THESIS_MARK')) {
+            define('PART_THESIS_MARK', 8);
+        }
+        if (!defined('FULL_READING_MARK')) {
+            define('FULL_READING_MARK', 50);
+        }
+        if (!defined('FULL_WRITING_MARK')) {
+            define('FULL_WRITING_MARK', 40);
+        }
+        if (!defined('COMPLETE_THESIS_LENGTH')) {
+            define('COMPLETE_THESIS_LENGTH', 400);
+        }
+        if (!defined('PART_PAGES')) {
+            define('PART_PAGES', 6);
+        }
+        if (!defined('RAMADAN_PART_PAGES')) {
+            define('RAMADAN_PART_PAGES', 3);
+        }
+        if (!defined('MIN_VALID_REMAINING')) {
+            define('MIN_VALID_REMAINING', 3);
+        }
+
+        if (!defined('INCREMENT_VALUE')) {
+            define('INCREMENT_VALUE', 1);
+        }
+        if (!defined('SUPPORT_MARK')) {
+            define('SUPPORT_MARK', 10);
+        }
+        if (!defined('NORMAL_THESIS_TYPE')) {
+            define('NORMAL_THESIS_TYPE', 'normal');
+        }
+        if (!defined('RAMADAN_THESIS_TYPE')) {
+            define('RAMADAN_THESIS_TYPE', 'ramadan');
+        }
+        if (!defined('TAFSEER_THESIS_TYPE')) {
+            define('TAFSEER_THESIS_TYPE', 'tafseer');
+        }
+        if (!defined('EXCEPTION_STATUS')) {
+            define('EXCEPTION_STATUS', 'accepted');
+        }
+        if (!defined('EXAMS_MONTHLY_TYPE')) {
+            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
+        }
+        if (!defined('EXAMS_SEASONAL_TYPE')) {
+            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
+        }
+
 
         /*
         * Full mark out of 100 = reading_mark + writing mark + support

@@ -380,4 +380,15 @@ class BookController extends Controller
             throw new NotFound;
         }
     }
+    public function latest()
+    {
+        $books = Book::latest()->limit(3)->get();
+        if ($books) {
+            return $this->jsonResponseWithoutMessage($books, 'data', 200);
+        } else {
+            throw new NotFound;
+        }
+    }
+
+    
 }

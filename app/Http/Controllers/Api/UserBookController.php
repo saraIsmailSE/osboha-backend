@@ -19,7 +19,7 @@ class UserBookController extends Controller
 {
     use ResponseJson, MediaTraits;
     /**
-     * Find all books belongs to specific user.
+     * Find [in progress - finished ] books belongs to specific user.
      *
      * @param user_id
      * @return jsonResponse[user books]
@@ -34,6 +34,17 @@ class UserBookController extends Controller
     }
 
 
+     /**
+     * Find later books belongs to specific user.
+     *
+     * @param user_id
+     * @return jsonResponse[user books]
+     */
+    public function later($user_id)
+    {
+        $books = UserBook::where('status', 'later')->where('user_id', $user_id)->get();
+        return $this->jsonResponseWithoutMessage($books, 'data', 200);
+    }
     /**
      * Update an existing book belongs to user .
      * 
