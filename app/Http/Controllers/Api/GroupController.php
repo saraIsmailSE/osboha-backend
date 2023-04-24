@@ -254,9 +254,14 @@ while ($parent !== null) {
      */
     public function books($group_id)
     {
-        $group = Group::with('users')->where('id', $group_id)->first();
-        $books = UserBook::whereIn('user_id', $group->pluck('id'))->get();
+        /*wrong query*/
+        /*editted by @asmaa*/
 
+        // $group = Group::with('users')->where('id', $group_id)->first();
+        // $books = UserBook::whereIn('user_id', $group->pluck('id'))->get();
+
+        $users = UserGroup::where('group_id', $group_id)->pluck('user_id');
+        $books = UserBook::whereIn('user_id', $users)->get();
         if ($books) {
             return $this->jsonResponseWithoutMessage($books, 'data', 200);
         } else {
@@ -468,6 +473,8 @@ while ($parent !== null) {
     }
 
 
+
+    //NEED REVIEW
     /**
      * get group audit for specific week.
      * 
@@ -496,6 +503,7 @@ while ($parent !== null) {
             throw new NotAuthorized;
         }
     }
+    
     //the function will return all posts - discuss it later
     public function list_group_posts($group_id)
     {
@@ -552,3 +560,5 @@ while ($parent !== null) {
     }
  
 }
+ 
+ 

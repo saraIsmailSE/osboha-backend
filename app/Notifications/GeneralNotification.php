@@ -13,12 +13,14 @@ class GeneralNotification extends Notification
     protected $user;
     protected $sender;
     protected $msg;
+    protected $type;
     
     
-    public function __construct($sender , $msg)
+    public function __construct($sender , $msg, $type)
     {
         $this->sender = $sender;
         $this->msg = $msg;
+        $this->type = $type;
 
     }
    
@@ -46,6 +48,7 @@ class GeneralNotification extends Notification
         return [
             'sender name' => $this->sender,
             'message'   =>  $this->msg,
+            'type'   =>  $this->type,
         ];
     }
 }

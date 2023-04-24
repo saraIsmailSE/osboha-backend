@@ -77,4 +77,9 @@ class Post extends Model
     {
         return $this->hasMany(PollVote::class, 'post_id');
     }
+
+    public function taggedUsers()
+    {
+        return $this->hasMany(TaggedUser::class, 'post_id');
+    }
 }

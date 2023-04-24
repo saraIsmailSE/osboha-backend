@@ -28,16 +28,59 @@ class WeekController extends Controller
     use ResponseJson;
     public function __construct()
     {
-        $now = Carbon::now();
-        define(
-            'YEAR_WEEKS',
-            array(
-                array('title' => 'الأول من أغسطس', 'date' => $now->startOfWeek(Carbon::SUNDAY)->format('Y-m-d')),
-                array('title' => 'الثاني من أغسطس', 'date' => $now->startOfWeek(Carbon::SUNDAY)->addWeeks()->format('Y-m-d')),
-                array('title' => 'الثالث من أغسطس', 'date' => $now->startOfWeek(Carbon::SUNDAY)->addWeeks()->format('Y-m-d')),
-                array('title' => 'الرابع من أغسطس', 'date' => $now->startOfWeek(Carbon::SUNDAY)->addWeeks()->format('Y-m-d')),
-            )
-        );
+        //get date of first day of first week of february 2023
+        $date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
+        define('YEAR_WEEKS', array(
+            array('title' => 'الاول من فبراير', 'date' => $date),
+            array('title' => 'الثاني من فبراير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d')),
+            array('title' => 'الثالث من فبراير', 'date' => Carbon::parse($date)->addWeeks(2)->format('Y-m-d')),
+            array('title' => 'الرابع من فبراير', 'date' => Carbon::parse($date)->addWeeks(3)->format('Y-m-d')),
+            array('title' => 'الاول من مارس', 'date' => Carbon::parse($date)->addWeeks(4)->format('Y-m-d')),
+            array('title' => 'الثاني من مارس', 'date' => Carbon::parse($date)->addWeeks(5)->format('Y-m-d')),
+            array('title' => 'الثالث من مارس', 'date' => Carbon::parse($date)->addWeeks(6)->format('Y-m-d')),
+            array('title' => 'الرابع من مارس', 'date' => Carbon::parse($date)->addWeeks(7)->format('Y-m-d')),
+            array('title' => 'الاول من ابريل', 'date' => Carbon::parse($date)->addWeeks(8)->format('Y-m-d')),
+            array('title' => 'الثاني من ابريل', 'date' => Carbon::parse($date)->addWeeks(9)->format('Y-m-d')),
+            array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(10)->format('Y-m-d')),
+            array('title' => 'الرابع من ابريل', 'date' => Carbon::parse($date)->addWeeks(11)->format('Y-m-d')),
+            array('title' => 'الخامس من ابريل', 'date' => Carbon::parse($date)->addWeeks(12)->format('Y-m-d')),
+            array('title' => 'الاول من مايو', 'date' => Carbon::parse($date)->addWeeks(13)->format('Y-m-d')),
+            array('title' => 'الثاني من مايو', 'date' => Carbon::parse($date)->addWeeks(14)->format('Y-m-d')),
+            array('title' => 'الثالث من مايو', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d')),
+            array('title' => 'الرابع من مايو', 'date' => Carbon::parse($date)->addWeeks(16)->format('Y-m-d')),
+            array('title' => 'الاول من يونيو', 'date' => Carbon::parse($date)->addWeeks(17)->format('Y-m-d')),
+            array('title' => 'الثاني من يونيو', 'date' => Carbon::parse($date)->addWeeks(18)->format('Y-m-d')),
+            array('title' => 'الثالث من يونيو', 'date' => Carbon::parse($date)->addWeeks(19)->format('Y-m-d')),
+            array('title' => 'الرابع من يونيو', 'date' => Carbon::parse($date)->addWeeks(20)->format('Y-m-d')),
+            array('title' => 'الاول من يوليو', 'date' => Carbon::parse($date)->addWeeks(21)->format('Y-m-d')),
+            array('title' => 'الثاني من يوليو', 'date' => Carbon::parse($date)->addWeeks(22)->format('Y-m-d')),
+            array('title' => 'الثالث من يوليو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d')),
+            array('title' => 'الرابع من يوليو', 'date' => Carbon::parse($date)->addWeeks(24)->format('Y-m-d')),
+            array('title' => 'الخامس من يوليو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d')),
+            array('title' => 'الاول من اغسطس', 'date' => Carbon::parse($date)->addWeeks(26)->format('Y-m-d')),
+            array('title' => 'الثاني من اغسطس', 'date' => Carbon::parse($date)->addWeeks(27)->format('Y-m-d')),
+            array('title' => 'الثالث من اغسطس', 'date' => Carbon::parse($date)->addWeeks(28)->format('Y-m-d')),
+            array('title' => 'الرابع من اغسطس', 'date' => Carbon::parse($date)->addWeeks(29)->format('Y-m-d')),
+            array('title' => 'الاول من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(30)->format('Y-m-d')),
+            array('title' => 'الثاني من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(31)->format('Y-m-d')),
+            array('title' => 'الثالث من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(32)->format('Y-m-d')),
+            array('title' => 'الرابع من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(33)->format('Y-m-d')),
+            array('title' => 'الخامس من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(34)->format('Y-m-d')),
+            array('title' => 'الاول من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(35)->format('Y-m-d')),
+            array('title' => 'الثاني من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(36)->format('Y-m-d')),
+            array('title' => 'الثالث من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(37)->format('Y-m-d')),
+            array('title' => 'الرابع من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(38)->format('Y-m-d')),
+            array('title' => 'الخامس من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(39)->format('Y-m-d')),
+            array('title' => 'الاول من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(40)->format('Y-m-d')),
+            array('title' => 'الثاني من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(41)->format('Y-m-d')),
+            array('title' => 'الثالث من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(42)->format('Y-m-d')),
+            array('title' => 'الرابع من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(43)->format('Y-m-d')),
+            array('title' => 'الاول من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(44)->format('Y-m-d')),
+            array('title' => 'الثاني من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(45)->format('Y-m-d')),
+            array('title' => 'الثالث من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(46)->format('Y-m-d')),
+            array('title' => 'الرابع من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(47)->format('Y-m-d')),
+            array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(48)->format('Y-m-d')),
+        ));
 
         define('EXCEPTION_STATUS', 'accepted');
         define('FREEZ_THIS_WEEK_TYPE', 'تجميد الأسبوع الحالي');
@@ -89,8 +132,8 @@ class WeekController extends Controller
      * @author Asmaa - Sara
      * @param Request $request (array of data to be updated)
      * @return jsonResponse (if the validation of data failed or the updating failed/if the updating of data succeed)
-     * @return NotFound Exception if the week to be updated is not found                 
-     * @return NotAuthorized Exception if the user does not have permission            
+     * @throws NotFound Exception if the week to be updated is not found                 
+     * @throws NotAuthorized Exception if the user does not have permission            
      */
     public function update(Request $request)
     {
@@ -122,7 +165,7 @@ class WeekController extends Controller
                             $exception->update();
 
                             $msg = "تم تمديد الحالة الاستثنائية لك حتى " . $exception->end_at . " بسبب الإجازة";
-                            (new NotificationController)->sendNotification($exception->user_id, $msg);
+                            (new NotificationController)->sendNotification($exception->user_id, $msg,'user_exceptions');
                         }
                     } else { //this week is already vacation
                         return $this->jsonResponseWithoutMessage('This week is already vacation', 'data', 200);
@@ -164,21 +207,23 @@ class WeekController extends Controller
      * insert new week into weeks table
      * @author Asmaa         
      * @return Int new_week_id in case of SUCCESS, 
-     * @return jsonResponse in case of FAIL
+     * @throws Exception error if anything wrong happens
      */
     public function insert_week()
     {
         $week = new Week();
 
-        //to be changed based on the full global array of weeks names
-        $week->title = $this->search_for_week_title(Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d'), YEAR_WEEKS);
+        $date = Carbon::now()->startOfWeek(Carbon::SUNDAY);
+        $week->title = $this->search_for_week_title($date->format('Y-m-d'), YEAR_WEEKS);
+        //add 7 days to the date to get the end of the week
+        $week->main_timer = Carbon::parse($date)->addDays(6)->addHours(23)->addMinutes(59)->addSeconds(59);
         $week->is_vacation = 0;
 
         if ($week->save()) { //insert new week
             return $week->id;
-        } else {
-            return $this->jsonResponseWithoutMessage('Something went wrong, could not add week', 'data', 500);
         }
+        // return $this->jsonResponseWithoutMessage('Something went wrong, could not add week', 'data', 500);
+        throw new \Exception('Something went wrong, could not add week');
     }
 
     /**
@@ -191,19 +236,7 @@ class WeekController extends Controller
     public function get_last_weeks_ids($limit = 3)
     {
         //get last weeks without vacations from the data
-        $last_weeks = Week::where('is_vacation', 0)->latest('id')->limit($limit)->get('id');
-
-        // dd($last_weeks);
-        $last_week_ids = array();
-
-        if ($last_weeks) {
-            //fill week ids into array
-            foreach ($last_weeks as $week) {
-                array_push($last_week_ids, $week->id);
-            }
-        }
-
-        return $last_week_ids;
+        return Week::where('is_vacation', 0)->latest('id')->limit($limit)->pluck('id');
     }
 
     /**
@@ -296,14 +329,14 @@ class WeekController extends Controller
      * @param array $last_week_ids (array of last week ids integers)  
      * @uses update_excluded_user_then_add_mark() 
      * @return True if the marks and updating exculded members are done correctly, 
-     * @return Exception error if anything wrong happens
+     * @throws Exception error if anything wrong happens
      */
 
     public function add_marks_for_all_users($new_week_id, $last_week_ids)
     {
         //get all the users and update their records if they are excluded
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
-            ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
+            // ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
             ->orderBy('id')
             ->chunkByID(100, function ($users) use ($last_week_ids, $new_week_id) {
                 try {
@@ -331,7 +364,7 @@ class WeekController extends Controller
      * @param Int $week_id
      * @param Int $user_id      
      * @return Int inserted_mark_id if the inserting succeed
-     * @return jsonResponse if the inserting went wrong  
+     * @throws Exception error if anything wrong happens
      */
     public function insert_mark_for_single_user($week_id, $user_id)
     {
@@ -351,7 +384,8 @@ class WeekController extends Controller
         if ($mark->save()) {
             return $mark->id;
         } else {
-            return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
+            // return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
+            throw new \Exception('Something went wrong, could not add mark');
         }
     }
 
@@ -400,7 +434,7 @@ class WeekController extends Controller
      * @param Int $user_exception_id 
      * @param string $new_status
      * @return True if the status updated successfully
-     * @return jsonResponse if the updating went wrong 
+     * @throws Exception error if anything wrong happens
      */
     public function update_exception_status($user_exception_id, $new_status)
     {
@@ -413,9 +447,9 @@ class WeekController extends Controller
         $user_exception->status = $new_status;
         if ($user_exception->save()) {
             return TRUE;
-        } else {
-            return $this->jsonResponseWithoutMessage('could not update user exception', 'data', 500);
         }
+        // return $this->jsonResponseWithoutMessage('could not update user exception', 'data', 500);
+        throw new \Exception('could not update user exception');
     }
 
     /**  
@@ -463,7 +497,7 @@ class WeekController extends Controller
      * @author Sara     
      * @param Int $new_week_id (integer id of the current week id), 
      * @return Int $user_statistic (integer id of the new row in user_statistic table)
-     * @return JsonResponse error if anything wrong happens
+     * @throws Exception error if anything wrong happens
      */
     public function add_users_statistics($new_week_id)
     {
@@ -475,7 +509,8 @@ class WeekController extends Controller
         if ($user_stats->save()) {
             return $user_stats->id;
         } else {
-            return $this->jsonResponseWithoutMessage('Something went wrong, could not add users statistics', 'data', 500);
+            // return $this->jsonResponseWithoutMessage('Something went wrong, could not add users statistics', 'data', 500);
+            throw new \Exception('Something went wrong, could not add users statistics');
         }
     }
 
@@ -483,8 +518,8 @@ class WeekController extends Controller
      * insert new row to mark_stats in database when the new week is starting.
      * @author Sara     
      * @param Int $new_week_id (integer id of the current week id),
-     * @return Int $mark_statistic_id (integer id of the new row in mark_statistic table)
-     * @return JsonResponse error if anything wrong happens     
+     * @return Int $mark_statistic_id (integer id of the new row in mark_statistic table)     
+     * @throws \Exception if anything wrong happens   
      */
     public function add_marks_statistics($new_week_id)
     {
@@ -498,7 +533,71 @@ class WeekController extends Controller
         if ($mark_stats->save()) {
             return $mark_stats->id;
         } else {
-            return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
+            // return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
+            throw new \Exception('Something went wrong, could not add mark');
         }
+    }
+
+    public function getDateWeekTitle()
+    {
+        $date = '2023-05-07';
+        // $date = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d');
+
+        $day = Carbon::parse($date)->day;
+
+        $endMonthDay = Carbon::parse($date)->endOfMonth()->day;
+        $month = Carbon::parse($date)->format('F');
+        if ($day + 3 > $endMonthDay) {
+            $week_number = 1;
+            $month = Carbon::parse($date)->addMonth()->format('F');
+        } else {
+            //get the week number of the month
+            $week_number = Carbon::parse($date)->startOfWeek(Carbon::SUNDAY)->weekOfMonth;
+        }
+
+        if ($week_number == 1)
+            $week_number = 'الأول';
+        else if ($week_number == 2)
+            $week_number = 'الثاني';
+        else if ($week_number == 3)
+            $week_number = 'الثالث';
+        else if ($week_number == 4)
+            $week_number = 'الرابع';
+        else if ($week_number == 5)
+            $week_number = 'الخامس';
+
+
+        if ($month == 'January')
+            $month = 'يناير';
+        else if ($month == 'February')
+            $month = 'فبراير';
+        else if ($month == 'March')
+            $month = 'مارس';
+        else if ($month == 'April')
+            $month = 'أبريل';
+        else if ($month == 'May')
+            $month = 'مايو';
+        else if ($month == 'June')
+            $month = 'يونيو';
+        else if ($month == 'July')
+            $month = 'يوليو';
+        else if ($month == 'August')
+            $month = 'أغسطس';
+        else if ($month == 'September')
+            $month = 'سبتمبر';
+        else if ($month == 'October')
+            $month = 'أكتوبر';
+        else if ($month == 'November')
+            $month = 'نوفمبر';
+        else if ($month == 'December')
+            $month = 'ديسمبر';
+
+        // return $week_number . ' من ' . $month;
+
+        // return $endMonthDay;
+
+        // return YEAR_WEEKS;
+
+        return Carbon::now()->startOfMonth()->startOfWeek(Carbon::SUNDAY)->addWeeks(1)->format('Y-m-d');
     }
 }

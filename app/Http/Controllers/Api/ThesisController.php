@@ -31,7 +31,7 @@ class ThesisController extends Controller
     public function show($thesis_id)
     {
 
-        $thesis = Thesis::with('comment')->find($thesis_id);
+        $thesis = Thesis::with('comment')->with('mark.week')->find($thesis_id);
 
         if ($thesis) {
             return $this->jsonResponseWithoutMessage(new ThesisResource($thesis), 'data', 200);

@@ -156,7 +156,7 @@ class UserGroupController extends Controller
                 $user->assignRole($role);
 
                 $msg = "Now, you are " . $role->name . " in " . $group->name . " group";
-                (new NotificationController)->sendNotification($request->user_id, $msg);
+                (new NotificationController)->sendNotification($request->user_id, $msg,'roles');
 
                 $userGroup = UserGroup::create($request->all());
 
@@ -209,7 +209,7 @@ class UserGroupController extends Controller
                     $user->removeRole($role);
 
                     $msg = "You are not a " . $role->name . " in " . $group->name . " group anymore, because you " . $request->termination_reason;
-                    (new NotificationController)->sendNotification($request->user_id, $msg);
+                    (new NotificationController)->sendNotification($request->user_id, $msg,'roles');
 
                     $userGroup->update($request->all());
 

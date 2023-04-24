@@ -38,7 +38,7 @@ class FriendController extends Controller
             if ($user_id == Auth::id()) {
                 $response['friendsOfAuth'] = false;
             } else {
-                $authUser = User::find(Auth::id());
+                $authUser = Auth::user();
                 //Auth Friends
                 $friends = $authUser->friends()->get();
                 $friendsOf = $authUser->friendsOf()->get();
@@ -52,7 +52,7 @@ class FriendController extends Controller
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         }
 
-        return $this->jsonResponseWithoutMessage('No Friends', 'data', 200);
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
     /**
      * Return all unaccepted user`s freinds.
@@ -97,7 +97,7 @@ class FriendController extends Controller
                 Friend::create($input);
 
                 $msg = "لديك طلب صداقة جديد";
-                (new NotificationController)->sendNotification($request->friend_id, $msg);
+                (new NotificationController)->sendNotification($request->friend_id, $msg,'friends');
                 return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
             }
         } else {
@@ -131,7 +131,7 @@ class FriendController extends Controller
 
     public function accept($friendship_id)
     {
-        $friendship=Friend::find($friendship_id);
+        $friendship = Friend::find($friendship_id);
         if ($friendship) {
             if (Auth::id() == $friendship->friend_id) {
 

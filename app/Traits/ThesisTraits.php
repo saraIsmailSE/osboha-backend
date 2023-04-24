@@ -9,13 +9,13 @@ use App\Models\Comment;
 use App\Models\Mark;
 use App\Models\Thesis;
 use App\Models\ThesisType;
+use App\Models\User;
 use App\Models\UserBook;
 use App\Models\UserException;
 use App\Models\Week;
 use App\Traits\ResponseJson;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 trait ThesisTraits
 {
@@ -82,29 +82,33 @@ trait ThesisTraits
      * @param Array $thesis
      * @return jsonResponse
      */
-    public function createThesis($thesis)
+    public function createThesis($thesis, $seeder = false)
     {
+        $mark_record = null;
+        if (!$seeder) {
+            //asmaa - check if the week is existed or not
+            $week = Week::latest('id')->first();
+            $week_start_date = $week->created_at->format('Y-m-d');
 
-        //asmaa - check if the week is existed or not
-        $week = Week::latest('id')->first();
-        $week_start_date = $week->created_at->format('Y-m-d');
+            if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
+                // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
+                throw new \Exception('Cannot add thesis');
+            }
 
-        if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
-            return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
-        }
+            $week_id = $week->id;
+            $mark_record = Mark::where('user_id', Auth::id())
+                ->where('week_id', $week_id)
+                ->first();
 
-        $week_id = $week->id;
-
-        $mark_record = Mark::where('user_id', Auth::id())
-            ->where('week_id', $week_id)
-            ->first();
-
-        //asmaa - check if the week is vacation or not and create mark record if it is vacation
-        if ($week->is_vacation == 1 && !$mark_record) {
-            $mark_record = Mark::create([
-                'user_id' => Auth::id(),
-                'week_id' => $week_id,
-            ]);
+            //asmaa - check if the week is vacation or not and create mark record if it is vacation
+            if ($week->is_vacation == 1 && !$mark_record) {
+                $mark_record = Mark::create([
+                    'user_id' => Auth::id(),
+                    'week_id' => $week_id,
+                ]);
+            }
+        } else {
+            $mark_record = Mark::find($thesis['mark_id']);
         }
 
         if ($mark_record) {
@@ -120,7 +124,7 @@ trait ThesisTraits
                 'comment_id'        => $thesis['comment_id'],
                 'book_id'           => $thesis['book_id'],
                 'mark_id'           => $mark_record->id,
-                'user_id'           => Auth::id(),
+                'user_id'           => $seeder ? $thesis['user_id'] : Auth::id(),
                 'type_id'           => $thesis['type_id'],
                 'start_page'        => $thesis['start_page'],
                 'end_page'          => $thesis['end_page'],
@@ -128,8 +132,9 @@ trait ThesisTraits
                 'total_screenshots' => $total_screenshots,
             );
 
+            $thesisTotalPages = $thesis['end_page'] - $thesis['start_page'] > 0 ? $thesis['end_page'] - $thesis['start_page'] + 1 : 0;
             $mark_data_to_update = array(
-                'total_pages'      => $mark_record->total_pages + ($thesis['end_page'] - $thesis['start_page'] + 1),
+                'total_pages'      => $mark_record->total_pages + $thesisTotalPages,
                 'total_thesis'     => $mark_record->total_thesis + $total_thesis,
                 'total_screenshot' => $mark_record->total_screenshot + $total_screenshots,
             );
@@ -139,7 +144,7 @@ trait ThesisTraits
 
             if (strtolower($thesis_type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis or not completed ramadan/tafseer thesis                    
                 $thesis_mark = $this->calculate_mark_for_normal_thesis(
-                    ($thesis['end_page'] - $thesis['start_page'] + 1),
+                    $thesisTotalPages,
                     $max_length,
                     $total_screenshots,
 
@@ -150,7 +155,7 @@ trait ThesisTraits
             ) { ///calculate mark for ramadan or tafseer thesis             
 
                 $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                    ($thesis['end_page'] - $thesis['start_page'] + 1),
+                    $thesisTotalPages,
                     $max_length,
                     $total_screenshots,
                     (strtolower($thesis_type) === RAMADAN_THESIS_TYPE ? RAMADAN_THESIS_TYPE : TAFSEER_THESIS_TYPE),
@@ -173,13 +178,13 @@ trait ThesisTraits
 
             $thesis = Thesis::create($thesis_data_to_insert);
 
-            $this->createOrUpdateUserBook($thesis);
-
             if ($thesis) {
+                $this->createOrUpdateUserBook($thesis);
                 $mark_record->update($mark_data_to_update);
                 return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
             } else {
-                return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
+                // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
+                throw new \Exception('Cannot add thesis');
             }
         } else {
             throw new NotFound;
@@ -202,14 +207,15 @@ trait ThesisTraits
     {
         $thesis = Thesis::where('comment_id', $thesisToUpdate['comment_id'])->first();
 
-        $total_pages = ($thesisToUpdate['end_page'] - $thesisToUpdate['start_page'] + 1);
+        $total_pages = $thesisToUpdate['end_page'] - $thesisToUpdate['start_page'] > 0 ? $thesisToUpdate['end_page'] - $thesisToUpdate['start_page'] + 1 : 0;
 
         if ($thesis) {
             $week = Week::latest('id')->first();
             $week_start_date = $week->created_at->format('Y-m-d');
 
             if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
-                return $this->jsonResponseWithoutMessage('Cannot update thesis', 'data', 500);
+                // return $this->jsonResponseWithoutMessage('Cannot update thesis', 'data', 500);
+                throw new \Exception('Cannot update thesis');
             }
 
             $week_id = $week->id;
@@ -226,6 +232,8 @@ trait ThesisTraits
                 $max_length = ($thesisToUpdate['max_length'] ? $thesisToUpdate['max_length'] : 0);
                 $total_thesis = ($thesisToUpdate['max_length'] ? ($thesisToUpdate['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
                 $total_screenshots = ($thesisToUpdate['total_screenshots'] ? $thesisToUpdate['total_screenshots'] : 0);
+
+                $oldThesisTotalPages = $thesis->end_page - $thesis->start_page > 0 ? $thesis->end_page - $thesis->start_page + 1 : 0;
 
                 $thesis_mark = 0;
                 $old_thesis_mark = 0;
@@ -247,7 +255,7 @@ trait ThesisTraits
                     );
                     //calculate the old mark to remove it from the total                        
                     $old_thesis_mark = $this->calculate_mark_for_normal_thesis(
-                        ($thesis->end_page - $thesis->start_page + 1),
+                        $oldThesisTotalPages,
                         $thesis->max_length,
                         $thesis->total_screenshots,
 
@@ -265,7 +273,7 @@ trait ThesisTraits
                     );
 
                     $old_thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                        ($thesis->end_page - $thesis->start_page + 1),
+                        $oldThesisTotalPages,
                         $thesis->max_length,
                         $thesis->total_screenshots,
                         $thesis_type,
@@ -285,7 +293,7 @@ trait ThesisTraits
                 }
 
                 $mark_data_to_update = array(
-                    'total_pages'      => $mark_record->total_pages - ($thesis->end_page - $thesis->start_page + 1) + $total_pages,
+                    'total_pages'      => $mark_record->total_pages - $oldThesisTotalPages + $total_pages,
                     'total_thesis'     => $mark_record->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0) + $total_thesis,
                     'total_screenshot' => $mark_record->total_screenshot - $thesis->total_screenshots + $total_screenshots,
                     'reading_mark' => $reading_mark,
@@ -329,7 +337,8 @@ trait ThesisTraits
             $week_start_date = $week->created_at->format('Y-m-d');
 
             if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
-                return $this->jsonResponseWithoutMessage('Cannot delete thesis', 'data', 500);
+                // return $this->jsonResponseWithoutMessage('Cannot delete thesis', 'data', 500);
+                throw new \Exception('Cannot delete thesis');
             }
 
             $week_id = $week->id;
@@ -396,16 +405,17 @@ trait ThesisTraits
 
         foreach ($theses as $thesis) {
             $thesis_mark = $default_mark;
+            $totalPages = $thesis->end_page - $thesis->start_page > 0 ? $thesis->end_page - $thesis->start_page + 1 : 0;
             if ($thesis->type->type === NORMAL_THESIS_TYPE) {
                 $thesis_mark = $this->calculate_mark_for_normal_thesis(
-                    ($thesis->end_page - $thesis->start_page + 1),
+                    $totalPages,
                     $thesis->max_length,
                     $thesis->total_screenshots,
 
                 );
             } else if ($thesis->type->type === RAMADAN_THESIS_TYPE || $thesis->type->type === TAFSEER_THESIS_TYPE) {
                 $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                    ($thesis->end_page - $thesis->start_page + 1),
+                    $totalPages,
                     $thesis->max_length,
                     $thesis->total_screenshots,
                     $thesis->type->type,
@@ -616,7 +626,8 @@ trait ThesisTraits
     public function createOrUpdateUserBook($thesis, $isDeleted = false)
     {
         $book_id = $thesis->book_id;
-        $user_id = Auth::id();
+        $user_id = $thesis->user_id;
+        $user = User::find($user_id);
 
         //get the latest user book related to the user and the book
         $user_book = UserBook::where('user_id', $user_id)
@@ -659,13 +670,13 @@ trait ThesisTraits
         }
 
         //fix counter and status (updating and deleting will cause some mistakes in the status and counter)
-        $allThesis = Auth::user()->theses()->where('book_id', $book_id)->count();
+        $allThesis = $user->theses()->where('book_id', $book_id)->count();
         if ($allThesis <= 0) {
             if ($user_book->status != 'later') {
                 $user_book->delete();
             }
         } else {
-            $completeTheses = Auth::user()->theses()->where('end_page', $user_book->book->end_page)->where('book_id', $book_id)->count();
+            $completeTheses = $user->theses()->where('end_page', $user_book->book->end_page)->where('book_id', $book_id)->count();
             $user_book->counter = $completeTheses;
             $user_book->status = $allThesis > $completeTheses ? 'in progress' : 'finished';
             $user_book->save();

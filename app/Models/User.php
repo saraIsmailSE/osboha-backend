@@ -29,6 +29,7 @@ class User extends Authenticatable
         'is_blocked',
         'is_hold',
         'is_excluded',
+        'parent_id'
     ];
 
     /**

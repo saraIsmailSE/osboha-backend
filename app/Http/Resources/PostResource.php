@@ -16,23 +16,17 @@ class PostResource extends JsonResource
     public function toArray($request)
     {
         return [
-
-            //'user_id' => new UserProfileResource($this->user_id),
-            //'user_id' => new UserProfileResource($this->whenLoaded('user', $this->user_id))
-            //"user"=> new UserProfileResource($this->whenLoaded('user')),
             'id' => $this->id,
             'user' => new UserInfoResource($this->whenLoaded('user')),
             'body' => $this->body,
-            // 'type_id' => $this->type_id,
             'allow_comments' => $this->allow_comments,
-            // 'tags' => UserInfoResource::collection(unserialize($this->tags)),
-            // 'tags' => unserialize($this->tags),
             'is_approved' => $this->is_approved,
             'is_pinned' => $this->is_pinned,
             'timeline_id' => $this->timeline_id,
             'comments' =>  CommentResource::collection($this->whenLoaded('comments')),
             'media' => MediaResource::collection($this->media),
             'pollOptions' => PollOptionResource::collection($this->pollOptions),
+            'taggedUsers' => TaggedUserResource::collection($this->taggedUsers),
             'votes_count' => $this->poll_votes_count ?? 0,
             "comments_count" => $this->comments_count ?? 0,
             'created_at' => $this->created_at,
