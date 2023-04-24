@@ -64,7 +64,7 @@ Route::group(['prefix' => 'v1'], function () {
 
 
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'signUp']);
 
     Route::get('/profile-image', [UserProfileController::class, 'getImages']);
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
@@ -72,6 +72,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
     Route::middleware('auth:sanctum')->group(function () {
+
+        Route::post('/assign-role', [AuthController::class, 'assignRole']);
+Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         ########Book########
@@ -391,8 +394,10 @@ Route::group(['prefix' => 'v1'], function () {
         ######## End Notification ########
         ####### Start UserGroup ########
         Route::group(['prefix' => 'user-group'], function () {
+            
             Route::get('/', [UserGroupController::class, 'index']);
             Route::get('/users/{group_id}', [UserGroupController::class, 'usersByGroupID']);
+            Route::post('/', [UserGroupController::class, 'create']);
             Route::post('/show', [UserGroupController::class, 'show']);
             Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
