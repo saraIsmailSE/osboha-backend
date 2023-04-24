@@ -30,7 +30,6 @@ class WeekController extends Controller
     {
         //get date of first day of first week of february 2023
         $date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
-
         if (!defined('YEAR_WEEKS'))
             define('YEAR_WEEKS', array(
                 array('title' => 'الاول من فبراير', 'date' => $date),

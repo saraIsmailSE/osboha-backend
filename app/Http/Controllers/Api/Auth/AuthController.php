@@ -11,8 +11,11 @@ use App\Models\UserProfile;
 use App\Models\ProfileSetting;
 use App\Models\LeaderRequest;
 use App\Models\Group;
-use App\Models\UserGroup; 
+use App\Models\UserGroup;
 use App\Events\NewUserStats;
+use App\Models\Thesis;
+use App\Models\UserBook;
+use App\Models\Week;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,7 +56,8 @@ class AuthController extends Controller
     }
 
 
-    public function signUp(Request $request){
+    public function signUp(Request $request)
+    {
         $ambassador = Validator::make($request->all(), [
             // 'name_ar'          => 'required',
             // 'name_en'          => 'required',
@@ -61,21 +65,21 @@ class AuthController extends Controller
             'gender'           => 'required',
             'phone'            => 'required|numeric',
             'email'            => 'required|email|unique:users,email',
-            'password'         => 'required', 
+            'password'         => 'required',
         ]);
         if ($ambassador->fails()) {
             return $this->jsonResponseWithoutMessage($ambassador->errors(), 'data', 500);
         }
-       
-    $user = new User($request->all());
-    $user->password = bcrypt($request->input('password'));
- 
- 
-    $user->assignRole('ambassador');
- 
-    $user->save();
 
-    return $this->jsonResponseWithoutMessage("Register Successfully",'data  ', 200);
+        $user = new User($request->all());
+        $user->password = bcrypt($request->input('password'));
+
+
+        $user->assignRole('ambassador');
+
+        $user->save();
+
+        return $this->jsonResponseWithoutMessage("Register Successfully", 'data  ', 200);
     }
 
     public function register(Request $request)
@@ -288,31 +292,70 @@ class AuthController extends Controller
             return $this->sendError('ERROR', ['email' => __($status)]);
     }
 
+    /**
+     *get auth user session data for frontend.
+     * 
+     * @return jsonResponse;
+     */
 
-    public function getRoles($id){
+    public function sessionData()
+    {
+        // last book whereHas 'status'='in progress' 
+        $book_in_progress = UserBook::where('status', 'in progress')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->pluck('book_id')->first();
+
+        if ($book_in_progress) {
+            $last_thesis = Thesis::where('user_id', Auth::id())
+                ->where('book_id', $book_in_progress)
+                ->with('book')
+                ->latest()->first();
+            $response['book_in_progress'] = $last_thesis->book;
+            $response['progress'] = ($last_thesis->end_page / $last_thesis->book->end_page) * 100;
+        } else {
+            $response['book_in_progress'] = null;
+            $response['progress'] = null;
+        }
+
+        //reading group [where auth is ambassador]
+        $response['reading_team'] = UserGroup::where('user_id', Auth::id())
+            ->where('user_type', 'ambassador')
+            ->whereNull('termination_reason')
+            ->with('group')
+            ->first();
+
+        //main timer
+        $response['timer'] = Week::latest()->first();
+
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    public function getRoles($id)
+    {
         $role = Role::find($id);
         $roles = Role::where('level', '>', $role->level)->get();
         return $this->jsonResponse($roles, 'data', 200, 'Roles');
     }
 
 
-    public function assignRole(Request $request){
+    public function assignRole(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'role' => 'required',
         ]);
-    
+
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $user = User::where('email', $request->email)->first();
-        if(!$user){
+        if (!$user) {
             return $this->jsonResponseWithoutMessage('email not found', 'data', 404);
         }
         $role = Role::where('name',  $request->role)->first();
         $user->assignRole($role);
         return $this->jsonResponse($user, 'data', 201, 'Done');
     }
-
-    
 }

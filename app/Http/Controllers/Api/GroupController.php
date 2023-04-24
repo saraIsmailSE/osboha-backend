@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use App\Events\NotificationsEvent;
 
 /**
  * Description: GroupController for Osboha group.
@@ -558,7 +559,18 @@ while ($parent !== null) {
             throw new NotFound;
         }
     }
- 
+
+    
+    public function userGroups()
+    {
+        event(new NotificationsEvent('test from Laravel'));
+        $response['groups'] = UserGroup::with('group')->with('group.users')->where('user_id',auth::id())->whereNull('termination_reason')->get();
+
+        if (!$response['groups']->isEmpty()) {
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        } else {
+            throw new NotFound;
+        }
+    }
+    
 }
- 
- 

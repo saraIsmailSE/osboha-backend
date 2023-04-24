@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\NotificationsEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ActivityController;
@@ -63,6 +64,10 @@ use App\Http\Controllers\Api\UserBookController;
 
 Route::group(['prefix' => 'v1'], function () {
 
+    Route::get('/myTEST', function () {
+        $test = 'اشعار جديد';
+        event(new NotificationsEvent($test));
+    });
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -75,8 +80,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/assign-role', [AuthController::class, 'assignRole']);
-Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
+        Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         Route::get('/logout', [AuthController::class, 'logout']);
+        Route::get('/session-data', [AuthController::class, 'sessionData']);
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         ########Book########
         Route::group(['prefix' => 'books'], function () {
@@ -93,11 +99,13 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
             Route::get('/recent-added-books', [BookController::class, 'getRecentAddedBooks']);
             Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
+            Route::get('/latest', [BookController::class, 'latest']);
         });
         ########End Book########
         ########User Book########
         Route::group(['prefix' => 'user-books'], function () {
             Route::get('/show/{user_id}', [UserBookController::class, 'show']);
+            Route::get('/later-books/{user_id}', [UserBookController::class, 'later']);
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
         });
@@ -147,15 +155,6 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         });
         ########End SystemIssue########
 
-        ########Transaction########
-        // Route::group(['prefix' => 'transaction'], function () {
-        //     Route::get('/', [TransactionController::class, 'index']);
-        //     Route::post('/create', [TransactionController::class, 'create']);
-        //     Route::post('/show', [TransactionController::class, 'show']);
-        //     Route::post('/show/user/all', [TransactionController::class, 'showUserTransactions']);
-        //     Route::post('/update', [TransactionController::class, 'update']);
-        // });
-        ########End Transaction########
         ########Start Comment########
         Route::group(['prefix' => 'comments'], function () {
             Route::post('/', [CommentController::class, 'create']);
@@ -167,13 +166,13 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         });
         ########End Comment########
         ########Start Media########
-        Route::group(['prefix' => 'media'], function () {
-            Route::get('/', [MediaController::class, 'index']);
-            Route::post('/create', [MediaController::class, 'create']);
-            Route::post('/show', [MediaController::class, 'show']);
-            Route::post('/update', [mediaController::class, 'update']);
-            Route::post('/delete', [MediaController::class, 'delete']);
-        });
+        // Route::group(['prefix' => 'media'], function () {
+        //     Route::get('/', [MediaController::class, 'index']);
+        //     Route::post('/create', [MediaController::class, 'create']);
+        //     Route::post('/show', [MediaController::class, 'show']);
+        //     Route::post('/update', [mediaController::class, 'update']);
+        //     Route::post('/delete', [MediaController::class, 'delete']);
+        // });
         ########End Media route########
         ########Start Friend route########
         Route::group(['prefix' => 'friends'], function () {
@@ -214,16 +213,6 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
             Route::get('/supervisors-audit', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
         });
         ######## End Audit Mark ########
-
-        ########RejectedMark########
-        // Route::group(['prefix' => 'rejected-mark'], function () {
-        //     Route::get('/', [RejectedMarkController::class, 'index']);
-        //     Route::post('/create', [RejectedMarkController::class, 'create']);
-        //     Route::post('/show', [RejectedMarkController::class, 'show']);
-        //     Route::post('/update', [RejectedMarkController::class, 'update']);
-        //     Route::post('/list', [RejectedMarkController::class, 'list_user_rejectedmark']);
-        // });
-        ########End RejectedMark ########
         ########Modified Theses########
         Route::group(['prefix' => 'modified-theses'], function () {
             Route::get('/', [ModifiedThesesController::class, 'index']);
@@ -274,6 +263,7 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
             Route::get('/audit-marks/{group_id}', [GroupController::class, 'auditMarks']);
+            Route::get('/user-groups', [GroupController::class, 'userGroups']);
         });
         ############End Group############
 
@@ -396,7 +386,7 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         ######## End Notification ########
         ####### Start UserGroup ########
         Route::group(['prefix' => 'user-group'], function () {
-            
+
             Route::get('/', [UserGroupController::class, 'index']);
             Route::get('/users/{group_id}', [UserGroupController::class, 'usersByGroupID']);
             Route::post('/', [UserGroupController::class, 'create']);
@@ -511,6 +501,8 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
             Route::get('/', [BookStatisticsController::class, 'index']);
         });
         ######## BookStatistics ########
+
+
 
     });
 });

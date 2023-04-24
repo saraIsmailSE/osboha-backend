@@ -331,14 +331,17 @@ class AuditMarkController extends Controller
      */
 
 
-    public function allSupervisorsForAdvisor()
+    public function allSupervisorsForAdvisor($advisor_id)
     {
-        if (Auth::user()->hasRole('advisor') || Auth::user()->hasRole('admin')) {
+        throw new NotAuthorized;
+
+        if ( !Auth::user()->hasRole('ambassador') || !Auth::user()->hasRole('leader')) {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get all groups ID for this advisor
-            $groupsID = UserGroup::where('user_id', Auth::id())->where('user_type', 'advisor')->pluck('group_id');
+            $groupsID = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->pluck('group_id');
             // all supervisors of advisor (unique)
             $supervisors = UserGroup::with('group')->where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->get()->unique('user_id');
+            $response=[];
             foreach ($supervisors as $key => $supervisor) { //for each supervisor of advisor 
                 // supervisor name
                 $supervisorinfo['supervisor'] = $supervisor->group->groupSupervisor->first();

@@ -74,15 +74,9 @@ class NotificationController extends Controller
      */
     public function listUnreadNotification()
     {
-
-        //return $this->jsonResponseWithoutMessage(auth()->user()->unreadNotifications()->get(),'data',200);
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
 
-        if (!$unreadNotifications->isEmpty()) {
-            return $this->jsonResponseWithoutMessage($unreadNotifications, 'data', 200);
-        } else {
-            throw new NotFound;
-        }
+        return $this->jsonResponseWithoutMessage($unreadNotifications,'data',200);
     }
     /**
      * Make specific notification as read by its id.
