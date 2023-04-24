@@ -382,8 +382,10 @@ Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         ######## End Notification ########
         ####### Start UserGroup ########
         Route::group(['prefix' => 'user-group'], function () {
+            
             Route::get('/', [UserGroupController::class, 'index']);
             Route::get('/users/{group_id}', [UserGroupController::class, 'usersByGroupID']);
+            Route::post('/', [UserGroupController::class, 'create']);
             Route::post('/show', [UserGroupController::class, 'show']);
             Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);

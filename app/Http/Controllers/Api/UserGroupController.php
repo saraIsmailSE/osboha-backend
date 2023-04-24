@@ -86,6 +86,41 @@ class UserGroupController extends Controller
      * @return jsonResponseWithoutMessage;
      */
 
+
+
+    public function create(Request $request)
+    {
+        // Validate the input
+        $validatedData = $request->validate([
+            'email' => 'required',
+            'group_id' => 'required', 
+            'group_id' => 'required', 
+        ]);
+    
+    
+        $user = User::find($validatedData['email']); 
+        if(!$user){
+            return $this->jsonResponseWithoutMessage('email not found', 'data', 404);
+        }else if(!is_null( $user->parent_id)){
+            return $this->jsonResponseWithoutMessage('user is registerd', 'data', 404);
+        }
+        $user->parent_id = Auth::id();
+        $user->save();
+        $userGroup = UserGroup::create(['user_id' => $user->id,'group_id' =>  $validatedData['group_id'], 'user_type' => 'ambassador']);
+     
+        $userGroup->save();
+    
+      
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User created successfully',
+            'data' => $user,
+        ]);
+    }
+
+    
+
+
     public function assign_role(Request $request)
     {
         #####Asmaa####

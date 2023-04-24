@@ -68,7 +68,10 @@ class User extends Authenticatable
         return $this->hasMany(ProfileMedia::class);
     }
 
-
+    public function parent()
+    {
+        return $this->belongsTo(User::class, 'parent_id');
+    }
     public function profileSetting()
     {
         return $this->hasOne(ProfileSetting::class);

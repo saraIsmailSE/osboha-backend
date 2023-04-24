@@ -313,4 +313,6 @@ class AuthController extends Controller
         $user->assignRole($role);
         return $this->jsonResponse($user, 'data', 201, 'Done');
     }
+
+    
 }

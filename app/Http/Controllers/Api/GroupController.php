@@ -103,6 +103,19 @@ class GroupController extends Controller
                 $file = $request->file('image');
                 $this->createMedia($file, $group->id, 'group');
             }
+            $child = User::find(Auth::id());
+$parent = $child->parent;
+
+while ($parent !== null) {
+    $userGroup = UserGroup::create([ 
+        'user_id' => $parent->id,
+    'group_id' => $group->id,
+    'user_type', $parent->roles[0]->name]);
+$userGroup->save();
+    $child = $parent;
+    $parent = $child->parent;
+}
+
             return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 201);
         } else {
             throw new NotAuthorized;
@@ -534,4 +547,5 @@ class GroupController extends Controller
             throw new NotFound;
         }
     }
+ 
 }
