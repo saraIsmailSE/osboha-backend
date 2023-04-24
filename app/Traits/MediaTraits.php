@@ -101,4 +101,17 @@ trait MediaTraits
         $user->picture = null;
         $user->save();
     }
+
+    function getRandomMediaFileName()
+    {
+        //get file name from assets/images/
+        $files = File::files(public_path('assets/images'));
+        $fileNames = [];
+        foreach ($files as $file) {
+            $fileNames[] = basename($file);
+        }
+        //get random file name
+        $randomFileName = $fileNames[array_rand($fileNames)];
+        return $randomFileName;
+    }
 }

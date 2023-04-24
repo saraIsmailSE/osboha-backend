@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\BooktypeController;
 use App\Http\Controllers\Api\ExceptionTypeController;
 use App\Http\Controllers\Api\GroupTypeController;
+use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\PostTypeController;
 use App\Http\Controllers\Api\ThesisTypeController;
 use App\Http\Controllers\Api\TimelineTypeController;
@@ -115,6 +116,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [ReactionController::class, 'update']);
             Route::post('/delete', [ReactionController::class, 'delete']);
             Route::get('/types', [ReactionController::class, 'getReactionTypes']);
+            Route::get('/posts/{post_id}/types/{type_id}', [ReactionController::class, 'reactOnPost'])->where('post_id', '[0-9]+')->where('type_id', '[0-9]+');
+            Route::get('/comments/{comment_id}/types/{type_id}', [ReactionController::class, 'reactOnComment'])->where('comment_id', '[0-9]+')->where('type_id', '[0-9]+');
         });
         ########End Reaction########
         ########LeaderRequest########
@@ -142,13 +145,13 @@ Route::group(['prefix' => 'v1'], function () {
         ########End SystemIssue########
 
         ########Transaction########
-        Route::group(['prefix' => 'transaction'], function () {
-            Route::get('/', [TransactionController::class, 'index']);
-            Route::post('/create', [TransactionController::class, 'create']);
-            Route::post('/show', [TransactionController::class, 'show']);
-            Route::post('/show/user/all', [TransactionController::class, 'showUserTransactions']);
-            Route::post('/update', [TransactionController::class, 'update']);
-        });
+        // Route::group(['prefix' => 'transaction'], function () {
+        //     Route::get('/', [TransactionController::class, 'index']);
+        //     Route::post('/create', [TransactionController::class, 'create']);
+        //     Route::post('/show', [TransactionController::class, 'show']);
+        //     Route::post('/show/user/all', [TransactionController::class, 'showUserTransactions']);
+        //     Route::post('/update', [TransactionController::class, 'update']);
+        // });
         ########End Transaction########
         ########Start Comment########
         Route::group(['prefix' => 'comments'], function () {
@@ -206,18 +209,17 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/update-mark-for-audit-status/{id}', [AuditMarkController::class, 'updateMarkForAuditStatus']);
             Route::get('/groups-audit/{supervisor_id}', [AuditMarkController::class, 'groupsAudit']);
             Route::get('/supervisors-audit', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
-            
         });
         ######## End Audit Mark ########
 
         ########RejectedMark########
-        Route::group(['prefix' => 'rejected-mark'], function () {
-            Route::get('/', [RejectedMarkController::class, 'index']);
-            Route::post('/create', [RejectedMarkController::class, 'create']);
-            Route::post('/show', [RejectedMarkController::class, 'show']);
-            Route::post('/update', [RejectedMarkController::class, 'update']);
-            Route::post('/list', [RejectedMarkController::class, 'list_user_rejectedmark']);
-        });
+        // Route::group(['prefix' => 'rejected-mark'], function () {
+        //     Route::get('/', [RejectedMarkController::class, 'index']);
+        //     Route::post('/create', [RejectedMarkController::class, 'create']);
+        //     Route::post('/show', [RejectedMarkController::class, 'show']);
+        //     Route::post('/update', [RejectedMarkController::class, 'update']);
+        //     Route::post('/list', [RejectedMarkController::class, 'list_user_rejectedmark']);
+        // });
         ########End RejectedMark ########
         ########Modified Theses########
         Route::group(['prefix' => 'modified-theses'], function () {

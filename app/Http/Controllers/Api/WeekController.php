@@ -30,67 +30,86 @@ class WeekController extends Controller
     {
         //get date of first day of first week of february 2023
         $date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
-        define('YEAR_WEEKS', array(
-            array('title' => 'الاول من فبراير', 'date' => $date),
-            array('title' => 'الثاني من فبراير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d')),
-            array('title' => 'الثالث من فبراير', 'date' => Carbon::parse($date)->addWeeks(2)->format('Y-m-d')),
-            array('title' => 'الرابع من فبراير', 'date' => Carbon::parse($date)->addWeeks(3)->format('Y-m-d')),
-            array('title' => 'الاول من مارس', 'date' => Carbon::parse($date)->addWeeks(4)->format('Y-m-d')),
-            array('title' => 'الثاني من مارس', 'date' => Carbon::parse($date)->addWeeks(5)->format('Y-m-d')),
-            array('title' => 'الثالث من مارس', 'date' => Carbon::parse($date)->addWeeks(6)->format('Y-m-d')),
-            array('title' => 'الرابع من مارس', 'date' => Carbon::parse($date)->addWeeks(7)->format('Y-m-d')),
-            array('title' => 'الاول من ابريل', 'date' => Carbon::parse($date)->addWeeks(8)->format('Y-m-d')),
-            array('title' => 'الثاني من ابريل', 'date' => Carbon::parse($date)->addWeeks(9)->format('Y-m-d')),
-            array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(10)->format('Y-m-d')),
-            array('title' => 'الرابع من ابريل', 'date' => Carbon::parse($date)->addWeeks(11)->format('Y-m-d')),
-            array('title' => 'الخامس من ابريل', 'date' => Carbon::parse($date)->addWeeks(12)->format('Y-m-d')),
-            array('title' => 'الاول من مايو', 'date' => Carbon::parse($date)->addWeeks(13)->format('Y-m-d')),
-            array('title' => 'الثاني من مايو', 'date' => Carbon::parse($date)->addWeeks(14)->format('Y-m-d')),
-            array('title' => 'الثالث من مايو', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d')),
-            array('title' => 'الرابع من مايو', 'date' => Carbon::parse($date)->addWeeks(16)->format('Y-m-d')),
-            array('title' => 'الاول من يونيو', 'date' => Carbon::parse($date)->addWeeks(17)->format('Y-m-d')),
-            array('title' => 'الثاني من يونيو', 'date' => Carbon::parse($date)->addWeeks(18)->format('Y-m-d')),
-            array('title' => 'الثالث من يونيو', 'date' => Carbon::parse($date)->addWeeks(19)->format('Y-m-d')),
-            array('title' => 'الرابع من يونيو', 'date' => Carbon::parse($date)->addWeeks(20)->format('Y-m-d')),
-            array('title' => 'الاول من يوليو', 'date' => Carbon::parse($date)->addWeeks(21)->format('Y-m-d')),
-            array('title' => 'الثاني من يوليو', 'date' => Carbon::parse($date)->addWeeks(22)->format('Y-m-d')),
-            array('title' => 'الثالث من يوليو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d')),
-            array('title' => 'الرابع من يوليو', 'date' => Carbon::parse($date)->addWeeks(24)->format('Y-m-d')),
-            array('title' => 'الخامس من يوليو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d')),
-            array('title' => 'الاول من اغسطس', 'date' => Carbon::parse($date)->addWeeks(26)->format('Y-m-d')),
-            array('title' => 'الثاني من اغسطس', 'date' => Carbon::parse($date)->addWeeks(27)->format('Y-m-d')),
-            array('title' => 'الثالث من اغسطس', 'date' => Carbon::parse($date)->addWeeks(28)->format('Y-m-d')),
-            array('title' => 'الرابع من اغسطس', 'date' => Carbon::parse($date)->addWeeks(29)->format('Y-m-d')),
-            array('title' => 'الاول من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(30)->format('Y-m-d')),
-            array('title' => 'الثاني من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(31)->format('Y-m-d')),
-            array('title' => 'الثالث من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(32)->format('Y-m-d')),
-            array('title' => 'الرابع من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(33)->format('Y-m-d')),
-            array('title' => 'الخامس من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(34)->format('Y-m-d')),
-            array('title' => 'الاول من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(35)->format('Y-m-d')),
-            array('title' => 'الثاني من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(36)->format('Y-m-d')),
-            array('title' => 'الثالث من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(37)->format('Y-m-d')),
-            array('title' => 'الرابع من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(38)->format('Y-m-d')),
-            array('title' => 'الخامس من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(39)->format('Y-m-d')),
-            array('title' => 'الاول من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(40)->format('Y-m-d')),
-            array('title' => 'الثاني من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(41)->format('Y-m-d')),
-            array('title' => 'الثالث من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(42)->format('Y-m-d')),
-            array('title' => 'الرابع من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(43)->format('Y-m-d')),
-            array('title' => 'الاول من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(44)->format('Y-m-d')),
-            array('title' => 'الثاني من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(45)->format('Y-m-d')),
-            array('title' => 'الثالث من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(46)->format('Y-m-d')),
-            array('title' => 'الرابع من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(47)->format('Y-m-d')),
-            array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(48)->format('Y-m-d')),
-        ));
 
-        define('EXCEPTION_STATUS', 'accepted');
-        define('FREEZ_THIS_WEEK_TYPE', 'تجميد الأسبوع الحالي');
-        define('FREEZ_NEXT_WEEK_TYPE', 'تجميد الأسبوع القادم');
-        define('EXCEPTIONAL_FREEZING_TYPE', 'تجميد استثنائي');
-        define('SUPPORT_MARK', 10);
-        define('READING_MARK', 50);
-        define('WRITING_MARK', 40);
-        define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
-        define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
+        if (!defined('YEAR_WEEKS'))
+            define('YEAR_WEEKS', array(
+                array('title' => 'الاول من فبراير', 'date' => $date),
+                array('title' => 'الثاني من فبراير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d')),
+                array('title' => 'الثالث من فبراير', 'date' => Carbon::parse($date)->addWeeks(2)->format('Y-m-d')),
+                array('title' => 'الرابع من فبراير', 'date' => Carbon::parse($date)->addWeeks(3)->format('Y-m-d')),
+                array('title' => 'الاول من مارس', 'date' => Carbon::parse($date)->addWeeks(4)->format('Y-m-d')),
+                array('title' => 'الثاني من مارس', 'date' => Carbon::parse($date)->addWeeks(5)->format('Y-m-d')),
+                array('title' => 'الثالث من مارس', 'date' => Carbon::parse($date)->addWeeks(6)->format('Y-m-d')),
+                array('title' => 'الرابع من مارس', 'date' => Carbon::parse($date)->addWeeks(7)->format('Y-m-d')),
+                array('title' => 'الاول من ابريل', 'date' => Carbon::parse($date)->addWeeks(8)->format('Y-m-d')),
+                array('title' => 'الثاني من ابريل', 'date' => Carbon::parse($date)->addWeeks(9)->format('Y-m-d')),
+                array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(10)->format('Y-m-d')),
+                array('title' => 'الرابع من ابريل', 'date' => Carbon::parse($date)->addWeeks(11)->format('Y-m-d')),
+                array('title' => 'الخامس من ابريل', 'date' => Carbon::parse($date)->addWeeks(12)->format('Y-m-d')),
+                array('title' => 'الاول من مايو', 'date' => Carbon::parse($date)->addWeeks(13)->format('Y-m-d')),
+                array('title' => 'الثاني من مايو', 'date' => Carbon::parse($date)->addWeeks(14)->format('Y-m-d')),
+                array('title' => 'الثالث من مايو', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d')),
+                array('title' => 'الرابع من مايو', 'date' => Carbon::parse($date)->addWeeks(16)->format('Y-m-d')),
+                array('title' => 'الاول من يونيو', 'date' => Carbon::parse($date)->addWeeks(17)->format('Y-m-d')),
+                array('title' => 'الثاني من يونيو', 'date' => Carbon::parse($date)->addWeeks(18)->format('Y-m-d')),
+                array('title' => 'الثالث من يونيو', 'date' => Carbon::parse($date)->addWeeks(19)->format('Y-m-d')),
+                array('title' => 'الرابع من يونيو', 'date' => Carbon::parse($date)->addWeeks(20)->format('Y-m-d')),
+                array('title' => 'الاول من يوليو', 'date' => Carbon::parse($date)->addWeeks(21)->format('Y-m-d')),
+                array('title' => 'الثاني من يوليو', 'date' => Carbon::parse($date)->addWeeks(22)->format('Y-m-d')),
+                array('title' => 'الثالث من يوليو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d')),
+                array('title' => 'الرابع من يوليو', 'date' => Carbon::parse($date)->addWeeks(24)->format('Y-m-d')),
+                array('title' => 'الخامس من يوليو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d')),
+                array('title' => 'الاول من اغسطس', 'date' => Carbon::parse($date)->addWeeks(26)->format('Y-m-d')),
+                array('title' => 'الثاني من اغسطس', 'date' => Carbon::parse($date)->addWeeks(27)->format('Y-m-d')),
+                array('title' => 'الثالث من اغسطس', 'date' => Carbon::parse($date)->addWeeks(28)->format('Y-m-d')),
+                array('title' => 'الرابع من اغسطس', 'date' => Carbon::parse($date)->addWeeks(29)->format('Y-m-d')),
+                array('title' => 'الاول من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(30)->format('Y-m-d')),
+                array('title' => 'الثاني من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(31)->format('Y-m-d')),
+                array('title' => 'الثالث من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(32)->format('Y-m-d')),
+                array('title' => 'الرابع من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(33)->format('Y-m-d')),
+                array('title' => 'الخامس من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(34)->format('Y-m-d')),
+                array('title' => 'الاول من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(35)->format('Y-m-d')),
+                array('title' => 'الثاني من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(36)->format('Y-m-d')),
+                array('title' => 'الثالث من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(37)->format('Y-m-d')),
+                array('title' => 'الرابع من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(38)->format('Y-m-d')),
+                array('title' => 'الخامس من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(39)->format('Y-m-d')),
+                array('title' => 'الاول من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(40)->format('Y-m-d')),
+                array('title' => 'الثاني من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(41)->format('Y-m-d')),
+                array('title' => 'الثالث من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(42)->format('Y-m-d')),
+                array('title' => 'الرابع من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(43)->format('Y-m-d')),
+                array('title' => 'الاول من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(44)->format('Y-m-d')),
+                array('title' => 'الثاني من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(45)->format('Y-m-d')),
+                array('title' => 'الثالث من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(46)->format('Y-m-d')),
+                array('title' => 'الرابع من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(47)->format('Y-m-d')),
+                array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(48)->format('Y-m-d')),
+            ));
+
+        if (!defined('EXCEPTION_STATUS'))
+            define('EXCEPTION_STATUS', 'accepted');
+
+        if (!defined('FREEZ_THIS_WEEK_TYPE'))
+            define('FREEZ_THIS_WEEK_TYPE', 'تجميد الأسبوع الحالي');
+
+        if (!defined('FREEZ_NEXT_WEEK_TYPE'))
+            define('FREEZ_NEXT_WEEK_TYPE', 'تجميد الأسبوع القادم');
+
+        if (!defined('EXCEPTIONAL_FREEZING_TYPE'))
+            define('EXCEPTIONAL_FREEZING_TYPE', 'تجميد استثنائي');
+
+        if (!defined('SUPPORT_MARK'))
+            define('SUPPORT_MARK', 10);
+
+        if (!defined('READING_MARK'))
+            define('READING_MARK', 50);
+
+        if (!defined('WRITING_MARK'))
+            define('WRITING_MARK', 40);
+
+        if (!defined('EXAMS_MONTHLY_TYPE'))
+            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
+
+        if (!defined('EXAMS_SEASONAL_TYPE'))
+            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
     }
 
     /**
@@ -165,7 +184,7 @@ class WeekController extends Controller
                             $exception->update();
 
                             $msg = "تم تمديد الحالة الاستثنائية لك حتى " . $exception->end_at . " بسبب الإجازة";
-                            (new NotificationController)->sendNotification($exception->user_id, $msg,'user_exceptions');
+                            (new NotificationController)->sendNotification($exception->user_id, $msg, 'user_exceptions');
                         }
                     } else { //this week is already vacation
                         return $this->jsonResponseWithoutMessage('This week is already vacation', 'data', 200);

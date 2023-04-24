@@ -29,6 +29,8 @@ class PostResource extends JsonResource
             'taggedUsers' => TaggedUserResource::collection($this->taggedUsers),
             'votes_count' => $this->poll_votes_count ?? 0,
             "comments_count" => $this->comments_count ?? 0,
+            'reactions_count' => $this->reactions_count ?? 0,
+            'reacted_by_user' => $this->reactions->contains('user_id', auth()->id()),
             'created_at' => $this->created_at,
         ];
     }

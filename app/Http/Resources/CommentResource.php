@@ -25,6 +25,8 @@ class CommentResource extends JsonResource
             "media" => new MediaResource($this->media),
             "post" => new PostResource($this->whenLoaded('post')),
             "thesis" => new ThesisResource($this->whenLoaded('thesis')),
+            'reactions_count' => $this->reactions_count ?? 0,
+            'reacted_by_user' => $this->reactions->contains('user_id', auth()->id()),
             "created_at" => $this->created_at,
         ];
     }

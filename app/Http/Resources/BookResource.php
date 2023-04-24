@@ -32,6 +32,7 @@ class BookResource extends JsonResource
             'created_at' => $this->created_at,
             "posts" => PostResource::collection($this->whenLoaded('post')),
             'userBooks' => UserBookResource::collection($this->whenLoaded('userBooks')),
+            'last_thesis' => $this->last_thesis ? new ThesisResource($this->last_thesis) : null,
         ];
     }
 }

@@ -31,8 +31,21 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::with('section', 'type', 'language')->paginate(9);
+        $books = Book::with('section', 'type', 'language')
+            ->with('userBooks', function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            })
+            ->paginate(9);
         if ($books->isNotEmpty()) {
+
+            foreach ($books as $book) {
+                $book->last_thesis = Auth::user()
+                    ->theses()
+                    ->where('book_id', $book->id)
+                    ->orderBy('end_page', 'desc')
+                    ->orderBy('updated_at', 'desc')->first();
+            }
+
             return $this->jsonResponseWithoutMessage([
                 'books' => BookResource::collection($books),
                 'total' => $books->total(),
