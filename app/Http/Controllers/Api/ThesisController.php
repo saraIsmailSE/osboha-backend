@@ -50,6 +50,10 @@ class ThesisController extends Controller
         $post_id = Post::where('book_id', $book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
         $comments = Comment::where('post_id', $post_id)
             ->where('comment_id', 0)
+            ->with('reactions', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('reactions')
             ->with('thesis')->orderBy('created_at', 'desc')->paginate(10);
 
         if ($comments->isNotEmpty()) {

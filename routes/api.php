@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\SectionController;
 use App\Http\Controllers\Api\BooktypeController;
 use App\Http\Controllers\Api\ExceptionTypeController;
 use App\Http\Controllers\Api\GroupTypeController;
+use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\PostTypeController;
 use App\Http\Controllers\Api\ThesisTypeController;
 use App\Http\Controllers\Api\TimelineTypeController;
@@ -65,11 +66,11 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::get('/myTEST', function () {
         $test = 'اشعار جديد';
-         event(new NotificationsEvent($test));
+        event(new NotificationsEvent($test));
     });
 
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'signUp']);
 
     Route::get('/profile-image', [UserProfileController::class, 'getImages']);
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
@@ -77,6 +78,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
     Route::middleware('auth:sanctum')->group(function () {
+
+        Route::post('/assign-role', [AuthController::class, 'assignRole']);
+        Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::get('/session-data', [AuthController::class, 'sessionData']);
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
@@ -123,6 +127,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [ReactionController::class, 'update']);
             Route::post('/delete', [ReactionController::class, 'delete']);
             Route::get('/types', [ReactionController::class, 'getReactionTypes']);
+            Route::get('/posts/{post_id}/types/{type_id}', [ReactionController::class, 'reactOnPost'])->where('post_id', '[0-9]+')->where('type_id', '[0-9]+');
+            Route::get('/comments/{comment_id}/types/{type_id}', [ReactionController::class, 'reactOnComment'])->where('comment_id', '[0-9]+')->where('type_id', '[0-9]+');
         });
         ########End Reaction########
         ########LeaderRequest########
@@ -204,11 +210,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/group-audit-marks/{group_id}', [AuditMarkController::class, 'groupAuditMarks']);
             Route::patch('/update-mark-for-audit-status/{id}', [AuditMarkController::class, 'updateMarkForAuditStatus']);
             Route::get('/groups-audit/{supervisor_id}', [AuditMarkController::class, 'groupsAudit']);
-            Route::get('/supervisors-audit/{advisor_id}', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
-            
+            Route::get('/supervisors-audit', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
         });
         ######## End Audit Mark ########
-
         ########Modified Theses########
         Route::group(['prefix' => 'modified-theses'], function () {
             Route::get('/', [ModifiedThesesController::class, 'index']);
@@ -382,8 +386,10 @@ Route::group(['prefix' => 'v1'], function () {
         ######## End Notification ########
         ####### Start UserGroup ########
         Route::group(['prefix' => 'user-group'], function () {
+
             Route::get('/', [UserGroupController::class, 'index']);
             Route::get('/users/{group_id}', [UserGroupController::class, 'usersByGroupID']);
+            Route::post('/', [UserGroupController::class, 'create']);
             Route::post('/show', [UserGroupController::class, 'show']);
             Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
@@ -497,6 +503,6 @@ Route::group(['prefix' => 'v1'], function () {
         ######## BookStatistics ########
 
 
-        
+
     });
 });

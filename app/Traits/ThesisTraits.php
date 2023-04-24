@@ -7,6 +7,7 @@ use App\Http\Resources\ThesisResource;
 use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Mark;
+use App\Models\ModificationReason;
 use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\User;
@@ -24,66 +25,62 @@ trait ThesisTraits
     ##########ASMAA##########
     public function __construct()
     {
-        if (!defined('MAX_PARTS')) {
+        if (!defined('MAX_PARTS'))
             define('MAX_PARTS', 5);
-        }
-        if (!defined('MAX_SCREENSHOTS')) {
 
+        if (!defined('MAX_SCREENSHOTS'))
             define('MAX_SCREENSHOTS', 5);
-        }
-        if (!defined('MAX_AYAT')) {
+
+        if (!defined('MAX_AYAT'))
             define('MAX_AYAT', 5);
-        }
-        if (!defined('PART_READING_MARK')) {
+
+        if (!defined('PART_READING_MARK'))
             define('PART_READING_MARK', 10);
-        }
-        if (!defined('PART_THESIS_MARK')) {
+
+        if (!defined('PART_THESIS_MARK'))
             define('PART_THESIS_MARK', 8);
-        }
-        if (!defined('FULL_READING_MARK')) {
+
+        if (!defined('FULL_READING_MARK'))
             define('FULL_READING_MARK', 50);
-        }
-        if (!defined('FULL_WRITING_MARK')) {
+
+        if (!defined('FULL_WRITING_MARK'))
             define('FULL_WRITING_MARK', 40);
-        }
-        if (!defined('COMPLETE_THESIS_LENGTH')) {
+
+        if (!defined('COMPLETE_THESIS_LENGTH'))
             define('COMPLETE_THESIS_LENGTH', 400);
-        }
-        if (!defined('PART_PAGES')) {
+
+        if (!defined('PART_PAGES'))
             define('PART_PAGES', 6);
-        }
-        if (!defined('RAMADAN_PART_PAGES')) {
+
+        if (!defined('RAMADAN_PART_PAGES'))
             define('RAMADAN_PART_PAGES', 3);
-        }
-        if (!defined('MIN_VALID_REMAINING')) {
+
+        if (!defined('MIN_VALID_REMAINING'))
             define('MIN_VALID_REMAINING', 3);
-        }
 
-        if (!defined('INCREMENT_VALUE')) {
+        if (!defined('INCREMENT_VALUE'))
             define('INCREMENT_VALUE', 1);
-        }
-        if (!defined('SUPPORT_MARK')) {
-            define('SUPPORT_MARK', 10);
-        }
-        if (!defined('NORMAL_THESIS_TYPE')) {
-            define('NORMAL_THESIS_TYPE', 'normal');
-        }
-        if (!defined('RAMADAN_THESIS_TYPE')) {
-            define('RAMADAN_THESIS_TYPE', 'ramadan');
-        }
-        if (!defined('TAFSEER_THESIS_TYPE')) {
-            define('TAFSEER_THESIS_TYPE', 'tafseer');
-        }
-        if (!defined('EXCEPTION_STATUS')) {
-            define('EXCEPTION_STATUS', 'accepted');
-        }
-        if (!defined('EXAMS_MONTHLY_TYPE')) {
-            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
-        }
-        if (!defined('EXAMS_SEASONAL_TYPE')) {
-            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
-        }
 
+        if (!defined('SUPPORT_MARK'))
+            define('SUPPORT_MARK', 10);
+
+        if (!defined('NORMAL_THESIS_TYPE'))
+            define('NORMAL_THESIS_TYPE', 'normal');
+
+        if (!defined('RAMADAN_THESIS_TYPE'))
+            define('RAMADAN_THESIS_TYPE', 'ramadan');
+
+        if (!defined('TAFSEER_THESIS_TYPE'))
+            define('TAFSEER_THESIS_TYPE', 'tafseer');
+
+        if (!defined('EXCEPTION_STATUS'))
+            define('EXCEPTION_STATUS', 'accepted');
+
+        if (!defined('EXAMS_MONTHLY_TYPE'))
+            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
+
+        if (!defined('EXAMS_SEASONAL_TYPE'))
+            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
 
         /*
         * Full mark out of 100 = reading_mark + writing mark + support
@@ -464,7 +461,13 @@ trait ThesisTraits
                 );
             }
             $mark['reading_mark'] += $thesis_mark['reading_mark'];
-            $mark['writing_mark'] += $thesis_mark['writing_mark'];
+
+            //modify mark if the thesis is audited
+            if ($thesis->status === 'accepted' || $thesis->status === 'pending') {
+                $mark['writing_mark'] += $thesis_mark['writing_mark'];
+            } else if ($thesis->status === 'one_thesis') {
+                $mark['writing_mark'] += PART_THESIS_MARK;
+            }
         }
         return $mark;
     }
@@ -678,15 +681,7 @@ trait ThesisTraits
 
         //if the user book doesn't exist
         if (!$user_book) {
-            //if the thesis is deleted
-            if ($isDeleted) {
-                //if the user book status is finished, decrease the counter and change the status to in progress
-                if ($user_book->status == 'finished') {
-                    $user_book->status = 'in progress';
-                    $user_book->counter = $user_book->counter - 1;
-                    $user_book->save();
-                }
-            } else {
+            if (!$isDeleted) {
                 //if new thesis is added, create a new user book record
                 $book = Book::find($book_id);
                 $user_book = UserBook::create([
@@ -696,17 +691,28 @@ trait ThesisTraits
                 ]);
             }
         } else {
-            //if user book exists, update the status based on the thesis end page
-            if ($thesis->end_page >= $user_book->book->end_page) {
-                $user_book->status = 'finished';
-                $user_book->counter = $user_book->counter + 1;
-                $user_book->save();
-            }
 
-            //is status "later", uptade it to "in progress" as the user will start reading the book
-            else if ($user_book->status == 'later' || $user_book->status == 'finished') {
-                $user_book->status = 'in progress';
-                $user_book->save();
+            //if the thesis is deleted
+            if ($isDeleted) {
+                //if the user book status is finished, decrease the counter and change the status to in progress
+                if ($user_book->status == 'finished') {
+                    $user_book->status = 'in progress';
+                    $user_book->counter = $user_book->counter - 1;
+                    $user_book->save();
+                }
+            } else {
+                //if user book exists, update the status based on the thesis end page
+                if ($thesis->end_page >= $user_book->book->end_page) {
+                    $user_book->status = 'finished';
+                    $user_book->counter = $user_book->counter + 1;
+                    $user_book->save();
+                }
+
+                //is status "later", uptade it to "in progress" as the user will start reading the book
+                else if ($user_book->status == 'later' || $user_book->status == 'finished') {
+                    $user_book->status = 'in progress';
+                    $user_book->save();
+                }
             }
         }
 
@@ -716,11 +722,57 @@ trait ThesisTraits
             if ($user_book->status != 'later') {
                 $user_book->delete();
             }
-        } else {
-            $completeTheses = $user->theses()->where('end_page', $user_book->book->end_page)->where('book_id', $book_id)->count();
-            $user_book->counter = $completeTheses;
-            $user_book->status = $allThesis > $completeTheses ? 'in progress' : 'finished';
-            $user_book->save();
+        }
+
+        //needs updating
+        // else {
+        //     $completeTheses = $user->theses()->where('end_page', $user_book->book->end_page)->where('book_id', $book_id)->count();
+        //     $user_book->counter = $completeTheses;
+        //     $user_book->status = $allThesis > $completeTheses ? 'in progress' : 'finished';
+        //     $user_book->save();
+        // }
+    }
+
+    /**
+     * Modify thesis mark based on the status
+     * @param int $mark_id
+     * @param string $status
+     * @return void
+     */
+    public function auditThesis($thesis, $status)
+    { //status: rejected or one_thesis
+
+        if ($status != 'rejected' && $status != 'one_thesis') {
+            return;
+        }
+
+        $mark = null;
+        if ($thesis->type->type === NORMAL_THESIS_TYPE) {
+            $mark = $this->calculate_mark_for_normal_thesis(
+                $thesis->end_page - $thesis->start_page + 1,
+                $thesis->max_length,
+                $thesis->total_screenshots
+            );
+        } else if ($thesis->type->type === RAMADAN_THESIS_TYPE || $thesis->type->type === TAFSEER_THESIS_TYPE) {
+            $mark = $this->calculate_mark_for_ramadan_thesis(
+                $thesis->end_page - $thesis->start_page + 1,
+                $thesis->max_length,
+                $thesis->total_screenshots,
+                $thesis->type->type
+            );
+        }
+
+        if (!$mark) {
+            return;
+        }
+
+        $markRecord = Mark::find($thesis->mark_id);
+        if ($status == 'rejected') {
+            $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'];
+            $markRecord->save();
+        } else if ($status == 'one_thesis') {
+            $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'] + PART_THESIS_MARK;
+            $markRecord->save();
         }
     }
 }

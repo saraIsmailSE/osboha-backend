@@ -85,18 +85,16 @@ class GroupController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'type_id' => 'required',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'image' => 'image|mimes:jpg,jpeg,png,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 400);
         }
 
 
         if (Auth::user()->can('create group')) {
             $timeline = new Timeline;
-            $timeline->name = $request->name;
-            $timeline->description = $request->description;
             $timeline->type_id = $request->type_id;
             $timeline->save();
             $input['creator_id'] = Auth::id();
@@ -106,7 +104,23 @@ class GroupController extends Controller
                 $file = $request->file('image');
                 $this->createMedia($file, $group->id, 'group');
             }
-            return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 200);
+            $child = User::find(Auth::id());
+$parent = $child->parent;
+
+while ($parent !== null) {
+
+    $parentRole = $parent->roles()->orderBy('id', 'asc')->first();
+
+    $userGroup = UserGroup::create([ 
+        'user_id' => $parent->id,
+    'group_id' => $group->id,
+    'user_type', $parentRole]);
+    $userGroup->save();
+    $child = $parent;
+    $parent = $child->parentRole;
+}
+
+            return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 201);
         } else {
             throw new NotAuthorized;
         }
@@ -140,7 +154,7 @@ class GroupController extends Controller
                     ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
                     ->first()
                     ->out_of_100;
-                return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                return $this->jsonResponseWitYhoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
             }

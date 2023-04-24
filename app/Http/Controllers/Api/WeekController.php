@@ -30,7 +30,7 @@ class WeekController extends Controller
     {
         //get date of first day of first week of february 2023
         $date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
-        if (!defined('YEAR_WEEKS')) {
+        if (!defined('YEAR_WEEKS'))
             define('YEAR_WEEKS', array(
                 array('title' => 'الاول من فبراير', 'date' => $date),
                 array('title' => 'الثاني من فبراير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d')),
@@ -82,36 +82,33 @@ class WeekController extends Controller
                 array('title' => 'الرابع من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(47)->format('Y-m-d')),
                 array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(48)->format('Y-m-d')),
             ));
-        }
 
-        if (!defined('EXCEPTION_STATUS')) {
+        if (!defined('EXCEPTION_STATUS'))
             define('EXCEPTION_STATUS', 'accepted');
-        }
-        if (!defined('FREEZ_THIS_WEEK_TYPE')) {
-            define('FREEZ_THIS_WEEK_TYPE', 'تجميد الأسبوع الحالي');
-        }
-        if (!defined('FREEZ_NEXT_WEEK_TYPE')) {
-            define('FREEZ_NEXT_WEEK_TYPE', 'تجميد الأسبوع القادم');
-        }
-        if (!defined('EXCEPTIONAL_FREEZING_TYPE')) {
-            define('EXCEPTIONAL_FREEZING_TYPE', 'تجميد استثنائي');
-        }
-        if (!defined('SUPPORT_MARK')) {
-            define('SUPPORT_MARK', 10);
-        }
-        if (!defined('READING_MARK')) {
-            define('READING_MARK', 50);
-        }
-        if (!defined('WRITING_MARK')) {
-            define('WRITING_MARK', 40);
-        }
-        if (!defined('EXAMS_MONTHLY_TYPE')) {
-            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
-        }
-        if (!defined('EXAMS_SEASONAL_TYPE')) {
-            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
-        }
 
+        if (!defined('FREEZ_THIS_WEEK_TYPE'))
+            define('FREEZ_THIS_WEEK_TYPE', 'تجميد الأسبوع الحالي');
+
+        if (!defined('FREEZ_NEXT_WEEK_TYPE'))
+            define('FREEZ_NEXT_WEEK_TYPE', 'تجميد الأسبوع القادم');
+
+        if (!defined('EXCEPTIONAL_FREEZING_TYPE'))
+            define('EXCEPTIONAL_FREEZING_TYPE', 'تجميد استثنائي');
+
+        if (!defined('SUPPORT_MARK'))
+            define('SUPPORT_MARK', 10);
+
+        if (!defined('READING_MARK'))
+            define('READING_MARK', 50);
+
+        if (!defined('WRITING_MARK'))
+            define('WRITING_MARK', 40);
+
+        if (!defined('EXAMS_MONTHLY_TYPE'))
+            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
+
+        if (!defined('EXAMS_SEASONAL_TYPE'))
+            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
     }
 
     /**
@@ -186,7 +183,7 @@ class WeekController extends Controller
                             $exception->update();
 
                             $msg = "تم تمديد الحالة الاستثنائية لك حتى " . $exception->end_at . " بسبب الإجازة";
-                            (new NotificationController)->sendNotification($exception->user_id, $msg,'user_exceptions');
+                            (new NotificationController)->sendNotification($exception->user_id, $msg, 'user_exceptions');
                         }
                     } else { //this week is already vacation
                         return $this->jsonResponseWithoutMessage('This week is already vacation', 'data', 200);

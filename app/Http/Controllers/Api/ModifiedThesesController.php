@@ -13,10 +13,11 @@ use App\Http\Resources\ModifiedThesesResource;
 use App\Models\ModifiedTheses;
 use App\Models\Thesis;
 use App\Models\Week;
+use App\Traits\ThesisTraits;
 
 class ModifiedThesesController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, ThesisTraits;
 
     /**
      * Read all rejected theses in the current week in the system(“audit mark” permission is required)
@@ -58,6 +59,15 @@ class ModifiedThesesController extends Controller
         }
 
         if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader'])) {
+            //get lastest week
+            $current_week = Week::latest()->first();
+            $main_timer = $current_week->main_timer;
+
+            //check if current date(full) greater than main timer
+            if (date('Y-m-d H:i:s') > $main_timer) {
+                return $this->jsonResponseWithoutMessage("You can't modify theses after at this time", 'data', 500);
+            }
+
             $thesis = Thesis::find($request->thesis_id);
             $thesis->status = $request->status;
             $thesis->save();
@@ -70,8 +80,23 @@ class ModifiedThesesController extends Controller
                 $input['week_id'] = $thesis->mark->week_id;
 
                 ModifiedTheses::create($input);
+                $this->auditThesis($thesis, $request->status);
             }
 
+            //send notification to user
+            $arabicStatus = '';
+
+            if ($request->status === 'approved') {
+                $arabicStatus = 'قبول';
+            } else if ($request->status === 'rejected') {
+                $arabicStatus = 'رفض';
+            } else if ($request->status === 'one_thesis') {
+                $arabicStatus = 'قبول علامة واحدة من';
+            }
+
+            $message = 'تم ' . $arabicStatus . ' أطروحتك من قبل ' . Auth::user()->name;
+
+            (new NotificationController)->sendNotification($thesis->user_id, $message, ACHIEVEMENTS);
             return $this->jsonResponseWithoutMessage("Modified Theses Craeted Successfully", 'data', 200);
         } else {
             throw new NotAuthorized;
