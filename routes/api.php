@@ -61,7 +61,7 @@ Route::group(['prefix' => 'v1'], function () {
 
 
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'signUp']);
 
     Route::get('/profile-image', [UserProfileController::class, 'getImages']);
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
@@ -69,6 +69,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
     Route::middleware('auth:sanctum')->group(function () {
+
+        Route::post('/assign-role', [AuthController::class, 'assignRole']);
+Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         ########Book########

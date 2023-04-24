@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 //use App\Http\Controllers\Api\NotificationController;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use App\Models\Sign_up;
 use App\Models\UserProfile;
 use App\Models\ProfileSetting;
 use App\Models\LeaderRequest;
 use App\Models\Group;
-use App\Models\UserGroup;
+use App\Models\UserGroup; 
 use App\Events\NewUserStats;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
@@ -49,6 +50,32 @@ class AuthController extends Controller
 
             return $this->jsonResponse('UnAuthorized', 'data', 404, 'Email Or Password is Wrong');
         }
+    }
+
+
+    public function signUp(Request $request){
+        $ambassador = Validator::make($request->all(), [
+            // 'name_ar'          => 'required',
+            // 'name_en'          => 'required',
+            'name'             => 'required',
+            'gender'           => 'required',
+            'phone'            => 'required|numeric',
+            'email'            => 'required|email|unique:users,email',
+            'password'         => 'required', 
+        ]);
+        if ($ambassador->fails()) {
+            return $this->jsonResponseWithoutMessage($ambassador->errors(), 'data', 500);
+        }
+       
+    $user = new User($request->all());
+    $user->password = bcrypt($request->input('password'));
+ 
+ 
+    $user->assignRole('ambassador');
+ 
+    $user->save();
+
+    return $this->jsonResponseWithoutMessage("Register Successfully",'data  ', 200);
     }
 
     public function register(Request $request)
@@ -259,5 +286,31 @@ class AuthController extends Controller
             return $this->sendResponse(__($status), 'Updated Successfully!');
         else
             return $this->sendError('ERROR', ['email' => __($status)]);
+    }
+
+
+    public function getRoles($id){
+        $role = Role::find($id);
+        $roles = Role::where('level', '>', $role->level)->get();
+        return $this->jsonResponse($roles, 'data', 200, 'Roles');
+    }
+
+
+    public function assignRole(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'role' => 'required',
+        ]);
+    
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $user = User::where('email', $request->email)->first();
+        if(!$user){
+            return $this->jsonResponseWithoutMessage('email not found', 'data', 404);
+        }
+        $role = Role::where('name',  $request->role)->first();
+        $user->assignRole($role);
+        return $this->jsonResponse($user, 'data', 201, 'Done');
     }
 }
