@@ -32,7 +32,7 @@ class AuditMarkController extends Controller
 
 
     /**
-     * Generate audit marks for supervisor and advisor for each reading group in the current week,
+     * Generate audit marks for supervisor and advisor for each followup group in the current week,
      * (if this week is not vacation) automatically on Sunday at 6:00 A.M Saudi Arabia time.
      * 
      * @return jsonResponseWithoutMessage;
@@ -45,8 +45,9 @@ class AuditMarkController extends Controller
             if ($previous_week) {
                 $previous_week->audit_timer = Carbon::now()->addDays(3);
                 $previous_week->save();
+
                 $groupsID = Group::whereHas('type', function ($q) {
-                    $q->where('type', '=', 'reading');
+                    $q->where('type', '=', 'followup');
                 })->pluck('id');
 
                 //Audit type [full - variant - of_supervisor_audit - not_of_supervisor_audit] ]
@@ -69,7 +70,7 @@ class AuditMarkController extends Controller
                         }
                         /**
                          *
-                         * for each reading group 20% of marks:
+                         * for each followup group 20% of marks:
                          * 10% of full marks
                          * 10% not full marks
                          */
