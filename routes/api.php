@@ -78,6 +78,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/refresh', [AuthController::class, 'refresh']);
 
         Route::post('/assign-role', [AuthController::class, 'assignRole']);
         Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);

@@ -36,7 +36,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:8',
         ]);
 
         if ($validator->fails()) {
@@ -49,10 +49,10 @@ class AuthController extends Controller
             $success['token'] = $authUser->createToken('sanctumAuth')->plainTextToken;
             $success['user'] = $authUser->load('userProfile', 'roles:id,name', 'roles.permissions:id,name');
 
-            return $this->jsonResponse($success, 'data', 200, 'Login Successfully');
+            return $this->jsonResponse($success, 'data', 200, 'تم تسجيل الدخول بنجاح');
         } else {
 
-            return $this->jsonResponse('UnAuthorized', 'data', 404, 'Email Or Password is Wrong');
+            return $this->jsonResponse('UnAuthorized', 'data', 404, 'البريد الالكتروني او كلمة المرور غير صحيحة');
         }
     }
 
@@ -271,6 +271,14 @@ class AuthController extends Controller
     {
         auth()->user()->tokens()->delete();
         return $this->jsonResponseWithoutMessage('You are Logged Out Successfully', 'data', 200);
+    }
+
+    public function refresh(Request $request)
+    {
+        $user = $request->user();
+        $user->tokens()->delete();
+        $token = $user->createToken('sanctumAuth')->plainTextToken;
+        return $this->jsonResponseWithoutMessage($token, 'data', 200);
     }
 
     protected function sendResetLinkResponse(Request $request)
