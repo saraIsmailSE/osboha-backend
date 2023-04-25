@@ -19,7 +19,7 @@ class GroupSeeder extends Seeder
      */
     public function run()
     {
-        //Group Type could be['reading', 'working', 'supervising'];
+        //Group Type could be ['followup','supervising','advising','consultation','Administration']
 
         ######## Seed Reading Groups #######
         $timeline_type = TimelineType::where('type', 'group')->first();

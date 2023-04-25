@@ -14,6 +14,8 @@ use App\Models\Group;
 use App\Models\UserGroup;
 use App\Events\NewUserStats;
 use App\Models\Thesis;
+use App\Models\Timeline;
+use App\Models\TimelineType;
 use App\Models\UserBook;
 use App\Models\Week;
 use App\Traits\ResponseJson;
@@ -25,7 +27,6 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
-
 
 class AuthController extends Controller
 {
@@ -59,29 +60,52 @@ class AuthController extends Controller
     public function signUp(Request $request)
     {
         $ambassador = Validator::make($request->all(), [
-            // 'name_ar'          => 'required',
-            // 'name_en'          => 'required',
             'name'             => 'required',
             'gender'           => 'required',
-            'phone'            => 'required|numeric',
             'email'            => 'required|email|unique:users,email',
             'password'         => 'required',
         ]);
         if ($ambassador->fails()) {
             return $this->jsonResponseWithoutMessage($ambassador->errors(), 'data', 500);
         }
+        try {
 
-        $user = new User($request->all());
-        $user->password = bcrypt($request->input('password'));
+            $user = new User($request->all());
+            $user->password = bcrypt($request->input('password'));
+            $user->assignRole('ambassador');
+            $user->save();
 
+            //create new timeline - type = profile
+            $profileTimeline = TimelineType::where('type', 'profile')->first();
+            $timeline = new Timeline();
+            $timeline->type_id = $profileTimeline->id;
+            $timeline->save();
 
-        $user->assignRole('ambassador');
+            //create user profile, with profile settings
+            UserProfile::create([
+                'user_id' => $user->id,
+                'timeline_id' => $timeline->id
+            ]);
+            ProfileSetting::create([
+                'user_id' => $user->id,
+            ]);
 
-        $user->save();
+            event(new Registered($user));
 
-        return $this->jsonResponseWithoutMessage("Register Successfully", 'data  ', 200);
+            $success['token'] = $user->createToken('sanctumAuth')->plainTextToken;
+            $success['user'] = $user->load('userProfile', 'roles:id,name', 'roles.permissions:id,name');
+            return $this->jsonResponseWithoutMessage($success, 'data', 200);
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                return $this->sendError('User already exist');
+            } else {
+                return $this->sendError($e);
+            }
+        }
     }
 
+    //LATER
     public function register(Request $request)
     {
         $ambassador = Validator::make($request->all(), [

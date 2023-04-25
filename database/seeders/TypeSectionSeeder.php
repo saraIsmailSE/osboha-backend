@@ -50,7 +50,8 @@ class TypeSectionSeeder extends Seeder
         }
 
         //GROUP TYPES
-        $group_type = ['reading', 'working', 'supervising'];
+        
+        $group_type = ['followup','supervising','advising','consultation','Administration'];
         foreach ($group_type as $type) {
             GroupType::create(['type' => $type]);
         }

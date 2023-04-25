@@ -28,7 +28,7 @@ class GroupTypeController extends Controller
     {
         $groupTypes = GroupType::all();
         if($groupTypes->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(GroupTypeResource::collection($groupTypes), 'data',200);
+            return $this->jsonResponseWithoutMessage($groupTypes, 'data',200);
         }
         else{
             throw new NotFound;

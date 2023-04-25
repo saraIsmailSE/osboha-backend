@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasRoles, HasApiTokens, HasFactory, Notifiable;
 
@@ -24,7 +24,6 @@ class User extends Authenticatable
         'password',
         'gender',
         'request_id',
-        // 'user_type',
         'email_verified_at',
         'is_blocked',
         'is_hold',
@@ -180,5 +179,10 @@ class User extends Authenticatable
     public function userBooks()
     {
         return $this->hasMany(UserBook::class);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\MailResetPasswordNotification($token));
     }
 }

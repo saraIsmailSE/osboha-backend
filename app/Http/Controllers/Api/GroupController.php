@@ -78,14 +78,12 @@ class GroupController extends Controller
 
     public function create(Request $request)
     {
-
         $input = $request->all();
 
         $validator = Validator::make($input, [
             'name' => 'required|string',
             'description' => 'nullable|string',
             'type_id' => 'required',
-            'image' => 'image|mimes:jpg,jpeg,png,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -97,28 +95,38 @@ class GroupController extends Controller
             $timeline = new Timeline;
             $timeline->type_id = $request->type_id;
             $timeline->save();
+
             $input['creator_id'] = Auth::id();
             $input['timeline_id'] = $timeline->id;
+            
             $group = Group::create($input);
-            if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $this->createMedia($file, $group->id, 'group');
-            }
+            
+            //add group creator to the group
+            $userGroup = UserGroup::create([
+                'user_id' => Auth::id(),
+                'group_id' => $group->id,
+                'user_type'=>auth()->user()->roles()->orderBy('id', 'desc')->pluck('name')->first()
+
+            ]);
+            $userGroup->save();
+
+
             $child = User::find(Auth::id());
-$parent = $child->parent;
+            $parent = $child->parent;
 
-while ($parent !== null) {
+            while ($parent !== null) {
 
-    $parentRole = $parent->roles()->orderBy('id', 'asc')->first();
+                $parentRole = $parent->roles()->orderBy('id', 'asc')->first();
 
-    $userGroup = UserGroup::create([ 
-        'user_id' => $parent->id,
-    'group_id' => $group->id,
-    'user_type', $parentRole]);
-    $userGroup->save();
-    $child = $parent;
-    $parent = $child->parentRole;
-}
+                $userGroup = UserGroup::create([
+                    'user_id' => $parent->id,
+                    'group_id' => $group->id,
+                    'user_type', $parentRole
+                ]);
+                $userGroup->save();
+                $child = $parent;
+                $parent = $child->parentRole;
+            }
 
             return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 201);
         } else {
@@ -154,7 +162,7 @@ while ($parent !== null) {
                     ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
                     ->first()
                     ->out_of_100;
-                return $this->jsonResponseWitYhoutMessage($response, 'data', 200);
+                return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
             }
@@ -504,7 +512,7 @@ while ($parent !== null) {
             throw new NotAuthorized;
         }
     }
-    
+
     //the function will return all posts - discuss it later
     public function list_group_posts($group_id)
     {
@@ -560,11 +568,11 @@ while ($parent !== null) {
         }
     }
 
-    
+
     public function userGroups()
     {
         event(new NotificationsEvent('test from Laravel'));
-        $response['groups'] = UserGroup::with('group')->with('group.users')->where('user_id',auth::id())->whereNull('termination_reason')->get();
+        $response['groups'] = UserGroup::with('group')->with('group.users')->where('user_id', auth::id())->whereNull('termination_reason')->get();
 
         if (!$response['groups']->isEmpty()) {
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
@@ -572,5 +580,4 @@ while ($parent !== null) {
             throw new NotFound;
         }
     }
-    
 }
