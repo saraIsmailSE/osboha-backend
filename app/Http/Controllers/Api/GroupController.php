@@ -571,7 +571,6 @@ class GroupController extends Controller
 
     public function userGroups()
     {
-        event(new NotificationsEvent('test from Laravel'));
         $response['groups'] = UserGroup::with('group')->with('group.users')->where('user_id', auth::id())->whereNull('termination_reason')->get();
 
         if (!$response['groups']->isEmpty()) {
