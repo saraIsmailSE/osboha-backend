@@ -242,6 +242,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
+            Route::post('/group-statistic/{group_id}', [GroupController::class, 'groupStatistics']);
+
         });
         ############End Group############
 

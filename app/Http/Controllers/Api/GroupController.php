@@ -502,4 +502,61 @@ class GroupController extends Controller
             throw new NotFound;
         }
     }
+    public function groupStatistics($group_id)
+    {
+        
+        $response['week'] = Week::latest()->first();
+        $mark_count   = 0;
+        $total_pages  = 0;
+        $total_thesis = 0;
+        $total_pages = 0;
+        $most_read = 0;
+        $is_freezed =0;
+
+        $response['users_in_group'] = UserGroup::where('group_id', $group_id)->get();
+        $users = Group::with('users')->where('id', $group_id);
+        foreach($response['users_in_group'] as $user_group){
+        $mark = Mark::where('week_id', $response['week']->id)->where('user_id', $user_group->user_id)->first();
+        if($mark){
+            $mark_count += $mark->writing_mark +$mark->writing_mark+ $mark->support;
+            $total_pages += $mark->total_pages;
+            $total_thesis +=$mark->total_thesis;
+            
+            
+           
+            if($most_read == 0){
+                $pages_most_read = $mark->total_pages;
+                $most_read = $mark->user_id;
+            }
+            if($pages_most_read < $mark->total_pages ){
+                $pages_most_read = $mark->total_pages;
+                $most_read = $mark->user_id;
+            }
+            if($mark->is_freezed == 1){
+                $is_freezed +=$mark->is_freezed;
+            }
+            $fullMark = $mark->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+            ->having('out_of_100', 100)
+            ->count();
+          
+            $zeroMark = $mark->select(DB::raw('(reading_mark + writing_mark + support) as out_of_0'))
+            ->having('out_of_0', 0)
+            ->count();
+        }
+    }
+      
+        $response['mark_avg'] = $mark_count / $response['users_in_group']->count();
+        $response['total_pages_all'] = $total_pages;
+        $response['total_thesis_all'] = $total_pages;
+        $response['pages_most_read'] = $pages_most_read;
+        $response['most_read'] = user::find( $most_read); 
+        $response['total_freezed'] = $is_freezed;
+        $response['fullMark'] = $fullMark;
+        $response['zeroMark'] = $zeroMark;
+
+
+
+
+       return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
 }
