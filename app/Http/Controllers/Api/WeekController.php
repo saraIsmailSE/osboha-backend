@@ -165,7 +165,7 @@ class WeekController extends Controller
                             $exception->update();
 
                             $msg = "تم تمديد الحالة الاستثنائية لك حتى " . $exception->end_at . " بسبب الإجازة";
-                            (new NotificationController)->sendNotification($exception->user_id, $msg);
+                            (new NotificationController)->sendNotification($exception->user_id, $msg,'user_exceptions');
                         }
                     } else { //this week is already vacation
                         return $this->jsonResponseWithoutMessage('This week is already vacation', 'data', 200);

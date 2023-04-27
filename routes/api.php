@@ -349,7 +349,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/pin/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
             Route::get('/home', [PostController::class, 'getPostsForMainPage']);
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);
-            Route::post('/support/{group_id}', [PostController::class, 'supportPost']);
+            Route::post('/support/{group_id}', [PostController::class, 'supportPostForGroup']);
+            Route::post('/support', [PostController::class, 'latestSupportPost']);
         });
         ########End Post########
 

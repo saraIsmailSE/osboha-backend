@@ -321,4 +321,51 @@ class MarkController extends Controller
         }
     }
  
+    public function acceptSupportVote($comment_user_id)
+    { 
+        //get user group and its administrators 
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $comment_user_id)->where('user_type', 'ambassador')->get()->first();
+        //check if auth user is an administrator in the group
+        if ($group && $group->group->groupAdministrators->contains('id',Auth::id())) {
+            $current_week = Week::latest()->pluck('id')->first();
+            $mark = Mark::where('week_id', $current_week)->where('user_id',$comment_user_id)->first();
+            if ($mark) {
+                $mark->update(['support'=>10]);
+                return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+    public function declineSupportVote($comment_user_id)
+    { 
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $comment_user_id)->where('user_type', 'ambassador')->get()->first();
+        //check if auth user is an administrator in group
+        if ($group && $group->group->groupAdministrators->contains('id',Auth::id())) {
+            $current_week = Week::latest()->pluck('id')->first();
+            $mark = Mark::where('week_id', $current_week)->where('user_id',$comment_user_id)->first();
+            if ($mark) {
+                $mark->update(['support' => 0]);
+
+                //notify ambassador
+                $userToNotify = User::findOrFail($comment_user_id);
+                // with email
+                $userToNotify->notify(
+                    (new \App\Notifications\mailSupportPost($userToNotify->name))
+                        ->delay(now()->addMinutes(2))
+                );
+                // with notification
+                $msg = "Your vote for support post is declined";
+                (new NotificationController)->sendNotification($comment_user_id, $msg,'groups');
+                return $this->jsonResponseWithoutMessage("support Mark Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
 }
