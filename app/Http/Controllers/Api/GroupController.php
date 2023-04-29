@@ -47,9 +47,9 @@ class GroupController extends Controller
 
     public function index()
     {
-        $group = Group::all();
+        $group = Group::withCount('users')->get();
         if (Auth::user()->can('list groups')) {
-            return $this->jsonResponseWithoutMessage(GroupResource::collection($group), 'data', 200);
+            return $this->jsonResponseWithoutMessage($group, 'data', 200);
         } else {
             throw new NotAuthorized;
         }
@@ -98,18 +98,19 @@ class GroupController extends Controller
 
             $input['creator_id'] = Auth::id();
             $input['timeline_id'] = $timeline->id;
-            
+
             $group = Group::create($input);
-            
+
             //add group creator to the group
             $userGroup = UserGroup::create([
                 'user_id' => Auth::id(),
                 'group_id' => $group->id,
-                'user_type'=>auth()->user()->roles()->orderBy('id', 'desc')->pluck('name')->first()
+                'user_type' => auth()->user()->roles()->orderBy('id', 'desc')->pluck('name')->first()
 
             ]);
             $userGroup->save();
 
+            /* BUG Parent of Admin is Another User
 
             $child = User::find(Auth::id());
             $parent = $child->parent;
@@ -127,8 +128,8 @@ class GroupController extends Controller
                 $child = $parent;
                 $parent = $child->parentRole;
             }
-
-            return $this->jsonResponseWithoutMessage('Group Craeted', 'data', 201);
+            */
+            return $this->jsonResponseWithoutMessage($group, 'data', 201);
         } else {
             throw new NotAuthorized;
         }
@@ -219,18 +220,10 @@ class GroupController extends Controller
         }
     }
 
-    public function delete(Request $request)
+    public function delete($group_id)
     {
-        $validator = Validator::make($request->all(), [
-            'group_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
         if (Auth::user()->can('delete group')) {
-            $group = Group::find($request->group_id);
+            $group = Group::find($group_id);
             if ($group) {
 
                 $currentMedia = Media::where('group_id', $group->id)->first();

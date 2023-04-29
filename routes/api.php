@@ -48,6 +48,7 @@ use App\Http\Controllers\Api\MessagesController;
 use App\Http\Controllers\Api\ModificationReasonController;
 use App\Http\Controllers\Api\ModifiedThesesController;
 use App\Http\Controllers\Api\UserBookController;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -65,7 +66,8 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::get('/myTEST', function () {
         $test = 'اشعار جديد';
-        event(new NotificationsEvent($test));
+        $user=User::find(Auth::id());
+        event(new NotificationsEvent($test,$user));
         
     });
 
@@ -77,7 +79,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum','isActive')->group(function () {
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
         Route::post('/assign-role', [AuthController::class, 'assignRole']);
@@ -255,7 +257,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/show/{group_id}', [GroupController::class, 'show']);
             Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
             Route::post('/update', [GroupController::class, 'update']);
-            Route::post('/delete', [GroupController::class, 'delete']);
+            Route::delete('/delete/{group_id}', [GroupController::class, 'delete']);
             Route::get('/books/{group_id}', [GroupController::class, 'books']);
             Route::get('/group-exceptions/{group_id}', [GroupController::class, 'groupExceptions']);
             Route::get('/exceptions-filter/{filter}/{group_id}', [GroupController::class, 'exceptionsFilter']);
@@ -397,6 +399,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/users/{group_id}', [UserGroupController::class, 'usersByGroupID']);
             Route::post('/', [UserGroupController::class, 'create']);
             Route::post('/show', [UserGroupController::class, 'show']);
+            Route::post('/add-member', [UserGroupController::class, 'addMember']);
             Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
             Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
