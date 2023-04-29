@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\NotificationsEvent;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
@@ -93,28 +94,28 @@ class UserGroupController extends Controller
         // Validate the input
         $validatedData = $request->validate([
             'email' => 'required',
-            'group_id' => 'required', 
-            'user_type' => 'required', 
+            'group_id' => 'required',
+            'user_type' => 'required',
         ]);
-    
-    
-        $user = User::where('email' ,'=',$validatedData['email']); 
-        if(!$user){
+
+
+        $user = User::where('email', '=', $validatedData['email']);
+        if (!$user) {
             return $this->jsonResponseWithoutMessage('email not found', 'data', 404);
-        }else if(!is_null( $user->parent_id)){
+        } else if (!is_null($user->parent_id)) {
             $user->parent_id = Auth::id();
-        }else if(!$user->hasRole(validatedData['uesr_type'])){
+        } else if (!$user->hasRole(validatedData['uesr_type'])) {
             return $this->jsonResponseWithoutMessage('User does not have the required role', 'data', 401);
         }
 
 
-   
+
         $user->save();
-        $userGroup = UserGroup::create(['user_id' => $user->id,'group_id' =>  $validatedData['group_id'],validatedData['uesr_type']]);
-     
+        $userGroup = UserGroup::create(['user_id' => $user->id, 'group_id' =>  $validatedData['group_id'], validatedData['uesr_type']]);
+
         $userGroup->save();
-    
-      
+
+
         return response()->json([
             'status' => 'success',
             'message' => 'User added successfully',
@@ -122,8 +123,74 @@ class UserGroupController extends Controller
         ]);
     }
 
-    
 
+
+    /**
+     * Add user to group with specific role 
+     * 
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage;
+     */
+
+    public function addMember(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'group_id' => 'required',
+                'email' => ['required',],
+                'role_id' => 'required',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            $group = Group::with('groupLeader')->where('id', $request->group_id)->first();
+
+            if ($group) {
+                $role = Role::find($request->role_id);
+
+                if ($user->hasRole($role->name)) {
+
+                    if ($role->name == 'ambassador' && $group->type->type='followup') {
+                        if ($group->groupLeader->isEmpty())
+                            return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة", 'data', 200);
+                        else
+                            $user->parent_id = $group->groupLeader->id();
+                    }
+                    $role_in_arabic = [
+                        'ambassador' => "سفير",
+                        'leader' => "قائد",
+                        'supervisor' => "مراقب",
+                        'advisor' => 'موجه',
+                        'consultant' => 'مستشار',
+                        'admin' => 'ادارة'
+                    ];
+
+                    $userGroup = UserGroup::updateOrCreate(
+                        ['user_id' => $user->id, 'group_id' => $group->id],
+                        ['user_type' => $role->name]
+                    );
+
+                    $msg = "أنت الأن " . $role_in_arabic[$role->name] . " في المجموعة:  " . $group->name;
+                    (new NotificationController)->sendNotification($user->id, $msg, 'roles');
+                    //event(new NotificationsEvent($msg,$user));
+
+                    return $this->jsonResponseWithoutMessage('تمت الاضافة', 'data', 202);
+                } else {
+                    return $this->jsonResponseWithoutMessage("قم بترقية السفير أولاً", 'data', 200);
+                }
+            } else {
+                return $this->jsonResponseWithoutMessage("المجموعة غير موجودة", 'data', 200);
+            }
+        } else {
+            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
+        }
+    }
 
     public function assign_role(Request $request)
     {
@@ -156,7 +223,7 @@ class UserGroupController extends Controller
                 $user->assignRole($role);
 
                 $msg = "Now, you are " . $role->name . " in " . $group->name . " group";
-                (new NotificationController)->sendNotification($request->user_id, $msg,'roles');
+                (new NotificationController)->sendNotification($request->user_id, $msg, 'roles');
 
                 $userGroup = UserGroup::create($request->all());
 
@@ -209,7 +276,7 @@ class UserGroupController extends Controller
                     $user->removeRole($role);
 
                     $msg = "You are not a " . $role->name . " in " . $group->name . " group anymore, because you " . $request->termination_reason;
-                    (new NotificationController)->sendNotification($request->user_id, $msg,'roles');
+                    (new NotificationController)->sendNotification($request->user_id, $msg, 'roles');
 
                     $userGroup->update($request->all());
 

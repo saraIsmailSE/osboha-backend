@@ -13,6 +13,7 @@ use App\Models\LeaderRequest;
 use App\Models\Group;
 use App\Models\UserGroup;
 use App\Events\NewUserStats;
+use App\Http\Controllers\Api\NotificationController;
 use App\Models\Thesis;
 use App\Models\Timeline;
 use App\Models\TimelineType;
@@ -290,9 +291,9 @@ class AuthController extends Controller
         );
 
         if ($status === Password::RESET_LINK_SENT)
-            return $this->sendResponse(__($status), 'Send Successfully!');
+            return $this->jsonResponse( __($status), 'data', 200,'Send Successfully!');
         else
-            return $this->sendError('ERROR', ['email' => __($status)]);
+            return $this->jsonResponseWithoutMessage( ['email' => __($status)], 'data', 200);
     }
 
     protected function sendResetResponse(Request $request)
@@ -366,28 +367,75 @@ class AuthController extends Controller
 
     public function getRoles($id)
     {
+        /*
+        **** Need to discuss ****
         $role = Role::find($id);
         $roles = Role::where('level', '>', $role->level)->get();
         return $this->jsonResponse($roles, 'data', 200, 'Roles');
+        */
+        $authRoles = Auth::user()->load('roles:id,name');
+        $authLastrole = $authRoles->roles->first();
+
+        $roles = Role::where('id', '>=', $authLastrole->id)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
 
 
     public function assignRole(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'role' => 'required',
+            'user' => 'required|email',
+            'head_user' => 'required|email',
+            'role_id' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $user = User::where('email', $request->email)->first();
-        if (!$user) {
-            return $this->jsonResponseWithoutMessage('email not found', 'data', 404);
+
+        $user = User::where('email', $request->user)->first();
+        if ($user) {
+            $head_user = User::where('email', $request->head_user)->first();
+            if ($head_user) {
+                $head_user_roles = $head_user->load('roles:id,name');
+                $head_user_last_role = $head_user_roles->roles->first();
+
+                if ($head_user_last_role->id <= $request->role_id) {
+                    // //remove last role 
+                    // $user_current_role = $user->load('roles:id,name');
+                    // $user->removeRole($user_current_role->roles->pluck('name')->first());
+                    
+                    // assign new role
+                    $role = Role::find($request->role_id);
+                    $user->assignRole($role->name);
+
+                    // Link with head user
+                    $user->parent_id = $head_user->id;
+                    $user->save();
+
+                    // notify user
+                    $role_in_arabic = [
+                        'ambassador' => "سفير",
+                        'leader' => "قائد",
+                        'supervisor' => "مراقب",
+                        'advisor' => 'موجه',
+                        'consultant' => 'مستشار',
+                        'admin' => 'ادارة'
+                    ];
+
+                    $msg = "أنت الأن " . $role_in_arabic[$role->name] . " - المسؤول عنك:  " . $head_user->name;
+                    (new NotificationController)->sendNotification($user->id, $msg, 'roles');
+                    //event(new NotificationsEvent($msg,$user));
+
+                    return $this->jsonResponseWithoutMessage('تمت الترقية', 'data', 202);
+                } else {
+                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى أو مساوية للرتبة المراد الترقية لها", 'data', 200);
+                }
+            } else {
+                return $this->jsonResponseWithoutMessage("المسؤول غير موجود", 'data', 200);
+            }
+        } else {
+            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
         }
-        $role = Role::where('name',  $request->role)->first();
-        $user->assignRole($role);
-        return $this->jsonResponse($user, 'data', 201, 'Done');
     }
 }
