@@ -130,6 +130,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/types', [ReactionController::class, 'getReactionTypes']);
             Route::get('/posts/{post_id}/types/{type_id}', [ReactionController::class, 'reactOnPost'])->where('post_id', '[0-9]+')->where('type_id', '[0-9]+');
             Route::get('/comments/{comment_id}/types/{type_id}', [ReactionController::class, 'reactOnComment'])->where('comment_id', '[0-9]+')->where('type_id', '[0-9]+');
+            Route::get('/posts/{post_id}/users/{user_id?}', [ReactionController::class, 'getPostReactionsUsers'])->where('post_id', '[0-9]+')->where('user_id', '[0-9]+');
         });
         ########End Reaction########
         ########LeaderRequest########
@@ -159,7 +160,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########Start Comment########
         Route::group(['prefix' => 'comments'], function () {
             Route::post('/', [CommentController::class, 'create']);
-            Route::get('/post/{post_id}', [CommentController::class, 'getPostComments'])->where('post_id', '[0-9]+');
+            Route::get('/post/{post_id}/{user_id?}', [CommentController::class, 'getPostComments'])->where('post_id', '[0-9]+')->where('user_id', '[0-9]+');
             Route::post('/update', [CommentController::class, 'update']); //for testing
             Route::put('/', [CommentController::class, 'update']); //gives errors from axios
             Route::delete('/{id}', [CommentController::class, 'delete']);
@@ -201,6 +202,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
             Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
             Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
+            Route::put('/accept-support/user/{user_id}', [MarkController::class, 'acceptSupport']);
+            Route::put('/reject-support/user/{user_id}', [MarkController::class, 'rejectSupport']);
         });
         ########End Mark########
 
@@ -343,6 +346,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/pin/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
             Route::get('/home', [PostController::class, 'getPostsForMainPage']);
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);
+            Route::get('/support', [PostController::class, 'getSupportPosts']);
         });
         ########End Post########
 
@@ -355,6 +359,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/votesByUserId', [PollVoteController::class, 'votesByUserId']);
             Route::post('/update', [PollVoteController::class, 'update']);
             Route::post('/delete', [PollVoteController::class, 'delete']);
+            Route::get('/posts/{post_id}/users/{user_id?}', [PollVoteController::class, 'getPostVotesUsers'])->where('post_id', '[0-9]+')->where('user_id', '[0-9]+');
         });
         ########End Poll-Vote########
         ########User-Profile########

@@ -21,10 +21,17 @@ use App\Http\Resources\MarkResource;
 use App\Models\User;
 use App\Models\Week;
 use App\Events\MarkStats;
+use App\Http\Resources\CommentResource;
+use App\Http\Resources\ReactionResource;
+use App\Http\Resources\ReactionTypeResource;
 use App\Models\AuditType;
+use App\Models\Comment;
 use App\Models\MarksForAudit;
+use App\Models\Post;
+use App\Models\PostType;
 use App\Models\Thesis;
 use App\Models\UserException;
+use App\Notifications\MailSupportPost;
 use Carbon\Carbon;
 
 class MarkController extends Controller
@@ -298,26 +305,131 @@ class MarkController extends Controller
 
     /**
      * get user mark with theses => list only for group administrators
+     * with support done by the user
      * 
      * @param  $user_id
      * @return mark;
      */
     public function ambassadorMark($user_id)
     {
-        $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
-        if ($group_id) {
-            $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
-            if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
+        $user = User::find($user_id);
+        if ($user) {
+            $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+            if ($group_id) {
+                $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
+                if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
 
-                $response['currentWeek'] = Week::latest()->first();
-                $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
-                $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
-                return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                    $currentWeek = Week::latest()->first();
+                    $response['currentWeek'] = $currentWeek;
+                    $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
+                    $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
+
+                    /*support -- asmaa*/
+                    $main_timer = $currentWeek->main_timer;
+                    $support_post = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+                        ->where('created_at', '>', $currentWeek->created_at)
+                        ->where('created_at', '<', $main_timer)
+                        ->latest()
+                        ->first();
+
+                    if ($support_post) {
+                        $pollVote = null;
+
+                        if ($support_post->pollOptions->count() > 0) {
+                            $pollVote = $support_post->pollVotes->where('user_id', $user_id)->first();
+                        }
+
+                        $user_comments = Comment::where('user_id', $user_id)
+                            ->where('post_id', $support_post->id)
+                            // ->where('comment_id', 0)
+                            ->where('created_at', '>', $currentWeek->created_at)
+                            ->where('created_at', '<', $main_timer)
+                            // ->with('replies', function ($query) use ($user_id) {
+                            //     $query->where('user_id', $user_id);
+                            // })
+                            ->get();
+
+                        $reaction = $support_post->reactions->where('user_id', $user_id)->first();
+
+                        $response['support'] = [
+                            'post_id' => $support_post->id,
+                            'comments' => CommentResource::collection($user_comments),
+                            'vote' => $pollVote ? $pollVote->pollOption : null,
+                            'reaction' => $reaction ? new ReactionTypeResource($reaction->type) : null,
+                            'supportError' => null
+                        ];
+                    } else {
+                        $response['support']['supportError'] = 'لم يتم نشر منشور الدعم بعد!';
+                    }
+                    /*end support*/
+                    return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                } else {
+                    throw new NotAuthorized;
+                }
             } else {
-                throw new NotAuthorized;
+                return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
             }
         } else {
-            return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
+            throw new NotFound;
+        }
+    }
+
+    /**
+     * accept support vote for ambassador
+     * @param  $user_id
+     * @return String;
+     * @return NotFound;
+     * @return NotAuthorized;
+     */
+    public function acceptSupport($user_id)
+    {
+        //get user group and its administrators 
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+        //check if auth user is an administrator in the group
+        if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
+            $current_week = Week::latest()->pluck('id')->first();
+            $mark = Mark::where('week_id', $current_week)->where('user_id', $user_id)->first();
+            if ($mark) {
+                $mark->update(['support' => 10]);
+                return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+    /**
+     * reject support vote for ambassador
+     * @param  $user_id
+     * @return String;
+     */
+    public function rejectSupport($user_id)
+    {
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+        //check if auth user is an administrator in group
+        if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
+            $current_week = Week::latest()->pluck('id')->first();
+            $mark = Mark::where('week_id', $current_week)->where('user_id', $user_id)->first();
+            if ($mark) {
+                $mark->update(['support' => 0]);
+
+                //notify ambassador
+                $userToNotify = User::findOrFail($user_id);
+                // with email
+                $userToNotify->notify(
+                    (new MailSupportPost($userToNotify->name))->delay(now()->addMinutes(2))
+                );
+                // with notification
+                $msg = "لقد تم رفض تصويتك على منشور الدعم لهذا الاسبوع, تفقد المنشور لتعديله";
+                (new NotificationController)->sendNotification($user_id, $msg, GROUPS);
+                return $this->jsonResponseWithoutMessage("support Mark Updated Successfully", 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
         }
     }
 }

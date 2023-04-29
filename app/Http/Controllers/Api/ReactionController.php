@@ -14,7 +14,9 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\ReactionResource;
 use App\Http\Resources\ReactionTypeResource;
+use App\Http\Resources\UserInfoResource;
 use App\Models\ReactionType;
+use App\Models\User;
 
 class ReactionController extends Controller
 {
@@ -297,5 +299,39 @@ class ReactionController extends Controller
             ]);
             return $this->jsonResponseWithoutMessage(true, 'data', 200);
         }
+    }
+
+    public function getPostReactionsUsers($post_id, $user_id = null)
+    {
+        //get the user related to the reaction and remove the duplicates
+        $users = Reaction::where('post_id', $post_id)
+            ->with('user')
+            ->get()
+            ->unique('user_id')
+            ->map(function ($reaction) {
+                return $reaction->user;
+            });
+
+        //get 10 users
+        $limited = $users->take(10);
+
+        //if the user id is sent, check if the user is in the list
+        if ($user_id) {
+            $user = User::find($user_id);
+            if ($user && $limited->where('id', $user_id)->count() == 0) {
+                $limited->prepend($user);
+            } else if ($user && $limited->where('id', $user_id)->count() > 0) {
+                //move the user to the top of the list
+                $limited = $limited->filter(function ($value, $key) use ($user_id) {
+                    return $value->id != $user_id;
+                });
+                $limited->prepend($user);
+            }
+        }
+
+        return $this->jsonResponseWithoutMessage([
+            'users' => UserInfoResource::collection($limited),
+            'count' => $users->count(),
+        ], 'data', 200);
     }
 }

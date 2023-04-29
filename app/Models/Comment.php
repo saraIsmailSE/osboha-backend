@@ -19,6 +19,7 @@ class Comment extends Model
         'type',
     ];
 
+    protected $withCount = ['reactions'];
     /**
      * Self Relation.
      * replies relation means that this model(comment) has many replies

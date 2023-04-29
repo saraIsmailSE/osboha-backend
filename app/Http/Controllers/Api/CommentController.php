@@ -140,7 +140,7 @@ class CommentController extends Controller
                 }
                 /**asmaa **/
                 $this->createThesis($thesis);
-                $comment->load(['thesis', 'user.userBooks' => function ($query) use ($book) {
+                $comment->load(['replies', 'thesis', 'user.userBooks' => function ($query) use ($book) {
                     $query->where('book_id', $book->id);
                 }]);
             }
@@ -165,16 +165,21 @@ class CommentController extends Controller
      * @param  int  $post_id
      * @return jsonResponseWithoutMessage;
      */
-    public function getPostComments($post_id)
+    public function getPostComments($post_id, $user_id = null)
     {
         $comments = Comment::where('post_id', $post_id)
+            ->whereHas('user', function ($query) use ($user_id) {
+                if ($user_id) {
+                    $query->where('id', $user_id);
+                }
+            })
             ->where('comment_id', 0)
             ->with('reactions', function ($query) {
                 $query->where('user_id', Auth::id());
             })
-            ->withCount('reactions')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
         if ($comments->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
                 'comments' => CommentResource::collection($comments),
@@ -350,6 +355,8 @@ class CommentController extends Controller
                     }
 
                     $comment->update($input);
+
+                    $comment->load('replies');
 
                     DB::commit();
                     return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
