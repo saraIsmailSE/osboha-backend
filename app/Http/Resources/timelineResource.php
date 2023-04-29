@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class timelineResource extends JsonResource
+class TimelineResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,10 @@ class timelineResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'name' => $this->name,
-            'type' => $this->type,
-            'description' => $this->description,
+            'id' => $this->id,
+            'type' => new TimelineTypeResource($this->whenLoaded('type')),
+            'user' => new UserInfoResource($this->whenLoaded('profile') ? $this->profile->user : null),
+            'group' => $this->whenLoaded('group')
         ];
     }
 }

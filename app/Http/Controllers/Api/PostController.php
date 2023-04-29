@@ -20,8 +20,6 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\PostResource;
 use App\Models\PollOption;
 use App\Models\PostType;
-use App\Models\Tag;
-use App\Models\TaggedUser;
 use App\Models\TimelineType;
 
 class PostController extends Controller
@@ -82,7 +80,7 @@ class PostController extends Controller
                         ['group_id', $group->id],
                         ['user_id', $user_id]
                     ])->pluck('user_type')->toArray();
-                    $allowed_types = ['advisor', 'supervisor', 'leader'];
+                    $allowed_types = ['advisor', 'supervisor', 'leader', 'admin'];
                     if (!array_intersect($allowed_types, $user_types)) {
                         $input['is_approved'] = null;
 
@@ -182,17 +180,27 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function show(Request $request)
+    public function show($post_id)
     {
-        $validator = Validator::make($request->all(), [
-            'post_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $post = Post::find($request->post_id);
+        $authUser = Auth::user();
+        $post = Post::where('id', $post_id)
+            ->whereNotNull('is_approved')
+            ->withCount('comments')
+            ->with('user')
+            ->with('pollOptions.votes', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('pollVotes')
+            ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($authUser) {
+                $query->where('user_id', $authUser->id);
+            })
+            ->with('timeline', function ($query) {
+                $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
+                    ->with('profile.user')->with('group')->with('type');
+            })
+            ->first();
         if ($post) {
             return $this->jsonResponseWithoutMessage(new PostResource($post), 'data', 200);
         } else {
@@ -305,6 +313,7 @@ class PostController extends Controller
      */
     public function postsByTimelineId($timeline_id)
     {
+        $user = Auth::user();
         $posts = Post::where('timeline_id', $timeline_id)
             ->whereNotNull('is_approved')
             ->withCount('comments')
@@ -314,6 +323,14 @@ class PostController extends Controller
             })
             ->withCount('pollVotes')
             ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->with('timeline', function ($query) {
+                $query->where('type_id', TimelineType::where('type', 'profile')->first()->id)
+                    ->with('profile.user')->with('type');
+            })
             ->latest()
             ->paginate(25);
 
@@ -329,6 +346,14 @@ class PostController extends Controller
                 })
                 ->withCount('pollVotes')
                 ->with('taggedUsers.user')
+                ->withCount('reactions')
+                ->with('reactions', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->with('timeline', function ($query) {
+                    $query->where('type_id', TimelineType::where('type', 'profile')->first()->id)
+                        ->with('profile.user')->with('type');
+                })
                 ->orderBy('updated_at', 'desc')
                 ->first();
 
@@ -372,6 +397,7 @@ class PostController extends Controller
                 ->pluck('id')
         )
             ->where('type_id', '!=', PostType::where('type', 'announcement')->first()->id)
+            ->where('type_id', '!=', PostType::where('type', 'support')->first()->id)
             ->whereNotNull('is_approved')
             ->withCount('comments')
             ->with('user')
@@ -384,6 +410,10 @@ class PostController extends Controller
             ->withCount('reactions')
             ->with('reactions', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
+            })
+            ->with('timeline', function ($query) {
+                $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
+                    ->with('profile.user')->with('group')->with('type');
             })
             ->latest()
             ->paginate(25);
@@ -401,6 +431,9 @@ class PostController extends Controller
                 ->with('user')
                 ->with('taggedUsers.user')
                 ->withCount('reactions')
+                ->with('reactions', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
                 ->orderBy('updated_at', 'desc')
                 ->take(1)
                 ->get();
@@ -416,6 +449,9 @@ class PostController extends Controller
                     ->with('user')
                     ->with('taggedUsers.user')
                     ->withCount('reactions')
+                    ->with('reactions', function ($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    })
                     ->latest()
                     ->take(2)
                     ->get();
@@ -438,6 +474,8 @@ class PostController extends Controller
      */
     public function getAnnouncements()
     {
+        $user = Auth::user();
+
         $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
             ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
             ->whereNotNull('is_approved')
@@ -448,6 +486,10 @@ class PostController extends Controller
             ->withCount('pollVotes')
             ->with('user')
             ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->latest()
             ->paginate(25);
 
@@ -462,6 +504,10 @@ class PostController extends Controller
             ->withCount('pollVotes')
             ->with('user')
             ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->orderBy('updated_at', 'desc')
             ->first();
 
@@ -478,6 +524,40 @@ class PostController extends Controller
         }
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
+    /**
+     * Get support posts
+     * @return jsonResponseWithoutMessage     
+     */
+    public function getSupportPosts()
+    {
+        $user = Auth::user();
+        $posts = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+            ->whereNotNull('is_approved')
+            ->withCount('comments')
+            ->with('pollOptions.votes', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('pollVotes')
+            ->with('user')
+            ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->latest()
+            ->paginate(25);
+
+        if ($posts->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'posts' => PostResource::collection($posts),
+                'total' => $posts->total(),
+                'last_page' => $posts->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
     /**
      * Return all posts that match requested user_id.
      * 

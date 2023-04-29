@@ -82,6 +82,9 @@ trait ThesisTraits
         if (!defined('EXAMS_SEASONAL_TYPE'))
             define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
 
+        if (!defined('ACCEPTED_STATUS'))
+            define('ACCEPTED_STATUS', 'accepted');
+
         /*
         * Full mark out of 100 = reading_mark + writing mark + support
         * Full mark out of 90 = reading_mark + writing mark
@@ -213,6 +216,12 @@ trait ThesisTraits
 
             $mark_data_to_update['reading_mark'] = $reading_mark;
             $mark_data_to_update['writing_mark'] = $writing_mark;
+
+            //update status to accepted if the thesis is read only
+            if ($thesisTotalPages > 0 && $max_length == 0 && $total_screenshots == 0) {
+                echo 'here';
+                $thesis_data_to_insert['status'] = ACCEPTED_STATUS;
+            }
 
             $thesis = Thesis::create($thesis_data_to_insert);
 

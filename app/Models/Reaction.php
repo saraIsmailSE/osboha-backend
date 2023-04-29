@@ -30,8 +30,8 @@ class Reaction extends Model
     {
         return $this->hasOne(Media::class, 'media_id');
     }
-    public function reactionType()
+    public function type()
     {
-        return $this->belongsTo(ReactionType::class, 'reaction_type_id');
+        return $this->belongsTo(ReactionType::class, 'type_id');
     }
 }
