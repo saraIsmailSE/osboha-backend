@@ -21,7 +21,7 @@ class Thesis extends Model
         'start_page',
         'end_page',
         'total_screenshots',
-        'is_acceptable',
+        'status',
     ];
 
     public function comment()

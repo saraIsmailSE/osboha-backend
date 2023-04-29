@@ -15,6 +15,8 @@ use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\PollVoteResource;
+use App\Http\Resources\UserInfoResource;
+use App\Models\User;
 
 class PollVoteController extends Controller
 {
@@ -200,5 +202,39 @@ class PollVoteController extends Controller
         } else {
             throw new NotFound();
         }
+    }
+
+    public function getPostVotesUsers($post_id, $user_id = null)
+    {
+        //get the user related to the votes and remove the duplicates
+        $users = PollVote::where('post_id', $post_id)
+            ->with('user')
+            ->get()
+            ->unique('user_id')
+            ->map(function ($vote) {
+                return $vote->user;
+            });
+
+        //get 10 users
+        $limited = $users->take(10);
+
+        //if the user id is sent, check if the user is in the list
+        if ($user_id) {
+            $user = User::find($user_id);
+            if ($user && $limited->where('id', $user_id)->count() == 0) {
+                $limited->prepend($user);
+            } else if ($user && $limited->where('id', $user_id)->count() > 0) {
+                //move the user to the top of the list
+                $limited = $limited->filter(function ($value, $key) use ($user_id) {
+                    return $value->id != $user_id;
+                });
+                $limited->prepend($user);
+            }
+        }
+
+        return $this->jsonResponseWithoutMessage([
+            'users' => UserInfoResource::collection($limited),
+            'count' => $users->count(),
+        ], 'data', 200);
     }
 }

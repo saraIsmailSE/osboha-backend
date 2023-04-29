@@ -22,12 +22,14 @@ class GroupSeeder extends Seeder
         //Group Type could be ['followup','supervising','advising','consultation','Administration']
 
         ######## Seed Reading Groups #######
-        $timeline_type = TimelineType::where('type', 'group')->first();
-        $timeline = Timeline::create(['type_id' => $timeline_type->id]);
-        group::factory(10)->create([
-            'type_id' => 1,
-            'timeline_id' => $timeline->id
-        ]);
+        $timeline_type = TimelineType::where('type', 'group')->first()->id;
+
+        for ($i = 0; $i < 10; $i++) {
+            $group = Group::factory()->create([
+                'type_id' => 1,
+                'timeline_id' => Timeline::create(['type_id' => $timeline_type])->id,
+            ]);
+        }
 
         ######## End Seed Reading Groups #######
 
