@@ -48,8 +48,7 @@ use App\Http\Controllers\Api\MessagesController;
 use App\Http\Controllers\Api\ModificationReasonController;
 use App\Http\Controllers\Api\ModifiedThesesController;
 use App\Http\Controllers\Api\UserBookController;
-
-
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +66,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('/myTEST', function () {
         $test = 'اشعار جديد';
         event(new NotificationsEvent($test));
+        
     });
 
     Route::post('/login', [AuthController::class, 'login']);
