@@ -20,148 +20,133 @@ class PermissionsSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // create permissions
+        $permissions = [
+            ###### MARK ######
+            'edit mark',
+            'delete mark',
+            'create mark',
+            'audit mark',
+            'reject thesis',
+            'accept thesis',
+            ###### ARTICLE ######
+            'edit article',
+            'delete article',
+            'create article',
+            ###### Activity ######
+            'edit activity',
+            'delete activity',
+            'create activity',
+            ###### INFOGRAPHIC ######
+            'edit infographic',
+            'delete infographic',
+            'create infographic',
+            ###### INFOGRAPHICSERIES  ######
+            'edit infographicSeries',
+            'delete infographicSeries',
+            'create infographicSeries',
+            ###### Reaction ######
+            'edit reaction',
+            'delete reaction',
+            'create reaction',
+            ###### RequestAmbassador ######
+            'edit RequestAmbassador',
+            'create RequestAmbassador',
+            ###### HIGH PRIORITY REQUEST ######
+            'create highPriorityRequestAmbassador',
+            ###### Book ######
+            'edit book',
+            'delete book',
+            'create book',
+            'audit book',
+            'accept book',
+            'reject book',
+            ###### EXCEPTION ######
+            'list pending exception',
+            ###### STATISTICS ######
+            'list statistics',
+            ###### NOTIFICATION ######
+            'notify user',
+            ###### EDIT USER ######
+            'block user',
+            'unblock user',
+            'exclude user',
+            'unexclude user',
+            'list freeze users',
+            'un freeze user',
+            'freeze user',
+            ###### ROLE ######
+            'list role',
+            'assign role',
+            'update role',
+            'list transactions',
+            ###### SystemIssue ######
+            'list systemIssue',
+            'update systemIssue',
+            ###### TimeLine ######
+            'main timeline',
+            'edit timeline',
+            'delete timeline',
+            'create timeline',
+            'list timelines',
+            ###### GROUP ######
+            'edit group',
+            'delete group',
+            'create group',
+            'list groups',
+            'post in group',
+            'add members to group',
+            'delete members from group',
+            'list group statistics',
+            ###### CHALLENGE ######
+            'edit challenge',
+            'delete challenge',
+            'create challenge',
 
-        ###### MARK ######
-        Permission::create(['name' => 'edit mark']);
-        Permission::create(['name' => 'delete mark']);
-        Permission::create(['name' => 'create mark']);
-        Permission::create(['name' => 'audit mark']);
-        Permission::create(['name' => 'reject thesis']);
-        Permission::create(['name' => 'accept thesis']);
+            ###### POST ######
+            'accept post',
+            'decline post',
+            'edit post',
+            'delete post',
+            'create post',
+            'pin post',
 
-        ###### THESIS ######
-        // Permission::create(['name' => 'delete thesis']);
-        // Permission::create(['name' => 'create thesis']);
+            ###### ANNOUNCEMENT ######
+            'edit announcement',
+            'delete announcement',
+            'create announcement',
+            'pin announcement',
 
-        ###### ARTICLE ######
-        Permission::create(['name' => 'edit article']);
-        Permission::create(['name' => 'delete article']);
-        Permission::create(['name' => 'create article']);
+            ###### COMMENT ######
+            'edit comment',
+            'delete comment',
+            'create comment',
+            'control comments',
 
-        ###### ACTIVITY ######
-        Permission::create(['name' => 'edit activity']);
-        Permission::create(['name' => 'delete activity']);
-        Permission::create(['name' => 'create activity']);
+            ###### ROOM ######
+            'create room',
+            'room control',
 
-        ###### INFOGRAPHIC ######
-        Permission::create(['name' => 'edit infographic']);
-        Permission::create(['name' => 'delete infographic']);
-        Permission::create(['name' => 'create infographic']);
+            ###### SECTION ######
+            'edit section',
+            'delete section',
+            'create section',
 
-        ###### INFOGRAPHICSERIES  ######
-        Permission::create(['name' => 'edit infographicSeries']);
-        Permission::create(['name' => 'delete infographicSeries']);
-        Permission::create(['name' => 'create infographicSeries']);
+            ###### Type ######
+            'edit type',
+            'delete type',
+            'create type',
 
-        ###### REACTION ######
-        Permission::create(['name' => 'edit reaction']);
-        Permission::create(['name' => 'delete reaction']);
-        Permission::create(['name' => 'create reaction']);
+            ###### Week ######
+            'edit week',
+        ];
 
-        ###### REQUEST AMBASSADOR######
-        Permission::create(['name' => 'edit RequestAmbassador']);
-        Permission::create(['name' => 'create RequestAmbassador']);
+        $permissionsToInsert = [];
 
-        ###### HIGH PRIORITY REQUEST######
-        Permission::create(['name' => 'create highPriorityRequestAmbassador']);
-
-        ###### BOOK ######
-        Permission::create(['name' => 'edit book']);
-        Permission::create(['name' => 'delete book']);
-        Permission::create(['name' => 'create book']);
-        Permission::create(['name' => 'audit book']);
-        Permission::create(['name' => 'accept book']);
-        Permission::create(['name' => 'reject book']);
-
-        ###### EXCEPTION ######
-        Permission::create(['name' => 'list pending exception']);
-
-
-        ###### STATISTICS ######
-        Permission::create(['name' => 'list statistics']);
-
-        ###### NOTIFICATION ######
-        Permission::create(['name' => 'notify user']);
-
-        ###### EDIT USER ######
-        Permission::create(['name' => 'block user']);
-        Permission::create(['name' => 'unblock user']);
-        Permission::create(['name' => 'exclude user']);
-        Permission::create(['name' => 'unexclude user']);
-        Permission::create(['name' => 'list freeze users']);
-        Permission::create(['name' => 'un freeze user']);
-        Permission::create(['name' => 'freeze user']);
-
-        ###### ROLE ######
-        Permission::create(['name' => 'list role']);
-        Permission::create(['name' => 'list transactions']);
-        Permission::create(['name' => 'assign role']);
-        Permission::create(['name' => 'update role']);
-
-        ###### SystemIssue ######
-        Permission::create(['name' => 'list systemIssue']);
-        Permission::create(['name' => 'update systemIssue']);
-
-        ###### TimeLine ######
-        Permission::create(['name' => 'main timeline']);
-        Permission::create(['name' => 'edit timeline']);
-        Permission::create(['name' => 'delete timeline']);
-        Permission::create(['name' => 'create timeline']);
-        Permission::create(['name' => 'list timelines']);
-
-        ###### GROUP ######
-        Permission::create(['name' => 'edit group']);
-        Permission::create(['name' => 'delete group']);
-        Permission::create(['name' => 'create group']);
-        Permission::create(['name' => 'list groups']);
-        Permission::create(['name' => 'post in group']);
-        Permission::create(['name' => 'add members to group']);
-        Permission::create(['name' => 'delete members from group']);
-        Permission::create(['name' => 'list group statistics']);
-
-        ###### CHALLENGE ######
-        Permission::create(['name' => 'edit challenge']);
-        Permission::create(['name' => 'delete challenge']);
-        Permission::create(['name' => 'create challenge']);
-
-        ###### POST ######
-        Permission::create(['name' => 'accept post']);
-        Permission::create(['name' => 'decline post']);
-        Permission::create(['name' => 'edit post']);
-        Permission::create(['name' => 'delete post']);
-        Permission::create(['name' => 'create post']);
-        Permission::create(['name' => 'pin post']);
-
-        ###### ANNOUNCEMENT ######
-        Permission::create(['name' => 'edit announcement']);
-        Permission::create(['name' => 'delete announcement']);
-        Permission::create(['name' => 'create announcement']);
-        Permission::create(['name' => 'pin announcement']);
-
-        ###### COMMENT ######
-        Permission::create(['name' => 'edit comment']);
-        Permission::create(['name' => 'delete comment']);
-        Permission::create(['name' => 'create comment']);
-        Permission::create(['name' => 'control comments']);
-
-        ###### ROOM ######
-        Permission::create(['name' => 'create room']);
-        Permission::create(['name' => 'room control']);
-
-        ###### SECTION ######
-        Permission::create(['name' => 'edit section']);
-        Permission::create(['name' => 'delete section']);
-        Permission::create(['name' => 'create section']);
-
-        ###### Type ######
-        Permission::create(['name' => 'edit type']);
-        Permission::create(['name' => 'delete type']);
-        Permission::create(['name' => 'create type']);
-
-        ###### Week ######
-        Permission::create(['name' => 'edit week']);
-
-        // create roles and assign existing permissions
+        foreach ($permissions as $permission) {
+            $permissionsToInsert[] = ['name' => $permission, 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()];
+        }
+        //insert permissions
+        Permission::insert($permissionsToInsert);
 
         $role1 = Role::create(['name' => 'admin']);
         $role6 = Role::create(['name' => 'consultant']);

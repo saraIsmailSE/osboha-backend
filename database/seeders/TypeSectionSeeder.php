@@ -23,61 +23,88 @@ class TypeSectionSeeder extends Seeder
     public function run()
     {
         //SECTIONS
-        $sections = ['علمي', 'تاريخي', 'ديني', 'سياسي', 'انجليزي', 'ثقافي', 'تربوي', 'تنمية', 'سيرة', 'اجتماعي '];
-        foreach ($sections as $section) {
-            Section::create([
-                'section' => $section,
-            ]);
-        }
+        $sections = [
+            ['section' => 'علمي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'تاريخي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'ديني', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'سياسي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'انجليزي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'ثقافي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'تربوي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'تنمية', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'سيرة', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'اجتماعي', 'created_at' => now(), 'updated_at' => now()],
+        ];
+
+        Section::insert($sections);
 
         //BOOK TYPES
-        $book_types = ['normal', 'ramadan', 'young', 'kids', 'tafseer'];
-        foreach ($book_types as $type) {
-            BookType::create(['type' => $type]);
-        }
 
-        //THESIS TYPE
-        $thesis_types = ['normal', 'ramadan', 'young', 'kids', 'tafseer'];
-        foreach ($thesis_types as $type) {
-            ThesisType::create(['type' => $type]);
-        }
+        $book_types = [
+            ['type' => 'normal', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'ramadan', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'young', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'kids', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'tafseer', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        BookType::insert($book_types);
 
+        //THESIS TYPE       
+        $thesis_types = [
+            ['type' => 'normal', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'ramadan', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'young', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'kids', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'tafseer', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        ThesisType::insert($thesis_types);
 
         //POST TYPES
-        $post_type = ['normal', 'book', 'article', 'infographic', 'support', 'discussion', 'announcement'];
-        foreach ($post_type as $type) {
-            PostType::create(['type' => $type]);
-        }
+        $post_types = [
+            ['type' => 'normal', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'book', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'article', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'infographic', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'support', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'discussion', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'announcement', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        PostType::insert($post_types);
 
-        //GROUP TYPES
-        
-        $group_type = ['followup','supervising','advising','consultation','Administration'];
-        foreach ($group_type as $type) {
-            GroupType::create(['type' => $type]);
-        }
+        //GROUP TYPES        
+        $group_types = [
+            ['type' => 'followup', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'supervising', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'advising', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'consultation', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'Administration', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        GroupType::insert($group_types);
 
-        //LANGUAGES
-        $languages = ['arabic', 'english'];
-        foreach ($languages as $language) {
-            Language::create(['language' => $language]);
-        }
+        //LANGUAGES        
+        $languages = [
+            ['language' => 'arabic', 'created_at' => now(), 'updated_at' => now()],
+            ['language' => 'english', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        Language::insert($languages);
 
         //TIMELINE TYPES
-        $timeline_types = ['main', 'profile', 'book', 'group'];
-        foreach ($timeline_types as $type) {
-            TimelineType::create([
-                'type' => $type,
-                'description' => 'simple desc',
+        $timeline_types = [
+            ['type' => 'main', 'description' => 'simple desc', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'profile', 'description' => 'simple desc', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'book', 'description' => 'simple desc', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'group', 'description' => 'simple desc', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        TimelineType::insert($timeline_types);
 
-            ]);
-        }
-
-        //EXCEPTION TYPES
-        $exception_types = ['تجميد الأسبوع الحالي', 'تجميد الأسبوع القادم', 'نظام امتحانات - شهري', 'نظام امتحانات - فصلي', 'تجميد استثنائي'];
-        foreach ($exception_types as $type) {
-            ExceptionType::create([
-                'type' => $type,
-            ]);
-        }
+        //EXCEPTION TYPES        
+        $exception_types = [
+            ['type' => 'تجميد الأسبوع الحالي', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'تجميد الأسبوع القادم', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'نظام امتحانات - شهري', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'نظام امتحانات - فصلي', 'created_at' => now(), 'updated_at' => now()],
+            ['type' => 'تجميد استثنائي', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        ExceptionType::insert($exception_types);
     }
 }

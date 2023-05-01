@@ -7,21 +7,23 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MailSupportPost extends Notification
+class RejectAmbassadorThesis extends Notification
 {
     use Queueable;
-    protected $url;
+    protected $reason;
     protected $name;
-
+    protected $url;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($name)
+    public function __construct($name, $reason, $book_id, $thesis_id)
     {
         $this->name = $name;
-        $this->url = 'https://www.osboha180.com/post/post_id';
+        $this->reason = $reason;
+
+        $this->url = 'https://www.osboha180.com/book/user-single-thesis/' . $book_id . '/' . $thesis_id;
     }
 
     /**
@@ -45,15 +47,18 @@ class MailSupportPost extends Notification
     {
         return (new MailMessage)
             ->from('no-replay@osboha180.com', 'Osboha 180')
-            ->subject('أصبوحة || منشور اعرف مشروعك')
-            ->line('مرحباً بك سفيرنا  ' . $this->name . '،')
-            ->line('نرجو أن تكون بأفضل حال')
+            ->subject('أصبوحة || تعديل علامة أطروحتك')
+            ->line('حياك الله سفيرنا ' . $this->name . '،')
             ->line('')
-            ->line('بعد مراجعة التصويت الخاص بك على منشور 《اعرف مشروعك》؛ تم رفض التصويت لمخالفته للشروط.')
-            ->line('فضلًا قم بمراجعة حسابك الخاص في المنصة لمعرفة السبب بشكل أوضح وتعديل الإجابة قبل نهاية الأسبوع. ')
-            ->action('رابط المنشور: ', $this->url)
+            ->line('بعد مراجعة إنجازك وتدقيقه وجدنا:')
+            ->line($this->reason)
             ->line('')
-            ->line('بارك الله قوتك.');
+            ->line('وبناء عليه تم تعديل العلامة الخاصة بك.')
+            ->line('')
+            ->line('نذكِّرك أنه ما دام لم ينتهِ الأسبوع فأمامك فرصة للمشاركة والإضافة. 🌸')
+            ->line('')
+            ->line('رابط الأطروحة: ' . $this->url)
+            ->line('قواكم الله.');
     }
 
     /**

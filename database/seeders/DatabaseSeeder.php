@@ -14,6 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(PermissionsSeeder::class);
+        $this->call(TypeSectionSeeder::class); //contains all the types and sections
+        $this->call(TimelineSeeder::class);
+        $this->call(GroupSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(PostSeeder::class);
         $this->call(RateSeeder::class);
@@ -24,11 +28,15 @@ class DatabaseSeeder extends Seeder
         $this->call(ReactionSeeder::class);
         $this->call(ModificationReasonSeeder::class);
         $this->call(ModifiedThesesSeeder::class);
+        $this->call(AuditTypeSeeder::class);
+
+
         // $this->call(RateSeeder::class);
         // $this->call(InfographicSeeder::class);
         // $this->call(InfographicSeriesSeeder::class);
         // $this->call(ArticleSeeder::class);
         // $this->call(CommentSeeder::class);
-        $this->call(AuditTypeSeeder::class);
+
+
     }
 }

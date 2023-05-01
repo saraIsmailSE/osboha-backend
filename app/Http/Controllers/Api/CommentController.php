@@ -84,6 +84,12 @@ class CommentController extends Controller
             $input['post_id'] = Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
         }
 
+        $post = Post::find($input['post_id']);
+
+        if ($post->allow_comments == 0) {
+            return $this->jsonResponseWithoutMessage('Comments are not allowed on this post', 'data', 500);
+        }
+
         //start transaction - asmaa (to be able to rollback in case of an error)
         DB::beginTransaction();
 

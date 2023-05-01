@@ -7,6 +7,7 @@ use App\Models\Media;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\UserExceptionResource;
+use App\Models\Book;
 use App\Models\User;
 use App\Models\UserBook;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +35,7 @@ class UserBookController extends Controller
     }
 
 
-     /**
+    /**
      * Find later books belongs to specific user.
      *
      * @param user_id
@@ -86,5 +87,35 @@ class UserBookController extends Controller
         $user_book->counter = $user_book->counter + 1;
         $user_book->save();
         return $this->jsonResponse($user_book, 'data', 200, 'updated successfully');
+    }
+
+    public function saveBookForLater($id)
+    {
+        $book = Book::find($id);
+
+        if (!$book) {
+            throw new NotFound;
+        }
+
+        $userBook = UserBook::where('user_id', Auth::id())->where('book_id', $id)->first();
+
+        if ($userBook) {
+            if ($userBook->status === 'later') {
+                $userBook->delete();
+                return $this->jsonResponse(null, 'data', 200, 'تم حذف الكتاب من المحفوظات');
+            } else if ($userBook->status === 'finished') {
+                return $this->jsonResponse($userBook, 'data', 200, 'لقد قرأت هذا الكتاب من قبل, بإمكانك أن تجده في قائمة كتبك');
+            } else {
+                return $this->jsonResponse($userBook, 'data', 200, 'أنت حالياً تقرأ في هذا الكتاب, بإمكانك أن تجده في قائمة كتبك');
+            }
+        } else {
+            $userBook = UserBook::create([
+                'user_id' => Auth::id(),
+                'book_id' => $id,
+                'status' => 'later',
+            ]);
+            $userBook->fresh();
+            return $this->jsonResponse($userBook, 'data', 200, 'تم حفظ الكتاب في قائمة المحفوظات');
+        }
     }
 }
