@@ -46,7 +46,7 @@ class GeneralNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'sender name' => $this->sender,
+            'sender' => $this->sender,
             'message'   =>  $this->msg,
             'type'   =>  $this->type,
         ];

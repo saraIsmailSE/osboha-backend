@@ -401,9 +401,9 @@ class AuthController extends Controller
                 $head_user_last_role = $head_user_roles->roles->first();
 
                 if ($head_user_last_role->id <= $request->role_id) {
-                    // //remove last role 
-                    // $user_current_role = $user->load('roles:id,name');
-                    // $user->removeRole($user_current_role->roles->pluck('name')->first());
+                    //remove last role 
+                    $user_current_role = $user->load('roles:id,name');
+                    $user->removeRole($user_current_role->roles->pluck('name')->first());
                     
                     // assign new role
                     $role = Role::find($request->role_id);
