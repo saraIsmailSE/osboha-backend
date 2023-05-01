@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Image;
-use Termwind\Components\Dd;
 
 trait MediaTraits
 {
@@ -89,7 +88,6 @@ trait MediaTraits
             $imageName = $width . 'x' . $hight . '_' . $imageName;
             $img->save($pathToSave . '/' . $imageName);
         } catch (\Exception $e) {
-
             return $e->getMessage();
         }
     }

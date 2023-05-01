@@ -25,12 +25,12 @@ class PostSeeder extends Seeder
         // 'timeline_id' => [Main]
 
         Post::factory(30)->create([
-            'user_id' => rand(1, 3),
+            'user_id' => rand(1, 100),
             'type_id' => 1,
             'timeline_id' => 1
         ])->each(function ($post) {
             $post->taggedUsers()->create([
-                'user_id' => rand(4, 150),
+                'user_id' => rand(101, 150),
             ]);
             Comment::factory(rand(1, 20))->create([
                 'type' => 'normal',

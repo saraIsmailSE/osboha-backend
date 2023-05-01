@@ -21,6 +21,7 @@ use App\Http\Resources\PostResource;
 use App\Models\PollOption;
 use App\Models\PostType;
 use App\Models\TimelineType;
+use App\Models\Week;
 
 class PostController extends Controller
 {
@@ -794,5 +795,22 @@ class PostController extends Controller
                 },
             ],
         ]);
+    }
+
+    public function getLastSupportPost()
+    {
+        $currentWeek = Week::latest()->first();
+        $createdAt = $currentWeek->created_at;
+        $mainTimer = $currentWeek->main_timer;
+        $post = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+            ->where('created_at', '>=', $createdAt)
+            ->where('created_at', '<', $mainTimer)
+            ->latest()->first();
+
+        if ($post) {
+            return $this->jsonResponseWithoutMessage($post, 'data', 200);
+        } else {
+            return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        }
     }
 }

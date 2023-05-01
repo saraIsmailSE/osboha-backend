@@ -87,16 +87,21 @@ class ReactionSeeder extends Seeder
         ReactionType::insert($reaction_types);
         Media::insert($media);
 
-        $posts = Post::inRandomOrder()->limit(100)->get();
-        $users = User::inRandomOrder()->limit(100)->get();
-        $comments = Comment::inRandomOrder()->limit(100)->get();
+        $posts = Post::inRandomOrder()->limit(50)->get();
+        $comments = Comment::inRandomOrder()->limit(50)->get();
+        $users = User::inRandomOrder()->limit(25)->pluck('id')->toArray();
 
+        //get random count number of users ids array
+        $posts_users = random_int(1, 25);
+        $comments_users =  random_int(1, 25);
+
+
+        //create unique reactions on posts and comments
         $reactions = [];
-        //generate 100 reactions on different posts 
         foreach ($posts as $post) {
-            foreach ($users as $user) {
+            for ($i = 0; $i < $posts_users; $i++) {
                 $reactions[] = [
-                    'user_id' => $user->id,
+                    'user_id' => $users[$i],
                     'type_id' => 1,
                     'post_id' => $post->id,
                     'created_at' => now(),
@@ -104,15 +109,12 @@ class ReactionSeeder extends Seeder
                 ];
             }
         }
-
         Reaction::insert($reactions);
-
         $reactions = [];
-        //generate 100 reactions on different comments
         foreach ($comments as $comment) {
-            foreach ($users as $user) {
+            for ($i = 0; $i < $comments_users; $i++) {
                 $reactions[] = [
-                    'user_id' => $user->id,
+                    'user_id' => $users[$i],
                     'type_id' => 1,
                     'comment_id' => $comment->id,
                     'created_at' => now(),

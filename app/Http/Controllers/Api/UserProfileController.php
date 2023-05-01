@@ -30,6 +30,7 @@ use App\Traits\MediaTraits;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Throwable;
 
 class UserProfileController extends Controller
@@ -77,17 +78,15 @@ class UserProfileController extends Controller
             if ($user_id == Auth::id()) {
                 // user exceptions => displayed ONLY for Profile Owner
                 $profile['exceptions'] = UserException::where('user_id', $user_id)->get();
-            }
-            else{
+            } else {
                 // friend with auth or not
-                $profile['friendWithAuth']=Friend::where(function ($q) use ($user_id) {
+                $profile['friendWithAuth'] = Friend::where(function ($q) use ($user_id) {
                     $q->where('user_id', Auth::id())
                         ->Where('friend_id', $user_id);
                 })->orWhere(function ($q) use ($user_id) {
                     $q->where('user_id', $user_id)
                         ->Where('friend_id', Auth::id());
                 })->exists();
-
             }
 
             return $this->jsonResponseWithoutMessage($profile, 'data', 200);
@@ -103,9 +102,9 @@ class UserProfileController extends Controller
      * @return jsonResponse[profile:info]
      */
     public function showToUpdate()
-    {   
+    {
         $response['profileInfo'] = UserProfile::where('user_id', Auth::id())->first();
-        $response['sections']=Section::all();
+        $response['sections'] = Section::all();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
@@ -216,17 +215,16 @@ class UserProfileController extends Controller
         }
     }
 
-    public function getImages()
+    public function getImages($profile_id, $file_name)
     {
+        $folderName = "profile_" . $profile_id;
+        $path = public_path() . '/assets/images/profiles/' . $folderName . '/' . $file_name;
 
-        if (isset($_GET['fileName']) && isset($_GET['profileID'])) {
-            $folderName = "profile_" . $_GET['profileID'];
-            $path = public_path() . '/assets/images/profiles/' . $folderName . '/' . $_GET['fileName'];
-
-            return response()->download($path, $_GET['fileName']);
-        } else {
-            return $this->sendError('file nout found');
+        if (!File::exists($path)) {
+            throw new NotFound;
         }
+
+        return response()->download($path, $file_name);
     }
 
 
@@ -242,23 +240,25 @@ class UserProfileController extends Controller
         $response['week'] = Week::latest()->first();
         $group_id = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
         $users = Group::with('users')->where('id', $group_id);
-        $response['group_week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users->pluck('id'))    
-        ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-        ->first()
-        ->out_of_100;
+        $response['group_week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users->pluck('id'))
+            ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
+            ->first()
+            ->out_of_100;
 
         $response['week_mark'] = Mark::where('week_id', $response['week']->id)->where('user_id', $user_id)->first();
 
-        $currentMonth = date('m');
-        $weeksInMonth=Week::whereRaw('MONTH(created_at) = ?',$currentMonth)->get();
-        $month_achievement= Mark::where('user_id', $user_id)
-        ->whereIn('week_id', $weeksInMonth->pluck('id'))
-        ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
-        ->groupBy('week_id')->get();
+        // $currentMonth = date('m');        
+        $currentMonth = date('m', strtotime($response['week']->created_at));
+        $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
 
-        $response['month_achievement']=  $month_achievement->pluck('out_of_100','week.title');
+        $response['month_achievement'] = Mark::where('user_id', $user_id)
+            ->whereIn('week_id', $weeksInMonth->pluck('id'))
+            ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
+            ->groupBy('week_id')
+            ->get()
+            ->pluck('out_of_100', 'week.title');
 
-        $response['month_achievement_title']= Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
+        $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }

@@ -9,9 +9,11 @@ use App\Models\Group;
 use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\User;
+use App\Traits\MediaTraits;
 
 class GroupSeeder extends Seeder
 {
+
     /**
      * Run the database seeds.
      *
@@ -22,15 +24,9 @@ class GroupSeeder extends Seeder
         //Group Type could be ['followup','supervising','advising','consultation','Administration']
 
         ######## Seed Reading Groups #######
-        $timeline_type = TimelineType::where('type', 'group')->first()->id;
-
-        for ($i = 0; $i < 10; $i++) {
-            $group = Group::factory()->create([
-                'type_id' => 1,
-                'timeline_id' => Timeline::create(['type_id' => $timeline_type])->id,
-            ]);
-        }
-
+        Group::factory(10)->create([
+            'type_id' => 1,
+        ]);
         ######## End Seed Reading Groups #######
 
     }

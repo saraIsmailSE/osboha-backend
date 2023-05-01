@@ -37,9 +37,14 @@ class UserSeeder extends Seeder
 
         ####### Seed Admin #######
         $user = User::factory()->create();
+
         $user->assignRole('admin');
         foreach ($groups as $group) {
             $user->groups()->attach($group->id, ['user_type' => 'admin']);
+
+            if ($group->id == 1) {
+                $user->groups()->attach($group->id, ['user_type' => 'ambassador']);
+            }
         }
 
         $timeline = Timeline::create(['type_id' => $timeline_type_id]);
@@ -112,6 +117,13 @@ class UserSeeder extends Seeder
             $user->assignRole('leader');
             foreach ($groups as $group) {
                 $user->groups()->attach($group->id, ['user_type' => 'leader']);
+
+                if ($group->id == 1) {
+                    //get admin user
+                    $admin = $group->admin()->first();
+                    $admin->parent_id = $user->id;
+                    $admin->save();
+                }
             }
             $timeline = Timeline::create(['type_id' => $timeline_type_id]);
             UserProfile::factory(1)->create([
