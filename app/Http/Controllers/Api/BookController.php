@@ -18,6 +18,7 @@ use App\Models\Language;
 use App\Models\PostType;
 use App\Models\Rate;
 use App\Models\TimelineType;
+use App\Models\UserBook;
 use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
@@ -402,6 +403,4 @@ class BookController extends Controller
             throw new NotFound;
         }
     }
-
-    
 }

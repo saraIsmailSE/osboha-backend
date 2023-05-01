@@ -95,15 +95,20 @@ class ThesisSeeder extends Seeder
     {
         $number = 4;
         $posts = Post::where('type_id', 2)->get();
-        $datetime = Carbon::now()->startOfMonth();
-        for ($j = 0; $j < $number; $j++) {
-            $date = $datetime->startOfWeek(Carbon::SUNDAY)->addWeek();
+        // $datetime = Carbon::now()->startOfMonth()->startOfWeek(Carbon::SATURDAY);
+        // //go back 3 weeks
+        // $datetime = Carbon::parse($datetime)->subWeeks($number);
+        for ($j = $number; $j >= 0; $j--) {
+            $date = Carbon::now()->startOfMonth()->startOfWeek(Carbon::SATURDAY)->subWeeks($j);
+            $dateToSearch = $date->addDay();
+            $title = $this->search_for_week_title(Carbon::parse($dateToSearch)->format('Y-m-d'), $this->weeks());
+            $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
             $week_id =  Week::create([
-                'title' => $this->search_for_week_title(Carbon::parse($date)->format('Y-m-d'), $this->weeks()),
+                'title' => $title,
                 'is_vacation' => 0,
-                'main_timer' =>  Carbon::parse($date)->addDays(6)->addHours(23)->addMinutes(59)->addSeconds(59),
-                'created_at' => $date,
-                'updated_at' => $date,
+                'main_timer' =>  Carbon::parse($dateToAdd)->addDays(7),
+                'created_at' => $dateToAdd,
+                'updated_at' => $dateToAdd,
             ])->id;
             $users = User::where('is_excluded', 0)->where('is_hold', 0)->pluck('id')->toArray();
             foreach ($users as $i) {

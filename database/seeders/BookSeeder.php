@@ -38,7 +38,7 @@ class BookSeeder extends Seeder
             $timeline_id = Timeline::where('type_id', 3)->first()->id;
             $posts = [];
             $media = [];
-            for ($i = 1; $i <= 100; $i++) {
+            for ($i = 1; $i <= 50; $i++) {
                 $user_id = rand(1, 3);
                 $posts[] = [
                     'user_id' => $user_id,
@@ -59,7 +59,7 @@ class BookSeeder extends Seeder
             }
             Post::insert($posts);
             Media::insert($media);
-            Book::factory(100)->create();
+            Book::factory(50)->create();
         });
     }
 }

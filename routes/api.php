@@ -66,20 +66,19 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::get('/myTEST', function () {
         $test = 'اشعار جديد';
-        $user=User::find(Auth::id());
-        event(new NotificationsEvent($test,$user));
-        
+        $user = User::find(Auth::id());
+        event(new NotificationsEvent($test, $user));
     });
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
 
-    Route::get('/profile-image', [UserProfileController::class, 'getImages']);
+    Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
-    Route::middleware('auth:sanctum','isActive')->group(function () {
+    Route::middleware('auth:sanctum', 'isActive')->group(function () {
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
         Route::post('/assign-role', [AuthController::class, 'assignRole']);
@@ -111,6 +110,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/later-books/{user_id}', [UserBookController::class, 'later']);
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
+            Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
         });
         ########End User Book########
         ########Start Rate########
@@ -349,6 +349,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/home', [PostController::class, 'getPostsForMainPage']);
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);
             Route::get('/support', [PostController::class, 'getSupportPosts']);
+            Route::get('/support/latest', [PostController::class, 'getLastSupportPost']);
         });
         ########End Post########
 
@@ -408,7 +409,8 @@ Route::group(['prefix' => 'v1'], function () {
         ####### Start Thesis ########
         Route::group(['prefix' => 'theses'], function () {
             Route::get('/{thesis_id}', [ThesisController::class, 'show'])->where('thesis_id', '[0-9]+');
-            Route::get('/book/{book_id}', [ThesisController::class, 'listBookThesis'])->where('book_id', '[0-9]+');
+            Route::get('/book/{book_id}/user/{user_id?}', [ThesisController::class, 'listBookThesis'])->where('book_id', '[0-9]+')->where('user_id', '[0-9]+');
+            Route::get('/book/{book_id}/thesis/{thesis_id}', [ThesisController::class, 'getBookThesis'])->where('book_id', '[0-9]+')->where('thesis_id', '[0-9]+');
             Route::get('/user/{user_id}', [ThesisController::class, 'listUserThesis'])->where('user_id', '[0-9]+');
             Route::get('/week/{week_id}', [ThesisController::class, 'listWeekThesis'])->where('week_id', '[0-9]+');
         });
@@ -426,6 +428,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [WeekController::class, 'get_last_weeks_ids']); //for testing - to be deleted
             Route::get('/title', [WeekController::class, 'getDateWeekTitle']);
             Route::post('/insert_week', [WeekController::class, 'insert_week']);
+            Route::get('/close-comments', [WeekController::class, 'closeBooksAndSupportComments']);
+            Route::get('/open-comments', [WeekController::class, 'openBooksComments']);
+            Route::get('/check-date', [WeekController::class, 'testDate']);
         });
         ######## Week ########
 

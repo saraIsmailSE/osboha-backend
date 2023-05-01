@@ -12,9 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\MarkResource;
@@ -22,17 +19,12 @@ use App\Models\User;
 use App\Models\Week;
 use App\Events\MarkStats;
 use App\Http\Resources\CommentResource;
-use App\Http\Resources\ReactionResource;
 use App\Http\Resources\ReactionTypeResource;
-use App\Models\AuditType;
 use App\Models\Comment;
-use App\Models\MarksForAudit;
 use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
-use App\Models\UserException;
 use App\Notifications\MailSupportPost;
-use Carbon\Carbon;
 
 class MarkController extends Controller
 {
@@ -258,21 +250,30 @@ class MarkController extends Controller
      */
     public function userMonthAchievement($user_id, $filter)
     {
+        $week = Week::latest()->first();
 
         if ($filter == 'current') {
-            $currentMonth = date('m');
-        }
+            // $currentMonth = date('m');
+            $currentMonth = date('m', strtotime($week->created_at));
+        } else
         if ($filter == 'previous') {
-            $currentMonth = date('m') - 1;
+            // $currentMonth = date('m') - 1;
+            $currentMonth = date('m', strtotime($week->created_at)) - 1;
         }
 
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->get();
-        $month_achievement = Mark::where('user_id', $user_id)
+
+        if ($weeksInMonth->isEmpty()) {
+            throw new NotFound;
+        }
+
+        $response['month_achievement'] = Mark::where('user_id', $user_id)
             ->whereIn('week_id', $weeksInMonth->pluck('id'))
             ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
-            ->groupBy('week_id')->get();
+            ->groupBy('week_id')
+            ->get()
+            ->pluck('out_of_100', 'week.title');
 
-        $response['month_achievement'] =  $month_achievement->pluck('out_of_100', 'week.title');
         $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
@@ -284,17 +285,18 @@ class MarkController extends Controller
      */
     public function userWeekAchievement($user_id, $filter)
     {
-
+        //current week
+        $week =  Week::latest();
         if ($filter == 'current') {
-            $week = Week::latest()->pluck('id')->toArray();
-            $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)->first();
-        }
+
+            $response['week_mark'] = Mark::where('week_id', $week->first()->id)->where('user_id', $user_id)->first();
+        } else
         if ($filter == 'previous') {
-            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
-            $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)->first();
-        }
+            $previousWeek = $week->skip(1)->first()->id;
+            $response['week_mark'] = Mark::where('week_id', $previousWeek)->where('user_id', $user_id)->first();
+        } else
         if ($filter == 'in_a_month') {
-            $currentMonth = date('m');
+            $currentMonth = $week->first()->created_at->format('m');
             $week = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->pluck('id')->toArray();
             $response['week_mark'] = Mark::whereIn('week_id', $week)->where('user_id', $user_id)
                 ->select(DB::raw('sum(total_thesis) as total_thesis , sum(total_screenshot) as total_screenshot'))
@@ -418,9 +420,7 @@ class MarkController extends Controller
                 //notify ambassador
                 $userToNotify = User::findOrFail($user_id);
                 // with email
-                $userToNotify->notify(
-                    (new MailSupportPost($userToNotify->name))->delay(now()->addMinutes(2))
-                );
+                $userToNotify->notify((new MailSupportPost($userToNotify->name)));
                 // with notification
                 $msg = "لقد تم رفض تصويتك على منشور الدعم لهذا الاسبوع, تفقد المنشور لتعديله";
                 (new NotificationController)->sendNotification($user_id, $msg, GROUPS);

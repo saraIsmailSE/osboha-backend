@@ -97,14 +97,10 @@ trait ThesisTraits
      * @param Date $date
      * @return boolean
      */
-    public function checkDateBelongsToCurrentWeek($date)
+    public function checkDateBelongsToCurrentWeek($mainTimer)
     {
-        $current_week_dates = [];
-        //get the date range from sunday to saturday of the current week
-        for ($i = 0; $i < 7; $i++) {
-            array_push($current_week_dates, Carbon::now()->startOfWeek(Carbon::SUNDAY)->addDays($i)->format('Y-m-d'));
-        }
-        if (array_search($date, $current_week_dates) !== false) {
+        //check if now is less than the main timer of the week
+        if (Carbon::now()->lessThan($mainTimer)) {
             return true;
         }
         return false;
@@ -129,9 +125,8 @@ trait ThesisTraits
         if (!$seeder) {
             //asmaa - check if the week is existed or not
             $week = Week::latest('id')->first();
-            $week_start_date = $week->created_at->format('Y-m-d');
 
-            if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
+            if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
                 // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
                 throw new \Exception('Cannot add thesis');
             }
@@ -219,7 +214,6 @@ trait ThesisTraits
 
             //update status to accepted if the thesis is read only
             if ($thesisTotalPages > 0 && $max_length == 0 && $total_screenshots == 0) {
-                echo 'here';
                 $thesis_data_to_insert['status'] = ACCEPTED_STATUS;
             }
 
@@ -258,9 +252,8 @@ trait ThesisTraits
 
         if ($thesis) {
             $week = Week::latest('id')->first();
-            $week_start_date = $week->created_at->format('Y-m-d');
 
-            if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
+            if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
                 // return $this->jsonResponseWithoutMessage('Cannot update thesis', 'data', 500);
                 throw new \Exception('Cannot update thesis');
             }
@@ -381,9 +374,8 @@ trait ThesisTraits
 
         if ($thesis) {
             $week = Week::latest('id')->first();
-            $week_start_date = $week->created_at->format('Y-m-d');
 
-            if (!$this->checkDateBelongsToCurrentWeek($week_start_date)) {
+            if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
                 // return $this->jsonResponseWithoutMessage('Cannot delete thesis', 'data', 500);
                 throw new \Exception('Cannot delete thesis');
             }

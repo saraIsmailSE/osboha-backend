@@ -10,10 +10,14 @@ use App\Traits\ResponseJson;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\ModifiedThesesResource;
+use App\Models\ModificationReason;
 use App\Models\ModifiedTheses;
 use App\Models\Thesis;
+use App\Models\User;
 use App\Models\Week;
+use App\Notifications\RejectAmbassadorThesis;
 use App\Traits\ThesisTraits;
+use Illuminate\Http\Response;
 
 class ModifiedThesesController extends Controller
 {
@@ -65,7 +69,7 @@ class ModifiedThesesController extends Controller
 
             //check if current date(full) greater than main timer
             if (date('Y-m-d H:i:s') > $main_timer) {
-                return $this->jsonResponseWithoutMessage("You can't modify theses after at this time", 'data', 500);
+                return $this->jsonResponseWithoutMessage("لا يمكنك تدقيق الأطروحة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
             }
 
             $thesis = Thesis::find($request->thesis_id);
@@ -81,6 +85,10 @@ class ModifiedThesesController extends Controller
 
                 ModifiedTheses::create($input);
                 $this->auditThesis($thesis, $request->status);
+
+                $user = User::findOrFail($thesis->user_id);
+                $reason = ModificationReason::findOrFail($request->modifier_reason_id);
+                $user->notify(new RejectAmbassadorThesis($user->name, $reason->reason, $thesis->book_id, $thesis->id));
             }
 
             //send notification to user
@@ -94,10 +102,10 @@ class ModifiedThesesController extends Controller
                 $arabicStatus = 'قبول علامة واحدة من';
             }
 
-            $message = 'تم ' . $arabicStatus . ' أطروحتك من قبل ' . Auth::user()->name;
+            $message = 'تم ' . $arabicStatus . ' أطروحتك من قِبَل ' . Auth::user()->name;
 
             (new NotificationController)->sendNotification($thesis->user_id, $message, ACHIEVEMENTS);
-            return $this->jsonResponseWithoutMessage("Modified Theses Craeted Successfully", 'data', 200);
+            return $this->jsonResponseWithoutMessage("تم تدقيق الأطروحة بنجاح, وإعلام السفير", 'data', 200);
         } else {
             throw new NotAuthorized;
         }

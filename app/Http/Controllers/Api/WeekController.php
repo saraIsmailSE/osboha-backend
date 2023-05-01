@@ -14,7 +14,9 @@ use App\Models\UserStatistic;
 use App\Models\MarkStatistic;
 use App\Traits\ResponseJson;
 use App\Events\UpdateUserStats;
-
+use App\Models\Post;
+use App\Models\PostType;
+use App\Traits\ThesisTraits;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,7 +27,7 @@ use Illuminate\Support\Facades\Validator;
 
 class WeekController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, ThesisTraits;
     public function __construct()
     {
         //get date of first day of first week of february 2023
@@ -132,16 +134,18 @@ class WeekController extends Controller
             //add new week to the system
             $new_week_id = $this->insert_week();
 
+            $this->closeBooksAndSupportComments();
             $this->add_marks_for_all_users($new_week_id, $last_week_ids);
             $this->add_users_statistics($new_week_id);
             $this->add_marks_statistics($new_week_id);
+            $this->openBooksComments();
 
             DB::commit();
             return $this->jsonResponseWithoutMessage('Marks added Successfully', 'data', 200);
         } catch (\Exception $e) {
             // echo $e->getMessage();
             DB::rollBack();
-            return $this->jsonResponseWithoutMessage('Something went wrong, Could not add marks', 'data', 200);
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 200);
         }
     }
 
@@ -229,12 +233,40 @@ class WeekController extends Controller
      */
     public function insert_week()
     {
+        $previousWeek = Week::latest('id')->first();
+        $previousDate = $previousWeek ? Carbon::parse($previousWeek->created_at) : null;
+
         $week = new Week();
 
-        $date = Carbon::now()->startOfWeek(Carbon::SUNDAY);
-        $week->title = $this->search_for_week_title($date->format('Y-m-d'), YEAR_WEEKS);
+        $currentDate = Carbon::now();
+
+        $currentDate->hour = 0;
+        $currentDate->minute = 0;
+        $currentDate->second = 0;
+
+        $date = $currentDate;
+
+        //check if $date is saturday or not
+        if ($currentDate->dayOfWeek != Carbon::SATURDAY) {
+            //check if the previous saturday is equal to the previous week date
+            $date = $currentDate->previous(Carbon::SATURDAY);
+            if ($previousDate && $previousDate->format('Y-m-d') == $date->format('Y-m-d')) {
+
+                $date = $currentDate->next(Carbon::SATURDAY);
+            }
+        }
+
+        //seach sundays
+        $dateToSearch = $date->addDay();
+        $week->title = $this->search_for_week_title($dateToSearch->format('Y-m-d'), YEAR_WEEKS);
+
+        //add end of saturdays
+        $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
+        $week->created_at = $dateToAdd;
+        $week->updated_at = $dateToAdd;
+
         //add 7 days to the date to get the end of the week
-        $week->main_timer = Carbon::parse($date)->addDays(6)->addHours(23)->addMinutes(59)->addSeconds(59);
+        $week->main_timer = $dateToAdd->addDays(7);
         $week->is_vacation = 0;
 
         if ($week->save()) { //insert new week
@@ -370,6 +402,7 @@ class WeekController extends Controller
                 } catch (\Exception $exception) {
                     Log::error($exception);
                     DB::rollBack();
+                    throw $exception;
                 }
             }, 'users.id', 'id');
 
@@ -556,6 +589,7 @@ class WeekController extends Controller
         }
     }
 
+    //later
     public function getDateWeekTitle()
     {
         $date = '2023-05-07';
@@ -616,6 +650,69 @@ class WeekController extends Controller
 
         // return YEAR_WEEKS;
 
-        return Carbon::now()->startOfMonth()->startOfWeek(Carbon::SUNDAY)->addWeeks(1)->format('Y-m-d');
+        // print_r(YEAR_WEEKS);
+        for ($i = 3; $i >= 0; $i--) {
+            $date = Carbon::now()->startOfMonth()->startOfWeek(Carbon::SATURDAY)->subWeeks($i);
+            $dateToSearch = $date->addDay();
+            echo $dateToSearch . '<br>';
+            $title = $this->search_for_week_title(Carbon::parse($dateToSearch)->format('Y-m-d'), YEAR_WEEKS);
+            echo $title . '<br>';
+            $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
+            echo $dateToAdd . '<br>';
+        }
+    }
+
+    /**
+     * Close the comments on books and support posts
+     * @return JsonResponse
+     */
+    public function closeBooksAndSupportComments()
+    {
+        $posts = Post::whereIn('type_id', PostType::whereIn('type', ['book', 'support'])->pluck('id')->toArray())
+            ->chunk(100, function ($posts) {
+                try {
+                    DB::beginTransaction();
+
+                    foreach ($posts as $post) {
+                        $post->update(['allow_comments' => 0]);
+                    }
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    throw $e;
+                }
+            });
+
+        return $this->jsonResponseWithoutMessage('تم إغلاق التعليقات على الكتب والدعم', 'data', 200);
+    }
+
+    /**
+     * Open the comments on books
+     */
+    public function openBooksComments()
+    {
+        $posts = Post::where('type_id', PostType::where('type', 'book')->first()->id)
+            ->chunk(100, function ($posts) {
+                try {
+                    DB::beginTransaction();
+
+                    foreach ($posts as $post) {
+                        $post->update(['allow_comments' => 1]);
+                    }
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    throw $e;
+                }
+            });
+
+        return $this->jsonResponseWithoutMessage('تم فتح التعليقات على الكتب', 'data', 200);
+    }
+
+    public function testDate()
+    {
+        return $this->checkDateBelongsToCurrentWeek();
     }
 }
