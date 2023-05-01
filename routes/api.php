@@ -220,7 +220,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/group-audit-marks/{group_id}', [AuditMarkController::class, 'groupAuditMarks']);
             Route::patch('/update-mark-for-audit-status/{id}', [AuditMarkController::class, 'updateMarkForAuditStatus']);
             Route::get('/groups-audit/{supervisor_id}', [AuditMarkController::class, 'groupsAudit']);
-            Route::get('/supervisors-audit', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
+            Route::get('/supervisors-audit/{advisor_id}', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
         });
         ######## End Audit Mark ########
         ########Modified Theses########
