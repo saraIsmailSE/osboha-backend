@@ -155,12 +155,11 @@ class UserGroupController extends Controller
                 $role = Role::find($request->role_id);
 
                 if ($user->hasRole($role->name)) {
-
                     if ($role->name == 'ambassador' && $group->type->type='followup') {
                         if ($group->groupLeader->isEmpty())
                             return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة", 'data', 200);
                         else
-                            $user->parent_id = $group->groupLeader->id();
+                            $user->parent_id = $group->groupLeader[0]->id;
                     }
                     $role_in_arabic = [
                         'ambassador' => "سفير",

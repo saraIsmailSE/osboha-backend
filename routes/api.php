@@ -64,13 +64,6 @@ use Illuminate\Support\Facades\Auth;
 
 Route::group(['prefix' => 'v1'], function () {
 
-    Route::get('/myTEST', function () {
-        $test = 'اشعار جديد';
-        $user=User::find(Auth::id());
-        event(new NotificationsEvent($test,$user));
-        
-    });
-
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
 
@@ -80,6 +73,17 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
     Route::middleware('auth:sanctum','isActive')->group(function () {
+        Route::get('/myTEST', function () {
+            $user=User::find(1);
+            $msg = "لديك طلب صداقة ";
+            (new NotificationController)->sendNotification($user->id, $msg,'friends');
+    
+            // $test = 'اشعار جديد';
+            // $user=User::find(Auth::id());
+            // event(new NotificationsEvent($test,$user));
+            
+        });
+    
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
         Route::post('/assign-role', [AuthController::class, 'assignRole']);
@@ -270,6 +274,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
             Route::get('/audit-marks/{group_id}', [GroupController::class, 'auditMarks']);
             Route::get('/user-groups', [GroupController::class, 'userGroups']);
+            Route::get('/statistics/{group_id}/{week_filter?}', [GroupController::class, 'statistics']);
+            Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
+            Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
+            
         });
         ############End Group############
 
@@ -386,10 +394,10 @@ Route::group(['prefix' => 'v1'], function () {
         ########End Profile-Setting########
         ####### Notification ########
         Route::group(['prefix' => 'notifications'], function () {
-            Route::get('/listAll', [NotificationController::class, 'listAllNotification']);
-            Route::get('/unRead', [NotificationController::class, 'listUnreadNotification']);
-            Route::get('/makeAllAsRead', [NotificationController::class, 'markAllNotificationAsRead']);
-            Route::post('/makeOneAsRead', [NotificationController::class, 'markOneNotificationAsRead']);
+            Route::get('/list-all', [NotificationController::class, 'listAllNotification']);
+            Route::get('/un-read', [NotificationController::class, 'listUnreadNotification']);
+            Route::get('/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
+            Route::get('/mark-as-read/{notification_id}', [NotificationController::class, 'markAsRead']);
         });
         ######## End Notification ########
         ####### Start UserGroup ########

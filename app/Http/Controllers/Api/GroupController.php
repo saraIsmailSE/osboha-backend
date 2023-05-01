@@ -572,4 +572,158 @@ class GroupController extends Controller
             throw new NotFound;
         }
     }
+
+    public function statistics($group_id, $week_filter = "current")
+    {
+
+        $response['week'] = Week::latest()->first();
+        $users_in_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+        $response['users_in_group'] = $users_in_group->count();
+
+        $response['total_statistics'] = Mark::without('user,week')->where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select(
+                DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
+                DB::raw('avg(reading_mark) as team_reading_mark'),
+                DB::raw('avg(writing_mark) as team_writing_mark'),
+                DB::raw('sum(total_pages) as total_pages'),
+                DB::raw('sum(total_thesis) as total_thesis'),
+                DB::raw('sum(total_screenshot) as total_screenshot'),
+            )->first();
+
+        $response['most_read'] = Mark::where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
+            ->groupBy('user_id')
+            ->orderBy('max_total_pages', 'desc')
+            ->first();
+
+        $response['total']['freezed'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 1)
+            ->count();
+        $response['total']['zero'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
+            ->groupBy('user_id')
+            ->having('out_of_100', '=', 0)
+            ->count();
+        $response['total']['out_of_90'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('sum(reading_mark + writing_mark) as out_of_90'))
+            ->groupBy('user_id')
+            ->having('out_of_90', '=', 90)
+            ->count();
+        $response['total']['out_of_100'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('sum(reading_mark + writing_mark) as out_of_100'))
+            ->groupBy('user_id')
+            ->having('out_of_100', '=', 100)
+            ->count();
+
+        $response['total']['others'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
+            ->groupBy('user_id')
+            ->havingBetween('out_of_100', [10, 90])
+            ->count();
+
+        $currentMonth = date('m');
+        $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
+        $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->whereIn('week_id', $weeksInMonth->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
+            ->groupBy('week_id')->get();
+
+        $response['month_achievement'] =  $month_achievement->pluck('out_of_100', 'week.title');
+
+        $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
+
+
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    /**
+     * get screenshots and screens by week
+     * 
+     * @param  $group_id,$filter
+     * @return number of theses and screenshots;
+     */
+    public function thesesAndScreensByWeek($group_id, $filter)
+    {
+
+        $users_in_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+
+        if ($filter == 'current') {
+            $week = Week::latest()->pluck('id')->toArray();
+            $response = Mark::without('user,week')->where('week_id', $week)
+                ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+                ->where('is_freezed', 0)
+                ->select(
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                    DB::raw('sum(total_screenshot) as total_screenshot'),
+                )->first();
+        }
+        if ($filter == 'previous') {
+            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+            $response = Mark::without('user,week')->whereIn('week_id', $week)
+                ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+                ->where('is_freezed', 0)
+                ->select(
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                    DB::raw('sum(total_screenshot) as total_screenshot'),
+                )->first();
+        }
+        if ($filter == 'in_a_month') {
+            $currentMonth = date('m');
+            $week = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->pluck('id')->toArray();
+            $response = Mark::without('user,week')->whereIn('week_id', $week)
+                ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+                ->where('is_freezed', 0)
+                ->select(
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                    DB::raw('sum(total_screenshot) as total_screenshot'),
+                )->first();
+        }
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    /**
+     * get group month achievement
+     * 
+     * @param  $group_id,$filter
+     * @return month achievement;
+     */
+    public function monthAchievement($group_id, $filter)
+    {
+
+        if ($filter == 'current') {
+            $currentMonth = date('m');
+        }
+        if ($filter == 'previous') {
+            $currentMonth = date('m') - 1;
+        }
+        $users_in_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+
+        $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->get();
+        $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->whereIn('week_id', $weeksInMonth->pluck('id'))
+            ->where('is_freezed', 0)
+            ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
+            ->groupBy('week_id')->get();
+
+        $response['month_achievement'] =  $month_achievement->pluck('out_of_100', 'week.title');
+
+        $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+
 }

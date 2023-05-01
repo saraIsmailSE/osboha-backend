@@ -21,6 +21,8 @@ class NotificationController extends Controller
     {
         //create constants for notification types
         if (!defined('FRIENDS')) define('FRIENDS', 'friends');
+        
+        if (!defined('FRIENDS_REQUESTS')) define('FRIENDS_REQUESTS', 'friends_requests');
 
         if (!defined('USER_EXCEPTIONS')) define('USER_EXCEPTIONS', 'user_exceptions');
 
@@ -40,7 +42,7 @@ class NotificationController extends Controller
 
         if (!defined('TAGS')) define('TAGS', 'tags');
 
-        if (!defined('ACHIEVEMENTS')) define('ACHIEVEMENTS', 'achievements'); //theses and support        
+        if (!defined('ACHIEVEMENTS')) define('ACHIEVEMENTS', 'achievements');        
     }
     /**
      * Send notification to a specific user by its id with a message and insert it to the database.
@@ -49,8 +51,9 @@ class NotificationController extends Controller
      */
     public function sendNotification($reciver_id, $message, $type)
     {
+        $sender = User::find(Auth::id());
         $reciver = User::where('id', $reciver_id)->first();
-        $reciver->notify(new GeneralNotification(Auth::user()->name, $message, $type));
+        $reciver->notify(new GeneralNotification($sender, $message, $type));
     }
     /**
      * To show all notifications for auth user.
@@ -59,7 +62,7 @@ class NotificationController extends Controller
      */
     public function listAllNotification()
     {
-        $notifications = auth()->user()->notifications()->latest()->limit(20)->get();
+        $notifications = auth()->user()->notifications()->paginate(20);
 
         if (!$notifications->isEmpty()) {
             return $this->jsonResponseWithoutMessage($notifications, 'data', 200);
@@ -76,43 +79,32 @@ class NotificationController extends Controller
     {
         $unreadNotifications = auth()->user()->unreadNotifications()->get();
 
-        return $this->jsonResponseWithoutMessage($unreadNotifications,'data',200);
-    }
-    /**
-     * Make specific notification as read by its id.
-     * 
-     * @return jsonResponseWithoutMessage
-     */
-    public function markAllNotificationAsRead()
-    {
-        $unreadNotifications = auth()->user()->unreadNotifications()->get();
-        if (!$unreadNotifications->isEmpty()) {
-            foreach ($unreadNotifications as $unreadNotification) {
-                $unreadNotification->markAsRead();
-            }
-            return $this->jsonResponseWithoutMessage('Done', 'data', 200);
-        } else {
-            throw new NotFound;
-        }
+        return $this->jsonResponseWithoutMessage($unreadNotifications, 'data', 200);
     }
     /**
      * Make all notifications as read for the auth user.
      * 
+     * @return jsonResponseWithoutMessage
+     */
+    public function markAllAsRead()
+    {
+        $user = User::find(Auth::id());
+
+        $user->unreadNotifications()->update(['read_at' => now()]);
+
+        return $this->jsonResponseWithoutMessage(auth()->user()->notifications()->paginate(20), 'data', 200);
+    }
+    /**
+     *  Make specific notification as read by its id.
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function markOneNotificationAsRead(Request $request)
+    public function markAsRead($notification_id)
     {
-        $validator = Validator::make($request->all(), [
-            'notification_id' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        $notification = auth()->user()->notifications()->where('id', $request->notification_id)->first();
-        if (!$notification->isEmpty()) {
+        $notification = auth()->user()->notifications()->where('id', $notification_id)->first();
+        if ($notification) {
             $notification->markAsRead();
-            return $this->jsonResponseWithoutMessage('Done', 'data', 200);
+            return $this->jsonResponseWithoutMessage(auth()->user()->notifications()->paginate(20), 'data', 200);
         } else {
             throw new NotFound;
         }
