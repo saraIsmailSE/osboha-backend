@@ -23,8 +23,8 @@ class BookFactory extends Factory
             'link' => $this->faker->url(),
             'section_id' => $this->faker->numberBetween(1, 10),
             'type_id' => $this->faker->numberBetween(1, 2),
-            'level' => $this->faker->randomElement(['بسيط', 'متوسط', 'عميق']),
-            'language_id' => rand(1,2),
+            'level_id' => rand(1, 3),
+            'language_id' => rand(1, 2),
         ];
     }
 }

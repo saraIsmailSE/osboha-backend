@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Mark;
 use App\Models\User;
 use App\Models\UserException;
-use App\Models\UserGroup;
 use App\Models\Week;
 use App\Models\UserStatistic;
 use App\Models\MarkStatistic;
@@ -16,6 +15,9 @@ use App\Traits\ResponseJson;
 use App\Events\UpdateUserStats;
 use App\Models\Post;
 use App\Models\PostType;
+use App\Models\UserGroup;
+use App\Notifications\MailExceptionFinished;
+use App\Traits\PathTrait;
 use App\Traits\ThesisTraits;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -23,94 +25,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class WeekController extends Controller
 {
-    use ResponseJson, ThesisTraits;
+    use ResponseJson, ThesisTraits, PathTrait;
     public function __construct()
     {
-        //get date of first day of first week of february 2023
-        $date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
-        if (!defined('YEAR_WEEKS'))
-            define('YEAR_WEEKS', array(
-                array('title' => 'الاول من فبراير', 'date' => $date),
-                array('title' => 'الثاني من فبراير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d')),
-                array('title' => 'الثالث من فبراير', 'date' => Carbon::parse($date)->addWeeks(2)->format('Y-m-d')),
-                array('title' => 'الرابع من فبراير', 'date' => Carbon::parse($date)->addWeeks(3)->format('Y-m-d')),
-                array('title' => 'الاول من مارس', 'date' => Carbon::parse($date)->addWeeks(4)->format('Y-m-d')),
-                array('title' => 'الثاني من مارس', 'date' => Carbon::parse($date)->addWeeks(5)->format('Y-m-d')),
-                array('title' => 'الثالث من مارس', 'date' => Carbon::parse($date)->addWeeks(6)->format('Y-m-d')),
-                array('title' => 'الرابع من مارس', 'date' => Carbon::parse($date)->addWeeks(7)->format('Y-m-d')),
-                array('title' => 'الاول من ابريل', 'date' => Carbon::parse($date)->addWeeks(8)->format('Y-m-d')),
-                array('title' => 'الثاني من ابريل', 'date' => Carbon::parse($date)->addWeeks(9)->format('Y-m-d')),
-                array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(10)->format('Y-m-d')),
-                array('title' => 'الرابع من ابريل', 'date' => Carbon::parse($date)->addWeeks(11)->format('Y-m-d')),
-                array('title' => 'الخامس من ابريل', 'date' => Carbon::parse($date)->addWeeks(12)->format('Y-m-d')),
-                array('title' => 'الاول من مايو', 'date' => Carbon::parse($date)->addWeeks(13)->format('Y-m-d')),
-                array('title' => 'الثاني من مايو', 'date' => Carbon::parse($date)->addWeeks(14)->format('Y-m-d')),
-                array('title' => 'الثالث من مايو', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d')),
-                array('title' => 'الرابع من مايو', 'date' => Carbon::parse($date)->addWeeks(16)->format('Y-m-d')),
-                array('title' => 'الاول من يونيو', 'date' => Carbon::parse($date)->addWeeks(17)->format('Y-m-d')),
-                array('title' => 'الثاني من يونيو', 'date' => Carbon::parse($date)->addWeeks(18)->format('Y-m-d')),
-                array('title' => 'الثالث من يونيو', 'date' => Carbon::parse($date)->addWeeks(19)->format('Y-m-d')),
-                array('title' => 'الرابع من يونيو', 'date' => Carbon::parse($date)->addWeeks(20)->format('Y-m-d')),
-                array('title' => 'الاول من يوليو', 'date' => Carbon::parse($date)->addWeeks(21)->format('Y-m-d')),
-                array('title' => 'الثاني من يوليو', 'date' => Carbon::parse($date)->addWeeks(22)->format('Y-m-d')),
-                array('title' => 'الثالث من يوليو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d')),
-                array('title' => 'الرابع من يوليو', 'date' => Carbon::parse($date)->addWeeks(24)->format('Y-m-d')),
-                array('title' => 'الخامس من يوليو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d')),
-                array('title' => 'الاول من اغسطس', 'date' => Carbon::parse($date)->addWeeks(26)->format('Y-m-d')),
-                array('title' => 'الثاني من اغسطس', 'date' => Carbon::parse($date)->addWeeks(27)->format('Y-m-d')),
-                array('title' => 'الثالث من اغسطس', 'date' => Carbon::parse($date)->addWeeks(28)->format('Y-m-d')),
-                array('title' => 'الرابع من اغسطس', 'date' => Carbon::parse($date)->addWeeks(29)->format('Y-m-d')),
-                array('title' => 'الاول من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(30)->format('Y-m-d')),
-                array('title' => 'الثاني من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(31)->format('Y-m-d')),
-                array('title' => 'الثالث من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(32)->format('Y-m-d')),
-                array('title' => 'الرابع من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(33)->format('Y-m-d')),
-                array('title' => 'الخامس من سبتمبر', 'date' => Carbon::parse($date)->addWeeks(34)->format('Y-m-d')),
-                array('title' => 'الاول من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(35)->format('Y-m-d')),
-                array('title' => 'الثاني من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(36)->format('Y-m-d')),
-                array('title' => 'الثالث من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(37)->format('Y-m-d')),
-                array('title' => 'الرابع من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(38)->format('Y-m-d')),
-                array('title' => 'الخامس من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(39)->format('Y-m-d')),
-                array('title' => 'الاول من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(40)->format('Y-m-d')),
-                array('title' => 'الثاني من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(41)->format('Y-m-d')),
-                array('title' => 'الثالث من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(42)->format('Y-m-d')),
-                array('title' => 'الرابع من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(43)->format('Y-m-d')),
-                array('title' => 'الاول من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(44)->format('Y-m-d')),
-                array('title' => 'الثاني من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(45)->format('Y-m-d')),
-                array('title' => 'الثالث من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(46)->format('Y-m-d')),
-                array('title' => 'الرابع من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(47)->format('Y-m-d')),
-                array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(48)->format('Y-m-d')),
-            ));
-
-        if (!defined('EXCEPTION_STATUS'))
-            define('EXCEPTION_STATUS', 'accepted');
-
-        if (!defined('FREEZ_THIS_WEEK_TYPE'))
-            define('FREEZ_THIS_WEEK_TYPE', 'تجميد الأسبوع الحالي');
-
-        if (!defined('FREEZ_NEXT_WEEK_TYPE'))
-            define('FREEZ_NEXT_WEEK_TYPE', 'تجميد الأسبوع القادم');
-
-        if (!defined('EXCEPTIONAL_FREEZING_TYPE'))
-            define('EXCEPTIONAL_FREEZING_TYPE', 'تجميد استثنائي');
-
-        if (!defined('SUPPORT_MARK'))
-            define('SUPPORT_MARK', 10);
-
-        if (!defined('READING_MARK'))
-            define('READING_MARK', 50);
-
-        if (!defined('WRITING_MARK'))
-            define('WRITING_MARK', 40);
-
-        if (!defined('EXAMS_MONTHLY_TYPE'))
-            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
-
-        if (!defined('EXAMS_SEASONAL_TYPE'))
-            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
     }
 
     /**
@@ -139,6 +62,7 @@ class WeekController extends Controller
             $this->add_users_statistics($new_week_id);
             $this->add_marks_statistics($new_week_id);
             $this->openBooksComments();
+            $this->notifyUsersNewWeek();
 
             DB::commit();
             return $this->jsonResponseWithoutMessage('Marks added Successfully', 'data', 200);
@@ -187,7 +111,7 @@ class WeekController extends Controller
                             $exception->update();
 
                             $msg = "تم تمديد الحالة الاستثنائية لك حتى " . $exception->end_at . " بسبب الإجازة";
-                            (new NotificationController)->sendNotification($exception->user_id, $msg, 'user_exceptions');
+                            (new NotificationController)->sendNotification($exception->user_id, $msg, USER_EXCEPTIONS, $this->getExceptionPath($exception->id));
                         }
                     } else { //this week is already vacation
                         return $this->jsonResponseWithoutMessage('This week is already vacation', 'data', 200);
@@ -258,7 +182,7 @@ class WeekController extends Controller
 
         //seach sundays
         $dateToSearch = $date->addDay();
-        $week->title = $this->search_for_week_title($dateToSearch->format('Y-m-d'), YEAR_WEEKS);
+        $week->title = $this->search_for_week_title($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
         //add end of saturdays
         $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
@@ -453,11 +377,11 @@ class WeekController extends Controller
     {
         //get the duration and starting week id of the exception case if the user has one
         $user_exception = UserException::where('user_id', $user_id)
-            ->where('status', EXCEPTION_STATUS)
+            ->where('status', config('constants.ACCEPTED_STATUS'))
             ->with('type', function ($query) {
-                $query->where('type', FREEZ_THIS_WEEK_TYPE)
-                    ->orWhere('type', FREEZ_NEXT_WEEK_TYPE)
-                    ->orWhere('type', EXCEPTIONAL_FREEZING_TYPE);
+                $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
+                    ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'))
+                    ->orWhere('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
             })
             ->latest('id')
             ->first();
@@ -497,6 +421,17 @@ class WeekController extends Controller
         //update record with the new status    
         $user_exception->status = $new_status;
         if ($user_exception->save()) {
+            if ($new_status == 'finished') {
+                $user = User::findOrFail($user_exception->user_id);
+                $message = 'لقد انتهت الفترة الخاصة ب ';
+                $exceptionTitle = $user_exception->type->type;
+                if (Str::contains($user_exception->type->type, 'تجميد')) {
+                    $exceptionTitle = 'نظام ' . $user_exception->type->type;
+                }
+                //notify the user that his/her exception finished
+                $user->notify(new MailExceptionFinished($exceptionTitle));
+                (new NotificationController)->sendNotification($user_exception->user_id, $message . $exceptionTitle, USER_EXCEPTIONS, $this->getExceptionPath($user_exception->id));
+            }
             return TRUE;
         }
         // return $this->jsonResponseWithoutMessage('could not update user exception', 'data', 500);
@@ -520,10 +455,10 @@ class WeekController extends Controller
     {
         //get the user exams exception 
         $user_exception = UserException::where('user_id', Auth::id())
-            ->where('status', EXCEPTION_STATUS)
+            ->where('status', config('constants.ACCEPTED_STATUS'))
             ->with('type', function ($query) {
-                $query->where('type', EXAMS_MONTHLY_TYPE)
-                    ->orWhere('type', EXAMS_SEASONAL_TYPE);
+                $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
+                    ->orWhere('type', config('constants.EXAMS_SEASONAL_TYPE'));
             })
             ->latest('id')
             ->first();
@@ -651,15 +586,38 @@ class WeekController extends Controller
         // return YEAR_WEEKS;
 
         // print_r(YEAR_WEEKS);
-        for ($i = 3; $i >= 0; $i--) {
-            $date = Carbon::now()->startOfMonth()->startOfWeek(Carbon::SATURDAY)->subWeeks($i);
-            $dateToSearch = $date->addDay();
-            echo $dateToSearch . '<br>';
-            $title = $this->search_for_week_title(Carbon::parse($dateToSearch)->format('Y-m-d'), YEAR_WEEKS);
-            echo $title . '<br>';
-            $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
-            echo $dateToAdd . '<br>';
-        }
+        // for ($i = 3; $i >= 0; $i--) {
+        //     $date = Carbon::now()->startOfMonth()->startOfWeek(Carbon::SATURDAY)->subWeeks($i);
+        //     $dateToSearch = $date->addDay();
+        //     echo $dateToSearch . '<br>';
+        //     $title = $this->search_for_week_title(Carbon::parse($dateToSearch)->format('Y-m-d'), config('constants.YEAR_WEEKS'));
+        //     echo $title . '<br>';
+        //     $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
+        //     echo $dateToAdd . '<br>';
+        // }
+
+        $laseFreezing = UserException::
+            // where(function ($q) {
+            //     $q->where('type_id', 1)
+            //         ->orWhere('type_id', 2);
+            // })->
+            where('user_id', Auth::id())
+            ->whereHas('type', function ($query) {
+                $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
+                    ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'));
+            })->pluck('end_at')->first();
+
+        $dateAfter4Weeks = Carbon::parse(null)->addWeeks(4)->format('Y-m-d');
+        $currentDate = Carbon::now()->format('Y-m-d');
+
+        $group = UserGroup::where('user_id', 1)->where('user_type', 'ambassador')->first();
+        return response()->json(['data' => [
+            'date' => $laseFreezing,
+            'after 4 weeks' => $dateAfter4Weeks,
+            'compare' => $currentDate > $dateAfter4Weeks,
+            'group' => $group->group->groupAdvisor,
+            'auth name' => Auth::user()->name,
+        ]]);
     }
 
     /**
@@ -711,8 +669,24 @@ class WeekController extends Controller
         return $this->jsonResponseWithoutMessage('تم فتح التعليقات على الكتب', 'data', 200);
     }
 
-    public function testDate()
+    /**
+     * Notify all the users that a new week has started
+     * @return JsonResponse
+     */
+    public function notifyUsersNewWeek()
     {
-        return $this->checkDateBelongsToCurrentWeek();
+        $notification = new NotificationController();
+        User::where('is_excluded', 0)->where('is_hold', 0)
+            ->chunk(100, function ($users) use ($notification) {
+                try {
+                    $msg = 'لقد بدأ أسبوع أصبوحي جديد, جدد النية 💪';
+                    foreach ($users as $user) {
+                        $notification->sendNotification($user->id, $msg, NEW_WEEK);
+                    }
+                } catch (\Exception $e) {
+
+                    throw $e;
+                }
+            });
     }
 }

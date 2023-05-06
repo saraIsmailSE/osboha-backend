@@ -2,10 +2,14 @@
 
 namespace App\Observers;
 
+use App\Models\Comment;
 use App\Models\Mark;
+use App\Models\Media;
+use App\Traits\MediaTraits;
 
 class MarkObserver
 {
+    use MediaTraits;
     /**
      * Handle the Mark "created" event.
      *
@@ -25,7 +29,25 @@ class MarkObserver
      */
     public function updated(Mark $mark)
     {
-        //
+        if ($mark->reading_mark == 0 && $mark->writing_mark == 0) {
+            $theses = $mark->thesis();
+
+            foreach ($theses as $thesis) {
+                $thesisComment = $thesis->comment;
+                $screenshotsComments = Comment::where('comment_id', $thesisComment->id)->orWhere('id', $thesisComment->id)->where('type', 'screenshot')->get();
+                $media = Media::whereIn('comment_id', $screenshotsComments->pluck('id'))->get();
+
+                foreach ($media as $item) {
+                    $this->deleteMedia($item->id);
+                }
+
+                $thesisComment->delete();
+                $thesis->delete();
+                $screenshotsComments->each(function ($screenshot) {
+                    $screenshot->delete();
+                });
+            }
+        }
     }
 
     /**

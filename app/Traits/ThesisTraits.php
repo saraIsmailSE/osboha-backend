@@ -34,18 +34,6 @@ trait ThesisTraits
         if (!defined('MAX_AYAT'))
             define('MAX_AYAT', 5);
 
-        if (!defined('PART_READING_MARK'))
-            define('PART_READING_MARK', 10);
-
-        if (!defined('PART_THESIS_MARK'))
-            define('PART_THESIS_MARK', 8);
-
-        if (!defined('FULL_READING_MARK'))
-            define('FULL_READING_MARK', 50);
-
-        if (!defined('FULL_WRITING_MARK'))
-            define('FULL_WRITING_MARK', 40);
-
         if (!defined('COMPLETE_THESIS_LENGTH'))
             define('COMPLETE_THESIS_LENGTH', 400);
 
@@ -61,9 +49,6 @@ trait ThesisTraits
         if (!defined('INCREMENT_VALUE'))
             define('INCREMENT_VALUE', 1);
 
-        if (!defined('SUPPORT_MARK'))
-            define('SUPPORT_MARK', 10);
-
         if (!defined('NORMAL_THESIS_TYPE'))
             define('NORMAL_THESIS_TYPE', 'normal');
 
@@ -72,18 +57,6 @@ trait ThesisTraits
 
         if (!defined('TAFSEER_THESIS_TYPE'))
             define('TAFSEER_THESIS_TYPE', 'tafseer');
-
-        if (!defined('EXCEPTION_STATUS'))
-            define('EXCEPTION_STATUS', 'accepted');
-
-        if (!defined('EXAMS_MONTHLY_TYPE'))
-            define('EXAMS_MONTHLY_TYPE', 'نظام امتحانات - شهري');
-
-        if (!defined('EXAMS_SEASONAL_TYPE'))
-            define('EXAMS_SEASONAL_TYPE', 'نظام امتحانات - فصلي');
-
-        if (!defined('ACCEPTED_STATUS'))
-            define('ACCEPTED_STATUS', 'accepted');
 
         /*
         * Full mark out of 100 = reading_mark + writing mark + support
@@ -201,12 +174,12 @@ trait ThesisTraits
             $reading_mark += $thesis_mark['reading_mark'];
             $writing_mark += $thesis_mark['writing_mark'];
 
-            if ($reading_mark > FULL_READING_MARK) {
-                $reading_mark = FULL_READING_MARK;
+            if ($reading_mark > config('constants.FULL_READING_MARK')) {
+                $reading_mark = config('constants.FULL_READING_MARK');
             }
 
-            if ($writing_mark > FULL_WRITING_MARK) {
-                $writing_mark = FULL_WRITING_MARK;
+            if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
+                $writing_mark = config('constants.FULL_WRITING_MARK');
             }
 
             $mark_data_to_update['reading_mark'] = $reading_mark;
@@ -214,7 +187,7 @@ trait ThesisTraits
 
             //update status to accepted if the thesis is read only
             if ($thesisTotalPages > 0 && $max_length == 0 && $total_screenshots == 0) {
-                $thesis_data_to_insert['status'] = ACCEPTED_STATUS;
+                $thesis_data_to_insert['status'] = config('constants.ACCEPTED_STATUS');
             }
 
             $thesis = Thesis::create($thesis_data_to_insert);
@@ -324,12 +297,12 @@ trait ThesisTraits
                 $reading_mark = $thesis_mark['reading_mark'] + $mark_record->reading_mark - $old_thesis_mark['reading_mark'];
                 $writing_mark = $thesis_mark['writing_mark'] + $mark_record->writing_mark - $old_thesis_mark['writing_mark'];
 
-                if ($reading_mark > FULL_READING_MARK) {
-                    $reading_mark = FULL_READING_MARK;
+                if ($reading_mark > config('constants.FULL_READING_MARK')) {
+                    $reading_mark = config('constants.FULL_READING_MARK');
                 }
 
-                if ($writing_mark > FULL_WRITING_MARK) {
-                    $writing_mark = FULL_WRITING_MARK;
+                if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
+                    $writing_mark = config('constants.FULL_WRITING_MARK');
                 }
 
                 $mark_data_to_update = array(
@@ -396,12 +369,12 @@ trait ThesisTraits
                 $reading_mark = $thesis_mark['reading_mark'];
                 $writing_mark = $thesis_mark['writing_mark'];
 
-                if ($reading_mark > FULL_READING_MARK) {
-                    $reading_mark = FULL_READING_MARK;
+                if ($reading_mark > config('constants.FULL_READING_MARK')) {
+                    $reading_mark = config('constants.FULL_READING_MARK');
                 }
 
-                if ($writing_mark > FULL_WRITING_MARK) {
-                    $writing_mark = FULL_WRITING_MARK;
+                if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
+                    $writing_mark = config('constants.FULL_WRITING_MARK');
                 }
 
                 $mark_data_to_update = array(
@@ -467,7 +440,7 @@ trait ThesisTraits
             if ($thesis->status === 'accepted' || $thesis->status === 'pending') {
                 $mark['writing_mark'] += $thesis_mark['writing_mark'];
             } else if ($thesis->status === 'one_thesis') {
-                $mark['writing_mark'] += PART_THESIS_MARK;
+                $mark['writing_mark'] += config('constants.PART_WRITING_MARK');
             }
         }
         return $mark;
@@ -493,8 +466,8 @@ trait ThesisTraits
         if ($is_exams_exception) {
             if ($total_pages >= 10 && ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= MAX_SCREENSHOTS)) {
                 return [
-                    'reading_mark' => FULL_READING_MARK,
-                    'writing_mark' => FULL_WRITING_MARK,
+                    'reading_mark' => config('constants.FULL_READING_MARK'),
+                    'writing_mark' => config('constants.FULL_WRITING_MARK'),
                 ];
             }
         }
@@ -511,14 +484,14 @@ trait ThesisTraits
             $number_of_parts += INCREMENT_VALUE;
         }
         //reading mark    
-        $reading_mark = $number_of_parts * PART_READING_MARK;
+        $reading_mark = $number_of_parts * config('constants.PART_READING_MARK');
         $thesis_mark = 0;
         if ($max_length > 0) {
 
             if ($max_length >= COMPLETE_THESIS_LENGTH) { //COMPLETE THESIS                           
-                $thesis_mark = $number_of_parts * PART_THESIS_MARK;
+                $thesis_mark = $number_of_parts * config('constants.PART_WRITING_MARK');
             } else { //INCOMPLETE THESIS
-                $thesis_mark = PART_THESIS_MARK;
+                $thesis_mark = config('constants.PART_WRITING_MARK');
 
                 //if screenshots exist
                 if ($total_screenshots > 0) {
@@ -534,7 +507,7 @@ trait ThesisTraits
                         $screenshots = $number_of_parts;
                     }
 
-                    $thesis_mark += $screenshots * PART_THESIS_MARK;
+                    $thesis_mark += $screenshots * config('constants.PART_WRITING_MARK');
                 }
             }
         } else if ($total_screenshots > 0) {
@@ -546,7 +519,7 @@ trait ThesisTraits
                 $screenshots = $number_of_parts;
             }
 
-            $thesis_mark += $screenshots * PART_THESIS_MARK;
+            $thesis_mark += $screenshots * config('constants.PART_WRITING_MARK');
         }
 
         return [
@@ -575,8 +548,8 @@ trait ThesisTraits
         if ($is_exams_exception) {
             if ($total_pages >= 10 && ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= MAX_SCREENSHOTS)) {
                 return [
-                    'reading_mark' => FULL_READING_MARK,
-                    'writing_mark' => FULL_WRITING_MARK,
+                    'reading_mark' => config('constants.FULL_READING_MARK'),
+                    'writing_mark' => config('constants.FULL_WRITING_MARK'),
                 ];
             }
         }
@@ -595,13 +568,13 @@ trait ThesisTraits
         }
 
         //reading mark    
-        $reading_mark = $number_of_parts * PART_READING_MARK;
+        $reading_mark = $number_of_parts * config('constants.PART_READING_MARK');
         $thesis_mark = 0;
         if ($max_length > 0) {
             if ($max_length >= COMPLETE_THESIS_LENGTH) { //COMPLETE THESIS                           
-                $thesis_mark = $number_of_parts * PART_THESIS_MARK;
+                $thesis_mark = $number_of_parts * config('constants.PART_WRITING_MARK');
             } else { //INCOMPLETE THESIS                
-                $thesis_mark += PART_THESIS_MARK;
+                $thesis_mark += config('constants.PART_WRITING_MARK');
 
                 //if screenshots exist
                 if ($total_screenshots > 0) {
@@ -617,7 +590,7 @@ trait ThesisTraits
                         $screenshots = $number_of_parts;
                     }
 
-                    $thesis_mark += $screenshots * PART_THESIS_MARK;
+                    $thesis_mark += $screenshots * config('constants.PART_WRITING_MARK');
                 }
             }
         } else if ($total_screenshots > 0) {
@@ -628,7 +601,7 @@ trait ThesisTraits
             if ($screenshots > $number_of_parts) {
                 $screenshots = $number_of_parts;
             }
-            $thesis_mark = $screenshots * PART_THESIS_MARK;
+            $thesis_mark = $screenshots * config('constants.PART_WRITING_MARK');
         }
 
         return [
@@ -645,12 +618,12 @@ trait ThesisTraits
     public function check_exam_exception()
     {
         $user_exception = UserException::where('user_id', Auth::id())
-            ->where('status', EXCEPTION_STATUS)
+            ->where('status', config('constants.ACCEPTED_STATUS'))
             ->whereDate('end_at', '>', Carbon::now())
             ->whereDate('start_at', '<=', Carbon::now())
             ->with('type', function ($query) {
-                $query->where('type', EXAMS_MONTHLY_TYPE)
-                    ->orWhere('type', EXAMS_SEASONAL_TYPE);
+                $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
+                    ->orWhere('type', config('constants.EXAMS_SEASONAL_TYPE'));
             })
             ->latest('id')
             ->first();
@@ -772,7 +745,7 @@ trait ThesisTraits
             $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'];
             $markRecord->save();
         } else if ($status == 'one_thesis') {
-            $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'] + PART_THESIS_MARK;
+            $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'] + config('constants.PART_WRITING_MARK');
             $markRecord->save();
         }
     }

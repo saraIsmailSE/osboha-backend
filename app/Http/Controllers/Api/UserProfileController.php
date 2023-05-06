@@ -10,6 +10,7 @@ use App\Http\Resources\PostResource;
 use App\Http\Resources\FriendResource;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
+use App\Http\Resources\BookResource;
 use App\Http\Resources\UserExceptionResource;
 use App\Models\Friend;
 use App\Models\Group;
@@ -63,9 +64,10 @@ class UserProfileController extends Controller
             $profile['reading_Info']['thesis'] = Thesis::where('user_id', $user_id)->count();
 
             //books
-            $profile['books'] = UserBook::where(function ($query) {
+            $userBooks =  UserBook::where(function ($query) {
                 $query->Where('status', 'in progress')->orWhere('status', 'finished');
-            })->where('user_id', $user_id)->get();
+            })->where('user_id', $user_id)->get()->pluck('book');
+            $profile['books'] = BookResource::collection($userBooks);
 
             // profile posts
             $profile['post'] = PostResource::collection(Post::Where('timeline_id', $profile['info']['timeline_id'])->get());
@@ -82,11 +84,37 @@ class UserProfileController extends Controller
                 // friend with auth or not
                 $profile['friendWithAuth'] = Friend::where(function ($q) use ($user_id) {
                     $q->where('user_id', Auth::id())
+                        ->Where('friend_id', $user_id)
+                        ->where('status', 1);
+                })->orWhere(function ($q) use ($user_id) {
+                    $q->where('user_id', $user_id)
+                        ->Where('friend_id', Auth::id())
+                        ->where('status', 1);
+                })
+                    ->exists();
+
+                $profile['friendRequestByAuth'] = Friend::where(function ($q) use ($user_id) {
+                    $q->where('user_id', Auth::id())
+                        ->Where('friend_id', $user_id)
+                        ->where('status', 0);
+                })->exists();
+
+                $profile['friendRequestByFriend'] = Friend::where(function ($q) use ($user_id) {
+                    $q->where('user_id', $user_id)
+                        ->Where('friend_id', Auth::id())
+                        ->where('status', 0);
+                })
+                    ->exists();
+
+                $friendship = Friend::where(function ($q) use ($user_id) {
+                    $q->where('user_id', Auth::id())
                         ->Where('friend_id', $user_id);
                 })->orWhere(function ($q) use ($user_id) {
                     $q->where('user_id', $user_id)
                         ->Where('friend_id', Auth::id());
-                })->exists();
+                })
+                    ->first();
+                $profile['friendship_id'] =  $friendship ?  $friendship->id : null;
             }
 
             return $this->jsonResponseWithoutMessage($profile, 'data', 200);

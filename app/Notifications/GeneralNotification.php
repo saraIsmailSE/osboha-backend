@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Notifications;
- 
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,16 +14,17 @@ class GeneralNotification extends Notification
     protected $sender;
     protected $msg;
     protected $type;
-    
-    
-    public function __construct($sender , $msg, $type)
+    protected $path;
+
+
+    public function __construct($sender, $msg, $type, $path = null)
     {
         $this->sender = $sender;
         $this->msg = $msg;
         $this->type = $type;
-
+        $this->path = $path;
     }
-   
+
     public function via($notifiable)
     {
         return ['database'];
@@ -31,10 +32,6 @@ class GeneralNotification extends Notification
 
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
     }
 
     /**
@@ -49,6 +46,7 @@ class GeneralNotification extends Notification
             'sender' => $this->sender,
             'message'   =>  $this->msg,
             'type'   =>  $this->type,
+            'path' => $this->path,
         ];
     }
 }

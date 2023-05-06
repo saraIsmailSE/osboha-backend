@@ -13,23 +13,17 @@ use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\File;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
-use App\Http\Resources\UserExceptionResource;
+use App\Http\Resources\BookResource;
 use App\Models\LeaderRequest;
 use App\Models\Mark;
 use App\Models\User;
 use App\Models\UserBook;
 use App\Models\UserException;
 use App\Models\Week;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
-use App\Events\NotificationsEvent;
+use App\Models\Book;
 
 /**
  * Description: GroupController for Osboha group.
@@ -146,7 +140,6 @@ class GroupController extends Controller
     {
 
         $response['info'] = Group::with('users', 'groupAdministrators')->withCount('userAmbassador')->where('id', $group_id)->first();
-
         if ($response['info']) {
             $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
             if ($response['authInGroup'] || Auth::user()->hasRole('admin')) {
@@ -263,9 +256,13 @@ class GroupController extends Controller
         // $books = UserBook::whereIn('user_id', $group->pluck('id'))->get();
 
         $users = UserGroup::where('group_id', $group_id)->pluck('user_id');
-        $books = UserBook::whereIn('user_id', $users)->get();
+        $books = UserBook::whereIn('user_id', $users)->get()->pluck('book');
         if ($books) {
-            return $this->jsonResponseWithoutMessage($books, 'data', 200);
+            return $this->jsonResponseWithoutMessage(
+                BookResource::collection($books),
+                'data',
+                200
+            );
         } else {
             throw new NotFound;
         }
@@ -575,6 +572,10 @@ class GroupController extends Controller
 
     public function statistics($group_id, $week_filter = "current")
     {
+        $group = Group::find($group_id);
+        if (!$group) {
+            throw new NotFound;
+        }
 
         $response['week'] = Week::latest()->first();
         $users_in_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
@@ -634,7 +635,7 @@ class GroupController extends Controller
             ->havingBetween('out_of_100', [10, 90])
             ->count();
 
-        $currentMonth = date('m');
+        $currentMonth = date('m', strtotime($response['week']->created_at));
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
         $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
             ->whereIn('week_id', $weeksInMonth->pluck('id'))
@@ -642,11 +643,9 @@ class GroupController extends Controller
             ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
             ->groupBy('week_id')->get();
 
-        $response['month_achievement'] =  $month_achievement->pluck('out_of_100', 'week.title');
+        $response['month_achievement'] = count($month_achievement) > 0 ? $month_achievement->pluck('out_of_100', 'week.title') : null;
 
         $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
-
-
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
@@ -659,31 +658,30 @@ class GroupController extends Controller
      */
     public function thesesAndScreensByWeek($group_id, $filter)
     {
-
         $users_in_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
-
+        $week = Week::latest();
         if ($filter == 'current') {
-            $week = Week::latest()->pluck('id')->toArray();
-            $response = Mark::without('user,week')->where('week_id', $week)
+            $week_id = $week->first()->id;
+            $response = Mark::without('user,week')->where('week_id', $week_id)
                 ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
                 ->where('is_freezed', 0)
                 ->select(
                     DB::raw('sum(total_thesis) as total_thesis'),
                     DB::raw('sum(total_screenshot) as total_screenshot'),
                 )->first();
-        }
+        } else
         if ($filter == 'previous') {
-            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
-            $response = Mark::without('user,week')->whereIn('week_id', $week)
+            $week_id = $week->skip(1)->first()->id;
+            $response = Mark::without('user,week')->where('week_id', $week_id)
                 ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
                 ->where('is_freezed', 0)
                 ->select(
                     DB::raw('sum(total_thesis) as total_thesis'),
                     DB::raw('sum(total_screenshot) as total_screenshot'),
                 )->first();
-        }
+        } else
         if ($filter == 'in_a_month') {
-            $currentMonth = date('m');
+            $currentMonth = $week->first()->created_at->format('m');
             $week = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->pluck('id')->toArray();
             $response = Mark::without('user,week')->whereIn('week_id', $week)
                 ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
@@ -704,16 +702,23 @@ class GroupController extends Controller
      */
     public function monthAchievement($group_id, $filter)
     {
-
+        $week = Week::latest()->first();
         if ($filter == 'current') {
-            $currentMonth = date('m');
-        }
+            // $currentMonth = date('m');
+            $currentMonth = date('m', strtotime($week->created_at));
+        } else
         if ($filter == 'previous') {
-            $currentMonth = date('m') - 1;
+            // $currentMonth = date('m') - 1;
+            $currentMonth = date('m', strtotime($week->created_at)) - 1;
         }
         $users_in_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
 
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->get();
+
+        if ($weeksInMonth->isEmpty()) {
+            throw new NotFound;
+        }
+
         $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
             ->whereIn('week_id', $weeksInMonth->pluck('id'))
             ->where('is_freezed', 0)
@@ -722,8 +727,7 @@ class GroupController extends Controller
 
         $response['month_achievement'] =  $month_achievement->pluck('out_of_100', 'week.title');
 
-        $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
-
-
 }

@@ -22,10 +22,14 @@ class CreateBooksTable extends Migration
             $table->integer('start_page');
             $table->integer('end_page');
             $table->string('link');
-            $table->integer('section_id');
-            $table->integer('type_id');
-            $table->string('level');
-            $table->integer('language_id');
+            $table->bigInteger('section_id')->unsigned();
+            $table->foreign('section_id')->references('id')->on('sections');
+            $table->bigInteger('type_id')->unsigned();
+            $table->foreign('type_id')->references('id')->on('book_types');
+            $table->bigInteger('level_id')->unsigned();
+            $table->foreign('level_id')->references('id')->on('book_levels');
+            $table->bigInteger('language_id')->unsigned();
+            $table->foreign('language_id')->references('id')->on('languages');
             $table->timestamps();
         });
     }
@@ -37,6 +41,9 @@ class CreateBooksTable extends Migration
      */
     public function down()
     {
+        Schema::table('tagged_users', function (Blueprint $table) {
+            $table->dropForeign(['section_id', 'type_id', 'level_id', 'language_id']);
+        });
         Schema::dropIfExists('books');
     }
 }

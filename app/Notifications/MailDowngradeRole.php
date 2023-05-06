@@ -7,21 +7,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MailSupportPost extends Notification
+class MailDowngradeRole extends Notification
 {
     use Queueable;
-    protected $url;
-    protected $name;
-
+    protected $message;
+    protected $role;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($name)
+    public function __construct($rolesDeleted, $new_role)
     {
-        $this->name = $name;
-        $this->url = env('FRONT_URL') . '/post/post_id';
+        $this->role = $new_role;
+        $this->message = count($rolesDeleted) > 1 ? "تم سحب الأدوار التالية منك: " . implode(',', $rolesDeleted) : "تم سحب دور ال" . $rolesDeleted[0] . " منك";
     }
 
     /**
@@ -45,15 +44,16 @@ class MailSupportPost extends Notification
     {
         return (new MailMessage)
             ->from('no-replay@osboha180.com', 'Osboha 180')
-            ->subject('أصبوحة || منشور اعرف مشروعك')
-            ->line('مرحباً بك سفيرنا  ' . $this->name . '،')
-            ->line('نرجو أن تكون بأفضل حال')
+            ->subject('أصبوحة 180 || سحب أدوار')
+            ->line('تحية طيبة لحضرتك.')
             ->line('')
-            ->line('بعد مراجعة التصويت الخاص بك على منشور 《اعرف مشروعك》؛ تم رفض التصويت لمخالفته للشروط.')
-            ->line('فضلًا قم بمراجعة حسابك الخاص في المنصة لمعرفة السبب بشكل أوضح وتعديل الإجابة قبل نهاية الأسبوع. ')
-            ->action('رابط المنشور: ', $this->url)
             ->line('')
-            ->line('بارك الله قوتك.');
+            ->line("يؤسفنا إعلامك أنه " . $this->message)
+            ->line('أنت الآن ' . $this->role)
+            ->line('')
+            ->line('كل التوفيق والسداد في خطواتك،')
+            ->line('بارك الله وقتك وعملك. 🌸')
+            ->action('أصبوحة 180', env('FRONT_URL'));
     }
 
     /**

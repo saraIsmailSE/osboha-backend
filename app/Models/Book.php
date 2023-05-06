@@ -19,12 +19,12 @@ class Book extends Model
         'link',
         'section_id',
         'type_id',
-        'level',
+        'level_id',
         'language_id',
     ];
 
 
-    protected $with = array('section', 'type', 'language');
+    protected $with = array('section', 'type', 'language', 'level');
 
     /**
      * Get all posts associated with book.
@@ -62,5 +62,10 @@ class Book extends Model
     public function userBooks()
     {
         return $this->hasMany(UserBook::class);
+    }
+
+    public function level()
+    {
+        return $this->belongsTo(BookLevel::class);
     }
 }

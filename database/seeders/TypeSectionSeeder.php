@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BookLevel;
 use App\Models\BookType;
 use App\Models\ExceptionType;
 use App\Models\GroupType;
@@ -106,5 +107,13 @@ class TypeSectionSeeder extends Seeder
             ['type' => 'تجميد استثنائي', 'created_at' => now(), 'updated_at' => now()],
         ];
         ExceptionType::insert($exception_types);
+
+        //BOOK LEVELS
+        $book_levels = [
+            ['level'  => 'simple', 'arabic_level' => 'بسيط', 'created_at' => now(), 'updated_at' => now()],
+            ['level'  => 'intermediate', 'arabic_level' => 'متوسط', 'created_at' => now(), 'updated_at' => now()],
+            ['level'  => 'advanced', 'arabic_level' => 'عميق', 'created_at' => now(), 'updated_at' => now()],
+        ];
+        BookLevel::insert($book_levels);
     }
 }

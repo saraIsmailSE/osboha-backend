@@ -14,12 +14,12 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\FriendResource;
 use App\Http\Resources\UserInfoResource;
-use Illuminate\Support\Facades\DB;
+use App\Traits\PathTrait;
 
 
 class FriendController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, PathTrait;
 
     /**
      * Return all user`s freinds.
@@ -88,16 +88,16 @@ class FriendController extends Controller
                 ->where(function ($q) use ($friend) {
                     $q->where('user_id', $friend)
                         ->orWhere('friend_id', $friend);
-                })->get();
-            if ($friendship->isNotEmpty()) {
+                })->first();
+            if ($friendship) {
                 return $this->jsonResponseWithoutMessage("Friendship already exsits", 'data', 200);
             } else {
                 $input = $request->all();
                 $input['user_id'] = Auth::id();
                 Friend::create($input);
 
-                $msg = "لديك طلب صداقة جديد";
-                (new NotificationController)->sendNotification($request->friend_id, $msg,'friends');
+                $msg = "لقد أرسل إليك " . Auth::user()->name . " طلب صداقة";
+                (new NotificationController)->sendNotification($request->friend_id, $msg, FRIENDS, $this->getProfilePath(Auth::id()));
                 return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
             }
         } else {
@@ -137,6 +137,9 @@ class FriendController extends Controller
 
                 $friendship->status = 1;
                 $friendship->save();
+
+                $msg = "وافق " . Auth::user()->name . " على طلب صداقتك";
+                (new NotificationController)->sendNotification($friendship->user_id, $msg, FRIENDS, $this->getProfilePath(Auth::id()));
                 return $this->jsonResponseWithoutMessage("Friend Accepted Successfully", 'data', 200);
             } else {
                 throw new NotAuthorized;

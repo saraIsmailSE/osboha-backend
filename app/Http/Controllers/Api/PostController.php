@@ -22,10 +22,11 @@ use App\Models\PollOption;
 use App\Models\PostType;
 use App\Models\TimelineType;
 use App\Models\Week;
+use App\Traits\PathTrait;
 
 class PostController extends Controller
 {
-    use ResponseJson, MediaTraits;
+    use ResponseJson, MediaTraits, PathTrait;
     /**
      * Read all information about all posts of auth user in the system.
      * 
@@ -90,7 +91,7 @@ class PostController extends Controller
                             ['user_type', "leader"]
                         ])->first();
                         $msg = "يوجد منشور جديد في المجموعة ( " . $group->name . " ) يحتاج موافقة ";
-                        $notification->sendNotification($leader->user_id, $msg, GROUP_POSTS);
+                        $notification->sendNotification($leader->user_id, $msg, GROUP_POSTS); //notification-edit
                     }
                 } elseif ($timeline_type == 'profile') { //timeline type => profile
                     if ($timeline->profile->user_id != Auth::id()) { // post in another profile
@@ -106,7 +107,7 @@ class PostController extends Controller
                         } else {
                             $msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية';
                         }
-                        $notification->sendNotification($timeline->profile->user_id, $msg, PROFILE_POSTS);
+                        $notification->sendNotification($timeline->profile->user_id, $msg, PROFILE_POSTS); //notification-edit
                     }
                 } else { //timeline type => book || news || main (1-2-3)        
                     //only supervisors and above are allowed to create announcements
@@ -130,7 +131,7 @@ class PostController extends Controller
                         $post->taggedUsers()->create([
                             'user_id' => $tag
                         ]);
-                        $notification->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور', TAGS);
+                        $notification->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور', TAGS, $this->getPostPath($post->id));
                     }
                 }
 
@@ -623,8 +624,8 @@ class PostController extends Controller
             $post->is_approved = now();
             $post->update();
 
-            $msg = "Your post is approved successfully";
-            (new NotificationController)->sendNotification($post->user_id, $msg, 'user_posts');
+            $msg = "لقد تم قبول منشورك من قبل " . Auth::user()->name;
+            (new NotificationController)->sendNotification($post->user_id, $msg, USER_POSTS, $this->getPostPath($post->id));
             return $this->jsonResponseWithoutMessage("The post is approved successfully", 'data', 200);
         } else {
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
@@ -648,9 +649,16 @@ class PostController extends Controller
 
         $post = Post::find($request->post_id);
         if ($post->is_approved == Null) {
-            $post->delete();
-            $msg = "Your post is declined";
-            (new NotificationController)->sendNotification($post->user_id, $msg, 'user_posts');
+            $this->delete($request->post_id);
+            $msg = "تم رفض منشورك وحذفه من قبل " . Auth::user()->name;
+
+            $path = "";
+            if ($post->timeline->type->type === 'group') {
+                $path = $this->getGroupPath($post->timeline->group->id);
+            } else {
+                $path = $this->getProfilePath(Auth::id());
+            }
+            (new NotificationController)->sendNotification($post->user_id, $msg, USER_POSTS, $path);
             return $this->jsonResponseWithoutMessage("The post is deleted successfully", 'data', 200);
         } else {
             return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);

@@ -72,18 +72,19 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
-    Route::middleware('auth:sanctum','isActive')->group(function () {
+    Route::middleware('auth:sanctum', 'isActive', 'verified')->group(function () {
+        Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         Route::get('/myTEST', function () {
-            $user=User::find(1);
+            $user = User::find(1);
             $msg = "لديك طلب صداقة ";
-            (new NotificationController)->sendNotification($user->id, $msg,'friends');
-    
+            (new NotificationController)->sendNotification($user->id, $msg, 'friends');
+
             // $test = 'اشعار جديد';
             // $user=User::find(Auth::id());
             // event(new NotificationsEvent($test,$user));
-            
+
         });
-    
+
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
         Route::post('/assign-role', [AuthController::class, 'assignRole']);
@@ -99,10 +100,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::put('/', [BookController::class, 'update']);
             Route::delete('/{id}', [BookController::class, 'delete']);
             Route::get('/type/{type_id}', [BookController::class, 'bookByType'])->where('type_id', '[0-9]+');
-            Route::post('/level', [BookController::class, 'bookByLevel']);
+            Route::get('/level/{level}', [BookController::class, 'bookByLevel']);
             Route::get('/section/{section_id}', [BookController::class, 'bookBySection'])->where('section_id', '[0-9]+');
             Route::post('/name', [BookController::class, 'bookByName']);
-            Route::post('/language', [BookController::class, 'bookByLanguage']);
+            Route::get('/language/{language}', [BookController::class, 'bookByLanguage']);
             Route::get('/recent-added-books', [BookController::class, 'getRecentAddedBooks']);
             Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
@@ -251,7 +252,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/update-status/{exception_id}', [UserExceptionController::class, 'updateStatus']);
             Route::get('/listPindigExceptions', [UserExceptionController::class, 'listPindigExceptions']);
             Route::post('/addExceptions', [UserExceptionController::class, 'addExceptions']);
-            Route::get('/finisfedException', [UserExceptionController::class, 'finisfedException']);
+            Route::get('/finishedException', [UserExceptionController::class, 'finishedException']);
         });
         ############End UserException########
 
@@ -278,7 +279,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/statistics/{group_id}/{week_filter?}', [GroupController::class, 'statistics']);
             Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
-            
         });
         ############End Group############
 
@@ -440,6 +440,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/close-comments', [WeekController::class, 'closeBooksAndSupportComments']);
             Route::get('/open-comments', [WeekController::class, 'openBooksComments']);
             Route::get('/check-date', [WeekController::class, 'testDate']);
+            Route::patch('/update-exception/{exp_id}/{status}', [WeekController::class, 'update_exception_status']);
+            Route::get('/notify-users', [WeekController::class, 'notifyUsersNewWeek']);
         });
         ######## Week ########
 

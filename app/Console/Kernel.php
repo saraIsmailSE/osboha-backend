@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Riyadh')
             ->weeklyOn(6, '6:00'); // every Sundy at 06:00 am (6 => Sundy)
 
-        //finisfedException 
+        //finishedException 
         $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
 
 

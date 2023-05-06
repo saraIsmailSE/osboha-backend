@@ -21,7 +21,7 @@ class NotificationController extends Controller
     {
         //create constants for notification types
         if (!defined('FRIENDS')) define('FRIENDS', 'friends');
-        
+
         if (!defined('FRIENDS_REQUESTS')) define('FRIENDS_REQUESTS', 'friends_requests');
 
         if (!defined('USER_EXCEPTIONS')) define('USER_EXCEPTIONS', 'user_exceptions');
@@ -42,18 +42,20 @@ class NotificationController extends Controller
 
         if (!defined('TAGS')) define('TAGS', 'tags');
 
-        if (!defined('ACHIEVEMENTS')) define('ACHIEVEMENTS', 'achievements');        
+        if (!defined('ACHIEVEMENTS')) define('ACHIEVEMENTS', 'achievements');
+
+        if (!defined('NEW_WEEK')) define('NEW_WEEK', 'new_week');
     }
     /**
      * Send notification to a specific user by its id with a message and insert it to the database.
      * 
      * @param  $reciver_id , $message
      */
-    public function sendNotification($reciver_id, $message, $type)
+    public function sendNotification($reciver_id, $message, $type, $path = null)
     {
         $sender = User::find(Auth::id());
         $reciver = User::where('id', $reciver_id)->first();
-        $reciver->notify(new GeneralNotification($sender, $message, $type));
+        $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
     }
     /**
      * To show all notifications for auth user.

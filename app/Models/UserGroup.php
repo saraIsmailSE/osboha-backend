@@ -9,15 +9,20 @@ class UserGroup extends Model
 {
     use HasFactory;
 
-   protected $fillable=[
+    protected $fillable = [
         'user_id',
         'group_id',
         'user_type',
         'termination_reason',
     ];
 
-    public function group(){
-        return $this->belongsTo(Group::class,'group_id');
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

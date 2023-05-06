@@ -20,12 +20,13 @@ use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
 use App\Models\ThesisType;
+use App\Traits\PathTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CommentController extends Controller
 {
-    use ResponseJson, MediaTraits, ThesisTraits;
+    use ResponseJson, MediaTraits, ThesisTraits, PathTrait;
     /**
      * Add a new comment or reply to the system.
      * Detailed Steps:
@@ -158,6 +159,25 @@ class CommentController extends Controller
             }
 
             DB::commit();
+
+            $message = null;
+            $reciever_id = null;
+            if ($comment->type === 'normal' &&  Auth::id() !== $post->user_id) {
+                $message = 'لقد قام ' . Auth::user()->name . " بالتعليق على منشورك";
+                $reciever_id = $post->user_id;
+            } else if ($comment->type === 'reply') {
+                $parentComment = Comment::find($request->comment_id);
+                if ($parentComment && $parentComment->user_id !== Auth::id()) {
+
+                    $message = 'لقد قام ' . Auth::user()->name . " بالرد على تعليقك";
+                    $reciever_id = $parentComment->user_id;
+                }
+            }
+
+            //notify the creator
+            if ($message && $reciever_id) {
+                (new NotificationController)->sendNotification($reciever_id, $message, USER_POSTS, $this->getPostPath($post->id));
+            }
 
             return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
         } catch (\Exception $e) {
