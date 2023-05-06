@@ -18,22 +18,25 @@ class BookObserver
         $book_stat = BookStatistics::latest()->first();
 
         $book_stat->total +=  1;
-        
-        if($book->level == 'بسيط'){
+        $bookLevel = $book->level->level;
+
+        if ($bookLevel  == 'simple') {
             $book_stat->simple += 1;
-        }else if($book->level == 'متوسط'){
+        } else if ($bookLevel == 'intermediate') {
             $book_stat->intermediate += 1;
-        }else{
+        } else if ($bookLevel == 'advanced') {
             $book_stat->advanced += 1;
         }
 
-        if($book->type_id == '1'){
+        $bookType = $book->type->type;
+
+        if ($bookType == 'normal') {
             $book_stat->method_books += 1;
-        }else if($book->type_id == '2'){
+        } else if ($bookType == 'ramadan' || $bookType == 'tafseer') {
             $book_stat->ramadan_books += 1;
-        }else if($book->type_id == '3'){
+        } else if ($bookType == 'kids') {
             $book_stat->children_books += 1;
-        }else{
+        } else if ($bookType == 'young') {
             $book_stat->young_people_books += 1;
         }
 
@@ -48,56 +51,60 @@ class BookObserver
      */
     public function updated(Book $book)
     {
-        $old_book = $book->getOriginal();  
+        $old_book = $book->getOriginal();
         $book_stat = BookStatistics::latest()->first();
 
-        if($book->level == 'بسيط'){
+        $bookLevel = $book->level->level;
+
+        if ($bookLevel == 'simple') {
             $book_stat->simple += 1;
-        }else if($book->level == 'متوسط'){
+        } else if ($bookLevel == 'intermediate') {
             $book_stat->intermediate += 1;
-        }else{
+        } else if ($bookLevel == 'advanced') {
             $book_stat->advanced += 1;
         }
 
-        if($book->type_id == '1'){
+        $bookType = $book->type->type;
+
+        if ($bookType == 'normal') {
             $book_stat->method_books += 1;
-        }else if($book->type_id == '2'){
+        } else if ($bookType == 'ramadan' || $bookType == 'tafseer') {
             $book_stat->ramadan_books += 1;
-        }else if($book->type_id == '3'){
+        } else if ($bookType == 'kids') {
             $book_stat->children_books += 1;
-        }else{
+        } else if ($bookType == 'young') {
             $book_stat->young_people_books += 1;
         }
 
-        if($old_book['level'] == 'بسيط'){
-            if($book_stat->simple !=0){
+        if ($old_book['level'] == 'simple') {
+            if ($book_stat->simple != 0) {
                 $book_stat->simple -= 1;
             }
-        }else if($old_book['level'] == 'متوسط'){
-            if($book_stat->intermediate !=0){
+        } else if ($old_book['level'] == 'intermediate') {
+            if ($book_stat->intermediate != 0) {
                 $book_stat->intermediate -= 1;
             }
-        }else{
-           if( $book_stat->advanced !=0){
+        } else if ($old_book['level'] == 'advanced') {
+            if ($book_stat->advanced != 0) {
                 $book_stat->advanced -= 1;
-           }
+            }
         }
 
-        if($old_book['type_id'] == '1'){
-            if( $book_stat->method_books !=0){
+        $oldBookType = $old_book->type->type;
+        if ($oldBookType  == 'normal') {
+            if ($book_stat->method_books != 0) {
                 $book_stat->method_books -= 1;
             }
-           
-        }else if($old_book['type_id'] == '2'){
-            if($book_stat->ramadan_books !=0){
+        } else if ($oldBookType  == 'ramadan' || $oldBookType  == 'tafseer') {
+            if ($book_stat->ramadan_books != 0) {
                 $book_stat->ramadan_books -= 1;
             }
-        }else if($old_book['type_id'] == '3'){
-            if($book_stat->children_books !=0){
+        } else if ($oldBookType  == 'kids') {
+            if ($book_stat->children_books != 0) {
                 $book_stat->children_books -= 1;
             }
-        }else{
-            if($book_stat->young_people_books !=0){
+        } else if ($oldBookType  == 'young') {
+            if ($book_stat->young_people_books != 0) {
                 $book_stat->young_people_books -= 1;
             }
         }
@@ -114,45 +121,46 @@ class BookObserver
     public function deleted(Book $book)
     {
         $book_stat = BookStatistics::latest()->first();
-        
-        if( $book_stat->total !=0){
+
+        if ($book_stat->total != 0) {
             $book_stat->total -=  1;
-            if($book->level == 'بسيط'){
-                if($book_stat->simple !=0){
+
+            $bookLevel = $book->level->level;
+            if ($bookLevel == 'simple') {
+                if ($book_stat->simple != 0) {
                     $book_stat->simple -= 1;
                 }
-            }else if($book->level == 'متوسط'){
-                if($book_stat->intermediate !=0){
+            } else if ($bookLevel == 'intermediate') {
+                if ($book_stat->intermediate != 0) {
                     $book_stat->intermediate -= 1;
                 }
-            }else{
-                if($book_stat->advanced !=0){
+            } else if ($bookLevel == 'advanced') {
+                if ($book_stat->advanced != 0) {
                     $book_stat->advanced -= 1;
                 }
             }
-    
-            if($book->type_id == '1'){
-                if($book_stat->method_books !=0){
+
+            $bookType = $book->type->type;
+            if ($bookType == 'normal') {
+                if ($book_stat->method_books != 0) {
                     $book_stat->method_books -= 1;
                 }
-            }else if($book->type_id == '2'){
-                if($book_stat->ramadan_books !=0){
+            } else if ($bookType == 'ramadan' || $bookType == 'tafseer') {
+                if ($book_stat->ramadan_books != 0) {
                     $book_stat->ramadan_books -= 1;
                 }
-            }else if($book->type_id == '3'){
-                if($book_stat->children_books !=0){
+            } else if ($bookType == 'kids') {
+                if ($book_stat->children_books != 0) {
                     $book_stat->children_books -= 1;
                 }
-            }else{
-                if($book_stat->young_people_books !=0){
+            } else if ($bookType == 'young') {
+                if ($book_stat->young_people_books != 0) {
                     $book_stat->young_people_books -= 1;
                 }
             }
-    
+
             $book_stat->save();
         }
-        
-      
     }
 
     /**

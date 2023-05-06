@@ -16,12 +16,13 @@ use App\Models\Thesis;
 use App\Models\User;
 use App\Models\Week;
 use App\Notifications\RejectAmbassadorThesis;
+use App\Traits\PathTrait;
 use App\Traits\ThesisTraits;
 use Illuminate\Http\Response;
 
 class ModifiedThesesController extends Controller
 {
-    use ResponseJson, ThesisTraits;
+    use ResponseJson, ThesisTraits, PathTrait;
 
     /**
      * Read all rejected theses in the current week in the system(“audit mark” permission is required)
@@ -104,7 +105,7 @@ class ModifiedThesesController extends Controller
 
             $message = 'تم ' . $arabicStatus . ' أطروحتك من قِبَل ' . Auth::user()->name;
 
-            (new NotificationController)->sendNotification($thesis->user_id, $message, ACHIEVEMENTS);
+            (new NotificationController)->sendNotification($thesis->user_id, $message, ACHIEVEMENTS, $this->getThesesPath($thesis->book_id, $thesis->id));
             return $this->jsonResponseWithoutMessage("تم تدقيق الأطروحة بنجاح, وإعلام السفير", 'data', 200);
         } else {
             throw new NotAuthorized;

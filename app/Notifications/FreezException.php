@@ -20,8 +20,8 @@ class FreezException extends Notification implements ShouldQueue
      */
     public function __construct($start_at, $end_at)
     {
-        $this->start_at=$start_at;
-        $this->end_at=$end_at;
+        $this->start_at = $start_at;
+        $this->end_at = $end_at;
     }
 
     /**
@@ -44,15 +44,14 @@ class FreezException extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-        ->from('no-replay@osboha180.com', 'Osboha 180')
-        ->subject('أصبوحة || طلب تجميد')
-        ->line('تحية طيبة لحضرتك،')
-        ->line('تم رفع طلبك للتجميد')
-        ->line($this->start_at)
-        ->line($this->end_at)
-        ->line('لك التحية.');
-        
-}
+            ->from('no-replay@osboha180.com', 'Osboha 180')
+            ->subject('أصبوحة || طلب تجميد')
+            ->line('تحية طيبة لحضرتك،')
+            ->line('تم رفع طلبك للتجميد')
+            ->line('يبدأ بتاريخ: ' . $this->start_at)
+            ->line('ينتهي بتاريخ: ' . $this->end_at)
+            ->line('لك التحية.');
+    }
 
     /**
      * Get the array representation of the notification.
@@ -66,5 +65,4 @@ class FreezException extends Notification implements ShouldQueue
             //
         ];
     }
-
 }

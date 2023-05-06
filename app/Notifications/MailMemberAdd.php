@@ -7,21 +7,23 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MailSupportPost extends Notification
+class MailMemberAdd extends Notification
 {
     use Queueable;
+    protected $role;
+    protected $group;
     protected $url;
-    protected $name;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($name)
+    public function __construct($role, $group)
     {
-        $this->name = $name;
-        $this->url = env('FRONT_URL') . '/post/post_id';
+        $this->role = $role;
+        $this->group = $group;
+        $this->url = env('FRONT_URL') . '/group/group-detail/' . $group->id;
     }
 
     /**
@@ -45,15 +47,16 @@ class MailSupportPost extends Notification
     {
         return (new MailMessage)
             ->from('no-replay@osboha180.com', 'Osboha 180')
-            ->subject('أصبوحة || منشور اعرف مشروعك')
-            ->line('مرحباً بك سفيرنا  ' . $this->name . '،')
-            ->line('نرجو أن تكون بأفضل حال')
+            ->subject('أصبوحة 180 || إضافة إلى مجموعة ')
+            ->line('أهلًا وسهلًا بك مجددًا')
+            ->line('نرجو أن تكون بخير.')
             ->line('')
-            ->line('بعد مراجعة التصويت الخاص بك على منشور 《اعرف مشروعك》؛ تم رفض التصويت لمخالفته للشروط.')
-            ->line('فضلًا قم بمراجعة حسابك الخاص في المنصة لمعرفة السبب بشكل أوضح وتعديل الإجابة قبل نهاية الأسبوع. ')
-            ->action('رابط المنشور: ', $this->url)
+            ->line('تمت إضافتك ك' . $this->role . ' للمجموعة (' . $this->group->name . ')')
             ->line('')
-            ->line('بارك الله قوتك.');
+            ->line('من هنا لطفًا تفضل بالدخول: 👇🏻')
+            ->action('رابط المجموعة', $this->url)
+            ->line('')
+            ->line('كل التوفيق لك. 🌷');
     }
 
     /**

@@ -19,6 +19,8 @@ use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\UserBook;
 use App\Models\Week;
+use App\Notifications\MailDowngradeRole;
+use App\Notifications\MailUpgradeRole;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -291,9 +293,9 @@ class AuthController extends Controller
         );
 
         if ($status === Password::RESET_LINK_SENT)
-            return $this->jsonResponse( __($status), 'data', 200,'Send Successfully!');
+            return $this->jsonResponse(__($status), 'data', 200, 'Send Successfully!');
         else
-            return $this->jsonResponseWithoutMessage( ['email' => __($status)], 'data', 200);
+            return $this->jsonResponseWithoutMessage(['email' => __($status)], 'data', 200);
     }
 
     protected function sendResetResponse(Request $request)
@@ -393,43 +395,90 @@ class AuthController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
+        //check role exists
+        $role = Role::find($request->role_id);
+        if (!$role) {
+            return $this->jsonResponseWithoutMessage("هذه الرتبة غير موجودة", 'data', 200);
+        }
+
+        //check user exists
         $user = User::where('email', $request->user)->first();
         if ($user) {
+            //check head_user exists
             $head_user = User::where('email', $request->head_user)->first();
             if ($head_user) {
-                $head_user_roles = $head_user->load('roles:id,name');
-                $head_user_last_role = $head_user_roles->roles->first();
+                $head_user_last_role = $head_user->roles->first();
+                //check if head user role is greater that user role
+                if ($head_user_last_role->id < $role->id) {
+                    $user_current_role = $user->roles->first();
+                    $arabicRole = config('constants.ARABIC_ROLES')[$role->name];
+                    $userRoles = null;
 
-                if ($head_user_last_role->id <= $request->role_id) {
-                    //remove last role 
-                    $user_current_role = $user->load('roles:id,name');
-                    $user->removeRole($user_current_role->roles->pluck('name')->first());
-                    
+                    //check if supervisor is a leader first
+                    if (($user_current_role->name === 'ambassador' && $role->name === 'supervisor') ||
+                        ($user_current_role->name === 'advisor' && $role->name === 'supervisor') ||
+                        ($user_current_role->name === 'consultant' && $role->name === 'supervisor')
+                    ) {
+                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية العضو لمراقب مباشرة, يجب أن يكون قائد أولاً", 'data', 200);
+                    }
+
+                    //check if user has the role
+                    if ($user->hasRole($role->name) && $user_current_role->id >= $role->id) {
+                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
+                    }
+
+                    //if last role less than the new role => assign ew role
+                    if ($user_current_role->id > $role->id) {
+
+                        //remove last role if not ambassador or leader and new role is supervisor                                    
+                        if ($user_current_role->name !== 'ambassador' && !($user_current_role->name === 'leader' && $role->name === 'supervisor')) {
+                            $user->removeRole($user_current_role->name);
+                        }
+
+                        //else remove other roles
+                    } else {
+                        //remove all roles except the ambassador                        
+                        $userRoles = $user->roles()->where('name', '!=', 'ambassador')->pluck('name');
+                        foreach ($userRoles as $userRole) {
+                            $user->removeRole($userRole);
+                        }
+
+                        $userRoles = collect($userRoles)->map(function ($role) {
+                            return config('constants.ARABIC_ROLES')[$role];
+                        });
+                    }
+
                     // assign new role
-                    $role = Role::find($request->role_id);
                     $user->assignRole($role->name);
 
                     // Link with head user
                     $user->parent_id = $head_user->id;
                     $user->save();
 
+                    $msg = "";
+                    $successMessage = "";
+                    if (!$userRoles) {
+                        $msg = "تمت ترقيتك ل " . $arabicRole . " - المسؤول عنك:  " . $head_user->name;
+                        $successMessage = "تمت ترقية العضو ل " . $arabicRole . " - المسؤول عنه:  " . $head_user->name;
+                        $user->notify(new MailUpgradeRole($arabicRole));
+                    } else {
+                        $msg = count($userRoles) > 1
+                            ?
+                            "تم سحب الأدوار التالية منك: " . implode(',', $userRoles->all()) . " أنت الآن " . $arabicRole
+                            :
+                            "تم سحب دور ال" . $userRoles[0] . " منك, أنت الآن " . $arabicRole;
+                        $successMessage = count($userRoles) > 1
+                            ?
+                            "تم سحب الأدوار التالية من العضو: " . implode(',', $userRoles->all()) . " , إنه الآن " . $arabicRole
+                            :
+                            "تم سحب دور ال" . $userRoles[0] . " من العضو, إنه الآن " . $arabicRole;
+                        $user->notify(new MailDowngradeRole($userRoles->all(), $arabicRole));
+                    }
                     // notify user
-                    $role_in_arabic = [
-                        'ambassador' => "سفير",
-                        'leader' => "قائد",
-                        'supervisor' => "مراقب",
-                        'advisor' => 'موجه',
-                        'consultant' => 'مستشار',
-                        'admin' => 'ادارة'
-                    ];
-
-                    $msg = "أنت الأن " . $role_in_arabic[$role->name] . " - المسؤول عنك:  " . $head_user->name;
-                    (new NotificationController)->sendNotification($user->id, $msg, 'roles');
-                    //event(new NotificationsEvent($msg,$user));
-
-                    return $this->jsonResponseWithoutMessage('تمت الترقية', 'data', 202);
+                    (new NotificationController)->sendNotification($user->id, $msg, ROLES);
+                    return $this->jsonResponseWithoutMessage($successMessage, 'data', 202);
                 } else {
-                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى أو مساوية للرتبة المراد الترقية لها", 'data', 200);
+                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى من الرتبة المراد الترقية لها", 'data', 200);
                 }
             } else {
                 return $this->jsonResponseWithoutMessage("المسؤول غير موجود", 'data', 200);

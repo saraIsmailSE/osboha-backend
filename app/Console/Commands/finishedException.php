@@ -38,7 +38,7 @@ class finishedException extends Command
     public function handle()
     {
         // Log::info("Hello" ); 
-        app()->call('App\Http\Controllers\Api\UserExceptionController@finisfedException');
-        \Log::info("Cron is working fine!");  
+        app()->call('App\Http\Controllers\Api\UserExceptionController@finishedException');
+        \Log::info("Cron is working fine!");
     }
 }

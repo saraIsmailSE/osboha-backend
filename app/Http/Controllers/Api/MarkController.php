@@ -25,10 +25,11 @@ use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
 use App\Notifications\MailSupportPost;
+use App\Traits\PathTrait;
 
 class MarkController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, PathTrait;
 
     /**
      * Read all  marks in the current week in the system(“audit mark” permission is required)
@@ -423,7 +424,7 @@ class MarkController extends Controller
                 $userToNotify->notify((new MailSupportPost($userToNotify->name)));
                 // with notification
                 $msg = "لقد تم رفض تصويتك على منشور الدعم لهذا الاسبوع, تفقد المنشور لتعديله";
-                (new NotificationController)->sendNotification($user_id, $msg, GROUPS);
+                (new NotificationController)->sendNotification($user_id, $msg, GROUPS, $this->getSuportPostPath());
                 return $this->jsonResponseWithoutMessage("support Mark Updated Successfully", 'data', 200);
             } else {
                 throw new NotFound;

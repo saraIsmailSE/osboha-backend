@@ -14,11 +14,10 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\ThesisResource;
+use App\Models\BookLevel;
 use App\Models\Language;
 use App\Models\PostType;
-use App\Models\Rate;
 use App\Models\TimelineType;
-use App\Models\UserBook;
 use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
@@ -32,11 +31,9 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::with('section', 'type', 'language')
-            ->with('userBooks', function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            })
-            ->paginate(9);
+        $books = Book::with(['userBooks' => function ($query) {
+            $query->where('user_id', Auth::user()->id);
+        }])->paginate(9);
         if ($books->isNotEmpty()) {
 
             foreach ($books as $book) {
@@ -76,7 +73,7 @@ class BookController extends Controller
             'section_id' => 'required',
             'type_id' => 'required',
             'image' => 'required',
-            'level' => 'required',
+            'level_id' => 'required',
             'language_id' => 'required',
         ]);
 
@@ -247,23 +244,21 @@ class BookController extends Controller
     }
 
     /**
-     * Find and return all books related to a level using level_id.
+     * Find and return all books related to a level using level.
      *
-     * @param  Request  $request
+     * @param  String $level
      * @return jsonResponseWithoutMessage;
      */
-    public function bookByLevel(Request $request)
+    public function bookByLevel($level)
     {
-        $validator = Validator::make($request->all(), [
-            'level' => 'required',
-        ]);
+        $level_id = BookLevel::where('level', $level)->orWhere('arabic_level', $level)->pluck('id')->first();
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        if (!$level_id) {
+            throw new NotFound;
         }
-        $books = Book::where('level', $request->level)->paginate(9);
 
-        // $paginatedCollection = $books;
+        $books = Book::where('level_id', $level_id)->paginate(9);
+
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
                 [
@@ -327,31 +322,27 @@ class BookController extends Controller
     /**
      * Find and return all books related to language language_id
      *
-     * @param  Request  $request
+     * @param  String $language
      * @return jsonResponseWithoutMessage;
      */
-    public function bookByLanguage(Request $request)
+    public function bookByLanguage($language)
     {
-        $validator = Validator::make($request->all(), [
-            'language' => 'required',
-        ]);
+        $language_id = Language::where('language', $language)->pluck('id')->first();
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $language_id = Language::where('language', $request->language)->pluck('id')->first();
-
-        $books = Book::where('language_id', $language_id)->paginate(9);
-        if ($books->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(
-                [
-                    'books' => BookResource::collection($books),
-                    'total' => $books->total(),
-                ],
-                'data',
-                200
-            );
+        if ($language_id) {
+            $books = Book::where('language_id', $language_id)->paginate(9);
+            if ($books->isNotEmpty()) {
+                return $this->jsonResponseWithoutMessage(
+                    [
+                        'books' => BookResource::collection($books),
+                        'total' => $books->total(),
+                    ],
+                    'data',
+                    200
+                );
+            } else {
+                throw new NotFound;
+            }
         } else {
             throw new NotFound;
         }
@@ -370,7 +361,7 @@ class BookController extends Controller
     public function getMostReadableBooks()
     {
         $books = Book::select('books.*', DB::raw('count(*) as total'))
-            ->join('theses', 'books.id', '=', 'theses.book_id')
+            ->with('theses')
             ->groupBy('book_id')
             ->groupBy('user_id')
             ->orderBy('total', 'desc')

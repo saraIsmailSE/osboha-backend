@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use App\Models\Group;
 use App\Models\UserBook;
+use App\Notifications\MailAmbassadorDistribution;
+use App\Notifications\MailMemberAdd;
+use App\Traits\PathTrait;
 use Illuminate\Validation\Rule;
 
 
@@ -23,7 +26,7 @@ use Illuminate\Validation\Rule;
 
 class UserGroupController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, PathTrait;
     /**
      * Read all user groups in the system.
      *
@@ -93,25 +96,25 @@ class UserGroupController extends Controller
     {
         // Validate the input
         $validatedData = $request->validate([
-            'email' => 'required',
+            'email' => 'required|email',
             'group_id' => 'required',
             'user_type' => 'required',
         ]);
 
 
-        $user = User::where('email', '=', $validatedData['email']);
+        $user = User::where('email', $validatedData['email']);
         if (!$user) {
             return $this->jsonResponseWithoutMessage('email not found', 'data', 404);
         } else if (!is_null($user->parent_id)) {
             $user->parent_id = Auth::id();
-        } else if (!$user->hasRole(validatedData['uesr_type'])) {
+        } else if (!$user->hasRole($validatedData['uesr_type'])) {
             return $this->jsonResponseWithoutMessage('User does not have the required role', 'data', 401);
         }
 
 
 
         $user->save();
-        $userGroup = UserGroup::create(['user_id' => $user->id, 'group_id' =>  $validatedData['group_id'], validatedData['uesr_type']]);
+        $userGroup = UserGroup::create(['user_id' => $user->id, 'group_id' =>  $validatedData['group_id'], $validatedData['uesr_type']]);
 
         $userGroup->save();
 
@@ -138,7 +141,7 @@ class UserGroupController extends Controller
             $request->all(),
             [
                 'group_id' => 'required',
-                'email' => ['required',],
+                'email' => 'required|email',
                 'role_id' => 'required',
             ]
         );
@@ -147,41 +150,122 @@ class UserGroupController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
+        //check role exists
+        $role = Role::find($request->role_id);
+        if (!$role) {
+            return $this->jsonResponseWithoutMessage("هذه الرتبة غير موجودة", 'data', 200);
+        }
+
         $user = User::where('email', $request->email)->first();
         if ($user) {
-            $group = Group::with('groupLeader')->where('id', $request->group_id)->first();
-
+            $group = Group::find($request->group_id);
             if ($group) {
-                $role = Role::find($request->role_id);
+                $arabicRole = config('constants.ARABIC_ROLES')[$role->name];
+
+                $checkMember = UserGroup::where('user_id', $user->id)->where('group_id', $group->id)->where('user_type', $role->name)->first();
+                //by asmaa
+                if ($checkMember) {
+                    return $this->jsonResponseWithoutMessage('ال' . $arabicRole .  ' موجود في المجموعة', 'data', 202);
+                }
 
                 if ($user->hasRole($role->name)) {
-                    if ($role->name == 'ambassador' && $group->type->type='followup') {
-                        if ($group->groupLeader->isEmpty())
-                            return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة", 'data', 200);
-                        else
-                            $user->parent_id = $group->groupLeader[0]->id;
+                    //check if the role is leader and above then check if this role found in the group
+                    if ($role->name !== 'ambassador') {
+                        //check if role is leader and if the leader is a leader on other group
+                        if ($role->name === 'leader') {
+                            $leaderInGroups = UserGroup::where('user_id', $user->id)->where('user_type', 'leader')->where('group_id', '!=', $group->id)->first();
+                            if ($leaderInGroups) {
+                                return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو كقائد, لأنه موجود كقائد في فريق آخر ", 'data', 200);
+                            }
+                        }
+
+                        $roleInGroup = UserGroup::where('group_id', $group->id)->where('user_type', $role->name)->first();
+                        if ($roleInGroup) {
+                            return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . $arabicRole . ", يوجد " . $arabicRole . " في المجموعة", 'data', 200);
+                        }
                     }
-                    $role_in_arabic = [
-                        'ambassador' => "سفير",
-                        'leader' => "قائد",
-                        'supervisor' => "مراقب",
-                        'advisor' => 'موجه',
-                        'consultant' => 'مستشار',
-                        'admin' => 'ادارة'
-                    ];
+                    if ($group->type->type = 'followup') {
+                        if ($role->name == 'ambassador') {
+                            if ($group->groupLeader->isEmpty())
+                                return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة, لا يمكنك إضافة أعضاء", 'data', 200);
+                            else {
+                                $user->parent_id = $group->groupLeader[0]->id;
+                                $user->save();
+                                $user->notify(new MailAmbassadorDistribution($request->group_id));
+                            }
+                        }
+                    } else { //later
+                        //check if the group has a one in charge
 
-                    $userGroup = UserGroup::updateOrCreate(
-                        ['user_id' => $user->id, 'group_id' => $group->id],
-                        ['user_type' => $role->name]
-                    );
+                        //check if the one in charge is parent to the added user
 
-                    $msg = "أنت الأن " . $role_in_arabic[$role->name] . " في المجموعة:  " . $group->name;
-                    (new NotificationController)->sendNotification($user->id, $msg, 'roles');
+                        //check if the group accepts this role
+                    }
+
+                    //if the added user is leader and has a role of supervisor, add them both
+                    if ($user->hasRole('supervisor') && $role->name === 'leader' && $group->type->type === 'followup') {
+                        $rolesToAdd = [
+                            [
+                                'user_id' => $user->id,
+                                'group_id' => $group->id,
+                                'user_type' => 'leader',
+                                'created_at' => now(),
+                                'updated_at' => now()
+
+                            ],
+                        ];
+
+                        //check if the user is added a supervisor before
+                        $foundAsSupervisor = UserGroup::where('user_id', $user->id)->where('group_id', $group->id)->where('user_type', 'supervisor')->first();
+                        if (!$foundAsSupervisor) {
+                            array_push($rolesToAdd,  [
+                                'user_id' => $user->id,
+                                'group_id' => $group->id,
+                                'user_type' => 'supervisor',
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                        }
+                        UserGroup::insert($rolesToAdd);
+                        //notify the user with the supervisor addition
+                        if (!$foundAsSupervisor) {
+                            $arabicRole = $arabicRole . ' ومراقب';
+                        }
+                    } else {
+                        //else create or update the record
+
+                        //check if the added member is a supervisor who is a leader in the same group, then create a new record
+                        if ($role->name === 'supervisor' && $group->groupLeader[0]->id === $user->id && $group->groupSupervisor->isEmpty()) {
+                            UserGroup::Create(
+                                [
+                                    'user_id' => $user->id,
+                                    'group_id' => $group->id,
+                                    'user_type' => $role->name
+                                ]
+                            );
+                        } else {
+                            UserGroup::updateOrCreate(
+                                [
+                                    'user_id' => $user->id,
+                                    'group_id' => $group->id
+                                ],
+                                ['user_type' => $role->name]
+                            );
+                        }
+                    }
+
+                    if ($role->name !== 'ambassador') {
+                        $user->notify(new MailMemberAdd($arabicRole, $group));
+                    }
+
+                    $msg = "تمت إضافتك ك " . $arabicRole . " في المجموعة:  " . $group->name;
+                    (new NotificationController)->sendNotification($user->id, $msg, ROLES, $this->getGroupPath($group->id));
                     //event(new NotificationsEvent($msg,$user));
 
-                    return $this->jsonResponseWithoutMessage('تمت الاضافة', 'data', 202);
+                    $successMessage = 'تمت إضافة العضو ك' . $arabicRole . " للمجموعة";
+                    return $this->jsonResponseWithoutMessage($successMessage, 'data', 202);
                 } else {
-                    return $this->jsonResponseWithoutMessage("قم بترقية السفير أولاً", 'data', 200);
+                    return $this->jsonResponseWithoutMessage("قم بترقية العضو ل" . $arabicRole . " أولاً", 'data', 200);
                 }
             } else {
                 return $this->jsonResponseWithoutMessage("المجموعة غير موجودة", 'data', 200);
@@ -207,8 +291,6 @@ class UserGroupController extends Controller
             ]
         );
 
-
-
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
@@ -222,7 +304,7 @@ class UserGroupController extends Controller
                 $user->assignRole($role);
 
                 $msg = "Now, you are " . $role->name . " in " . $group->name . " group";
-                (new NotificationController)->sendNotification($request->user_id, $msg, 'roles');
+                (new NotificationController)->sendNotification($request->user_id, $msg, ROLES, $this->getGroupPath($group->id));
 
                 $userGroup = UserGroup::create($request->all());
 
@@ -275,7 +357,7 @@ class UserGroupController extends Controller
                     $user->removeRole($role);
 
                     $msg = "You are not a " . $role->name . " in " . $group->name . " group anymore, because you " . $request->termination_reason;
-                    (new NotificationController)->sendNotification($request->user_id, $msg, 'roles');
+                    (new NotificationController)->sendNotification($request->user_id, $msg, ROLES, $this->getGroupPath($group->id));
 
                     $userGroup->update($request->all());
 
