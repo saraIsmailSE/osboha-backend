@@ -72,7 +72,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
-    Route::middleware('auth:sanctum', 'isActive', 'verified')->group(function () {
+    Route::middleware('auth:sanctum', 'verified', 'isActive')->group(function () {
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         Route::get('/myTEST', function () {
             $user = User::find(1);
