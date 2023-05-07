@@ -24,6 +24,7 @@ use App\Models\UserException;
 use App\Models\Week;
 use Illuminate\Support\Facades\DB;
 use App\Models\Book;
+use App\Models\TimelineType;
 
 /**
  * Description: GroupController for Osboha group.
@@ -86,8 +87,11 @@ class GroupController extends Controller
 
 
         if (Auth::user()->can('create group')) {
+            
+            $timeLine_type= TimelineType::where('type','group')->plcuk('id')->first();
             $timeline = new Timeline;
-            $timeline->type_id = $request->type_id;
+
+            $timeline->type_id = $timeLine_type;
             $timeline->save();
 
             $input['creator_id'] = Auth::id();
