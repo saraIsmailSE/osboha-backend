@@ -104,6 +104,18 @@ class GroupController extends Controller
             ]);
             $userGroup->save();
 
+            $current_week_id = Week::latest()->pluck('id')->first();
+            Mark::updateOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'week_id' => $current_week_id
+                ],
+                [
+                    'user_id' => Auth::id(),
+                    'week_id' => $current_week_id
+                ],
+            );
+
             /* BUG Parent of Admin is Another User
 
             $child = User::find(Auth::id());
