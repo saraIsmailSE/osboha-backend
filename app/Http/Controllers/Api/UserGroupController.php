@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 use App\Models\Group;
+use App\Models\Mark;
 use App\Models\UserBook;
+use App\Models\Week;
 use App\Notifications\MailAmbassadorDistribution;
 use App\Notifications\MailMemberAdd;
 use App\Traits\PathTrait;
@@ -261,6 +263,19 @@ class UserGroupController extends Controller
                     $msg = "تمت إضافتك ك " . $arabicRole . " في المجموعة:  " . $group->name;
                     (new NotificationController)->sendNotification($user->id, $msg, ROLES, $this->getGroupPath($group->id));
                     //event(new NotificationsEvent($msg,$user));
+
+                    $current_week_id = Week::latest()->pluck('id')->first();
+                    Mark::updateOrCreate(
+                        [
+                            'user_id' => $user->id,
+                            'week_id' => $current_week_id
+                        ],
+                        [
+                            'user_id' => $user->id,
+                            'week_id' => $current_week_id
+                        ],
+                    );
+
 
                     $successMessage = 'تمت إضافة العضو ك' . $arabicRole . " للمجموعة";
                     return $this->jsonResponseWithoutMessage($successMessage, 'data', 202);
