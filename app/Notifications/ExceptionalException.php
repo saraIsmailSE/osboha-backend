@@ -40,13 +40,12 @@ class ExceptionalException extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-        ->from('no-replay@osboha180.com', 'Osboha 180')
-        ->subject('أصبوحة || طلب تجميد')
-        ->line('تحية طيبة لحضرتك،')
-        ->line('تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة')
-        ->line('لك التحية.');
-        
-}
+            ->from('no-replay@osboha180.com', 'Osboha 180')
+            ->subject('أصبوحة || طلب تجميد')
+            ->line('تحية طيبة لحضرتك،')
+            ->line('تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة')
+            ->line('لك التحية.');
+    }
 
     /**
      * Get the array representation of the notification.
@@ -60,5 +59,4 @@ class ExceptionalException extends Notification implements ShouldQueue
             //
         ];
     }
-
 }

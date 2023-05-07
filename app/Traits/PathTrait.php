@@ -55,4 +55,14 @@ trait PathTrait
     {
         return 'exceptions/list-exception/' . $exception_id;
     }
+
+    function getPendingPostsPath($timeline_id, $post_id = null)
+    {
+        $path = 'posts/pending/' . $timeline_id;
+        if ($post_id) {
+            $path .= '/' . $post_id;
+        }
+
+        return $path;
+    }
 }

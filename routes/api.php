@@ -351,14 +351,15 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/timeline/{timeline_id}', [PostController::class, 'postsByTimelineId'])->where('timeline_id', '[0-9]+');
             Route::get('/users/{user_id}', [PostController::class, 'postByUserId'])->where('user_id', '[0-9]+');
             Route::get('/pending/timelines/{timeline_id}', [PostController::class, 'listPostsToAccept'])->where('timeline_id', '[0-9]+');
-            Route::get('/accept-post/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
-            Route::get('/decline-post/{id}', [PostController::class, 'declinePost'])->where('id', '[0-9]+');
+            Route::patch('/accept/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
+            Route::patch('/decline/{id}', [PostController::class, 'declinePost'])->where('id', '[0-9]+');
             Route::patch('/{id}/control-comments', [PostController::class, 'controlComments']);
             Route::patch('/pin/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
             Route::get('/home', [PostController::class, 'getPostsForMainPage']);
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);
             Route::get('/support', [PostController::class, 'getSupportPosts']);
             Route::get('/support/latest', [PostController::class, 'getLastSupportPost']);
+            Route::get('/pending/timeline/{timeline_id}/{post_id?}', [PostController::class, 'getPendingPosts']);
         });
         ########End Post########
 

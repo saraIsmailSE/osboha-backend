@@ -46,6 +46,7 @@ class UserExceptionController extends Controller
         $validator = Validator::make($input, [
             'reason' => 'required|string',
             'type_id' => 'required|int',
+            'end_at' => 'date|after:yesterday',
         ]);
 
         if ($validator->fails()) {
@@ -127,25 +128,46 @@ class UserExceptionController extends Controller
             return $this->jsonResponseWithoutMessage("تم رفع طلبك لنظام الامتحانات، انتظر موافقة القائد", 'data', 200);
         } elseif ($request->type_id == $exceptionalFreez->id) { // تجميد استثنائي
 
-            $exception['status'] = 'pending';
+            $successMessage = "";
+            if (Auth::user()->hasRole('admin')) {
+                $exception['status'] = 'accepted';
+                $exception['end_at'] = Carbon::parse($request->end_at)->format('Y-m-d');
+                $successMessage = "تم تجميدك لغاية " . $exception['end_at'];
+            } else {
+                $exception['status'] = 'pending';
+                $successMessage = "تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة";
+            }
+
             $userException = UserException::create($exception);
+            $userException->fresh();
 
             //Notify User
             $userToNotify = User::find(Auth::id());
-            $userToNotify->notify(new \App\Notifications\ExceptionalException());
 
-            //Notify Advisor & Leader
+            if (Auth::user()->hasRole('admin')) {
+                $userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
+            } else {
 
-            $advisor_id = $group->groupAdvisor[0]->id;
+                $userToNotify->notify(new \App\Notifications\ExceptionalException());
+            }
 
-            //Notify Advisor
+            //if not admin
+            if (!Auth::user()->hasRole('admin')) {
+                //if advisor or consultant, notify admin
+                $msg = "قام السفير " . Auth::user()->name . " بطلب نظام تجميد استثنائي";
+                if (Auth::user()->hasRole(['advisor', 'supervisor'])) {
 
-            $msg = "قام السفير :  " . Auth::user()->name . "بطلب نظام تجميد استثنائي";
-            (new NotificationController)->sendNotification($advisor_id, $msg, ADVISOR_EXCEPTIONS, $this->getExceptionPath($userException->id));
-            //Notify Leader
-            (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
-
-            return $this->jsonResponseWithoutMessage("تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة", 'data', 200);
+                    $admin_id = $group->admin()->first()->id;
+                    (new NotificationController)->sendNotification($admin_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                } else {
+                    //notify advisor & leader                    
+                    $advisor_id = $group->groupAdvisor[0]->id;
+                    (new NotificationController)->sendNotification($advisor_id, $msg, ADVISOR_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                    //Notify Leader
+                    (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                }
+            }
+            return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
         } else {
             throw new NotFound;
         }

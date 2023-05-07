@@ -5,18 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PollVote;
 use App\Traits\ResponseJson;
-use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\PollVoteResource;
 use App\Http\Resources\UserInfoResource;
+use App\Models\Post;
 use App\Models\User;
+
 
 class PollVoteController extends Controller
 {
@@ -51,6 +49,15 @@ class PollVoteController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $post = Post::find($request->post_id);
+        if (!$post) {
+            throw new NotFound;
+        } else {
+            if (!$post->is_approved) {
+                return $this->jsonResponse(null, 'data', 500, "لا يمكنك التصويت على المنشور قبل قبوله");
+            }
         }
 
         $vote = PollVote::where('user_id', Auth::id())->where('post_id', $request->post_id)->where('poll_option_id', $request->option_id)->first();
