@@ -23,7 +23,7 @@ class MailMemberAdd extends Notification
     {
         $this->role = $role;
         $this->group = $group;
-        $this->url = env('FRONT_URL') . '/group/group-detail/' . $group->id;
+        $this->url = config('constants.FRONT_URL') . '/group/group-detail/' . $group->id;
     }
 
     /**
