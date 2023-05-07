@@ -22,7 +22,7 @@ class IsActiveUser
 
         $group = UserGroup::where('user_id', $user->id)->first();
 
-        if (is_null($user->parent_id) || !$group) {
+        if (is_null($user->parent_id) || (!$group && !$user->hasRole('admin'))) {
             $response  = [
                 'success' => false,
                 'data' => 'ambassador without group'
