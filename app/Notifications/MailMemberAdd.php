@@ -23,7 +23,7 @@ class MailMemberAdd extends Notification
     {
         $this->role = $role;
         $this->group = $group;
-        $this->url = config('constants.FRONT_URL') . '/group/group-detail/' . $group->id;
+        $this->url = 'https://www.platform.osboha180.com' . '/group/group-detail/' . $group->id;
     }
 
     /**
