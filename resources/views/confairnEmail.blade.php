@@ -27,7 +27,7 @@
 
                 <h2 class="text-center mt-3"> تم تفعيل حسابك بنجاح</h2>
                 <div class="d-inline-block w-50 text-center">
-                    <a href="https://www.eligible.osboha180.com/auth/signin" class="btn btn-primary d-block mt-3" style="color: white; background:#278036">
+                    <a href="https://www.platform.osboha180.com/auth/signin" class="btn btn-primary d-block mt-3" style="color: white; background:#278036">
                         تسجيل دخول
                     </a>
                 </div>
