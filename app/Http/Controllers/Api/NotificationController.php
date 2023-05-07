@@ -55,7 +55,7 @@ class NotificationController extends Controller
      */
     public function sendNotification($reciver_id, $message, $type, $path = null)
     {
-        $sender = User::find(Auth::id());
+        $sender = User::find(Auth::id()) ?? User::find(1);
         $reciver = User::where('id', $reciver_id)->first();
         $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
     }
