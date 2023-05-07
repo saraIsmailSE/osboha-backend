@@ -3,18 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\Book;
-use App\Models\Media;
 use App\Models\Post;
 use App\Models\Timeline;
-use App\Models\TimelineType;
-use App\Traits\MediaTraits;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class BookSeeder extends Seeder
 {
-    use MediaTraits;
     /**
      * Run the database seeds.
      *
@@ -22,44 +16,41 @@ class BookSeeder extends Seeder
      */
     public function run()
     {
-        // $timeline_id = Timeline::where('type_id', 3)->first()->id;
-        // Book::factory(100)->create()->each(function ($book) use ($timeline_id) {
-        //     $user_id = rand(1, 3);
-        //     $book->posts()->save(Post::factory()->create([
-        //         'user_id' => $user_id,
-        //         'type_id' => 2,
-        //         'timeline_id' => $timeline_id,
-        //     ]));
-        //     $book->media()->save(Media::factory()->create([
-        //         'user_id' => $user_id
-        //     ]));
-        // });
-        DB::transaction(function () {
-            $timeline_id = Timeline::where('type_id', 3)->first()->id;
-            $posts = [];
-            $media = [];
-            for ($i = 1; $i <= 50; $i++) {
-                $user_id = rand(1, 3);
-                $posts[] = [
-                    'user_id' => $user_id,
+
+        $csvFile = fopen(base_path("database/data/books.csv"), "r");
+        $firstline = true;
+        $timeline_id = Timeline::where('type_id', 3)->first()->id;
+        while (($data = fgetcsv($csvFile, 2000, ",")) !== FALSE) {
+            if (!$firstline) {
+                $book = Book::create([
+                    'id' => $data['0'],
+                    'name' => $data['1'],
+                    'end_page' => $data['2'],
+                    'section_id' => $data['3'],
+                    'level_id' => $data['4'],
+                    'created_at' => $data['5'],
+                    'updated_at' => $data['6'],
+                    'writer' => $data['7'],
+                    'publisher' => $data['8'],
+                    'start_page' => $data['9'],
+                    'link' => $data['10'],
+                    'brief' => $data['11'],
+                    'language_id' => $data['12'],
+                    'type_id' => $data['13']
+                ]);
+
+                Post::create([
+                    'user_id' => 1,
                     'type_id' => 2,
                     'timeline_id' => $timeline_id,
-                    'book_id' => $i,
+                    'book_id' => $book->id,
                     'created_at' => now(),
                     'updated_at' => now(),
-                ];
-                $media[] = [
-                    'user_id' => $user_id,
-                    'book_id' => $i,
-                    'media' => $this->getRandomMediaFileName(),
-                    'type' => 'image',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+                ]);
             }
-            Post::insert($posts);
-            Media::insert($media);
-            Book::factory(50)->create();
-        });
+            $firstline = false;
+        }
+
+        fclose($csvFile);
     }
 }
