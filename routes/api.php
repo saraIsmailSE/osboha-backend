@@ -43,7 +43,7 @@ use App\Http\Controllers\Api\PostTypeController;
 use App\Http\Controllers\Api\ThesisTypeController;
 use App\Http\Controllers\Api\TimelineTypeController;
 use App\Http\Controllers\Api\RejectedThesesController;
-use App\Http\Controllers\api\WeekController;
+use App\Http\Controllers\Api\WeekController;
 use App\Http\Controllers\Api\MessagesController;
 use App\Http\Controllers\Api\ModificationReasonController;
 use App\Http\Controllers\Api\ModifiedThesesController;

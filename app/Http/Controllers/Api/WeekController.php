@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
