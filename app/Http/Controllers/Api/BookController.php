@@ -387,7 +387,7 @@ class BookController extends Controller
     }
     public function latest()
     {
-        $books = Book::latest()->limit(3)->get();
+        $books = Book::latest()->first();
         if ($books) {
             return $this->jsonResponseWithoutMessage($books, 'data', 200);
         } else {

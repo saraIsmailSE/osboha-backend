@@ -25,16 +25,21 @@ class TypeSectionSeeder extends Seeder
     {
         //SECTIONS
         $sections = [
-            ['section' => 'علمي', 'created_at' => now(), 'updated_at' => now()],
-            ['section' => 'تاريخي', 'created_at' => now(), 'updated_at' => now()],
-            ['section' => 'ديني', 'created_at' => now(), 'updated_at' => now()],
-            ['section' => 'سياسي', 'created_at' => now(), 'updated_at' => now()],
-            ['section' => 'انجليزي', 'created_at' => now(), 'updated_at' => now()],
-            ['section' => 'ثقافي', 'created_at' => now(), 'updated_at' => now()],
-            ['section' => 'تربوي', 'created_at' => now(), 'updated_at' => now()],
             ['section' => 'تنمية', 'created_at' => now(), 'updated_at' => now()],
-            ['section' => 'سيرة', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'فكري', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'تربية', 'created_at' => now(), 'updated_at' => now()],
             ['section' => 'اجتماعي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'تاريخي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'أدبي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'سياسي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'علمي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'ديني', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'إقتصادي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'عسكري', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'سير الصحابة', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'انجليزي', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'خيال علمي / أطفال', 'created_at' => now(), 'updated_at' => now()],
+            ['section' => 'انجليزي', 'created_at' => now(), 'updated_at' => now()],
         ];
 
         Section::insert($sections);
