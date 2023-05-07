@@ -39,7 +39,7 @@ use App\Http\Controllers\Api\{
     UserGroupController,
     RoomController,
     SectionController,
-    BooktypeController,
+    //BooktypeController,
     ExceptionTypeController,
     GroupTypeController,
     MediaController,
@@ -461,13 +461,13 @@ Route::group(['prefix' => 'v1'], function () {
         ######## Section ########
 
         ######## Book-Type ########
-        Route::group(['prefix' => 'book-type'], function () {
-            Route::get('/', [BookTypeController::class, 'index']);
-            Route::post('/create', [BookTypeController::class, 'create']);
-            Route::post('/show', [BookTypeController::class, 'show']);
-            Route::post('/update', [BookTypeController::class, 'update']);
-            Route::post('/delete', [BookTypeController::class, 'delete']);
-        });
+        // Route::group(['prefix' => 'book-type'], function () {
+        //     Route::get('/', [BookTypeController::class, 'index']);
+        //     Route::post('/create', [BookTypeController::class, 'create']);
+        //     Route::post('/show', [BookTypeController::class, 'show']);
+        //     Route::post('/update', [BookTypeController::class, 'update']);
+        //     Route::post('/delete', [BookTypeController::class, 'delete']);
+        // });
         ######## Book-Type ########
 
         ######## Exception-Type ########
