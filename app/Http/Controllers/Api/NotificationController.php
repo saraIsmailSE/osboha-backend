@@ -30,6 +30,8 @@ class NotificationController extends Controller
 
         if (!defined('ADVISOR_EXCEPTIONS')) define('ADVISOR_EXCEPTIONS', 'advisor_exceptions');
 
+        if (!defined('ADMIN_EXCEPTIONS')) define('ADMIN_EXCEPTIONS', 'admin_exceptions');
+
         if (!defined('GROUPS')) define('GROUPS', 'groups');
 
         if (!defined('GROUP_POSTS')) define('GROUP_POSTS', 'group_posts');

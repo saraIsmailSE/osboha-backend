@@ -90,8 +90,9 @@ class PostController extends Controller
                             ['group_id', $group->id],
                             ['user_type', "leader"]
                         ])->first();
-                        $msg = "يوجد منشور جديد في المجموعة ( " . $group->name . " ) يحتاج موافقة ";
-                        $notification->sendNotification($leader->user_id, $msg, GROUP_POSTS); //notification-edit
+                        $pending_msg = "لقد نشر " . Auth::user()->name . " منشور في المجموعة " . $group->name . " يحتاج موافقة";
+                        $pending_userId = $leader->user_id;
+                        $pending_type = GROUP_POSTS;
                     }
                 } elseif ($timeline_type == 'profile') { //timeline type => profile
                     if ($timeline->profile->user_id != Auth::id()) { // post in another profile
@@ -103,11 +104,16 @@ class PostController extends Controller
                         ) {
 
                             $input['is_approved'] = null;
-                            $msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية يحتاج موافقة';
+
+                            $pending_msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية يحتاج موافقة';
+                            $pending_userId = $timeline->profile->user_id;
+                            $pending_type = PROFILE_POSTS;
                         } else {
-                            $msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية';
+                            $pending_msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية';
+                            $pending_userId = $timeline->profile->user_id;
+                            $pending_type = PROFILE_POSTS;
                         }
-                        $notification->sendNotification($timeline->profile->user_id, $msg, PROFILE_POSTS); //notification-edit
+                        $pending_path = $this->getProfilePath($timeline->profile->user_id);
                     }
                 } else { //timeline type => book || news || main (1-2-3)        
                     //only supervisors and above are allowed to create announcements
@@ -125,6 +131,13 @@ class PostController extends Controller
                 }
 
                 $post = Post::create($input);
+
+                if ($pending_msg) {
+                    if ($pending_type === GROUP_POSTS) {
+                        $pending_path = $pending_path = $this->getPendingPostsPath($group->timeline_id, $post->id);
+                    }
+                    $notification->sendNotification($pending_userId, $pending_msg, $pending_type, $pending_path);
+                }
 
                 if ($request->has('tags')) {
                     foreach ($request->tags as $tag) {
@@ -610,16 +623,13 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function acceptPost(Request $request)
+    public function acceptPost($post_id)
     {
-        $validator = Validator::make($request->all(), [
-            'post_id' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        $post = Post::find($post_id);
+        if (!$post) {
+            throw new NotFound;
         }
 
-        $post = Post::find($request->post_id);
         if ($post->is_approved == Null) {
             $post->is_approved = now();
             $post->update();
@@ -638,18 +648,16 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function declinePost(Request $request)
+    public function declinePost($post_id)
     {
-        $validator = Validator::make($request->all(), [
-            'post_id' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        $post = Post::find($post_id);
+
+        if (!$post) {
+            throw new NotFound;
         }
 
-        $post = Post::find($request->post_id);
         if ($post->is_approved == Null) {
-            $this->delete($request->post_id);
+            $this->delete($post_id);
             $msg = "تم رفض منشورك وحذفه من قبل " . Auth::user()->name;
 
             $path = "";
@@ -820,5 +828,90 @@ class PostController extends Controller
         } else {
             return $this->jsonResponseWithoutMessage(null, 'data', 200);
         }
+    }
+
+    /**
+     * Get pending posts by timeline id and post id if exists
+     * @param Int $timeline_id
+     * @param Int $post_id
+     * @return JsonResponse
+     */
+    public function getPendingPosts($timeline_id, $post_id = null)
+    {
+        //check if timeline exists        
+        $timeline = Timeline::find($timeline_id);
+        if (!$timeline) {
+            throw new NotFound;
+        }
+
+        //check if timeline is profile or group
+        $timeline_type = $timeline->type->type;
+        if ($timeline_type != 'profile' && $timeline_type != 'group') {
+            throw new NotFound;
+        }
+
+        //check if user can view pending posts
+        //if profile check if user is the owner of the profile
+        //if group check if user is a leader or above
+        if ($timeline_type == 'profile') {
+            if (Auth::id() != $timeline->profile->user_id) {
+                throw new NotAuthorized;
+            }
+        } else {
+            if (!Auth::user()->hasAnyRole(['leader', 'admin', 'supervisor', 'advisor', 'consultant'])) {
+                throw new NotAuthorized;
+            }
+        }
+
+        //check if post exists
+        if ($post_id) {
+            $post = Post::where([
+                ['timeline_id', $timeline_id],
+                ['id', $post_id]
+            ])
+                ->withCount('comments')
+                ->with('user')
+                ->withCount('pollVotes')
+                ->with('taggedUsers.user')
+
+                ->with('timeline', function ($query) {
+                    $query->with('profile.user')->with('group')->with('type');
+                })
+                ->first();
+            if (!$post) {
+                throw new NotFound;
+            } else {
+                return $this->jsonResponseWithoutMessage([
+                    'posts' => [new PostResource($post)],
+                ], 'data', 200);
+            }
+        }
+
+        //get pending posts
+        $posts = Post::where([
+            ['timeline_id', $timeline_id],
+            ['is_approved', null]
+        ])
+            ->withCount('comments')
+            ->with('user')
+            ->withCount('pollVotes')
+            ->with('taggedUsers.user')
+
+            ->with('timeline', function ($query) {
+                $query->with('profile.user')->with('group')->with('type');
+            })
+            ->latest()
+            ->get();
+
+        // ->paginate(25);
+
+        if ($posts->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'posts' => PostResource::collection($posts),
+                // 'total' => $posts->total(),
+                // 'last_page' => $posts->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 }
