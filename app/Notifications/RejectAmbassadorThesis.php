@@ -23,7 +23,7 @@ class RejectAmbassadorThesis extends Notification
         $this->name = $name;
         $this->reason = $reason;
 
-        $this->url = env('FRONT_URL') . '/book/user-single-thesis/' . $book_id . '/' . $thesis_id;
+        $this->url = config('constants.FRONT_URL') . '/book/user-single-thesis/' . $book_id . '/' . $thesis_id;
     }
 
     /**

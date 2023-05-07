@@ -21,7 +21,7 @@ class MailAmbassadorDistribution extends Notification
     public function __construct($groupId)
     {
         $this->groupId = $groupId;
-        $this->url = env('FRONT_URL') . '/group/group-detail/' . $this->groupId;
+        $this->url = config('constants.FRONT_URL') . '/group/group-detail/' . $this->groupId;
     }
 
     /**

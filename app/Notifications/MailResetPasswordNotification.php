@@ -26,7 +26,7 @@ class MailResetPasswordNotification extends Notification
     public function __construct($token)
     {
         $this->token = $token;
-        $this->pageUrl = env('FRONT_URL') . '/auth/reset-password/';
+        $this->pageUrl = config('constants.FRONT_URL') . '/auth/reset-password/';
         $this->timer = config('auth.passwords.users.expire');
     }
 

@@ -56,7 +56,7 @@ class MailExceptionFinished extends Notification
             ->line('جدد النية،')
             ->line('وفقك الله.')
             ->line('')
-            ->action('أصبوحة 180', env('FRONT_URL'));
+            ->action('أصبوحة 180', config('constants.FRONT_URL'));
     }
 
     /**
