@@ -21,7 +21,7 @@ class MailSupportPost extends Notification
     public function __construct($name)
     {
         $this->name = $name;
-        $this->url = env('FRONT_URL') . '/post/post_id';
+        $this->url = 'https://www.platform.osboha180.com' . '/post/post_id';
     }
 
     /**

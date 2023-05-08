@@ -235,7 +235,10 @@ class BookController extends Controller
      */
     public function bookByType($type_id)
     {
-        $books = Book::where('type_id', $type_id)->get();
+        $books = Book::where('type_id', $type_id)->with(['userBooks' => function ($query) {
+            $query->where('user_id', Auth::user()->id);
+        }])
+        ->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -257,7 +260,10 @@ class BookController extends Controller
             throw new NotFound;
         }
 
-        $books = Book::where('level_id', $level_id)->paginate(9);
+        $books = Book::where('level_id', $level_id)->with(['userBooks' => function ($query) {
+            $query->where('user_id', Auth::user()->id);
+        }])
+        ->paginate(9);
 
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
@@ -304,7 +310,11 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('name', 'LIKE', '%' . $request->name . '%')->paginate(9);
+        $books = Book::where('name', 'LIKE', '%' . $request->name . '%')
+        ->with(['userBooks' => function ($query) {
+            $query->where('user_id', Auth::user()->id);
+        }])
+        ->paginate(9);
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
                 [
@@ -330,7 +340,11 @@ class BookController extends Controller
         $language_id = Language::where('language', $language)->pluck('id')->first();
 
         if ($language_id) {
-            $books = Book::where('language_id', $language_id)->paginate(9);
+            $books = Book::where('language_id', $language_id)
+            ->with(['userBooks' => function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            }])
+            ->paginate(9);
             if ($books->isNotEmpty()) {
                 return $this->jsonResponseWithoutMessage(
                     [
@@ -350,7 +364,10 @@ class BookController extends Controller
 
     public function getRecentAddedBooks()
     {
-        $books = Book::orderBy('created_at', 'desc')->take(9)->get();
+        $books = Book::with(['userBooks' => function ($query) {
+            $query->where('user_id', Auth::user()->id);
+        }])
+        ->orderBy('created_at', 'desc')->take(9)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -362,6 +379,9 @@ class BookController extends Controller
     {
         $books = Book::select('books.*', DB::raw('count(*) as total'))
             ->with('theses')
+            ->with(['userBooks' => function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            }])    
             ->groupBy('book_id')
             ->groupBy('user_id')
             ->orderBy('total', 'desc')
@@ -377,7 +397,10 @@ class BookController extends Controller
 
     public function getRandomBook()
     {
-        $books = Book::all();
+        $books = Book::with(['userBooks' => function ($query) {
+            $query->where('user_id', Auth::user()->id);
+        }])    
+        ->get();
         $randomBook = $books->random();
         if ($randomBook) {
             return $this->jsonResponseWithoutMessage(new BookResource($randomBook), 'data', 200);

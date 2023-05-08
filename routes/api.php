@@ -3,53 +3,56 @@
 use App\Events\NotificationsEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ActivityController;
-use App\Http\Controllers\Api\ArticleController;
-use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Api\Auth\EmailVerificationController;
-use App\Http\Controllers\Api\BookController;
-use App\Http\Controllers\Api\BookStatisticsController;
-use App\Http\Controllers\Api\PostController;
-use App\Http\Controllers\Api\PollVoteController;
-use App\Http\Controllers\Api\RateController;
-use App\Http\Controllers\Api\ReactionController;
-use App\Http\Controllers\Api\LeaderRequestController;
-use App\Http\Controllers\Api\HighPriorityRequestController;
-use App\Http\Controllers\Api\SystemIssueController;
-use App\Http\Controllers\Api\TransactionController;
-use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\MarkController;
-use App\Http\Controllers\Api\AuditMarkController;
-use App\Http\Controllers\Api\RejectedMarkController;
-use App\Http\Controllers\Api\UserExceptionController;
-use App\Http\Controllers\Api\GroupController;
-use App\Http\Controllers\Api\InfographicController;
-use App\Http\Controllers\Api\InfographicSeriesController;
-use App\Http\Controllers\Api\SocialMediaController;
-use App\Http\Controllers\Api\TimelineController;
-use App\Http\Controllers\Api\FriendController;
-use App\Http\Controllers\Api\UserProfileController;
-use App\Http\Controllers\Api\ProfileSettingController;
-use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\ThesisController;
-use App\Http\Controllers\Api\UserGroupController;
-use App\Http\Controllers\Api\RoomController;
-use App\Http\Controllers\Api\SectionController;
-use App\Http\Controllers\Api\BooktypeController;
-use App\Http\Controllers\Api\ExceptionTypeController;
-use App\Http\Controllers\Api\GroupTypeController;
-use App\Http\Controllers\Api\MediaController;
-use App\Http\Controllers\Api\PostTypeController;
-use App\Http\Controllers\Api\ThesisTypeController;
-use App\Http\Controllers\Api\TimelineTypeController;
-use App\Http\Controllers\Api\RejectedThesesController;
-use App\Http\Controllers\api\WeekController;
-use App\Http\Controllers\Api\MessagesController;
-use App\Http\Controllers\Api\ModificationReasonController;
-use App\Http\Controllers\Api\ModifiedThesesController;
-use App\Http\Controllers\Api\UserBookController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+
+use App\Http\Controllers\Api\{
+    ActivityController,
+    ArticleController,
+    Auth\AuthController,
+    Auth\EmailVerificationController,
+    BookController,
+    BookStatisticsController,
+    PostController,
+    PollVoteController,
+    RateController,
+    ReactionController,
+    LeaderRequestController,
+    HighPriorityRequestController,
+    SystemIssueController,
+    TransactionController,
+    CommentController,
+    MarkController,
+    AuditMarkController,
+    RejectedMarkController,
+    UserExceptionController,
+    GroupController,
+    InfographicController,
+    InfographicSeriesController,
+    SocialMediaController,
+    TimelineController,
+    FriendController,
+    UserProfileController,
+    ProfileSettingController,
+    NotificationController,
+    ThesisController,
+    UserGroupController,
+    RoomController,
+    SectionController,
+    //BooktypeController,
+    ExceptionTypeController,
+    GroupTypeController,
+    MediaController,
+    PostTypeController,
+    ThesisTypeController,
+    TimelineTypeController,
+    RejectedThesesController,
+    WeekController,
+    MessagesController,
+    ModificationReasonController,
+    ModifiedThesesController,
+    UserBookController
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -72,7 +75,9 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
-    Route::middleware('auth:sanctum', 'verified', 'isActive')->group(function () {
+
+    Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
+
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         Route::get('/myTEST', function () {
             $user = User::find(1);
@@ -457,13 +462,13 @@ Route::group(['prefix' => 'v1'], function () {
         ######## Section ########
 
         ######## Book-Type ########
-        Route::group(['prefix' => 'book-type'], function () {
-            Route::get('/', [BookTypeController::class, 'index']);
-            Route::post('/create', [BookTypeController::class, 'create']);
-            Route::post('/show', [BookTypeController::class, 'show']);
-            Route::post('/update', [BookTypeController::class, 'update']);
-            Route::post('/delete', [BookTypeController::class, 'delete']);
-        });
+        // Route::group(['prefix' => 'book-type'], function () {
+        //     Route::get('/', [BookTypeController::class, 'index']);
+        //     Route::post('/create', [BookTypeController::class, 'create']);
+        //     Route::post('/show', [BookTypeController::class, 'show']);
+        //     Route::post('/update', [BookTypeController::class, 'update']);
+        //     Route::post('/delete', [BookTypeController::class, 'delete']);
+        // });
         ######## Book-Type ########
 
         ######## Exception-Type ########

@@ -75,6 +75,7 @@ class PostController extends Controller
             $notification = new NotificationController();
 
             if (!empty($timeline)) {
+                $pending_msg =null;
                 $timeline_type = $timeline->type->type;
                 if ($timeline_type == 'group') { //timeline type => group
                     $group = Group::where('timeline_id', $timeline->id)->first();

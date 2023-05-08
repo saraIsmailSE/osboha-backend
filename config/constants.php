@@ -76,4 +76,6 @@ return [
         'consultant' => 'مستشار',
         'admin' => 'ادارة'
     ],
+    'FRONT_URL'=>'https://www.platform.osboha180.com',
+
 ];

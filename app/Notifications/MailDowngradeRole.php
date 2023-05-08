@@ -53,7 +53,7 @@ class MailDowngradeRole extends Notification
             ->line('')
             ->line('كل التوفيق والسداد في خطواتك،')
             ->line('بارك الله وقتك وعملك. 🌸')
-            ->action('أصبوحة 180', env('FRONT_URL'));
+            ->action('أصبوحة 180', 'https://www.platform.osboha180.com');
     }
 
     /**

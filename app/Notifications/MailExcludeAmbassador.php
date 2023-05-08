@@ -51,7 +51,7 @@ class MailExcludeAmbassador extends Notification
             ->line('بإمكانك العودة متى شئت وكنت على استعداد لمتابعة القراءة')
             ->line('')
             ->line('كل التوفيق والسداد في خطواتك،')
-            ->action('أصبوحة 180', env('FRONT_URL'));
+            ->action('أصبوحة 180', 'https://www.platform.osboha180.com');
     }
 
     /**

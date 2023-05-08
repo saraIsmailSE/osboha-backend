@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\api\WeekController;
+use App\Http\Controllers\Api\WeekController;
 use App\Models\Mark;
 use Illuminate\Console\Command;
 
