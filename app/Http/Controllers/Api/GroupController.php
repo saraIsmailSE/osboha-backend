@@ -103,7 +103,7 @@ class GroupController extends Controller
             $userGroup = UserGroup::create([
                 'user_id' => Auth::id(),
                 'group_id' => $group->id,
-                'user_type' => auth()->user()->roles()->orderBy('id', 'desc')->pluck('name')->first()
+                'user_type' => auth()->user()->roles()->pluck('name')->first()
 
             ]);
             $userGroup->save();
