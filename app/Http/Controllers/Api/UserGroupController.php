@@ -186,7 +186,7 @@ class UserGroupController extends Controller
                             return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . $arabicRole . ", يوجد " . $arabicRole . " في المجموعة", 'data', 200);
                         }
                     }
-                    if ($group->type->type = 'followup') {
+                    if ($group->type->type == 'followup') {
                         if ($role->name == 'ambassador') {
                             if ($group->groupLeader->isEmpty())
                                 return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة, لا يمكنك إضافة أعضاء", 'data', 200);
