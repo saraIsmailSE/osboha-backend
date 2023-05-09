@@ -237,7 +237,7 @@ class UserGroupController extends Controller
                         //else create or update the record
 
                         //check if the added member is a supervisor who is a leader in the same group, then create a new record
-                        if ($role->name === 'supervisor' && $group->groupLeader[0]->id === $user->id && $group->groupSupervisor->isEmpty()) {
+                        if ($role->name === 'supervisor' && ($group->groupLeader->isNotEmpty() && $group->groupLeader[0]->id === $user->id) && $group->groupSupervisor->isEmpty()) {
                             UserGroup::Create(
                                 [
                                     'user_id' => $user->id,
