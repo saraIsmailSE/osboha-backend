@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Http\Controllers\Api\WeekController;
 use App\Models\Week;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -23,6 +24,8 @@ class WeekSeeder extends Seeder
         //     ]);
         // }
 
-        Week::factory(10)->create();
+        // Week::factory(10)->create();
+
+        (new WeekController)->create();
     }
 }
