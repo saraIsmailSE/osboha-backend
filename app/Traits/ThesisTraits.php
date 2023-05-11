@@ -661,7 +661,7 @@ trait ThesisTraits
                 $user_book = UserBook::create([
                     'user_id' => $user_id,
                     'book_id' => $book_id,
-                    'status' => $book->end_page >= $thesis->end_page ? 'finished' : 'in progress',
+                    'status' => $thesis->end_page >= $book->end_page ? 'finished' : 'in progress',
                 ]);
             }
         } else {

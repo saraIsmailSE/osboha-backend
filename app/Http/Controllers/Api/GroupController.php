@@ -87,8 +87,8 @@ class GroupController extends Controller
 
 
         if (Auth::user()->can('create group')) {
-            
-            $timeLine_type= TimelineType::where('type','group')->first();
+
+            $timeLine_type = TimelineType::where('type', 'group')->first();
             $timeline = new Timeline;
 
             $timeline->type_id = $timeLine_type->id;
@@ -271,8 +271,10 @@ class GroupController extends Controller
         // $group = Group::with('users')->where('id', $group_id)->first();
         // $books = UserBook::whereIn('user_id', $group->pluck('id'))->get();
 
-        $users = UserGroup::where('group_id', $group_id)->pluck('user_id');
-        $books = UserBook::whereIn('user_id', $users)->get()->pluck('book');
+        $users = UserGroup::where('group_id', $group_id)->groupBy('user_id')->pluck('user_id');
+        $books = UserBook::whereIn('user_id', $users)
+            ->select('book_id')
+            ->groupBy('book_id')->get()->pluck('book');
         if ($books) {
             return $this->jsonResponseWithoutMessage(
                 BookResource::collection($books),

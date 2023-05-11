@@ -12,6 +12,7 @@ use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\UserExceptionResource;
+use App\Http\Resources\UserInfoResource;
 use App\Models\Friend;
 use App\Models\Group;
 use App\Models\Mark;
@@ -75,7 +76,11 @@ class UserProfileController extends Controller
             // profile friends
             $friends = $user->friends()->get();
             $friendsOf = $user->friendsOf()->get();
-            $profile['friends'] = $friends->merge($friendsOf);
+            $allfriends = $friends->merge($friendsOf);
+            //get 10 friends (just id and name)
+            $profile['friends'] = $allfriends->take(9)->map(function ($friend) {
+                return new UserInfoResource($friend);
+            });
 
             if ($user_id == Auth::id()) {
                 // user exceptions => displayed ONLY for Profile Owner
@@ -156,11 +161,18 @@ class UserProfileController extends Controller
         if ($profile) {
             $profile->update(
                 $request->only(
-                    'first_name_ar', 'middle_name_ar', 'last_name_ar',
-                    'country','resident','birthdate',
-                    'bio','fav_book','fav_writer',
-                    'fav_quote','fav_section'
-                    )
+                    'first_name_ar',
+                    'middle_name_ar',
+                    'last_name_ar',
+                    'country',
+                    'resident',
+                    'birthdate',
+                    'bio',
+                    'fav_book',
+                    'fav_writer',
+                    'fav_quote',
+                    'fav_section'
+                )
             );
             return $this->jsonResponseWithoutMessage("تم التحديث بنجاح", 'data', 200);
         } else {
