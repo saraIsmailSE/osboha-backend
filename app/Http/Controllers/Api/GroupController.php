@@ -88,10 +88,10 @@ class GroupController extends Controller
 
         if (Auth::user()->can('create group')) {
             
-            $timeLine_type= TimelineType::where('type','group')->plcuk('id')->first();
+            $timeLine_type= TimelineType::where('type','group')->first();
             $timeline = new Timeline;
 
-            $timeline->type_id = $timeLine_type;
+            $timeline->type_id = $timeLine_type->id;
             $timeline->save();
 
             $input['creator_id'] = Auth::id();
@@ -103,7 +103,7 @@ class GroupController extends Controller
             $userGroup = UserGroup::create([
                 'user_id' => Auth::id(),
                 'group_id' => $group->id,
-                'user_type' => auth()->user()->roles()->orderBy('id', 'desc')->pluck('name')->first()
+                'user_type' => auth()->user()->roles()->pluck('name')->first()
 
             ]);
             $userGroup->save();

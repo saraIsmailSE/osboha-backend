@@ -186,7 +186,7 @@ class UserGroupController extends Controller
                             return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . $arabicRole . ", يوجد " . $arabicRole . " في المجموعة", 'data', 200);
                         }
                     }
-                    if ($group->type->type = 'followup') {
+                    if ($group->type->type == 'followup') {
                         if ($role->name == 'ambassador') {
                             if ($group->groupLeader->isEmpty())
                                 return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة, لا يمكنك إضافة أعضاء", 'data', 200);
@@ -237,7 +237,7 @@ class UserGroupController extends Controller
                         //else create or update the record
 
                         //check if the added member is a supervisor who is a leader in the same group, then create a new record
-                        if ($role->name === 'supervisor' && $group->groupLeader[0]->id === $user->id && $group->groupSupervisor->isEmpty()) {
+                        if ($role->name === 'supervisor' && ($group->groupLeader->isNotEmpty() && $group->groupLeader[0]->id === $user->id) && $group->groupSupervisor->isEmpty()) {
                             UserGroup::Create(
                                 [
                                     'user_id' => $user->id,

@@ -152,10 +152,16 @@ class UserProfileController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-
         $profile = UserProfile::where('user_id', Auth::id());
         if ($profile) {
-            $profile->update($request->all());
+            $profile->update(
+                $request->only(
+                    'first_name_ar', 'middle_name_ar', 'last_name_ar',
+                    'country','resident','birthdate',
+                    'bio','fav_book','fav_writer',
+                    'fav_quote','fav_section'
+                    )
+            );
             return $this->jsonResponseWithoutMessage("تم التحديث بنجاح", 'data', 200);
         } else {
             throw new NotFound;
