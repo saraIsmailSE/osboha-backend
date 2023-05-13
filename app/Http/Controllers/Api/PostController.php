@@ -75,7 +75,7 @@ class PostController extends Controller
             $notification = new NotificationController();
 
             if (!empty($timeline)) {
-                $pending_msg =null;
+                $pending_msg = null;
                 $timeline_type = $timeline->type->type;
                 if ($timeline_type == 'group') { //timeline type => group
                     $group = Group::where('timeline_id', $timeline->id)->first();
@@ -344,8 +344,10 @@ class PostController extends Controller
                 $query->where('user_id', $user->id);
             })
             ->with('timeline', function ($query) {
-                $query->where('type_id', TimelineType::where('type', 'profile')->first()->id)
-                    ->with('profile.user')->with('type');
+                // $query->where('type_id', TimelineType::where('type', 'profile')->first()->id)
+                //     ->with('profile.user')->with('type');
+                $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
+                    ->with('profile.user')->with('group.groupAdministrators')->with('type');
             })
             ->latest()
             ->paginate(25);
@@ -367,8 +369,10 @@ class PostController extends Controller
                     $query->where('user_id', $user->id);
                 })
                 ->with('timeline', function ($query) {
-                    $query->where('type_id', TimelineType::where('type', 'profile')->first()->id)
-                        ->with('profile.user')->with('type');
+                    // $query->where('type_id', TimelineType::where('type', 'profile')->first()->id)
+                    //     ->with('profile.user')->with('type');
+                    $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
+                        ->with('profile.user')->with('group.groupAdministrators')->with('type');
                 })
                 ->orderBy('updated_at', 'desc')
                 ->first();
@@ -429,7 +433,7 @@ class PostController extends Controller
             })
             ->with('timeline', function ($query) {
                 $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
-                    ->with('profile.user')->with('group')->with('type');
+                    ->with('profile.user')->with('group.groupAdministrators')->with('type');
             })
             ->latest()
             ->paginate(25);
