@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TimelineResource extends JsonResource
+class CustomGroupResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,9 +16,9 @@ class TimelineResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->name,
             'type' => $this->type->type,
-            'user' => new UserInfoResource($this->whenLoaded('profile') ? $this->profile->user : null),
-            'group' => new CustomGroupResource($this->whenLoaded('group')),
+            'admins' => UserInfoResource::collection($this->whenLoaded('groupAdministrators')),
         ];
     }
 }
