@@ -20,6 +20,7 @@ class PostFactory extends Factory
 
         return [
             'body' =>  $this->faker->paragraph,
+            'timeline_id' => random_int(3, 181),
             'created_at' => $datetime,
             'updated_at' => $datetime
         ];

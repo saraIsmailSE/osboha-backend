@@ -23,6 +23,7 @@ use App\Models\PostType;
 use App\Models\TimelineType;
 use App\Models\Week;
 use App\Traits\PathTrait;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -295,25 +296,65 @@ class PostController extends Controller
         $post = Post::find($post_id);
         if ($post) {
             if (Auth::user()->can('delete post') || Auth::id() == $post->user_id) {
-                //check Media
-                $currentMedia = Media::where('post_id', $post->id)->get();
-                // if exist, delete
-                if ($currentMedia->isNotEmpty()) {
-                    foreach ($currentMedia as $media) {
-                        $this->deleteMedia($media->id, 'posts/' . $post->user_id);
-                    }
-                }
+                DB::beginTransaction();
 
-                //get tags
-                $tags = $post->taggedUsers;
-                //if exist, delete
-                if ($tags->isNotEmpty()) {
-                    foreach ($tags as $tag) {
-                        $tag->delete();
+                try {
+
+                    //check Media
+                    $currentMedia = $post->media;
+                    // if exist, delete
+                    if ($currentMedia->isNotEmpty()) {
+                        foreach ($currentMedia as $media) {
+                            $this->deleteMedia($media->id, 'posts/' . $post->user_id);
+                        }
                     }
+
+                    //get tags
+                    $tags = $post->taggedUsers;
+                    //if exist, delete
+                    if ($tags->isNotEmpty()) {
+                        foreach ($tags as $tag) {
+                            $tag->delete();
+                        }
+                    }
+
+                    //delete reactions
+                    $post->reactions()->delete();
+
+                    //delete comments and their media/reactions/replies/replies reactions
+                    $post->comments->each(function ($comment) {
+                        $comment->reactions()->delete();
+
+                        $media = $comment->media;
+                        if ($media) {
+                            $this->deleteMedia($media->id);
+                        }
+                    });
+
+                    $post->delete();
+
+                    DB::commit();
+
+                    if (Auth::id() !== $post->id) {
+                        $msg = "تم حذف منشورك  ";
+
+                        $path = null;
+                        if ($post->timeline->type->type === 'group') {
+                            $path = $this->getGroupPath($post->timeline->group->id);
+                            $msg .= "في المجموعة " . $post->timeline->group->name . " ";
+                        } else if ($post->timeline->type->type === 'profile') {
+                            $path = $this->getProfilePath($post->id);
+                            $msg .= "في صفحتك الشخصية ";
+                        }
+
+                        $msg .= "من قبل " . Auth::user()->name;
+                        (new NotificationController)->sendNotification($post->user_id, $msg, USER_POSTS, $path);
+                    }
+                    return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
                 }
-                $post->delete();
-                return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
             } else {
                 throw new NotAuthorized;
             }
