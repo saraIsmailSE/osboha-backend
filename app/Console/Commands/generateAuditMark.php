@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\Api\AuditMarkController;
 use Illuminate\Console\Command;
 
 class generateAuditMark extends Command
@@ -36,8 +37,9 @@ class generateAuditMark extends Command
      */
     public function handle()
     {
-       // Log::info("Hello" ); 
-        app()->call('App\Http\Controllers\Api\MarkController@generateAuditMarks');
-        \Log::info("Cron is working fine!");  
+        $controller = new AuditMarkController();
+        $controller->generateAuditMarks();
+
+        return 0;
     }
 }
