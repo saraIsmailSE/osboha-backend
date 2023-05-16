@@ -112,7 +112,7 @@ class UserExceptionController extends Controller
                         $exception['start_at'] = $current_week->created_at;
                         $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
                     } else {
-                        $exception['week_id'] =  $current_week->id + 1;
+                        $exception['week_id'] =  $current_week->id;
                         $exception['start_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
                         $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
                     }
@@ -302,6 +302,10 @@ class UserExceptionController extends Controller
             if ((Auth::id() == $userException->user_id) && ($userException->status == 'accepted' || $userException->status == 'pending')) {
                 $userException->status = 'cancelled';
                 $userException->save();
+                $current_week = Week::latest()->first();
+                Mark::where('week_id', $current_week->id)
+                    ->where('user_id', Auth::id())
+                    ->update(['is_freezed' => 0]);
                 return $this->jsonResponseWithoutMessage("تم الالغاء بنجاح", 'data', 200);
             } else {
                 throw new NotAuthorized;
