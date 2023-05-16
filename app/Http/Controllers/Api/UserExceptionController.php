@@ -69,6 +69,26 @@ class UserExceptionController extends Controller
 
         if ($request->type_id == $freezCurrentWeek->id || $request->type_id == $freezNextWeek->id) { // تجميد عادي - الاسبوع الحالي أو القادم 
             if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'admin'])) {
+
+                $last4WeeksFreeze = Mark::where('user_id', Auth::id())
+                    ->where('created_at', '<', $current_week->created_at)
+                    ->limit(4)
+                    ->pluck('is_freezed')
+                    ->toArray();
+
+                //for new users
+                if (count($last4WeeksFreeze) < 4) {
+                    return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا بعد 4 أسابيع من انضمامك للمشروع", 'data', 200);
+                }
+
+                //check if user freezed in last 4 weeks
+                foreach ($last4WeeksFreeze as $freezed) {
+                    if ($freezed) {
+                        return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا مرة كل 4 أسابيع", 'data', 200);
+                    }
+                }
+
+                $currentDate = Carbon::now()->format('Y-m-d');
                 $laseFreezing = UserException::where('user_id', Auth::id())
                     ->where('status', config('constants.ACCEPTED_STATUS'))
                     ->whereHas('type', function ($query) {
@@ -77,7 +97,6 @@ class UserExceptionController extends Controller
                     })->pluck('end_at')->first();
 
                 $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
-                $currentDate = Carbon::now()->format('Y-m-d');
 
                 // if (!$laseFreezing || $laseFreezing + 4 < $current_week->id) {
                 if (!$laseFreezing ||  $dateAfter4Weeks < $currentDate) {
@@ -87,6 +106,7 @@ class UserExceptionController extends Controller
 
                     if ($request->type_id == $freezCurrentWeek->id) {
                         Mark::where('week_id', $current_week->id)
+                            ->where('user_id', Auth::id())
                             ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
                         $exception['week_id'] =  $current_week->id;
                         $exception['start_at'] = $current_week->created_at;
@@ -369,6 +389,7 @@ class UserExceptionController extends Controller
                         if ($request->decision == 1) {
                             //اعفاء الأسبوع الحالي
                             Mark::where('week_id', $current_week->id)
+                                ->where('user_id', Auth::id())
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;
@@ -381,6 +402,7 @@ class UserExceptionController extends Controller
                         } else if ($request->decision == 3) {
                             //اعفاء لأسبوعين الحالي و القادم
                             Mark::where('week_id', $current_week->id)
+                                ->where('user_id', Auth::id())
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;
@@ -388,6 +410,7 @@ class UserExceptionController extends Controller
                         } else if ($request->decision == 4) {
                             //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
                             Mark::where('week_id', $current_week->id)
+                                ->where('user_id', Auth::id())
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;

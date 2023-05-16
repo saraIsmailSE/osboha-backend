@@ -20,6 +20,7 @@ use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
 use App\Models\ThesisType;
+use App\Models\Week;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -119,6 +120,12 @@ class CommentController extends Controller
 
                     //theses/book_id/user_id/
                     $folder_path = 'theses/' . $book->id . '/' . Auth::id();
+
+                    //check if theses folder exists
+                    if (!file_exists(public_path('assets/images/' . $folder_path))) {
+                        mkdir(public_path('assets/images/' . $folder_path), 0777, true);
+                    }
+
                     if (!$request->has('body')) {
                         $this->createMedia($request->screenShots[0], $comment->id, 'comment', $folder_path);
                         $comment->type = 'screenshot';
@@ -155,7 +162,12 @@ class CommentController extends Controller
             if ($request->hasFile('image')) {
                 // if comment has media
                 // upload media
-                $this->createMedia($request->file('image'), $comment->id, 'comment', 'comments/' . Auth::id());
+                $folder_path = 'comments/' . Auth::id();
+                if (!file_exists(public_path('assets/images/' . $folder_path))) {
+                    mkdir(public_path('assets/images/' . $folder_path), 0777, true);
+                }
+
+                $this->createMedia($request->file('image'), $comment->id, 'comment', $folder_path);
             }
 
             DB::commit();
@@ -420,6 +432,14 @@ class CommentController extends Controller
 
                 try {
                     if ($comment->type == "thesis" || $comment->type == "screenshot") {
+
+                        $currentWeek = Week::latest()->first();
+                        $thesis = Thesis::where('comment_id', $comment->id)->first();
+
+                        if ($thesis->week_id < $currentWeek->id) {
+                            return $this->jsonResponseWithoutMessage('لقد انتهى الوقت, لا يمكنك حذف الأطروحة', 'data', 500);
+                        }
+
                         $thesis['comment_id'] = $comment->id;
                         /**asmaa */
                         //delete the screenshots
@@ -452,22 +472,16 @@ class CommentController extends Controller
                     //delete replies reactions
                     $replies->each(function ($reply) {
                         $reply->reactions()->delete();
-                    });
 
-                    //delete replies media
-                    $replies->each(function ($reply) {
+                        //delete replies media
                         if ($reply->media) {
-
                             $this->deleteMedia($reply->media->id);
                         }
-                    });
 
-                    //delete replies
-                    $replies->each(function ($reply) {
+                        //delete replies
                         $reply->delete();
                     });
 
-                    echo 'replies pass';
                     $comment->delete();
 
                     DB::commit();

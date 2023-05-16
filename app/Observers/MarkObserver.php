@@ -41,6 +41,17 @@ class MarkObserver
                     $this->deleteMedia($item->id);
                 }
 
+                //delete replies
+                $thesisComment->replies()->each(function ($reply) {
+                    //delete media
+                    $media = Media::where('comment_id', $reply->id)->first();
+                    if ($media) {
+                        $this->deleteMedia($media->id);
+                    }
+
+                    $reply->delete();
+                });
+
                 $thesisComment->delete();
                 $thesis->delete();
                 $screenshotsComments->each(function ($screenshot) {

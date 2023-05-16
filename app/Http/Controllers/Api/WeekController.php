@@ -17,6 +17,7 @@ use App\Models\Post;
 use App\Models\PostType;
 use App\Models\UserGroup;
 use App\Notifications\MailExceptionFinished;
+use App\Notifications\MailExcludeAmbassador;
 use App\Traits\PathTrait;
 use App\Traits\ThesisTraits;
 use Carbon\Carbon;
@@ -32,6 +33,9 @@ use Illuminate\Support\Str;
 class WeekController extends Controller
 {
     use ResponseJson, ThesisTraits, PathTrait;
+
+    protected $excludedUsers = [];
+
     public function __construct()
     {
     }
@@ -48,6 +52,7 @@ class WeekController extends Controller
      */
     public function create()
     {
+        $this->excludedUsers = [];
         //get last three weeks ids
         $last_week_ids = $this->get_last_weeks_ids();
         // dd($last_week_ids);
@@ -62,6 +67,7 @@ class WeekController extends Controller
             $this->add_users_statistics($new_week_id);
             $this->add_marks_statistics($new_week_id);
             $this->openBooksComments();
+            $this->notifyExcludedUsers();
             $this->notifyUsersNewWeek();
 
             DB::commit();
@@ -69,7 +75,7 @@ class WeekController extends Controller
         } catch (\Exception $e) {
             // echo $e->getMessage();
             DB::rollBack();
-            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 200);
+            return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
     }
 
@@ -252,13 +258,13 @@ class WeekController extends Controller
         if ($marks) {
             $mark_last_week = $marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support;
             $mark_second_last_week = $marks[1]->reading_mark + $marks[1]->writing_mark + $marks[1]->support;
-            $mark_third_last_week = $marks[2]->reading_mark + $marks[2]->writing_mark + $marks[2]->support;
+            $mark_third_last_week = count($last_week_ids) > 2 ? $marks[2]->reading_mark + $marks[2]->writing_mark + $marks[2]->support : null;
 
             //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
             if (($mark_last_week !== 0) ||
                 ($mark_last_week === 0 && $mark_second_last_week > 0) ||
                 ($mark_last_week === 0 && $marks[1]->is_freezed && count($last_week_ids) <= 2) ||
-                ($mark_last_week === 0 && $marks[1]->is_freezed && count($last_week_ids) > 2 && $mark_third_last_week > 0)
+                ($mark_last_week === 0 && $marks[1]->is_freezed && $mark_third_last_week && $mark_third_last_week > 0)
             ) {
                 //insert new mark record
                 return $this->insert_mark_for_single_user($new_week_id, $user->id);
@@ -271,17 +277,20 @@ class WeekController extends Controller
                 if ($mark_second_last_week === 0) {
                     //execlude the user
                     $user->is_excluded = 1;
-                    $user = $user->save();
+                    $user->save();
+
+                    array_push($this->excludedUsers, $user->id);
                     event(new UpdateUserStats($user, $old_user));
                     return $user;
 
                     //check if the user has been freezed in the week before (2nd of last)
                 } else if (($marks[1]->is_freezed) and (count($last_week_ids) > 2)) {
-                    //check if the user mark is zero in  the week befor (3rd of last)
+                    //check if the user mark is zero in the week befor (3rd of last)
                     if ($mark_third_last_week === 0) {
                         //execlude the user
                         $user->is_excluded = 1;
                         $user = $user->save();
+                        array_push($this->excludedUsers, $user->id);
                         event(new UpdateUserStats($user, $old_user));
                         return $user;
                     }
@@ -308,8 +317,13 @@ class WeekController extends Controller
 
     public function add_marks_for_all_users($new_week_id, $last_week_ids)
     {
-        //get all the users and update their records if they are excluded
+        //get all the users and update their records if they are excluded (just ambassdors0)
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'ambassador');
+            })->whereDoesntHave('roles', function ($query) {
+                $query->where('name', '!=', 'ambassador');
+            })
             // ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
             ->orderBy('id')
             ->chunkByID(100, function ($users) use ($last_week_ids, $new_week_id) {
@@ -684,9 +698,42 @@ class WeekController extends Controller
                         $notification->sendNotification($user->id, $msg, NEW_WEEK);
                     }
                 } catch (\Exception $e) {
-
                     throw $e;
                 }
             });
+    }
+
+    /**
+     * Notify Excluded users and their leaders that they are excluded
+     * @return JsonResponse 
+     */
+    public function notifyExcludedUsers()
+    {
+        $notification = new NotificationController();
+
+        try {
+            $users = User::whereIn('id', $this->excludedUsers)->get();
+            $groups = UserGroup::whereIn('user_id', $this->excludedUsers)->where('user_type', 'ambassador')->whereNull('termination_reason')->get();
+
+            try {
+                DB::beginTransaction();
+                foreach ($groups as $group) {
+                    $group->termination_reason = 'excluded';
+                    $group->save();
+                }
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+                throw $e;
+            }
+
+            foreach ($users as $user) {
+                $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
+                $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
+                $user->notify(new MailExcludeAmbassador());
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 }
