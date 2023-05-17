@@ -285,7 +285,7 @@ class UserProfileController extends Controller
     {
         $response['week'] = Week::latest()->first();
         $group_id = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
-        $users = Group::with('users')->where('id', $group_id);
+        $users = Group::with('leaderAndAmbassadors')->where('id', $group_id);
         $response['group_week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users->pluck('id'))
             ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
             ->first()
