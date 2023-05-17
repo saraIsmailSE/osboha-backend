@@ -146,6 +146,7 @@ trait ThesisTraits
                 'total_pages'      => $mark_record->total_pages + $thesisTotalPages,
                 'total_thesis'     => $mark_record->total_thesis + $total_thesis,
                 'total_screenshot' => $mark_record->total_screenshot + $total_screenshots,
+                'is_freezed'       => 0,
             );
 
             $reading_mark = $mark_record->reading_mark;
