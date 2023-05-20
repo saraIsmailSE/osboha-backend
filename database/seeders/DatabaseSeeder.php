@@ -26,20 +26,21 @@ class DatabaseSeeder extends Seeder
         // $this->call(AuditTypeSeeder::class);
         // $this->call(BookSeeder::class);
         //$this->call(booksMediaSeeder::class);
+        $this->call(ModificationReasonSeeder::class);
 
         ######LOCAL#######
-        $this->call(PermissionsSeeder::class);
-        $this->call(TypeSectionSeeder::class); //contains all the types and sections
-        $this->call(TimelineSeeder::class);
-        $this->call(ReactionSeeder::class);
-        $this->call(BookStatisticsSeeder::class);
-        $this->call(AuditTypeSeeder::class);
-        $this->call(BookSeeder::class);
-        $this->call(booksMediaSeeder::class);
-        $this->call(GroupSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(WeekSeeder::class); //comment this out if you want to run the thesis seeder
-        $this->call(PostSeeder::class);
+        // $this->call(PermissionsSeeder::class);
+        // $this->call(TypeSectionSeeder::class); //contains all the types and sections
+        // $this->call(TimelineSeeder::class);
+        // $this->call(ReactionSeeder::class);
+        // $this->call(BookStatisticsSeeder::class);
+        // $this->call(AuditTypeSeeder::class);
+        // $this->call(BookSeeder::class);
+        // $this->call(booksMediaSeeder::class);
+        // $this->call(GroupSeeder::class);
+        // $this->call(UserSeeder::class);
+        // $this->call(WeekSeeder::class); //comment this out if you want to run the thesis seeder
+        // $this->call(PostSeeder::class);
 
         // $this->call(InfographicSeeder::class);
         // $this->call(InfographicSeriesSeeder::class);

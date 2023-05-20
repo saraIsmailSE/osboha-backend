@@ -319,11 +319,11 @@ class WeekController extends Controller
     {
         //get all the users and update their records if they are excluded (just ambassdors0)
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
-            ->whereHas('roles', function ($query) {
-                $query->where('name', 'ambassador');
-            })->whereDoesntHave('roles', function ($query) {
-                $query->where('name', '!=', 'ambassador');
-            })
+            // ->whereHas('roles', function ($query) {
+            //     $query->where('name', 'ambassador');
+            // })->whereDoesntHave('roles', function ($query) {
+            //     $query->where('name', '!=', 'ambassador');
+            // })
             // ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
             ->orderBy('id')
             ->chunkByID(100, function ($users) use ($last_week_ids, $new_week_id) {

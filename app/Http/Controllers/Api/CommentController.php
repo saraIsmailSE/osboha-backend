@@ -436,7 +436,7 @@ class CommentController extends Controller
                         $currentWeek = Week::latest()->first();
                         $thesis = Thesis::where('comment_id', $comment->id)->first();
 
-                        if ($thesis->week_id < $currentWeek->id) {
+                        if ($thesis->mark->week_id < $currentWeek->id) {
                             return $this->jsonResponseWithoutMessage('لقد انتهى الوقت, لا يمكنك حذف الأطروحة', 'data', 500);
                         }
 
