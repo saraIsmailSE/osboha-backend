@@ -29,19 +29,19 @@ class ModificationReasonSeeder extends Seeder
             ]);
         }
 
-        $advisor_reasons = [
-            'Thesis is correct',
-            'Thesis is complete',
-            'Thesis is not complete',
-            'Thesis is not correct',
-            'Other'
-        ];
+        // $advisor_reasons = [
+        //     'Thesis is correct',
+        //     'Thesis is complete',
+        //     'Thesis is not complete',
+        //     'Thesis is not correct',
+        //     'Other'
+        // ];
 
-        foreach ($advisor_reasons as $reason) {
-            ModificationReason::create([
-                'reason' => $reason,
-                'level' => 'advisor'
-            ]);
-        }
+        // foreach ($advisor_reasons as $reason) {
+        //     ModificationReason::create([
+        //         'reason' => $reason,
+        //         'level' => 'advisor'
+        //     ]);
+        // }
     }
 }
