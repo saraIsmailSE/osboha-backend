@@ -255,45 +255,50 @@ class WeekController extends Controller
             ->orderBy('week_id', 'desc')
             ->get();
 
-        if ($marks) {
-            $mark_last_week = $marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support;
-            $mark_second_last_week = $marks[1]->reading_mark + $marks[1]->writing_mark + $marks[1]->support;
-            $mark_third_last_week = count($last_week_ids) > 2 ? $marks[2]->reading_mark + $marks[2]->writing_mark + $marks[2]->support : null;
+        if (count($marks) < 2) {
+            return $this->insert_mark_for_single_user($new_week_id, $user->id);
+        }
 
-            //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
-            if (($mark_last_week !== 0) ||
-                ($mark_last_week === 0 && $mark_second_last_week > 0) ||
-                ($mark_last_week === 0 && $marks[1]->is_freezed && count($last_week_ids) <= 2) ||
-                ($mark_last_week === 0 && $marks[1]->is_freezed && $mark_third_last_week && $mark_third_last_week > 0)
-            ) {
-                //insert new mark record
-                return $this->insert_mark_for_single_user($new_week_id, $user->id);
-            }
+        $mark_last_week = $marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support;
+        $mark_second_last_week = count($last_week_ids) > 1 ? ($marks[1]->reading_mark + $marks[1]->writing_mark + $marks[1]->support) : null;
+        $mark_third_last_week = count($last_week_ids) > 2 ?
+            ($marks[2]->reading_mark + $marks[2]->writing_mark + $marks[2]->support)
+            : null;
+        $second_last_week_freezed = count($last_week_ids) > 1 ? $marks[1]->is_freezed : null;
 
-            $old_user = $user->getOriginal();
-            //check if the mark of the last week is zero
-            if ($mark_last_week === 0) {
-                //check if the mark of the week before is zero (2nd of last)
-                if ($mark_second_last_week === 0) {
+        //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
+        if (($mark_last_week !== 0) ||
+            ($mark_last_week === 0 && $mark_second_last_week && $mark_second_last_week > 0) ||
+            ($mark_last_week === 0 &&  $second_last_week_freezed && count($last_week_ids) <= 2) ||
+            ($mark_last_week === 0 && $second_last_week_freezed  && $mark_third_last_week && $mark_third_last_week > 0)
+        ) {
+            //insert new mark record
+            return $this->insert_mark_for_single_user($new_week_id, $user->id);
+        }
+
+        $old_user = $user->getOriginal();
+        //check if the mark of the last week is zero
+        if ($mark_last_week === 0) {
+            //check if the mark of the week before is zero (2nd of last)
+            if ($mark_second_last_week && $mark_second_last_week === 0) {
+                //execlude the user
+                $user->is_excluded = 1;
+                $user->save();
+
+                array_push($this->excludedUsers, $user->id);
+                event(new UpdateUserStats($user, $old_user));
+                return $user;
+
+                //check if the user has been freezed in the week before (2nd of last)
+            } else if ($second_last_week_freezed && count($last_week_ids) > 2) {
+                //check if the user mark is zero in the week befor (3rd of last)
+                if ($mark_third_last_week && $mark_third_last_week === 0) {
                     //execlude the user
                     $user->is_excluded = 1;
-                    $user->save();
-
+                    $user = $user->save();
                     array_push($this->excludedUsers, $user->id);
                     event(new UpdateUserStats($user, $old_user));
                     return $user;
-
-                    //check if the user has been freezed in the week before (2nd of last)
-                } else if (($marks[1]->is_freezed) and (count($last_week_ids) > 2)) {
-                    //check if the user mark is zero in the week befor (3rd of last)
-                    if ($mark_third_last_week === 0) {
-                        //execlude the user
-                        $user->is_excluded = 1;
-                        $user = $user->save();
-                        array_push($this->excludedUsers, $user->id);
-                        event(new UpdateUserStats($user, $old_user));
-                        return $user;
-                    }
                 }
             }
         } else {
