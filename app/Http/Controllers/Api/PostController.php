@@ -22,6 +22,8 @@ use App\Models\PollOption;
 use App\Models\PostType;
 use App\Models\TimelineType;
 use App\Models\Week;
+use App\Rules\base64OrImage;
+use App\Rules\base64OrImageMaxSize;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\DB;
 
@@ -262,18 +264,18 @@ class PostController extends Controller
                     $input['vote'] = serialize($request->vote);
                 }
 
-                if ($request->hasFile('image')) {
+                if ($request->has('image')) {
                     // if post has media
                     //check Media
                     $currentMedia = Media::where('post_id', $post->id)->first();
                     // if exists, update
                     if ($currentMedia) {
-                        $this->updateMedia($request->file('image'), $currentMedia->id);
+                        $this->updateMedia($request->image, $currentMedia->id);
                     }
                     //else create new one
                     else {
                         // upload media
-                        $this->createMedia($request->file('image'), $post->id, 'post');
+                        $this->createMedia($request->image, $post->id, 'post');
                     }
                 }
                 $post->update($input);
@@ -816,10 +818,11 @@ class PostController extends Controller
             'media' => 'required_without_all:body,votes|array',
             'media.*' => [
                 function ($attribute, $value, $fail) {
-                    //check if is it image
+                    //check if is it image (base64 or image)
+
                     $is_image = Validator::make(
                         ['upload' => $value],
-                        ['upload' => 'image|mimes:jpeg,png,jpg']
+                        ['upload' => new base64OrImage()]
                     )->passes();
 
                     //check if is it video
@@ -848,7 +851,7 @@ class PostController extends Controller
                     if ($is_image) {
                         $validator = Validator::make(
                             ['image' => $value],
-                            ['image' => "max:2048"]
+                            ['image' => new base64OrImageMaxSize(2 * 1024 * 1024)]
                         );
                         if ($validator->fails()) {
                             $fail(":attribute must be two megabytes or less.");

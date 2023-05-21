@@ -21,6 +21,8 @@ use App\Models\PostType;
 use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\Week;
+use App\Rules\base64OrImage;
+use App\Rules\base64OrImageMaxSize;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -62,8 +64,8 @@ class CommentController extends Controller
             'type' => 'required',
             //image is required only if the comment is not a thesis and has no body
             'image' => [
-                'image',
-                'mimes:jpeg,png,jpg,gif,svg|max:2048',
+                new base64OrImage(),
+                new base64OrImageMaxSize(2 * 1024 * 1024),
                 function ($attribute, $value, $fail) use ($request) {
                     if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
                         $fail('The image field is required.');
@@ -72,7 +74,7 @@ class CommentController extends Controller
             ],
             //screenshots have to be an array of images
             'screenShots' => 'array',
-            'screenShots.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'screenShots.*' => [new base64OrImage(), new base64OrImageMaxSize(2 * 1024 * 1024)],
             'start_page' => 'required_if:type,thesis|numeric',
             'end_page' => 'required_if:type,thesis|numeric',
         ]);
@@ -80,6 +82,7 @@ class CommentController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+
         $input = $request->all();
         $input['user_id'] = Auth::id();
         if (!$request->has('post_id')) {
@@ -140,6 +143,7 @@ class CommentController extends Controller
                             $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment', $folder_path);
                         }
                     } else {
+
                         //if the comment has a body, the screenshots will be added as replies with new comment created for each of them
                         for ($i = 0; $i < $total_screenshots; $i++) {
                             $media_comment = Comment::create([
@@ -159,7 +163,7 @@ class CommentController extends Controller
                 }]);
             }
 
-            if ($request->hasFile('image')) {
+            if ($request->has('image')) {
                 // if comment has media
                 // upload media
                 $folder_path = 'comments/' . Auth::id();
@@ -167,7 +171,7 @@ class CommentController extends Controller
                     mkdir(public_path('assets/images/' . $folder_path), 0777, true);
                 }
 
-                $this->createMedia($request->file('image'), $comment->id, 'comment', $folder_path);
+                $this->createMedia($request->image, $comment->id, 'comment', $folder_path);
             }
 
             DB::commit();
@@ -274,9 +278,9 @@ class CommentController extends Controller
         $validator = Validator::make($request->all(), [
             'body' => 'string',
             'u_comment_id' => 'required|numeric',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => [new base64OrImage(), new base64OrImageMaxSize(2 * 1024 * 1024)],
             'screenShots' => 'array',
-            'screenShots.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'screenShots.*' => [new base64OrImage(), new base64OrImageMaxSize(2 * 1024 * 1024)],
             'start_page' => 'numeric',
             'end_page' => 'numeric',
         ]);
@@ -284,7 +288,7 @@ class CommentController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $input = $request->all();
+        $input = $request->only(['body', 'image']);
         $comment = Comment::find($request->u_comment_id);
 
         if ($comment->type === 'thesis' || $comment->type === 'screenshot') {
@@ -296,7 +300,7 @@ class CommentController extends Controller
                 return $this->jsonResponseWithoutMessage('end page is required', 'data', 500);
             }
         } else {
-            if ((!$request->has('body') || !$request->body) && (!$request->hasFile('image'))) {
+            if ((!$request->has('body') || !$request->body) && (!$request->has('image'))) {
                 return $this->jsonResponseWithoutMessage('Body is required without image and vise versa', 'data', 500);
             }
         }
@@ -373,18 +377,18 @@ class CommentController extends Controller
                         $this->updateThesis($thesis);
                     }
 
-                    if ($request->hasFile('image')) {
+                    if ($request->has('image')) {
                         // if comment has media
                         //check Media
                         $currentMedia = Media::where('comment_id', $comment->id)->first();
                         // if exists, update
                         if ($currentMedia) {
-                            $this->updateMedia($request->file('image'), $currentMedia->id, 'comments/' . Auth::id());
+                            $this->updateMedia($request->image, $currentMedia->id, 'comments/' . Auth::id());
                         }
                         //else create new one
                         else {
                             // upload media
-                            $this->createMedia($request->file('image'), $comment->id, 'comment', 'comments/' . Auth::id());
+                            $this->createMedia($request->image, $comment->id, 'comment', 'comments/' . Auth::id());
                         }
                     }
 
