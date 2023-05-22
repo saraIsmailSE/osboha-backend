@@ -258,6 +258,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/listPindigExceptions', [UserExceptionController::class, 'listPindigExceptions']);
             Route::post('/addExceptions', [UserExceptionController::class, 'addExceptions']);
             Route::get('/finishedException', [UserExceptionController::class, 'finishedException']);
+            Route::get('/user-exceptions/{user_id}', [UserExceptionController::class, 'userExceptions']);
+            Route::get('/exceptions-filter/{filter}/{user_id}', [UserExceptionController::class, 'exceptionsFilter']);
+
         });
         ############End UserException########
 
