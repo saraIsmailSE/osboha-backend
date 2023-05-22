@@ -13,13 +13,26 @@ trait MediaTraits
     function createMedia($media, $type_id, $type, $folderPath = null)
     {
         try {
-            $imageName = rand(100000, 999999) . time() . '.' . $media->extension();
             $fullPath = 'assets/images' . ($folderPath ? '/' . $folderPath : '');
+            $imageName = rand(100000, 999999) . time() . '.';
+            if (is_string($media)) {
+                //base64 image
+                $image = $media;
+                $imageParts = explode(";base64,", $image);
+                $imageTypeAux = explode("image/", $imageParts[0]);
+                $imageType = $imageTypeAux[1];
+                $imageBase64 = base64_decode($imageParts[1]);
+                $imageName = $imageName . $imageType;
+                file_put_contents(public_path($fullPath . '/' . $imageName), $imageBase64);
+            } else {
+                //image file
+                $imageName = $imageName . $media->extension();
+                $media->move(public_path($fullPath), $imageName);
+            }
 
-            $media->move(public_path($fullPath), $imageName);
             // link media with comment
             $media = new Media();
-            $media->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
+            $media->media = $fullPath . '/' . $imageName;
             $media->type = 'image';
             $media->user_id = Auth::id();
             if ($type == 'comment') {
@@ -41,6 +54,7 @@ trait MediaTraits
                 return 'Type Not Found';
             }
             $media->save();
+            // dd($imageName);
             return $media;
         } catch (\Error $e) {
             report($e);

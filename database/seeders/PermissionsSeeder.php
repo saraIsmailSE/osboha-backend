@@ -172,6 +172,7 @@ class PermissionsSeeder extends Seeder
         $role2->givePermissionTo('delete announcement');
         $role2->givePermissionTo('create announcement');
         $role2->givePermissionTo('pin announcement');
+        $role2->givePermissionTo('audit mark');
 
         $role3->givePermissionTo('create post');
         $role3->givePermissionTo('delete post');
@@ -183,6 +184,7 @@ class PermissionsSeeder extends Seeder
         $role3->givePermissionTo('create RequestAmbassador');
         $role3->givePermissionTo('edit RequestAmbassador');
         $role3->givePermissionTo('create highPriorityRequestAmbassador');
+        $role3->givePermissionTo('audit mark');
 
         $role4->givePermissionTo('create post');
         $role4->givePermissionTo('delete post');
@@ -193,7 +195,7 @@ class PermissionsSeeder extends Seeder
         $role4->givePermissionTo('edit comment');
         $role4->givePermissionTo('create RequestAmbassador');
         $role4->givePermissionTo('edit RequestAmbassador');
-
+        $role4->givePermissionTo('audit mark');
 
         $role5->givePermissionTo('create post');
         $role5->givePermissionTo('delete post');
