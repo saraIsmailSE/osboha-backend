@@ -606,6 +606,7 @@ class GroupController extends Controller
                 DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
                 DB::raw('avg(reading_mark) as team_reading_mark'),
                 DB::raw('avg(writing_mark) as team_writing_mark'),
+                DB::raw('avg(support) as team_support_mark'),
                 DB::raw('sum(total_pages) as total_pages'),
                 DB::raw('sum(total_thesis) as total_thesis'),
                 DB::raw('sum(total_screenshot) as total_screenshot'),

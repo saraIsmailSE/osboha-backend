@@ -570,4 +570,59 @@ class UserExceptionController extends Controller
             return $this->jsonResponseWithoutMessage('all exception are alrady finished', 'data', 200);
         }
     }
+
+    /**
+     * List all exceptions for one user
+     *
+     * @param $user_id
+     * @return jsonResponseWithoutMessage
+     */
+
+    public function userExceptions($user_id)
+    {
+
+            $response['week'] = Week::latest()->first();
+            $response['exceptions'] = UserException::where('user_id', $user_id)->latest()->get();
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    /**
+     * Filter user exceptions.
+     * 
+     * @param  exception filter , user_id
+     * @return jsonResponseWithoutMessage
+     */
+    public function exceptionsFilter($filter, $user_id)
+    {
+
+        if ($filter == 'oldest') {
+            $exceptions = UserException::where('user_id', $user_id)->get();
+        } else if ($filter == 'latest') {
+            $exceptions = UserException::where('user_id', $user_id)->latest()->get();
+        } else if ($filter == 'freez') {
+            $exceptions = UserException::whereHas('type', function ($query) {
+                $query->where('type', 'تجميد الأسبوع الحالي')
+                    ->orWhere('type', 'تجميد الأسبوع القادم');
+            })->where('user_id', $user_id)->latest()->get();
+        } else if ($filter == 'exceptional_freez') {
+            $exceptions = UserException::whereHas('type', function ($query) {
+                $query->where('type', 'تجميد استثنائي');
+            })->where('user_id', $user_id)->latest()->get();
+        } else if ($filter == 'exams') {
+            $exceptions = UserException::whereHas('type', function ($query) {
+                $query->where('type', 'نظام امتحانات - شهري')
+                    ->orWhere('type', 'نظام امتحانات - فصلي');
+            })->where('user_id', $user_id)->latest()->get();
+        } else if ($filter == 'accepted') {
+            $exceptions = UserException::where('status', 'accepted')->where('user_id', $user_id)->latest()->get();
+        } else if ($filter == 'pending') {
+            $exceptions = UserException::where('status', 'pending')->where('user_id', $user_id)->latest()->get();
+        } else if ($filter == 'rejected') {
+            $exceptions = UserException::where('status', 'rejected')->where('user_id', $user_id)->latest()->get();
+        } else if ($filter == 'finished') {
+            $exceptions = UserException::where('status', 'finished')->where('user_id', $user_id)->latest()->get();
+        }
+
+        return $this->jsonResponseWithoutMessage($exceptions, 'data', 200);
+    }
 }
