@@ -32,7 +32,7 @@ trait MediaTraits
 
             // link media with comment
             $media = new Media();
-            $media->media = $fullPath . '/' . $imageName;
+            $media->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
             $media->type = 'image';
             $media->user_id = Auth::id();
             if ($type == 'comment') {
