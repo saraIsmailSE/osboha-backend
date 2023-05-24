@@ -351,8 +351,13 @@ class UserExceptionController extends Controller
     }
 
     /**
-     * To reject and accept userException
+     * Accept and Reject Exceptions
+     * This action affects Marks
+     * 
+     * @param $exception_id, Request  $request contains decision
+     * @return jsonResponseWithoutMessage;
      */
+
     public function updateStatus($exception_id, Request $request)
     {
         $input = $request->all();
@@ -372,9 +377,12 @@ class UserExceptionController extends Controller
             $monthlyExam = ExceptionType::where('type', config('constants.EXAMS_MONTHLY_TYPE'))->first();
             $FinalExam = ExceptionType::where('type', config('constants.EXAMS_SEASONAL_TYPE'))->first();
 
-            $user_group = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->first();
+            $owner_of_exception=User::find($userException->user_id);
+            $user_group = UserGroup::with("group")->where('user_id', $userException->user_id)->where('user_type', 'ambassador')->first();
+            
             $group = $user_group->group;
-            $leader_id = $group->user->parent_id;
+            //the head of owner_of_exception
+            $leader_id = $owner_of_exception->parent_id;
             $advisor_id = $group->groupAdvisor[0]->id;
 
             if ($userException->type_id == $exceptionalFreez->id) { //exceptional freezing

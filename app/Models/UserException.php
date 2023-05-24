@@ -21,15 +21,15 @@ class UserException extends Model
 
     ];
 
-    protected $with = array('type','user');
+    protected $with = array('type','user','reviewer');
 
     public function User()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,"user_id");
     }
     public function reviewer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,"reviewer_id");
     }
 
     public function Week()
