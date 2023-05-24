@@ -303,8 +303,8 @@ class GroupController extends Controller
 
         if ($userInGroup != 'ambassador') {
             $response['week'] = Week::latest()->first();
-            $response['group'] = Group::with('users')->where('id', $group_id)->first();
-            $response['exceptions'] = UserException::whereIn('user_id', $response['group']->users->pluck('id'))->latest()->get();
+            $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
+            $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->latest()->get();
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
             throw new NotAuthorized;
