@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
 use App\Models\Timeline;
-use App\Http\Resources\timelineResource ;
+use App\Http\Resources\TimelineResource;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -27,15 +27,15 @@ class TimelineController extends Controller
      */
     public function index()
     {
-        if(Auth::user()->can('list timelines')){
+        if (Auth::user()->can('list timelines')) {
             $timeline = Timeline::all();
-            if($timeline){
-                return $this->jsonResponseWithoutMessage(timelineResource::collection($timeline), 'data',200);
+            if ($timeline) {
+                return $this->jsonResponseWithoutMessage(timelineResource::collection($timeline), 'data', 200);
             } else {
                 throw new NotFound;
             }
         } else {
-           throw new NotAuthorized;   
+            throw new NotAuthorized;
         }
     }
     /**
@@ -45,7 +45,7 @@ class TimelineController extends Controller
      * @return jsonResponseWithoutMessage;
      */
     public function create(Request $request)
-    {   
+    {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'type_id' => 'required',
@@ -53,9 +53,9 @@ class TimelineController extends Controller
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        } 
+        }
 
-        if(Auth::user()->can('create timeline')){   
+        if (Auth::user()->can('create timeline')) {
             Timeline::create($request->all());
             return $this->jsonResponseWithoutMessage("Timeline Is Created Successfully", 'data', 200);
         } else {
@@ -78,8 +78,8 @@ class TimelineController extends Controller
         }
 
         $timeline = Timeline::find($request->timeline_id);
-        if($timeline){
-            return $this->jsonResponseWithoutMessage(new timelineResource($timeline), 'data',200);
+        if ($timeline) {
+            return $this->jsonResponseWithoutMessage(new timelineResource($timeline), 'data', 200);
         } else {
             throw new NotFound;
         }
@@ -102,9 +102,9 @@ class TimelineController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if(Auth::user()->can('edit timeline')){
+        if (Auth::user()->can('edit timeline')) {
             $timeline = Timeline::find($request->timeline_id);
-            if($timeline){
+            if ($timeline) {
                 $timeline->update($request->all());
                 return $this->jsonResponseWithoutMessage("Timeline Is Updated Successfully", 'data', 200);
             } else {
@@ -128,16 +128,16 @@ class TimelineController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        
-        if(Auth::user()->can('delete timeline')){   
+
+        if (Auth::user()->can('delete timeline')) {
             $timeline = Timeline::find($request->timeline_id);
-            if($timeline){
+            if ($timeline) {
                 foreach ($timeline->posts as $post) {
-                     if($post->type == "article"){
+                    if ($post->type == "article") {
                         $post->timeline_id = null;
-                     } else {
+                    } else {
                         $post->delete();
-                     }
+                    }
                 }
                 $timeline->delete();
                 return $this->jsonResponseWithoutMessage("Timeline Is Deleted Successfully", 'data', 200);
