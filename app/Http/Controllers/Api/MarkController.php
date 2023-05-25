@@ -362,7 +362,7 @@ class MarkController extends Controller
                             'supportError' => null
                         ];
                     } else {
-                        $response['support']['supportError'] = 'لم يتم نشر منشور الدعم بعد!';
+                        $response['support']['supportError'] = 'لم يتم نشر منشور اعرف مشروعك بعد!';
                     }
                     /*end support*/
                     return $this->jsonResponseWithoutMessage($response, 'data', 200);

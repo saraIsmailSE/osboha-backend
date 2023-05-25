@@ -405,9 +405,9 @@ class GroupController extends Controller
             $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
         }
 
-        $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
-        $marks['group_users'] = $marks['group']->leaderAndAmbassadors->count();
-        $marks['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id', $marks['group']->leaderAndAmbassadors->pluck('id'))->get();
+        $marks['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
+        $marks['group_users'] = $marks['group']->userAmbassador->count() +1;
+        $marks['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id', $marks['group']->userAmbassador->pluck('id'))->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
@@ -429,9 +429,9 @@ class GroupController extends Controller
             $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
         }
 
-        $response['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
-        $response['group_users'] = $response['group']->leaderAndAmbassadors->count();
-        $response['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id',  $response['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->get();
+        $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
+        $response['group_users'] = $response['group']->userAmbassador->count() +1;
+        $response['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id',  $response['group']->userAmbassador->pluck('id'))->orderBy('total_pages', 'desc')->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
