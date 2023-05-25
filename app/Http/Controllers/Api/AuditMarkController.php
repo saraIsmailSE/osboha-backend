@@ -334,8 +334,7 @@ class AuditMarkController extends Controller
 
     public function allSupervisorsForAdvisor($advisor_id)
     {
-        throw new NotAuthorized;
-
+        
         if ( !Auth::user()->hasRole('ambassador') || !Auth::user()->hasRole('leader')) {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get all groups ID for this advisor
