@@ -285,6 +285,8 @@ class WeekController extends Controller
                     //execlude the user
                     $user->is_excluded = 1;
                     $user->save();
+                    // $user->notify(new \App\Notifications\ExcludedUser());
+
 
                     array_push($this->excludedUsers, $user->id);
                     event(new UpdateUserStats($user, $old_user));
@@ -296,7 +298,7 @@ class WeekController extends Controller
                     if ($mark_third_last_week && $mark_third_last_week === 0) {
                         //execlude the user
                         $user->is_excluded = 1;
-                        $user = $user->save();
+                        $user->save();
                         array_push($this->excludedUsers, $user->id);
                         event(new UpdateUserStats($user, $old_user));
                         return $user;
