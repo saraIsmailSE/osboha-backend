@@ -61,10 +61,10 @@ class WeekController extends Controller
         try {
             //add new week to the system
             $new_week_id = $this->insert_week();
+            $this->add_users_statistics($new_week_id);
 
             $this->closeBooksAndSupportComments();
             $this->add_marks_for_all_users($new_week_id, $last_week_ids);
-            $this->add_users_statistics($new_week_id);
             $this->add_marks_statistics($new_week_id);
             $this->openBooksComments();
             $this->notifyExcludedUsers();
@@ -255,22 +255,22 @@ class WeekController extends Controller
             ->orderBy('week_id', 'desc')
             ->get();
 
-        if ($marks) {
+        if ($marks->isNotEmpty()) {
             if (count($marks) < 2) {
                 return $this->insert_mark_for_single_user($new_week_id, $user->id);
             }
 
             $mark_last_week = $marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support;
-            $mark_second_last_week = count($last_week_ids) > 1 ? ($marks[1]->reading_mark + $marks[1]->writing_mark + $marks[1]->support) : null;
-            $mark_third_last_week = count($last_week_ids) > 2 ?
+            $mark_second_last_week = count($marks) > 1 ? ($marks[1]->reading_mark + $marks[1]->writing_mark + $marks[1]->support) : null;
+            $mark_third_last_week = count($marks) > 2 ?
                 ($marks[2]->reading_mark + $marks[2]->writing_mark + $marks[2]->support)
                 : null;
-            $second_last_week_freezed = count($last_week_ids) > 1 ? $marks[1]->is_freezed : null;
+            $second_last_week_freezed = count($marks) > 1 ? $marks[1]->is_freezed : null;
 
             //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
             if (($mark_last_week !== 0) ||
                 ($mark_last_week === 0 && $mark_second_last_week && $mark_second_last_week > 0) ||
-                ($mark_last_week === 0 &&  $second_last_week_freezed && count($last_week_ids) <= 2) ||
+                ($mark_last_week === 0 &&  $second_last_week_freezed && count($marks) <= 2) ||
                 ($mark_last_week === 0 && $second_last_week_freezed  && $mark_third_last_week && $mark_third_last_week > 0)
             ) {
                 //insert new mark record
@@ -280,8 +280,8 @@ class WeekController extends Controller
             $old_user = $user->getOriginal();
             //check if the mark of the last week is zero
             if ($mark_last_week === 0) {
-                //check if the mark of the week before is zero (2nd of last)
-                if ($mark_second_last_week && $mark_second_last_week === 0) {
+                //check if the mark of the week before is zero (2nd of last)                
+                if (!is_null($mark_second_last_week) && $mark_second_last_week === 0) {
                     //execlude the user
                     $user->is_excluded = 1;
                     $user->save();
@@ -293,9 +293,9 @@ class WeekController extends Controller
                     return $user;
 
                     //check if the user has been freezed in the week before (2nd of last)
-                } else if ($second_last_week_freezed && count($last_week_ids) > 2) {
+                } else if ($second_last_week_freezed && count($marks) > 2) {
                     //check if the user mark is zero in the week befor (3rd of last)
-                    if ($mark_third_last_week && $mark_third_last_week === 0) {
+                    if (!is_null($mark_third_last_week) && $mark_third_last_week === 0) {
                         //execlude the user
                         $user->is_excluded = 1;
                         $user->save();
