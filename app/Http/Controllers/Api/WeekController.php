@@ -73,6 +73,9 @@ class WeekController extends Controller
             DB::commit();
             return $this->jsonResponseWithoutMessage('Marks added Successfully', 'data', 200);
         } catch (\Exception $e) {
+            Log::error("ERROR");
+            Log::error($e);
+
             // echo $e->getMessage();
             DB::rollBack();
             return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
@@ -285,6 +288,10 @@ class WeekController extends Controller
                     //execlude the user
                     $user->is_excluded = 1;
                     $user->save();
+                    $user->notify(
+                        (new \App\Notifications\MailExcludeAmbassador())
+                            ->delay(now()->addMinutes(3))
+                    );
                     // $user->notify(new \App\Notifications\ExcludedUser());
 
 
@@ -299,14 +306,17 @@ class WeekController extends Controller
                         //execlude the user
                         $user->is_excluded = 1;
                         $user->save();
+                        $user->notify(
+                            (new \App\Notifications\MailExcludeAmbassador())
+                                ->delay(now()->addMinutes(3))
+                        );
+    
                         array_push($this->excludedUsers, $user->id);
                         event(new UpdateUserStats($user, $old_user));
                         return $user;
                     }
                 }
             }
-        } else {
-            throw new NotFound;
         }
     }
 
@@ -739,7 +749,11 @@ class WeekController extends Controller
             foreach ($users as $user) {
                 $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
                 $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
-                $user->notify(new MailExcludeAmbassador());
+                // $user->notify(
+                //     (new \App\Notifications\MailExcludeAmbassador())
+                //         ->delay(now()->addMinutes(5))
+                // );
+
             }
         } catch (\Exception $e) {
             throw $e;
