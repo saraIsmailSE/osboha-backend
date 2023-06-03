@@ -14,6 +14,7 @@ use App\Models\Group;
 use App\Models\UserGroup;
 use App\Events\NewUserStats;
 use App\Http\Controllers\Api\NotificationController;
+use App\Models\Mark;
 use App\Models\Thesis;
 use App\Models\Timeline;
 use App\Models\TimelineType;
