@@ -75,6 +75,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
 
+    Route::get('/return-to-team', [AuthController::class, 'returnToTeam'])->middleware('auth:sanctum', 'verified');
+
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
 
@@ -217,6 +219,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
             Route::put('/accept-support/user/{user_id}', [MarkController::class, 'acceptSupport']);
             Route::put('/reject-support/user/{user_id}', [MarkController::class, 'rejectSupport']);
+            Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
+            
         });
         ########End Mark########
 

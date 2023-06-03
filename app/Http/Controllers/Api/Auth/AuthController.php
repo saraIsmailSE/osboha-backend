@@ -487,4 +487,31 @@ class AuthController extends Controller
             return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
         }
     }
+
+    /**
+     *return excluded member [FOR NOW].
+     * 
+     * @return jsonResponse;
+     */
+
+    public function returnToTeam()
+    {
+        //update is_excluded to 0
+        $user = User::Find(Auth::id());
+        $user->is_excluded = 0;
+        $user->save();
+        // update termination_reason to null
+        UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')
+            ->update([
+                'termination_reason' => null
+            ]);
+
+        $notification = new NotificationController();
+        $msg = 'قام السفير ' . $user->name . ' بالعودة إلى الفريق';
+        $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
+
+        return $this->jsonResponseWithoutMessage('تم التعديل بنجاح', 'data', 200);
+
+    }
 }
+
