@@ -49,6 +49,7 @@ class NotificationController extends Controller
         if (!defined('NEW_WEEK')) define('NEW_WEEK', 'new_week');
 
         if (!defined('EXCLUDED_USER')) define('EXCLUDED_USER', 'excluded_user');
+        if (!defined('SUPPORT_MARK')) define('SUPPORT_MARK', 'support_mark');
     }
     /**
      * Send notification to a specific user by its id with a message and insert it to the database.

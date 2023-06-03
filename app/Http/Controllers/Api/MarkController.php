@@ -20,12 +20,16 @@ use App\Models\Week;
 use App\Events\MarkStats;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\ReactionTypeResource;
+use App\Models\AssignSupport;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
+use App\Notifications\GeneralNotification;
 use App\Notifications\MailSupportPost;
 use App\Traits\PathTrait;
+use Illuminate\Support\Facades\Notification;
+
 
 class MarkController extends Controller
 {
@@ -429,6 +433,45 @@ class MarkController extends Controller
             } else {
                 throw new NotFound;
             }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+    /**
+     * set support mark for all active users
+     * @param Request $request -> reason 
+     * @return String;
+     */
+
+    public function setSupportMarkForAll(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'reason' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+
+        if (Auth::user()->hasRole('admin') || Auth::user()->hasRole('consultant')) {
+            $current_week = Week::latest()->pluck('id')->first();
+
+            AssignSupport::updateOrCreate(
+                ['week_id' => $current_week],
+                ['week_id' => $current_week, 'reason' => $request->reason, 'user_id' => Auth::id()]
+            );
+
+
+            Mark::where('week_id', $current_week)->update(['support' => 10]);
+            $sender = User::find(Auth::id()) ?? User::find(1);
+            $message = "تم اعتماد علامة اعرف مشروعك للجميع";
+            $users = User::where('is_excluded', 0)->get();
+            Notification::send($users, new GeneralNotification($sender, $message, 'SUPPORT_MARK'));
+
+            return $this->jsonResponseWithoutMessage("تم الاعتماد", 'data', 200);
+
         } else {
             throw new NotAuthorized;
         }

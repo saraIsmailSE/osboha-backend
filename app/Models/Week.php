@@ -22,4 +22,9 @@ class Week extends Model
     public function exception(){
         return $this->hasMany(UserException::class);
     }
+    public function assignSupport()
+    {
+        return $this->hasMany(AssignSupport::class);
+    }
+
 }

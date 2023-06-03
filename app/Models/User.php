@@ -68,6 +68,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(ProfileMedia::class);
     }
 
+    public function assignSupport()
+    {
+        return $this->hasMany(AssignSupport::class);
+    }
+
     public function parent()
     {
         return $this->belongsTo(User::class, 'parent_id');
