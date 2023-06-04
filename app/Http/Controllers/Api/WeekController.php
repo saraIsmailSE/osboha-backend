@@ -285,6 +285,22 @@ class WeekController extends Controller
             if ($mark_last_week === 0) {
                 //check if the mark of the week before is zero (2nd of last)                
                 if (!is_null($mark_second_last_week) && $mark_second_last_week === 0) {
+                    //check if not only ambassador
+                    if ($user->roles->count() > 1) {
+                        $lastRole = $user->roles->first();
+                        $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
+
+                        (new NotificationController)->sendNotification(
+                            $user->id,
+                            'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
+                            EXCLUDED_USER,
+                            $this->getProfilePath($user->id)
+                        );
+
+                        return $this->insert_mark_for_single_user($new_week_id, $user->id);
+                    }
+
+
                     //execlude the user
                     $user->is_excluded = 1;
                     $user->save();
@@ -303,6 +319,21 @@ class WeekController extends Controller
                 } else if ($second_last_week_freezed && count($marks) > 2) {
                     //check if the user mark is zero in the week befor (3rd of last)
                     if (!is_null($mark_third_last_week) && $mark_third_last_week === 0) {
+                        //check if not only ambassador
+                        if ($user->roles->count() > 1) {
+                            $lastRole = $user->roles->first();
+                            $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
+
+                            (new NotificationController)->sendNotification(
+                                $user->id,
+                                'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
+                                EXCLUDED_USER,
+                                $this->getProfilePath($user->id)
+                            );
+
+                            return $this->insert_mark_for_single_user($new_week_id, $user->id);
+                        }
+
                         //execlude the user
                         $user->is_excluded = 1;
                         $user->save();
@@ -310,7 +341,7 @@ class WeekController extends Controller
                             (new \App\Notifications\MailExcludeAmbassador())
                                 ->delay(now()->addMinutes(3))
                         );
-    
+
                         array_push($this->excludedUsers, $user->id);
                         event(new UpdateUserStats($user, $old_user));
                         return $user;
