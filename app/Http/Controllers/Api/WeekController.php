@@ -263,11 +263,9 @@ class WeekController extends Controller
                 return $this->insert_mark_for_single_user($new_week_id, $user->id);
             }
 
-            $mark_last_week = $marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support;
-            $mark_second_last_week = count($marks) > 1 ? ($marks[1]->reading_mark + $marks[1]->writing_mark + $marks[1]->support) : null;
-            $mark_third_last_week = count($marks) > 2 ?
-                ($marks[2]->reading_mark + $marks[2]->writing_mark + $marks[2]->support)
-                : null;
+            $mark_last_week = $marks[0]->reading_mark;
+            $mark_second_last_week = count($marks) > 1 ? ($marks[1]->reading_mark) : null;
+            $mark_third_last_week = count($marks) > 2 ? ($marks[2]->reading_mark) : null;
             $second_last_week_freezed = count($marks) > 1 ? $marks[1]->is_freezed : null;
 
             //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
