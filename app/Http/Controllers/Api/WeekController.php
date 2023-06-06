@@ -289,7 +289,7 @@ class WeekController extends Controller
                         $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
 
                         (new NotificationController)->sendNotification(
-                            $user->id,
+                            $user->parent_id,
                             'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
                             EXCLUDED_USER,
                             $this->getProfilePath($user->id)
@@ -323,7 +323,7 @@ class WeekController extends Controller
                             $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
 
                             (new NotificationController)->sendNotification(
-                                $user->id,
+                                $user->parent_id,
                                 'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
                                 EXCLUDED_USER,
                                 $this->getProfilePath($user->id)
