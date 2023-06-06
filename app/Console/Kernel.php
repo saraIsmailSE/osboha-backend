@@ -24,16 +24,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command('weekly:marks')->everyMinute(); //for testing - to be deleted
 
         //auditMark
-        $schedule->command('generate:auditMark')->weekly()->tuesdays()->at('09:30');
+        $schedule->command('generate:auditMark')->weekly()->tuesdays()->at('20:05');
 
         //finishedException 
-        $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
-
-
-        //auditMark
-        $schedule->command('generate:auditMark')
-            ->timezone('Asia/Riyadh')
-            ->weeklyOn(6, '6:00'); // every Sundy at 06:00 am (6 => Sundy)
+        // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
 
     }
 

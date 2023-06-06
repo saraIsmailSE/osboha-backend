@@ -302,7 +302,7 @@ class AuditMarkController extends Controller
 
     public function groupsAudit($supervisor_id)
     {
-        if ( !Auth::user()->hasRole('ambassador') || !Auth::user()->hasRole('leader')) {
+        if ( Auth::user()->hasanyrole('admin|supervisor')) {
             // get all groups for auth supervisor
             $groupsID = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')->pluck('group_id');
             $response['groups'] = Group::withCount('leaderAndAmbassadors')->whereIn('id', $groupsID)->without('Timeline')->get();
@@ -335,7 +335,7 @@ class AuditMarkController extends Controller
     public function allSupervisorsForAdvisor($advisor_id)
     {
         
-        if ( !Auth::user()->hasRole('ambassador') || !Auth::user()->hasRole('leader')) {
+        if ( Auth::user()->hasanyrole('admin|advisor')) {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get all groups ID for this advisor
             $groupsID = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->pluck('group_id');
