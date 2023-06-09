@@ -11,10 +11,11 @@ class AuditNotes extends Model
     protected $fillable = [
         'mark_for_audit_id',
         'from_id',
-        'to_id',
         'body',
         'status',
     ];
+
+    protected $with = array('from');
 
     public function mark()
     {
@@ -23,10 +24,6 @@ class AuditNotes extends Model
     public function from()
     {
         return $this->belongsTo(User::class ,'from_id');
-    }
-    public function to()
-    {
-        return $this->belongsTo(User::class ,'to_id');
     }
 
 

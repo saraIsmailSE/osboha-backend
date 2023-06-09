@@ -232,6 +232,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/update-mark-for-audit-status/{id}', [AuditMarkController::class, 'updateMarkForAuditStatus']);
             Route::get('/groups-audit/{supervisor_id}', [AuditMarkController::class, 'groupsAudit']);
             Route::get('/supervisors-audit/{advisor_id}', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
+            Route::post('/add-note', [AuditMarkController::class, 'addNote']);
+            Route::get('/get-notes/{mark_for_audit_id}', [AuditMarkController::class, 'getNotes']);
         });
         ######## End Audit Mark ########
         ########Modified Theses########

@@ -55,6 +55,10 @@ trait PathTrait
     {
         return 'exceptions/list-exception/' . $exception_id;
     }
+    function getAuditMarkPath($mark_for_audit_id)
+    {
+        return 'group/audit/mark/' . $mark_for_audit_id;
+    }
 
     function getPendingPostsPath($timeline_id, $post_id = null)
     {
