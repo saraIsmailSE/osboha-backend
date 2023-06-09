@@ -67,6 +67,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ProfileMedia::class);
     }
+    public function auditNotes()
+    {
+        return $this->hasMany(AuditNotes::class, 'from_id');
+    }
 
     public function assignSupport()
     {

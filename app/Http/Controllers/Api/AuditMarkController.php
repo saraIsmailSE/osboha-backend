@@ -20,15 +20,18 @@ use App\Exceptions\NotAuthorized;
 use App\Models\User;
 use App\Models\Week;
 use App\Events\MarkStats;
+use App\Models\AuditNotes;
 use App\Models\AuditType;
 use App\Models\MarksForAudit;
 use App\Models\Thesis;
 use App\Models\UserException;
 use Carbon\Carbon;
+use Throwable;
+use App\Traits\PathTrait;
 
 class AuditMarkController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson , PathTrait;
 
 
     /**
@@ -257,7 +260,7 @@ class AuditMarkController extends Controller
             $response['week'] = Week::where('id', $response['mark_for_audit']->auditMark->week_id)->first();
             $group_id = UserGroup::where('user_id', $response['mark_for_audit']->mark->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
             $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
-
+            $response['authorized'] = Auth::user()->hasanyrole('admin|consultant|supervisor|advisor');
             $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark_for_audit']->mark_id)->get();
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
@@ -302,7 +305,7 @@ class AuditMarkController extends Controller
 
     public function groupsAudit($supervisor_id)
     {
-        if ( Auth::user()->hasanyrole('admin|supervisor')) {
+        if (Auth::user()->hasanyrole('admin|supervisor|advisor')) {
             // get all groups for auth supervisor
             $groupsID = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')->pluck('group_id');
             $response['groups'] = Group::withCount('leaderAndAmbassadors')->whereIn('id', $groupsID)->without('Timeline')->get();
@@ -334,14 +337,14 @@ class AuditMarkController extends Controller
 
     public function allSupervisorsForAdvisor($advisor_id)
     {
-        
-        if ( Auth::user()->hasanyrole('admin|advisor')) {
+
+        if (Auth::user()->hasanyrole('admin|advisor')) {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get all groups ID for this advisor
             $groupsID = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->pluck('group_id');
             // all supervisors of advisor (unique)
             $supervisors = UserGroup::with('group')->where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->get()->unique('user_id');
-            $response=[];
+            $response = [];
             foreach ($supervisors as $key => $supervisor) { //for each supervisor of advisor 
                 // supervisor name
                 $supervisorinfo['supervisor'] = $supervisor->group->groupSupervisor->first();
@@ -367,6 +370,60 @@ class AuditMarkController extends Controller
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
             throw new NotAuthorized;
+        }
+    }
+
+
+    /**
+     * Add audit note.
+     *
+     * @return created note;
+     */
+
+    public function addNote(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'body' => 'required',
+            'mark_for_audit_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        try {
+            $note = AuditNotes::create([
+                'mark_for_audit_id' => $request->mark_for_audit_id,
+                'from_id' => Auth::id(),
+                'body' => $request->body
+            ]);
+            $mark=Mark::find($request->mark_for_audit_id);
+
+            $msg = "لقد أرسل إليك " . Auth::user()->name . " ملاحظة حول علامة";
+            (new NotificationController)->sendNotification($mark->user->parent_id, $msg, AUDIT_MARKS, $this->getAuditMarkPath( $request->mark_for_audit_id));
+
+            return $this->jsonResponseWithoutMessage($note, 'data', 200);
+        } catch (Throwable $e) {
+            report($e);
+
+            return $e;
+        }
+    }
+
+    /**
+     * Add audit note.
+     *
+     * @return created note;
+     */
+
+    public function getNotes($mark_for_audit_id)
+    {
+        try {
+            $notes = AuditNotes::where('mark_for_audit_id' , $mark_for_audit_id)->get();
+
+            return $this->jsonResponseWithoutMessage($notes, 'data', 200);
+        } catch (Throwable $e) {
+            report($e);
+            return false;
         }
     }
 }
