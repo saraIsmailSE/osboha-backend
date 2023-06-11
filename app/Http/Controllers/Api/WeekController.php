@@ -274,6 +274,8 @@ class WeekController extends Controller
                 ($mark_last_week === 0 &&  $second_last_week_freezed && count($marks) <= 2) ||
                 ($mark_last_week === 0 && $second_last_week_freezed  && $mark_third_last_week && $mark_third_last_week > 0)
             ) {
+                //check mark for super roles
+                $this->checkFullMarkForSuperRoles($user, ($marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support));
                 //insert new mark record
                 return $this->insert_mark_for_single_user($new_week_id, $user->id);
             }
@@ -284,20 +286,9 @@ class WeekController extends Controller
                 //check if the mark of the week before is zero (2nd of last)                
                 if (!is_null($mark_second_last_week) && $mark_second_last_week === 0) {
                     //check if not only ambassador
-                    if ($user->roles->count() > 1) {
-                        $lastRole = $user->roles->first();
-                        $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
-
-                        (new NotificationController)->sendNotification(
-                            $user->parent_id,
-                            'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
-                            EXCLUDED_USER,
-                            $this->getProfilePath($user->id)
-                        );
-
+                    if ($this->checkSuperRolesForExcluding($user)) {
                         return $this->insert_mark_for_single_user($new_week_id, $user->id);
                     }
-
 
                     //execlude the user
                     $user->is_excluded = 1;
@@ -306,8 +297,6 @@ class WeekController extends Controller
                         (new \App\Notifications\MailExcludeAmbassador())
                             ->delay(now()->addMinutes(3))
                     );
-                    // $user->notify(new \App\Notifications\ExcludedUser());
-
 
                     array_push($this->excludedUsers, $user->id);
                     event(new UpdateUserStats($user, $old_user));
@@ -318,20 +307,9 @@ class WeekController extends Controller
                     //check if the user mark is zero in the week befor (3rd of last)
                     if (!is_null($mark_third_last_week) && $mark_third_last_week === 0) {
                         //check if not only ambassador
-                        if ($user->roles->count() > 1) {
-                            $lastRole = $user->roles->first();
-                            $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
-
-                            (new NotificationController)->sendNotification(
-                                $user->parent_id,
-                                'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
-                                EXCLUDED_USER,
-                                $this->getProfilePath($user->id)
-                            );
-
+                        if ($this->checkSuperRolesForExcluding($user)) {
                             return $this->insert_mark_for_single_user($new_week_id, $user->id);
                         }
-
                         //execlude the user
                         $user->is_excluded = 1;
                         $user->save();
@@ -346,6 +324,48 @@ class WeekController extends Controller
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Check if user is (leader - supervisor - advisor - consultant) to not exclude it and sent a warning to his parent
+     * @param User $user
+     * @return bool
+     */
+    public function checkSuperRolesForExcluding($user)
+    {
+        if ($user->hasAnyRole(['leader', 'supervisor', 'advisor', 'consultant'])) {
+            $lastRole = $user->roles->first();
+            $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
+            (new NotificationController)->sendNotification(
+                $user->parent_id,
+                'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
+                EXCLUDED_USER,
+                $this->getProfilePath($user->id)
+            );
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * check if user is (leader - supervisor - advisor - consultant) and did not get full mark to send a warning to his parent
+     * @param User $user
+     * @param Int mark
+     * @return void
+     */
+    public function checkFullMarkForSuperRoles($user, $mark)
+    {
+        if ($user->hasAnyRole(['leader', 'supervisor', 'advisor', 'consultant']) && $mark < 100) {
+            $lastRole = $user->roles->first();
+            $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
+
+            (new NotificationController)->sendNotification(
+                $user->parent_id,
+                'لقد حصل ال' . $arabicRole . ' ' . $user->name . ' على ' . $mark . ' من 100, يرجى تنبيهه',
+                MARKS,
+                $this->getProfilePath($user->id)
+            );
         }
     }
 
@@ -367,11 +387,7 @@ class WeekController extends Controller
     {
         //get all the users and update their records if they are excluded (just ambassdors0)
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
-            // ->whereHas('roles', function ($query) {
-            //     $query->where('name', 'ambassador');
-            // })->whereDoesntHave('roles', function ($query) {
-            //     $query->where('name', '!=', 'ambassador');
-            // })
+            ->where('parent_id', '!=', null)
             // ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
             ->orderBy('id')
             ->chunkByID(100, function ($users) use ($last_week_ids, $new_week_id) {
