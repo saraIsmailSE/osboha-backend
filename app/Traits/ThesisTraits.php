@@ -139,6 +139,7 @@ trait ThesisTraits
                 'end_page'          => $thesis['end_page'],
                 'max_length'        => $max_length,
                 'total_screenshots' => $total_screenshots,
+                'status'            => $week->is_vacation == 1 ? config('constants.ACCEPTED_STATUS') : config('constants.PENDING_STATUS'),
             );
 
             $thesisTotalPages = $thesis['end_page'] - $thesis['start_page'] > 0 ? $thesis['end_page'] - $thesis['start_page'] + 1 : 0;
