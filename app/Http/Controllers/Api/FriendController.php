@@ -168,7 +168,14 @@ class FriendController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         if (Auth::id() == $request->user_id || Auth::id() == $request->friend_id) {
-            $friendship = Friend::where('user_id', $request->user_id)->where('friend_id', $request->friend_id)->first();
+            $friendship = Friend::where(function ($q) use ($request) {
+                $q->where('user_id', $request->user_id)
+                    ->orWhere('friend_id', $request->user_id);
+            })
+                ->where(function ($q) use ($request) {
+                    $q->where('user_id', $request->friend_id)
+                        ->orWhere('friend_id', $request->friend_id);
+                })->first();
             if ($friendship) {
                 $friendship->delete();
                 return $this->jsonResponseWithoutMessage("Friendship Deleted Successfully", 'data', 200);
