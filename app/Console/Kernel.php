@@ -20,11 +20,11 @@ class Kernel extends ConsoleKernel
     {
         //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
         // $schedule->command('weekly:marks')->weekly()->saturdays()->at('21:00'); //main part
-        $schedule->command('weekly:marks')->weekly()->sundays()->at('20:15'); //main part
+        $schedule->command('weekly:marks')->weekly()->sundays()->at('21:00'); //main part
         // $schedule->command('weekly:marks')->everyMinute(); //for testing - to be deleted
 
         //auditMark
-        $schedule->command('generate:auditMark')->weekly()->sundays()->at('20:30');
+        $schedule->command('generate:auditMark')->weekly()->sundays()->at('21:05');
         // $schedule->command('generate:auditMark')->weekly()->mondays()->at('06:00');
 
         //finishedException 
