@@ -61,17 +61,26 @@ class WeekController extends Controller
         try {
             //add new week to the system
             $new_week_id = $this->insert_week();
-            $this->add_users_statistics($new_week_id);
 
-            $this->closeBooksAndSupportComments();
-            $this->add_marks_for_all_users($new_week_id, $last_week_ids);
-            $this->add_marks_statistics($new_week_id);
-            $this->openBooksComments();
-            $this->notifyExcludedUsers();
-            $this->notifyUsersNewWeek();
+            $new_week = Week::find($new_week_id);
 
+            if ($new_week->is_vacation){
+                $this->notifyUsersIsVacation();
+            }
+            else{
+                
+                $this->add_users_statistics($new_week_id);
+                $this->closeBooksAndSupportComments();
+                $this->add_marks_for_all_users($new_week_id, $last_week_ids);
+                $this->add_marks_statistics($new_week_id);
+                $this->openBooksComments();
+                $this->notifyExcludedUsers();
+                $this->notifyUsersNewWeek();
+    
+            }
+            
             DB::commit();
-            return $this->jsonResponseWithoutMessage('Marks added Successfully', 'data', 200);
+            return $this->jsonResponseWithoutMessage('added Successfully', 'data', 200);
         } catch (\Exception $e) {
             Log::error("ERROR");
             Log::error($e);
@@ -158,6 +167,29 @@ class WeekController extends Controller
         return null;
     }
 
+
+    
+    /**
+     * search for week is vacation based on the date of the week
+     * @author Sara     
+     * @param Date $date (date of biginning week), 
+     * @param Array $year_weeks(array of year weeks dates and titles)
+     * @return int is_vacation of the passed week date
+     * @return Null if not found
+     */
+    public function search_for_is_vacation($date, $year_weeks)
+    {
+        foreach ($year_weeks as $val) {
+            if ($val['date'] === $date) {
+                dd($val['is_vacation']);
+                return $val['is_vacation'];
+            }
+        }
+        return null;
+    }
+
+    
+
     /**
      * insert new week into weeks table
      * @author Asmaa         
@@ -200,7 +232,10 @@ class WeekController extends Controller
 
         //add 7 days to the date to get the end of the week
         $week->main_timer = $dateToAdd->addDays(7);
-        $week->is_vacation = 0;
+        
+        //seach is_vacation
+
+        $week->is_vacation = $this->search_for_is_vacation($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
         if ($week->save()) { //insert new week
             return $week->id;
@@ -766,6 +801,29 @@ class WeekController extends Controller
                 }
             });
     }
+
+    
+    /**
+     * Notify all the users that a this week is a vacation
+     * @return JsonResponse
+     */
+    public function notifyUsersIsVacation()
+    {
+        $notification = new NotificationController();
+        User::where('is_excluded', 0)->where('is_hold', 0)
+            ->chunk(100, function ($users) use ($notification) {
+                try {
+                    $msg = 'إجازة عيد الأضحى المبارك السنوية 🐑';
+                    foreach ($users as $user) {
+                        $notification->sendNotification($user->id, $msg, NEW_WEEK);
+                    }
+                } catch (\Exception $e) {
+                    throw $e;
+                }
+            });
+    }
+
+    
 
     /**
      * Notify Excluded users and their leaders that they are excluded
