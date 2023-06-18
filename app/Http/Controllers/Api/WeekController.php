@@ -181,7 +181,6 @@ class WeekController extends Controller
     {
         foreach ($year_weeks as $val) {
             if ($val['date'] === $date) {
-                dd($val['is_vacation']);
                 return $val['is_vacation'];
             }
         }
