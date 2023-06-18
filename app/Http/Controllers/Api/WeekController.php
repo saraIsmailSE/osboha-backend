@@ -64,11 +64,10 @@ class WeekController extends Controller
 
             $new_week = Week::find($new_week_id);
 
-            if ($new_week->is_vacation){
+            if ($new_week->is_vacation) {
                 $this->notifyUsersIsVacation();
-            }
-            else{
-                
+            } else {
+
                 $this->add_users_statistics($new_week_id);
                 $this->closeBooksAndSupportComments();
                 $this->add_marks_for_all_users($new_week_id, $last_week_ids);
@@ -76,9 +75,8 @@ class WeekController extends Controller
                 $this->openBooksComments();
                 $this->notifyExcludedUsers();
                 $this->notifyUsersNewWeek();
-    
             }
-            
+
             DB::commit();
             return $this->jsonResponseWithoutMessage('added Successfully', 'data', 200);
         } catch (\Exception $e) {
@@ -168,7 +166,7 @@ class WeekController extends Controller
     }
 
 
-    
+
     /**
      * search for week is vacation based on the date of the week
      * @author Sara     
@@ -187,7 +185,7 @@ class WeekController extends Controller
         return null;
     }
 
-    
+
 
     /**
      * insert new week into weeks table
@@ -223,6 +221,8 @@ class WeekController extends Controller
         //seach sundays
         $dateToSearch = $date->addDay();
         $week->title = $this->search_for_week_title($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
+        //seach is_vacation
+        $week->is_vacation = $this->search_for_is_vacation($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
         //add end of saturdays
         $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
@@ -231,10 +231,6 @@ class WeekController extends Controller
 
         //add 7 days to the date to get the end of the week
         $week->main_timer = $dateToAdd->addDays(7);
-        
-        //seach is_vacation
-
-        $week->is_vacation = $this->search_for_is_vacation($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
         if ($week->save()) { //insert new week
             return $week->id;
@@ -801,7 +797,7 @@ class WeekController extends Controller
             });
     }
 
-    
+
     /**
      * Notify all the users that a this week is a vacation
      * @return JsonResponse
@@ -822,7 +818,7 @@ class WeekController extends Controller
             });
     }
 
-    
+
 
     /**
      * Notify Excluded users and their leaders that they are excluded

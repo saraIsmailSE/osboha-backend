@@ -28,6 +28,7 @@ use App\Models\UserException;
 use Carbon\Carbon;
 use Throwable;
 use App\Traits\PathTrait;
+use Illuminate\Support\Facades\Log;
 
 class AuditMarkController extends Controller
 {
@@ -43,6 +44,8 @@ class AuditMarkController extends Controller
 
     public function generateAuditMarks()
     {
+        
+        DB::beginTransaction();
         try {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
             if ($previous_week) {
@@ -217,7 +220,11 @@ class AuditMarkController extends Controller
             } else {
                 return $this->jsonResponseWithoutMessage('No week', 'data', 200);
             }
+            DB::commit();
+
         } catch (\Exception $e) {
+            Log::error($e);
+            DB::rollBack();
 
             return $e->getMessage();
         }
