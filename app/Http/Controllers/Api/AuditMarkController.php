@@ -48,7 +48,7 @@ class AuditMarkController extends Controller
         DB::beginTransaction();
         try {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
-            if ($previous_week) {
+            if ($previous_week && !$previous_week->is_vacation) {
                 $previous_week->audit_timer = Carbon::now()->addDays(3);
                 $previous_week->save();
 
@@ -215,15 +215,15 @@ class AuditMarkController extends Controller
                 }
 
                 #### End Advisor Audit ####
-
-                return $this->jsonResponseWithoutMessage('generated successfully', 'data', 200);
+                Log::channel('auditMarks')->info("generated successfully");
+            
             } else {
-                return $this->jsonResponseWithoutMessage('No week', 'data', 200);
+                Log::channel('auditMarks')->info("no Marks for audit [vacation]");
             }
             DB::commit();
 
         } catch (\Exception $e) {
-            Log::error($e);
+            Log::channel('auditMarks')->info($e);
             DB::rollBack();
 
             return $e->getMessage();

@@ -78,9 +78,9 @@ class WeekController extends Controller
             }
 
             DB::commit();
-            return $this->jsonResponseWithoutMessage('added Successfully', 'data', 200);
+            Log::channel('newWeek')->info("Week Added Successfully");
         } catch (\Exception $e) {
-            Log::error("ERROR");
+            Log::channel('newWeek')->info($e);
             Log::error($e);
 
             // echo $e->getMessage();
@@ -432,7 +432,7 @@ class WeekController extends Controller
 
                     DB::commit();
                 } catch (\Exception $exception) {
-                    Log::error($exception);
+                    Log::channel('newWeek')->info($exception);
                     DB::rollBack();
                     throw $exception;
                 }
