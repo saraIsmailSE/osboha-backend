@@ -63,7 +63,7 @@ return [
     'FULL_WRITING_MARK' => 40,
     'ACCEPTED_STATUS' => 'accepted',
     'REJECTED_STATUS' => 'rejected',
-    'PENDING' => 'pending',
+    'PENDING_STATUS' => 'pending',
     'FREEZ_THIS_WEEK_TYPE' => 'تجميد الأسبوع الحالي',
     'FREEZ_NEXT_WEEK_TYPE' => 'تجميد الأسبوع القادم',
     'EXCEPTIONAL_FREEZING_TYPE' => 'تجميد استثنائي',
