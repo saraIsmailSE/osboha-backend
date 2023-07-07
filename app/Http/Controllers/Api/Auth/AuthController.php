@@ -336,19 +336,22 @@ class AuthController extends Controller
 
     public function sessionData()
     {
-        // last book whereHas 'status'='in progress' 
+        // latest books whereHas 'status'='in progress' 
         $book_in_progress = UserBook::where('status', 'in progress')
             ->where('user_id', Auth::id())
             ->latest()
-            ->pluck('book_id')->first();
+            ->limit(3)
+            ->get();
 
         if ($book_in_progress) {
-            $last_thesis = Thesis::where('user_id', Auth::id())
-                ->where('book_id', $book_in_progress)
-                ->with('book')
-                ->latest()->first();
-            $response['book_in_progress'] = $last_thesis->book;
-            $response['progress'] = ($last_thesis->end_page / $last_thesis->book->end_page) * 100;
+            foreach ($book_in_progress as $key => $book) {
+                $last_thesis = Thesis::where('user_id', Auth::id())
+                    ->where('book_id', $book->book_id)
+                    ->with('book')
+                    ->latest()->first();
+                $response['book_in_progress'][$key] = $last_thesis->book;
+                $response['progress'][$key] = ($last_thesis->end_page / $last_thesis->book->end_page) * 100;
+            }
         } else {
             $response['book_in_progress'] = null;
             $response['progress'] = null;
@@ -363,7 +366,6 @@ class AuthController extends Controller
 
         //main timer
         $response['timer'] = Week::latest()->first();
-
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }

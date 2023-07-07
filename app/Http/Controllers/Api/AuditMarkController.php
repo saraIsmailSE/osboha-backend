@@ -239,7 +239,8 @@ class AuditMarkController extends Controller
     public function groupAuditMarks($group_id)
     {
         $response['group'] = Group::with('leaderAndAmbassadors')->find($group_id);
-        $response['week'] = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        $response['week'] = Week::where('is_vacation',0)->orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+
         $response['audit_mark'] = AuditMark::where('week_id', $response['week']->id)->where('group_id', $group_id)->first();
         //Audit Marks by type [full - variant]
         $response['fullAudit'] = MarksForAudit::whereHas('type', function ($q) {

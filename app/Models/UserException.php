@@ -18,6 +18,7 @@ class UserException extends Model
         'end_at',
         'note',
         'reviewer_id',
+        'desired_duration'
 
     ];
 

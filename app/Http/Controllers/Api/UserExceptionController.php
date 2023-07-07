@@ -47,6 +47,7 @@ class UserExceptionController extends Controller
             'reason' => 'required|string',
             'type_id' => 'required|int',
             'end_at' => 'date|after:yesterday',
+            'desired_duration'=> 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -55,6 +56,7 @@ class UserExceptionController extends Controller
         $current_week = Week::latest()->first();
         $exception['reason'] = $request->reason;
         $exception['type_id'] =  $request->type_id;
+        $exception['desired_duration'] =  $request->desired_duration;
         $exception['user_id'] = Auth::id();
 
         //get types of exceptions
