@@ -202,6 +202,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::delete('/{friendship-id}', [FriendController::class, 'delete']);
             Route::get('/accept/{friendship_id}', [FriendController::class, 'accept']);
             Route::get('/accept-all', [FriendController::class, 'acceptAll']);
+            Route::get('/delete-all-unaccepted', [FriendController::class, 'deleteAllUnAccepted']);
             Route::post('/delete', [FriendController::class, 'delete']);
             Route::get('/show/{friendship_id}', [FriendController::class, 'show']);
         });

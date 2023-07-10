@@ -210,4 +210,19 @@ class FriendController extends Controller
             throw new NotAuthorized;
         }
     }
+
+    /**
+     * Delete All unaccepted request for auth user.
+     *
+     *@return jsonResponseWithoutMessage ;
+     */
+
+    public function deleteAllUnAccepted()
+    {
+        $unaccepted_friendships = Friend::where('friend_id', Auth::id())->where('status', 0)->get();
+        foreach ($unaccepted_friendships as $friendship) {
+            $friendship->delete();
+        }
+        return $this->jsonResponseWithoutMessage("Friendships Deleted Successfully", 'data', 200);
+    }
 }
