@@ -151,6 +151,30 @@ class FriendController extends Controller
 
 
     /**
+     * Accept All Friends.
+     *
+     * @return jsonResponseWithoutMessage ;
+     */
+
+    public function acceptAll()
+    {
+        $friends = Friend::where('friend_id', Auth::id())->where('status', 0)->get();
+        if ($friends) {
+            foreach ($friends as $friend) {
+
+                $friend->status = 1;
+                $friend->save();
+
+                $msg = "وافق " . Auth::user()->name . " على طلب صداقتك";
+                (new NotificationController)->sendNotification($friend->user_id, $msg, FRIENDS, $this->getProfilePath(Auth::id()));
+            }
+            return $this->jsonResponseWithoutMessage("Friends Accepted Successfully", 'data', 200);
+        } else {
+            throw new NotFound;
+        }
+    }
+
+    /**
      * Delete friendship in the system using its id[ if Auth is part of friendship].
      *
      * @param  Request  $request contains user_id and friend_id
