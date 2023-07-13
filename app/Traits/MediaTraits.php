@@ -49,8 +49,10 @@ trait MediaTraits
                 $media->group_id = $type_id;
             } elseif ($type == 'reaction') {
                 $media->reaction_id = $type_id;
-                $media->type = $type;
-            } else {
+            } elseif ($type == 'user_exception') {
+                $media->user_exception_id = $type_id;
+            } 
+            else {
                 return 'Type Not Found';
             }
             $media->save();
