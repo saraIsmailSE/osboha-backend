@@ -66,6 +66,11 @@ use App\Http\Controllers\Api\{
 */
 
 Route::group(['prefix' => 'v1'], function () {
+    ########Start Media########
+    Route::group(['prefix' => 'media'], function () {
+        Route::get('/show/{id}', [MediaController::class, 'show']);
+    });
+    ########End Media route########
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -182,15 +187,11 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/post/{post_id}/users', [CommentController::class, 'getPostCommentsUsers'])->where('post_id', '[0-9]+');
         });
         ########End Comment########
-        ########Start Media########
+        // ########Start Media########
         // Route::group(['prefix' => 'media'], function () {
-        //     Route::get('/', [MediaController::class, 'index']);
-        //     Route::post('/create', [MediaController::class, 'create']);
-        //     Route::post('/show', [MediaController::class, 'show']);
-        //     Route::post('/update', [mediaController::class, 'update']);
-        //     Route::post('/delete', [MediaController::class, 'delete']);
+        //     Route::get('/show/{id}', [MediaController::class, 'show']);
         // });
-        ########End Media route########
+        // ########End Media route########
         ########Start Friend route########
         Route::group(['prefix' => 'friends'], function () {
             Route::get('/user/{user_id}', [FriendController::class, 'listByUserId'])->where('user_id', '[0-9]+');
@@ -222,7 +223,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::put('/accept-support/user/{user_id}', [MarkController::class, 'acceptSupport']);
             Route::put('/reject-support/user/{user_id}', [MarkController::class, 'rejectSupport']);
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
-            
         });
         ########End Mark########
 
@@ -268,7 +268,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/finishedException', [UserExceptionController::class, 'finishedException']);
             Route::get('/user-exceptions/{user_id}', [UserExceptionController::class, 'userExceptions']);
             Route::get('/exceptions-filter/{filter}/{user_id}', [UserExceptionController::class, 'exceptionsFilter']);
-
         });
         ############End UserException########
 
