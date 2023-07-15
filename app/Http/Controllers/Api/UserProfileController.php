@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
+use App\Traits\GroupTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ use Throwable;
 
 class UserProfileController extends Controller
 {
-    use ResponseJson, MediaTraits;
+    use ResponseJson, MediaTraits, GroupTrait;
 
     /**
      * Find an existing profile by user id in the system and display it.
@@ -285,11 +286,8 @@ class UserProfileController extends Controller
     {
         $response['week'] = Week::latest()->first();
         $group_id = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
-        $users = Group::with('leaderAndAmbassadors')->where('id', $group_id);
-        $response['group_week_avg'] = Mark::where('week_id', $response['week']->id)->whereIn('user_id', $users->pluck('id'))
-            ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-            ->first()
-            ->out_of_100;
+        $follow_up_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
+        $response['group_week_avg']= $this->groupAvg($group_id,  $response['week']->id, $follow_up_group->leaderAndAmbassadors->pluck('id'));
 
         $response['week_mark'] = Mark::where('week_id', $response['week']->id)->where('user_id', $user_id)->first();
 

@@ -274,6 +274,7 @@ Route::group(['prefix' => 'v1'], function () {
         ############ Start Group ############
         Route::group(['prefix' => 'group'], function () {
             Route::get('/', [GroupController::class, 'index']);
+            Route::get('/search-group-by-name/{name}', [GroupController::class, 'searchGroupByName']);
             Route::post('/create', [GroupController::class, 'create']);
             Route::get('/show/{group_id}', [GroupController::class, 'show']);
             Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
