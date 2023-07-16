@@ -10,18 +10,18 @@ class Room extends Model
     use HasFactory;
     protected $fillable = [
         'creator_id',
-        'name' ,
-        'type' ,
-        'messages_status' ,
+        'name',
+        'type',
+        'messages_status',
     ];
 
     public function users()
     {
-        return $this->belongsToMany(User::class, "participants");
+        return $this->belongsToMany(User::class, "room_users")->withPivot('type');
     }
 
     public function messages()
     {
-        return $this->hasMany(Message::class, 'user_id');
+        return $this->hasMany(Message::class);
     }
 }

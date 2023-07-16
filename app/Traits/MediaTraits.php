@@ -35,24 +35,38 @@ trait MediaTraits
             $media->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
             $media->type = 'image';
             $media->user_id = Auth::id();
-            if ($type == 'comment') {
-                $media->comment_id = $type_id;
-            } elseif ($type == 'post') {
-                $media->post_id = $type_id;
-            } elseif ($type == 'infographicSeries') {
-                $media->infographic_series_id = $type_id;
-            } elseif ($type == 'infographic') {
-                $media->infographic_id = $type_id;
-            } elseif ($type == 'book') {
-                $media->book_id = $type_id;
-            } elseif ($type == 'group') {
-                $media->group_id = $type_id;
-            } elseif ($type == 'reaction') {
-                $media->reaction_id = $type_id;
-                $media->type = $type;
-            } else {
-                return 'Type Not Found';
+
+            switch ($type) {
+                case 'comment':
+                    $media->comment_id = $type_id;
+                    break;
+                case 'post':
+                    $media->post_id = $type_id;
+                    break;
+                case 'infographicSeries':
+                    $media->infographic_series_id = $type_id;
+                    break;
+                case 'infographic':
+                    $media->infographic_id = $type_id;
+                    break;
+                case 'book':
+                    $media->book_id = $type_id;
+                    break;
+                case 'group':
+                    $media->group_id = $type_id;
+                    break;
+                case 'reaction':
+                    $media->reaction_id = $type_id;
+                    $media->type = $type;
+                    break;
+                case 'message':
+                    $media->message_id = $type_id;
+                    $media->type = $type;
+                    break;
+                default:
+                    return 'Type Not Found';
             }
+
             $media->save();
             // dd($imageName);
             return $media;
