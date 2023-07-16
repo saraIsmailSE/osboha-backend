@@ -296,7 +296,7 @@ class AuthController extends Controller
         if ($status === Password::RESET_LINK_SENT)
             return $this->jsonResponse(__($status), 'data', 200, 'Send Successfully!');
         else
-            return $this->jsonResponseWithoutMessage(['email' => __($status)], 'data', 200);
+            return $this->jsonResponseWithoutMessage(['email' => __($status)], 'data', 201);
     }
 
     protected function sendResetResponse(Request $request)
