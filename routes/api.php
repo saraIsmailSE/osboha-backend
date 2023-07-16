@@ -126,6 +126,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'user-books'], function () {
             Route::get('/show/{user_id}', [UserBookController::class, 'show']);
             Route::get('/later-books/{user_id}', [UserBookController::class, 'later']);
+            Route::get('/delete-for-later-book/{id}', [UserBookController::class, 'deleteForLater']);
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);

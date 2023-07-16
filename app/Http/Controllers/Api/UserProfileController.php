@@ -62,7 +62,9 @@ class UserProfileController extends Controller
             $profile['roles'] = $user->getRoleNames();
 
             // reading Info
-            $profile['reading_Info']['books'] = UserBook::where('user_id', $user_id)->count();
+            $profile['reading_Info']['books'] = UserBook::where(function ($query) {
+                $query->Where('status', 'in progress')->orWhere('status', 'finished');
+            })->where('user_id', $user_id)->count();
             $profile['reading_Info']['thesis'] = Thesis::where('user_id', $user_id)->count();
 
             //books
