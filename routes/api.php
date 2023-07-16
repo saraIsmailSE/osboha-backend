@@ -442,12 +442,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/week/{week_id}', [ThesisController::class, 'listWeekThesis'])->where('week_id', '[0-9]+');
         });
         ######## End Thesis ########
-        ######## Room ########
-        Route::group(['prefix' => 'room'], function () {
-            Route::post('/create', [RoomController::class, 'create']);
-            Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
-        });
-        ######## Room ########
+
         ######## Week ########
         Route::group(['prefix' => 'weeks'], function () {
             Route::post('/', [WeekController::class, 'create']);
@@ -532,12 +527,22 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/delete', [TimelineTypeController::class, 'delete']);
         });
         ######## Timeline-Type ########
+
+        ######## Room ########
+        Route::group(['prefix' => 'rooms'], function () {
+            Route::post('/create', [RoomController::class, 'create']);
+            Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
+            Route::get("/", [RoomController::class, "listRooms"]);
+        });
+        ######## Room ########
+
         ######## Messages ########
-        Route::get('listAllMessages', [MessagesController::class, 'listAllMessages']);
-        Route::post('/updateStatus', [MessagesController::class, 'updateStatus']);
-        Route::post('/sendMessage', [MessagesController::class, 'sendMessage']);
-        Route::post('/listMessage', [MessagesController::class, 'listMessage']);
-        Route::post('/listRoomMessages', [MessagesController::class, 'listRoomMessages']);
+        Route::prefix('messages')->group(function () {
+            Route::post('/', [MessagesController::class, 'create']);
+            Route::post("/room/{room_id}", [MessagesController::class, "setMessagesAsRead"]);
+            Route::get('/room/{room_id}', [MessagesController::class, 'listRoomMessages']);
+            Route::delete("/{message_id}", [MessagesController::class, "deleteMessage"]);
+        });
         ######## Messages ########
         ######## BookStatistics ########
         Route::group(['prefix' => 'book-stat'], function () {
