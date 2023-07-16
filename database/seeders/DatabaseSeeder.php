@@ -14,19 +14,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-
-        //$this->call(booksMediaSeeder::class);
-
         ##### DONE ON SERVER#####
-        // $this->call(PermissionsSeeder::class);
-    // $this->call(TypeSectionSeeder::class); //contains all the types and sections
-        // $this->call(TimelineSeeder::class);
-        // $this->call(ReactionSeeder::class);
-        // $this->call(BookStatisticsSeeder::class);
-        // $this->call(AuditTypeSeeder::class);
-        // $this->call(BookSeeder::class);
-        //$this->call(booksMediaSeeder::class);
-        //$this->call(ModificationReasonSeeder::class);
+        $this->call(PermissionsSeeder::class);
+        $this->call(TypeSectionSeeder::class); //contains all the types and sections
+        $this->call(TimelineSeeder::class);
+        $this->call(ReactionSeeder::class);
+        $this->call(BookStatisticsSeeder::class);
+        $this->call(AuditTypeSeeder::class);
+        $this->call(BookSeeder::class);
+        $this->call(booksMediaSeeder::class);
+        $this->call(ModificationReasonSeeder::class);
 
         ######LOCAL#######
         // $this->call(PermissionsSeeder::class);

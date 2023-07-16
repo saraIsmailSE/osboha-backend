@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
+use Illuminate\Support\Facades\File;
+
 
 class MediaController extends Controller
 {
@@ -58,22 +60,17 @@ class MediaController extends Controller
     /**
      * Find and show an existing media in the system by its id.
      *
-     * @param  Request  $request
-     * @return jsonResponseWithoutMessage;
+     * @param  media id
+     * @return media;
      */
-    public function show(Request $request)
+    public function show($id)
     {
-        $validator = Validator::make($request->all(), [
-            'media_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $media = Media::find($request->media_id);
+        $media = Media::find($id);
         if ($media) {
-            return $this->jsonResponseWithoutMessage($media, 'data', 200);
+            $path = public_path() . '/assets/images/' . $media->media;
+            return response()->download($path,rand(100000, 999999) . time());
+        } else {
+            return $this->sendError('file nout found TEST');
         }
     }
 

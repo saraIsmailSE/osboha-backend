@@ -118,4 +118,13 @@ class UserBookController extends Controller
             return $this->jsonResponse($userBook, 'data', 200, 'تم حفظ الكتاب في قائمة المحفوظات');
         }
     }
+
+    public function deleteForLater($id)
+    {
+        UserBook::where('id', $id)->where('user_id',Auth::id())->delete();
+        $books = UserBook::where('status', 'later')->where('user_id', Auth::id())->get();
+        return $this->jsonResponseWithoutMessage($books, 'data', 200);
+
+
+    }
 }

@@ -66,6 +66,11 @@ use App\Http\Controllers\Api\{
 */
 
 Route::group(['prefix' => 'v1'], function () {
+    ########Start Media########
+    Route::group(['prefix' => 'media'], function () {
+        Route::get('/show/{id}', [MediaController::class, 'show']);
+    });
+    ########End Media route########
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -121,6 +126,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'user-books'], function () {
             Route::get('/show/{user_id}', [UserBookController::class, 'show']);
             Route::get('/later-books/{user_id}', [UserBookController::class, 'later']);
+            Route::get('/delete-for-later-book/{id}', [UserBookController::class, 'deleteForLater']);
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
@@ -182,15 +188,11 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/post/{post_id}/users', [CommentController::class, 'getPostCommentsUsers'])->where('post_id', '[0-9]+');
         });
         ########End Comment########
-        ########Start Media########
+        // ########Start Media########
         // Route::group(['prefix' => 'media'], function () {
-        //     Route::get('/', [MediaController::class, 'index']);
-        //     Route::post('/create', [MediaController::class, 'create']);
-        //     Route::post('/show', [MediaController::class, 'show']);
-        //     Route::post('/update', [mediaController::class, 'update']);
-        //     Route::post('/delete', [MediaController::class, 'delete']);
+        //     Route::get('/show/{id}', [MediaController::class, 'show']);
         // });
-        ########End Media route########
+        // ########End Media route########
         ########Start Friend route########
         Route::group(['prefix' => 'friends'], function () {
             Route::get('/user/{user_id}', [FriendController::class, 'listByUserId'])->where('user_id', '[0-9]+');
@@ -273,6 +275,7 @@ Route::group(['prefix' => 'v1'], function () {
         ############ Start Group ############
         Route::group(['prefix' => 'group'], function () {
             Route::get('/', [GroupController::class, 'index']);
+            Route::get('/search-group-by-name/{name}', [GroupController::class, 'searchGroupByName']);
             Route::post('/create', [GroupController::class, 'create']);
             Route::get('/show/{group_id}', [GroupController::class, 'show']);
             Route::post('/GroupByType', [GroupController::class, 'GroupByType']);

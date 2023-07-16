@@ -17,6 +17,7 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Models\ExceptionType;
 use App\Models\Mark;
+use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
 
@@ -32,7 +33,7 @@ use Carbon\Carbon;
 
 class UserExceptionController extends Controller
 {
-    use ResponseJson, PathTrait;
+    use ResponseJson, PathTrait, MediaTraits;
 
     /**
      * Add a new user exception to the system.
@@ -47,7 +48,6 @@ class UserExceptionController extends Controller
             'reason' => 'required|string',
             'type_id' => 'required|int',
             'end_at' => 'date|after:yesterday',
-            'desired_duration'=> 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -56,8 +56,12 @@ class UserExceptionController extends Controller
         $current_week = Week::latest()->first();
         $exception['reason'] = $request->reason;
         $exception['type_id'] =  $request->type_id;
-        $exception['desired_duration'] =  $request->desired_duration;
         $exception['user_id'] = Auth::id();
+
+        if ($request->has('desired_duration')) {
+            $exception['desired_duration'] =  $request->desired_duration;
+        }
+
 
         //get types of exceptions
         $freezCurrentWeek = ExceptionType::where('type', config("constants.FREEZ_THIS_WEEK_TYPE"))->first();
@@ -139,6 +143,21 @@ class UserExceptionController extends Controller
         } elseif ($request->type_id == $monthlyExam->id || $request->type_id == $FinalExam->id) { // نظام امتحانات - شهري أو فصلي              
             $exception['status'] = 'pending';
             $userException = UserException::create($exception);
+
+            //if there is Media
+            if ($request->hasFile('exam_media')) {
+                //exam_media/user_id/
+                $folder_path = 'exam_media/' . Auth::id();
+    
+                //check if exam_media folder exists
+                if (!file_exists(public_path('assets/images/' . $folder_path))) {
+                    mkdir(public_path('assets/images/' . $folder_path), 0777, true);
+                }
+    
+                $this->createMedia($request->exam_media, $userException->id, 'user_exception', $folder_path);
+            }
+    
+
             //Notify User
             $userToNotify = User::find(Auth::id());
             $userToNotify->notify(new \App\Notifications\ExamException());
@@ -379,9 +398,9 @@ class UserExceptionController extends Controller
             $monthlyExam = ExceptionType::where('type', config('constants.EXAMS_MONTHLY_TYPE'))->first();
             $FinalExam = ExceptionType::where('type', config('constants.EXAMS_SEASONAL_TYPE'))->first();
 
-            $owner_of_exception=User::find($userException->user_id);
+            $owner_of_exception = User::find($userException->user_id);
             $user_group = UserGroup::with("group")->where('user_id', $userException->user_id)->where('user_type', 'ambassador')->first();
-            
+
             $group = $user_group->group;
             //the head of owner_of_exception
             $leader_id = $owner_of_exception->parent_id;
@@ -591,9 +610,9 @@ class UserExceptionController extends Controller
     public function userExceptions($user_id)
     {
 
-            $response['week'] = Week::latest()->first();
-            $response['exceptions'] = UserException::where('user_id', $user_id)->latest()->get();
-            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        $response['week'] = Week::latest()->first();
+        $response['exceptions'] = UserException::where('user_id', $user_id)->latest()->get();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
     /**

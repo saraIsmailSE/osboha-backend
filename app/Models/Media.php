@@ -43,4 +43,8 @@ class Media extends Model
     {
         return $this->belongsTo(Book::class, 'book_id');
     }
+    public function userEexception()
+    {
+        return $this->belongsTo(UserException::class, 'user_exception_id');
+    }
 }

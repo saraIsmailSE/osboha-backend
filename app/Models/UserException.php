@@ -22,7 +22,7 @@ class UserException extends Model
 
     ];
 
-    protected $with = array('type','user','reviewer');
+    protected $with = array('type','user','reviewer', 'media');
 
     public function User()
     {
@@ -42,5 +42,10 @@ class UserException extends Model
     {
         return $this->belongsTo(ExceptionType::class,'type_id');
     }
+    public function media()
+    {
+        return $this->hasOne(Media::class, 'user_exception_id');
+    }
+
 
 }

@@ -35,7 +35,7 @@ trait MediaTraits
             $media->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
             $media->type = 'image';
             $media->user_id = Auth::id();
-
+          
             switch ($type) {
                 case 'comment':
                     $media->comment_id = $type_id;
@@ -61,6 +61,9 @@ trait MediaTraits
                     break;
                 case 'message':
                     $media->message_id = $type_id;
+                    $media->type = $type;
+                case 'user_exception':
+                    $media->user_exception_id = $type_id;
                     $media->type = $type;
                     break;
                 default:

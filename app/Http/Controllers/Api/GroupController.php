@@ -25,7 +25,7 @@ use App\Models\Week;
 use Illuminate\Support\Facades\DB;
 use App\Models\Book;
 use App\Models\TimelineType;
-
+use App\Traits\GroupTrait;
 /**
  * Description: GroupController for Osboha group.
  *
@@ -37,14 +37,37 @@ use App\Models\TimelineType;
 class GroupController extends Controller
 {
 
-    use ResponseJson, MediaTraits;
+    use ResponseJson, MediaTraits, GroupTrait;
 
+    /**
+     * Get all groups.
+     * 
+     * @return groups;
+     */
 
     public function index()
     {
-        $group = Group::withCount('users')->get();
         if (Auth::user()->can('list groups')) {
-            return $this->jsonResponseWithoutMessage($group, 'data', 200);
+            $groups = Group::withCount('users')->get();
+            return $this->jsonResponseWithoutMessage($groups, 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+    /**
+     * Get groups by name.
+     * 
+     * @param  group name
+     * @return groups;
+     */
+
+    public function searchGroupByName($name)
+    {
+        if (Auth::user()->can('list groups')) {
+            $groups = Group::withCount('users')
+                ->where('name', 'like', '%' . $name . '%')
+                ->get();
+            return $this->jsonResponseWithoutMessage($groups, 'data', 200);
         } else {
             throw new NotAuthorized;
         }
@@ -155,7 +178,7 @@ class GroupController extends Controller
     public function show($group_id)
     {
 
-        $response['info'] = Group::with('users', 'groupAdministrators')->withCount('userAmbassador')->where('id', $group_id)->first();
+        $response['info'] = Group::with('users', 'groupAdministrators','leaderAndAmbassadors')->withCount('userAmbassador')->where('id', $group_id)->first();
         if ($response['info']) {
             $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
             if ($response['authInGroup'] || Auth::user()->hasRole('admin')) {
@@ -166,12 +189,7 @@ class GroupController extends Controller
                 //week avg
                 $response['week'] = Week::latest('id')->first();
 
-                $response['week_avg'] = Mark::where('week_id', $response['week']->id)
-                    ->whereIn('user_id', $response['info']->users->pluck('id'))
-                    //avg from (reading_mark + writing_mark + support)
-                    ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-                    ->first()
-                    ->out_of_100;
+                $response['week_avg'] = $this->groupAvg($group_id,  $response['week']->id, $response['info']->leaderAndAmbassadors->pluck('id'));
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
@@ -406,7 +424,7 @@ class GroupController extends Controller
         }
 
         $marks['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
-        $marks['group_users'] = $marks['group']->userAmbassador->count() +1;
+        $marks['group_users'] = $marks['group']->userAmbassador->count() + 1;
         $marks['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id', $marks['group']->userAmbassador->pluck('id'))->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
@@ -430,7 +448,7 @@ class GroupController extends Controller
         }
 
         $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
-        $response['group_users'] = $response['group']->userAmbassador->count() +1;
+        $response['group_users'] = $response['group']->userAmbassador->count() + 1;
         $response['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id',  $response['group']->userAmbassador->pluck('id'))->orderBy('total_pages', 'desc')->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
@@ -564,6 +582,14 @@ class GroupController extends Controller
             throw new NotAuthorized;
         }
     }
+
+    /**
+     * get last leader ambassador request
+     * 
+     * @param  $group id
+     * @return last request;
+     */
+
     public function lastLeaderRequest($group_id)
     {
         $group = Group::with('groupLeader')->where('id', $group_id)->first();
