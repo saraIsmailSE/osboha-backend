@@ -290,6 +290,7 @@ class UserProfileController extends Controller
         $group_id = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
         $follow_up_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $response['group_week_avg']= $this->groupAvg($group_id,  $response['week']->id, $follow_up_group->leaderAndAmbassadors->pluck('id'));
+        return $this->jsonResponseWithoutMessage($follow_up_group, 'data', 200);
 
         $response['week_mark'] = Mark::where('week_id', $response['week']->id)->where('user_id', $user_id)->first();
 
