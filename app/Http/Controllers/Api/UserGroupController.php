@@ -416,4 +416,24 @@ class UserGroupController extends Controller
             throw new NotFound;
         }
     }
+
+    public function delete( $group_id,$user_id)
+    {
+        if (Auth::user()->hasRole('admin')) {
+            $user_group = UserGroup::where('group_id', $group_id)->where('user_id', $user_id);
+            if ($user_group) {
+
+                $user_group->delete();
+
+                return $this->jsonResponseWithoutMessage('User Deleted', 'data', 200);
+            } else {
+                throw new NotFound();
+            }
+        }
+        //endif Auth
+
+        else {
+            throw new NotAuthorized;
+        }
+    }
 }

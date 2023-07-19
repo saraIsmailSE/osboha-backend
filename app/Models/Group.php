@@ -22,6 +22,10 @@ class Group extends Model
     protected $with = array('Timeline', 'type');
 
 
+    public function allUsers()
+    {
+        return $this->hasMany(UserGroup::class, 'group_id');
+    }
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type', 'termination_reason')->withTimestamps();
@@ -76,4 +80,19 @@ class Group extends Model
     {
         return $this->hasMany(AuditMark::class, 'group_id');
     }
+
+
+    public static function boot()
+    {
+        parent::boot();
+        self::deleting(function ($group) { 
+            $group->audits()->each(function ($audits) {
+                $audits->delete(); 
+            });
+            $group->allUsers()->each(function ($allUsers) {
+                $allUsers->delete(); 
+            });
+        });
+    }
+
 }

@@ -278,6 +278,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search-group-by-name/{name}', [GroupController::class, 'searchGroupByName']);
             Route::post('/create', [GroupController::class, 'create']);
             Route::get('/show/{group_id}', [GroupController::class, 'show']);
+            Route::get('/show-basic-info/{group_id}', [GroupController::class, 'showBasicInfo']);
             Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
             Route::post('/update', [GroupController::class, 'update']);
             Route::delete('/delete/{group_id}', [GroupController::class, 'delete']);
@@ -431,6 +432,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
             Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
+            Route::delete('/delete/{group_id}/{user_id}', [UserGroupController::class, 'delete']);
         });
         ######## End UserGroup ########
         ####### Start Thesis ########

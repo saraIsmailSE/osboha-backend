@@ -32,5 +32,15 @@ class AuditMark extends Model
     {
         return $this->hasMany(MarksForAudit::class, 'audit_marks_id');
     }
-    
+
+    public static function boot()
+    {
+        parent::boot();
+        self::deleting(function ($AuditMark) {
+            $AuditMark->marksForAudit()->each(function ($marksForAudit) {
+                $marksForAudit->delete();
+            });
+        });
+    }
+
 }

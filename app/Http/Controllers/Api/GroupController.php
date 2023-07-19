@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Book;
 use App\Models\TimelineType;
 use App\Traits\GroupTrait;
+
 /**
  * Description: GroupController for Osboha group.
  *
@@ -178,7 +179,7 @@ class GroupController extends Controller
     public function show($group_id)
     {
 
-        $response['info'] = Group::with('users', 'groupAdministrators','leaderAndAmbassadors')->withCount('userAmbassador')->where('id', $group_id)->first();
+        $response['info'] = Group::with('users', 'groupAdministrators', 'leaderAndAmbassadors')->withCount('userAmbassador')->where('id', $group_id)->first();
         if ($response['info']) {
             $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
             if ($response['authInGroup'] || Auth::user()->hasRole('admin')) {
@@ -202,63 +203,64 @@ class GroupController extends Controller
         }
     }
 
-    public function update(Request $request)
+
+
+    /**
+     * Find an existing group by its id and display its basic information.
+     * 
+     * @param  $group_id
+     * @return group info;
+     */
+
+    public function showBasicInfo($group_id)
     {
-        $input = $request->all();
-        $validator = Validator::make($input, [
-            'group_id' => 'required',
-            'name' => 'required|string',
-            'description' => 'nullable|string',
-            'type_id' => 'required',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
-        ]);
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-
-        $group = Group::find($request->group_id);
-        $user_type = UserGroup::where('group_id', $request->group_id)->where('user_id', Auth::id())->pluck('user_type')->first();
+        $group = Group::find($group_id);
         if ($group) {
-
-            if (Auth::user()->can('edit group') && $user_type != "ambassador") {
-                if ($request->hasFile('image')) {
-                    $file = $request->file('image');
-                    $currentMedia = Media::where('group_id', $group->id);
-
-                    if ($currentMedia) {
-                        $this->updateMedia($file, $currentMedia->id);
-                    } else {
-                        $this->createMedia($file, $group->id, 'group');
-                    }
-                }
-
-                $group->update($input);
-                return $this->jsonResponseWithoutMessage("Group Updated", 'data', 200);
-            } //endif Auth
-
-            else {
-                throw new NotAuthorized;
-            }
+            return $this->jsonResponseWithoutMessage($group, 'data', 200);
         } //end if group found
-
         else {
             throw new NotFound;
         }
     }
 
+    /**
+     * update group info.
+     * 
+     * @param  Request $request
+     * @return group;
+     */
+
+
+    public function update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'group_id' => 'required',
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'type_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        try {
+
+            $group = Group::where('id', $request->group_id)
+                ->update(['name' => $request->name, 'description' => $request->description, 'type_id' => $request->type_id]);
+
+            return $this->jsonResponseWithoutMessage($group, 'data', 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
     public function delete($group_id)
     {
-        if (Auth::user()->can('delete group')) {
+        if (Auth::user()->hasRole('admin')) {
             $group = Group::find($group_id);
             if ($group) {
-
-                $currentMedia = Media::where('group_id', $group->id)->first();
-
-                //if exist delete image
-                if ($currentMedia) {
-                    $this->deleteMedia($currentMedia->id);
-                }
 
                 $group->delete();
 

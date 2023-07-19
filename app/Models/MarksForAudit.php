@@ -13,10 +13,10 @@ class MarksForAudit extends Model
         'audit_marks_id',
         'mark_id',
         'status',
-        'type_id',        
+        'type_id',
     ];
 
-    protected $with = array('type','mark','auditNotes');
+    protected $with = array('type', 'mark', 'auditNotes');
 
     public function type()
     {
@@ -36,4 +36,13 @@ class MarksForAudit extends Model
         return $this->hasMany(AuditNotes::class, 'mark_for_audit_id');
     }
 
+    public static function boot()
+    {
+        parent::boot();
+        self::deleting(function ($marksForAudit) {
+            $marksForAudit->auditNotes()->each(function ($auditNotes) {
+                $auditNotes->delete();
+            });
+        });
+    }
 }
