@@ -72,21 +72,21 @@ class BookSeeder extends Seeder
 
             Book::insert($books);
 
-            // Create a Post record for each book
-            $posts = [];
-            $books = Book::all();
-            foreach ($books as $book) {
-                $posts[] = [
-                    'user_id' => 1,
-                    'type_id' => 2,
-                    'timeline_id' => $timeline_id,
-                    'book_id' => $book->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
+            // // Create a Post record for each book
+            // $posts = [];
+            // $books = Book::all();
+            // foreach ($books as $book) {
+            //     $posts[] = [
+            //         'user_id' => 1,
+            //         'type_id' => 2,
+            //         'timeline_id' => $timeline_id,
+            //         'book_id' => $book->id,
+            //         'created_at' => now(),
+            //         'updated_at' => now(),
+            //     ];
+            // }
 
-            Post::insert($posts);
+            // Post::insert($posts);
 
             DB::commit();
         } catch (\Exception $e) {
