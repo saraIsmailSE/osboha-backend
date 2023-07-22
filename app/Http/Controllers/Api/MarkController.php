@@ -324,6 +324,8 @@ class MarkController extends Controller
             $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
             if ($group_id) {
                 $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
+                return $this->jsonResponseWithoutMessage($response['group']->groupAdministrators->pluck('id')->toArray(), 'data', 200);
+
                 if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
 
                     $currentWeek = Week::latest()->first();

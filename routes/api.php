@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\{
     UserGroupController,
     RoomController,
     SectionController,
+    StatisticsController,
     //BooktypeController,
     ExceptionTypeController,
     GroupTypeController,
@@ -406,6 +407,12 @@ Route::group(['prefix' => 'v1'], function () {
 
         });
         ########End User-Profile########
+
+        ######## Statistics ########
+        Route::group(['prefix' => 'statistics'], function () {
+            Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
+        });
+        ######## End Statisticx########
 
         ########Profile-Setting########
         Route::group(['prefix' => 'profile-setting'], function () {
