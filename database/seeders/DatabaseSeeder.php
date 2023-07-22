@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         //$this->call(BookSeeder::class);
         // $this->call(booksMediaSeeder::class);
         // $this->call(ModificationReasonSeeder::class);
-        $this->call(BookV2Seeder::class);
+        //$this->call(BookV2Seeder::class);
 
         ######LOCAL#######
         // $this->call(PermissionsSeeder::class);
