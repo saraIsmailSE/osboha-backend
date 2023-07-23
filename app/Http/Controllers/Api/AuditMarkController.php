@@ -27,12 +27,13 @@ use App\Models\Thesis;
 use App\Models\UserException;
 use Carbon\Carbon;
 use Throwable;
+use App\Traits\GroupTrait;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\Log;
 
 class AuditMarkController extends Controller
 {
-    use ResponseJson , PathTrait;
+    use ResponseJson , GroupTrait, PathTrait;
 
 
     /**
@@ -318,16 +319,13 @@ class AuditMarkController extends Controller
         if (Auth::user()->hasanyrole('admin|supervisor|advisor')) {
             // get all groups for auth supervisor
             $groupsID = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')->pluck('group_id');
-            $response['groups'] = Group::withCount('leaderAndAmbassadors')->whereIn('id', $groupsID)->without('Timeline')->get();
+            $response['groups'] = Group::withCount('leaderAndAmbassadors')->whereHas('type', function ($q) {
+                $q->where('type', '=', 'followup');
+            })->whereIn('id', $groupsID)->without('Timeline')->get();
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
 
             foreach ($response['groups']  as $key => $group) {
-                $week_avg = Mark::where('week_id', $previous_week)
-                    ->whereIn('user_id', $group->leaderAndAmbassadors->pluck('id'))
-                    //avg from (reading_mark + writing_mark + support)
-                    ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-                    ->first()
-                    ->out_of_100;
+                $week_avg= $this->groupAvg($group->id,  $previous_week, $group->leaderAndAmbassadors->pluck('id'));
                 //add marks_week_avg to group object
                 $group->setAttribute('marks_week_avg', $week_avg);
             }
