@@ -88,7 +88,7 @@ class AuditMarkController extends Controller
                             ->where('week_id', $previous_week->id)
                             ->count();
                         // 10% of Full Mark
-                        $ratioFullMarkToAudit = round($fullMark * 0.85);
+                        $ratioFullMarkToAudit = round($fullMark * 0.10);
                         $fullMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
                             ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
                             ->having('out_of_100', 100)
@@ -174,7 +174,7 @@ class AuditMarkController extends Controller
                         $supervisorAudit = MarksForAudit::whereIn('audit_marks_id', $auditMarks)->get()->pluck('mark_id');
 
                         // 10% supervisorAuditCount
-                        $ratioToAudit = round(count($supervisorAudit) * 0.85);
+                        $ratioToAudit = round(count($supervisorAudit) * 0.10);
                         $marksOfSupervisorAudit = Mark::whereIn('id', $supervisorAudit)
                             ->inRandomOrder()
                             ->limit($ratioToAudit)
@@ -188,7 +188,7 @@ class AuditMarkController extends Controller
                         $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
                         $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
                         // get 5% of ther marks that NOT in supervisorAudit
-                        $ratioToAudit = round(count($ambassadors) * 0.85);
+                        $ratioToAudit = round(count($ambassadors) * 0.05);
                         $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
                             ->where('week_id', $previous_week->id)
                             ->inRandomOrder()
