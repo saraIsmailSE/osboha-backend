@@ -243,13 +243,15 @@ class AuditMarkController extends Controller
 
         $response['audit_mark'] = AuditMark::where('week_id', $response['week']->id)->where('group_id', $group_id)->first();
         //Audit Marks by type [full - variant]
-        $response['fullAudit'] = MarksForAudit::whereHas('type', function ($q) {
-            $q->where('name', '=', 'full');
-        })->where('audit_marks_id',  $response['audit_mark']->id)->get();
-        $response['variantAudit'] = MarksForAudit::whereHas('type', function ($q) {
-            $q->where('name', '=', 'variant');
-        })->where('audit_marks_id',  $response['audit_mark']->id)->get();
+        if( $response['audit_mark']){
+            $response['fullAudit'] = MarksForAudit::whereHas('type', function ($q) {
+                $q->where('name', '=', 'full');
+            })->where('audit_marks_id',  $response['audit_mark']->id)->get();
+            $response['variantAudit'] = MarksForAudit::whereHas('type', function ($q) {
+                $q->where('name', '=', 'variant');
+            })->where('audit_marks_id',  $response['audit_mark']->id)->get();
 
+        }
         $response['exceptions'] = UserException::with('User')->whereIn('user_id', $response['group']->leaderAndAmbassadors->pluck('id'))->where('week_id', $response['week']->id)->latest()->get();
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
