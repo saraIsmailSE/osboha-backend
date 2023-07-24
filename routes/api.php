@@ -40,7 +40,9 @@ use App\Http\Controllers\Api\{
     RoomController,
     SectionController,
     StatisticsController,
-    //BooktypeController,
+    BookTypeController,
+    BookLevelController,
+    LanguageController,
     ExceptionTypeController,
     GroupTypeController,
     MediaController,
@@ -110,7 +112,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [BookController::class, 'index']);
             Route::post('/', [BookController::class, 'create']);
             Route::get('/{id}', [BookController::class, 'show'])->where('id', '[0-9]+');
-            Route::put('/', [BookController::class, 'update']);
+            Route::post('/update', [BookController::class, 'update']);
             Route::delete('/{id}', [BookController::class, 'delete']);
             Route::get('/type/{type_id}', [BookController::class, 'bookByType'])->where('type_id', '[0-9]+');
             Route::get('/level/{level}', [BookController::class, 'bookByLevel']);
@@ -478,13 +480,33 @@ Route::group(['prefix' => 'v1'], function () {
         ######## Section ########
 
         ######## Book-Type ########
-        // Route::group(['prefix' => 'book-type'], function () {
-        //     Route::get('/', [BookTypeController::class, 'index']);
-        //     Route::post('/create', [BookTypeController::class, 'create']);
-        //     Route::post('/show', [BookTypeController::class, 'show']);
-        //     Route::post('/update', [BookTypeController::class, 'update']);
-        //     Route::post('/delete', [BookTypeController::class, 'delete']);
-        // });
+        Route::group(['prefix' => 'book-type'], function () {
+            Route::get('/', [BookTypeController::class, 'index']);
+            Route::post('/create', [BookTypeController::class, 'create']);
+            Route::post('/show', [BookTypeController::class, 'show']);
+            Route::post('/update', [BookTypeController::class, 'update']);
+            Route::post('/delete', [BookTypeController::class, 'delete']);
+        });
+        ######## Book-Type ########
+
+        ######## Book-Level ########
+        Route::group(['prefix' => 'book-level'], function () {
+            Route::get('/', [BookLevelController::class, 'index']);
+            Route::post('/create', [BookLevelController::class, 'create']);
+            Route::post('/show', [BookLevelController::class, 'show']);
+            Route::post('/update', [BookLevelController::class, 'update']);
+            Route::post('/delete', [BookLevelController::class, 'delete']);
+        });
+        ######## Book-Type ########
+
+        ######## Book-Level ########
+        Route::group(['prefix' => 'language'], function () {
+            Route::get('/', [LanguageController::class, 'index']);
+            Route::post('/create', [LanguageController::class, 'create']);
+            Route::post('/show', [LanguageController::class, 'show']);
+            Route::post('/update', [LanguageController::class, 'update']);
+            Route::post('/delete', [BookLevelController::class, 'delete']);
+        });
         ######## Book-Type ########
 
         ######## Exception-Type ########

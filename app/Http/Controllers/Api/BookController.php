@@ -171,6 +171,17 @@ class BookController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'book_id' => 'required',
+            'name' => 'required',
+            "writer" => 'required',
+            'publisher' => 'required',
+            'link' => 'required',
+            'brief' => 'required',
+            'start_page' => 'required',
+            "end_page" => 'required',
+            'section_id' => 'required',
+            "level_id" => 'required',
+            "type_id" => 'required',
+            'language_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -179,19 +190,34 @@ class BookController extends Controller
         if (Auth::user()->can('edit book')) {
             $book = Book::find($request->book_id);
             if ($book) {
-                if ($request->hasFile('image')) {
-                    $currentMedia = Media::where('book_id', $book->id)->first();
-                    // if exists, update
-                    if ($currentMedia) {
-                        $this->updateMedia($request->file('image'), $currentMedia->id);
+                //if there is Media
+                return $this->jsonResponseWithoutMessage( $request->book_media, 'data', 500);
+
+                if ($request->hasFile('book_media')) {
+                    //exam_media/user_id/
+                    $folder_path = 'books/';
+
+                    //check if exam_media folder exists
+                    if (!file_exists(public_path('assets/images/' . $folder_path))) {
+                        mkdir(public_path('assets/images/' . $folder_path), 0777, true);
                     }
-                    //else create new one
-                    else {
-                        // upload media
-                        $this->createMedia($request->file('image'), $book->id, 'book');
-                    }
+
+                    $this->createMedia($request->book_media, $book->id, 'book', $folder_path);
                 }
-                $book->update($request->all());
+                $book->start_page = $request->start_page;
+                $book->name = $request->name;
+                $book->section_id =  $request->section_id;
+                $book->level_id = $request->level_id;
+                $book->end_page = $request->end_page;
+                $book->writer  = $request->writer;
+                $book->publisher =  $request->publisher;
+                $book->link =  $request->link;
+                $book->brief =  $request->brief;
+                $book->type_id = $request->type_id;
+                $book->language_id = $request->language_id;
+
+
+                $book->save();
                 return $this->jsonResponseWithoutMessage("Book Updated Successfully", 'data', 200);
             } else {
                 throw new NotFound;
@@ -238,7 +264,7 @@ class BookController extends Controller
         $books = Book::where('type_id', $type_id)->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])
-        ->get();
+            ->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -263,7 +289,7 @@ class BookController extends Controller
         $books = Book::where('level_id', $level_id)->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])
-        ->paginate(9);
+            ->paginate(9);
 
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
@@ -311,10 +337,10 @@ class BookController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $books = Book::where('name', 'LIKE', '%' . $request->name . '%')
-        ->with(['userBooks' => function ($query) {
-            $query->where('user_id', Auth::user()->id);
-        }])
-        ->paginate(9);
+            ->with(['userBooks' => function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            }])
+            ->paginate(9);
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
                 [
@@ -341,10 +367,10 @@ class BookController extends Controller
 
         if ($language_id) {
             $books = Book::where('language_id', $language_id)
-            ->with(['userBooks' => function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            }])
-            ->paginate(9);
+                ->with(['userBooks' => function ($query) {
+                    $query->where('user_id', Auth::user()->id);
+                }])
+                ->paginate(9);
             if ($books->isNotEmpty()) {
                 return $this->jsonResponseWithoutMessage(
                     [
@@ -367,7 +393,7 @@ class BookController extends Controller
         $books = Book::with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])
-        ->orderBy('created_at', 'desc')->take(9)->get();
+            ->orderBy('created_at', 'desc')->take(9)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -381,7 +407,7 @@ class BookController extends Controller
             ->with('theses')
             ->with(['userBooks' => function ($query) {
                 $query->where('user_id', Auth::user()->id);
-            }])    
+            }])
             ->groupBy('book_id')
             ->groupBy('user_id')
             ->orderBy('total', 'desc')
@@ -399,8 +425,8 @@ class BookController extends Controller
     {
         $books = Book::with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])    
-        ->get();
+        }])
+            ->get();
         $randomBook = $books->random();
         if ($randomBook) {
             return $this->jsonResponseWithoutMessage(new BookResource($randomBook), 'data', 200);

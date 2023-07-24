@@ -15,8 +15,9 @@ use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\BookTypeResource;
+use App\Models\BookLevel;
 
-class BookTypeController extends Controller
+class BookLevelController extends Controller
 {
     use ResponseJson;
     /**
@@ -26,14 +27,18 @@ class BookTypeController extends Controller
      */
     public function index()
     {
-        $bookTypes = BookType::all();
-        if($bookTypes->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage($bookTypes, 'data',200);
+        $bookLevels = BookLevel::all();
+        if($bookLevels->isNotEmpty()){
+            return $this->jsonResponseWithoutMessage($bookLevels, 'data',200);
         }
         else{
             throw new NotFound;
         }
     }
+
+
+
+    //ALL FUNCTIONS NEED TO UPDATE//
 
     /**
      *Add a new book type to the system (“create type” permission is required)
