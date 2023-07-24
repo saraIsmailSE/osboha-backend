@@ -49,8 +49,25 @@ class GroupController extends Controller
     public function index()
     {
         if (Auth::user()->can('list groups')) {
-            $groups = Group::withCount('users')->get();
-            return $this->jsonResponseWithoutMessage($groups, 'data', 200);
+            $groups = null;
+            if (isset($_GET['name'])  && $_GET['name'] != '') {
+
+                $groups = Group::withCount('users')
+                    ->where('name', 'like', '%' . $_GET['name'] . '%')
+                    ->paginate(30);
+            } else {
+                $groups = Group::withCount('users')->paginate(30);
+            }
+
+
+            if ($groups->isNotEmpty()) {
+                return $this->jsonResponseWithoutMessage([
+                    'groups' => $groups,
+                    'total' => $groups->total(),
+                    'last_page' => $groups->lastPage(),
+                ], 'data', 200);
+            }
+            return $this->jsonResponseWithoutMessage(null, 'data', 200);
         } else {
             throw new NotAuthorized;
         }
@@ -67,7 +84,7 @@ class GroupController extends Controller
         if (Auth::user()->can('list groups')) {
             $groups = Group::withCount('users')
                 ->where('name', 'like', '%' . $name . '%')
-                ->get();
+                ->paginate(2)();
             return $this->jsonResponseWithoutMessage($groups, 'data', 200);
         } else {
             throw new NotAuthorized;
@@ -607,13 +624,33 @@ class GroupController extends Controller
 
     public function userGroups()
     {
-        $response['groups'] = UserGroup::with('group')->with('group.users')->where('user_id', auth::id())->whereNull('termination_reason')->get();
 
-        if (!$response['groups']->isEmpty()) {
-            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        $groups = null;
+        if (isset($_GET['name'])  && $_GET['name'] != '') {
+
+            $groups = UserGroup::with('group')->with('group.users')
+                ->where('user_id', auth::id())
+                ->whereNull('termination_reason')
+                ->whereHas('group', function ($q) {
+                    $q->where('name', 'like', '%' . $_GET['name'] . '%');
+                })
+                ->paginate(25);
         } else {
-            throw new NotFound;
+            $groups = UserGroup::with('group')->with('group.users')
+                ->where('user_id', auth::id())
+                ->whereNull('termination_reason')
+                ->paginate(25);
         }
+
+
+        if ($groups->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'groups' => $groups,
+                'total' => $groups->total(),
+                'last_page' => $groups->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 
     public function statistics($group_id, $week_filter = "current")
