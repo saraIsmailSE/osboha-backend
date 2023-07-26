@@ -49,15 +49,12 @@ class MessagesController extends Controller
             $request['room_id'] = $room->id;
             $request['receiver_id'] = $room->users->where('id', '!=', Auth::id())->first()->id;
         } else {
-
             $room = Room::where('type', 'private')
-                ->where(function ($q) use ($request) {
-                    $q->where('creator_id', Auth::id())
-                        ->orWhere('creator_id', $request->receiver_id);
+                ->whereHas("users", function ($q) use ($request) {
+                    $q->where('user_id', Auth::id());
                 })
-                ->whereHas('users', function ($q) use ($request) {
-                    $q->where('user_id', Auth::id())
-                        ->orWhere('user_id', $request->receiver_id);
+                ->whereHas("users", function ($q) use ($request) {
+                    $q->where('user_id', $request->receiver_id);
                 })
                 ->first();
 
@@ -85,7 +82,11 @@ class MessagesController extends Controller
         }
 
         return $this->jsonResponseWithoutMessage(
-            new MessageResource($message),
+            [
+                "message" =>
+                new MessageResource($message),
+                "room" => new RoomResource($room)
+            ],
             'data',
             200
         );
@@ -104,8 +105,11 @@ class MessagesController extends Controller
                 "last_page" => $messages->lastPage(),
             ], 'data', 200);
         } else {
-            //not found message response
-            throw new NotFound;
+            return $this->jsonResponseWithoutMessage([
+                "messages" => [],
+                "total" => 0,
+                "last_page" => 1
+            ], "data", 200);
         }
     }
 

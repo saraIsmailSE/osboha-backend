@@ -181,9 +181,9 @@ class BookController extends Controller
             'section_id' => 'required',
             "level_id" => 'required',
             "type_id" => 'required',
-            'language_id' => 'required'
+            'language_id' => 'required',
+            "book_media" => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
@@ -191,18 +191,23 @@ class BookController extends Controller
             $book = Book::find($request->book_id);
             if ($book) {
                 //if there is Media
-                return $this->jsonResponseWithoutMessage( $request->book_media, 'data', 500);
 
                 if ($request->hasFile('book_media')) {
+
                     //exam_media/user_id/
-                    $folder_path = 'books/';
+                    $folder_path = 'books';
 
                     //check if exam_media folder exists
                     if (!file_exists(public_path('assets/images/' . $folder_path))) {
                         mkdir(public_path('assets/images/' . $folder_path), 0777, true);
                     }
 
-                    $this->createMedia($request->book_media, $book->id, 'book', $folder_path);
+                    if ($book->media) {
+                        $this->updateMedia($request->book_media, $book->media->id, $folder_path);
+                    } else {
+
+                        $this->createMedia($request->book_media, $book->id, 'book', $folder_path);
+                    }
                 }
                 $book->start_page = $request->start_page;
                 $book->name = $request->name;
