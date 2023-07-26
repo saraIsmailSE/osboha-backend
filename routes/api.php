@@ -1,10 +1,7 @@
 <?php
 
-use App\Events\NotificationsEvent;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Api\{
     ActivityController,
@@ -54,8 +51,13 @@ use App\Http\Controllers\Api\{
     MessagesController,
     ModificationReasonController,
     ModifiedThesesController,
-    UserBookController
+    UserBookController,
+    UserController
 };
+use App\Http\Resources\RoomResource;
+use App\Models\Room;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +89,32 @@ Route::group(['prefix' => 'v1'], function () {
 
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
+        Route::post("/test-room", function (Request $request) {
+            $room = Room::where('type', 'private')
+                ->whereHas("users", function ($q) use ($request) {
+                    $q->where('user_id', Auth::id());
+                })
+                ->whereHas("users", function ($q) use ($request) {
+                    $q->where('user_id', $request->receiver_id);
+                })
+                // ->where(function ($q) use ($request) {
+                //     $q->where('creator_id', Auth::id())
+                //         ->whereHas('users', function ($user) use ($request) {
+                //             $user->where('user_id', $request->receiver_id);
+                //         });
+                // })
+                // ->orWhere(function ($q) use ($request) {
+                //     $q->where('creator_id', $request->receiver_id)
+                //         ->whereHas('users', function ($user) use ($request) {
+                //             $user->where('user_id', Auth::id());
+                //         });
+                // })
+                ->first();
+
+            return response()->json([
+                'room' => $room
+            ]);
+        });
 
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         Route::get('/myTEST', function () {
@@ -107,6 +135,11 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::get('/session-data', [AuthController::class, 'sessionData']);
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
+
+        ########Users########
+        Route::group(["prefix" => "users"], function () {
+            Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
+        });
         ########Book########
         Route::group(['prefix' => 'books'], function () {
             Route::get('/', [BookController::class, 'index']);

@@ -13,10 +13,6 @@ use App\Exceptions\NotAuthorized;
 use App\Http\Resources\RoomResource;
 use App\Models\Participant;
 use App\Models\User;
-use Illuminate\Support\Facades\File;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 
 class RoomController extends Controller
 {
@@ -127,45 +123,22 @@ class RoomController extends Controller
                 $q->where('user_id', $user_id)
                     ->groupBy('room_id');
             })
-            ->paginate(15);
+            ->orderBy('created_at', 'desc')
+            // ->paginate(4);
+            ->get();
 
-        $total = $rooms->total();
-        $lastPage  = $rooms->lastPage();
+        // $total = $rooms->total();
+        // $lastPage  = $rooms->lastPage();
 
         if ($rooms->isEmpty()) {
             return $this->jsonResponseWithoutMessage([], 'data', 200);
         }
 
-        $rooms = $rooms->map(function ($room) use ($user_id) {
-            $user = $room->users->where("id", $user_id)->first();
-            $otherUser = $room->users->where("id", "!=", $user_id)->first();
-
-            $room->name = $otherUser->name;
-            // $room->avatar = $otherUser->userProfile->profile_picture ? asset('assets/images/' . $otherUser->userProfile->profile_picture) : null;
-            $room->avatar = asset('assets/images/' . $otherUser->userProfile->profile_picture);
-            $room->lastMessage = $room->messages()->latest()->first();
-            $room->unreadCount = $room->messages->where("status", 0)->where("receiver_id", Auth::id())->count();
-            $room->users = [
-                [
-                    "_id" => $user->id,
-                    "username" => $user->name,
-                    "avatar" => asset('assets/images/' . $user->userProfile->profile_picture),
-                ],
-                [
-                    "_id" => $otherUser->id,
-                    "username" => $otherUser->name,
-                    "avatar" => asset('assets/images/' . $otherUser->userProfile->profile_picture),
-                ],
-            ];
-
-            return $room;
-        });
-
         return $this->jsonResponseWithoutMessage(
             [
                 "rooms" => RoomResource::collection($rooms),
-                'total' => $total,
-                'last_page' => $lastPage,
+                // 'total' => $total,
+                // 'last_page' => $lastPage,
             ],
             'data',
             200

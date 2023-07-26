@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class RoomResource extends JsonResource
 {
@@ -15,16 +16,16 @@ class RoomResource extends JsonResource
      */
     public function toArray($request)
     {
+        $contactedUser = $this->users->where('id', '!=', Auth::id())->first();
+        $latestMessage = $this->messages()->latest()->first();
         return [
             "roomId" => (string) $this->id,
-            "roomName" => $this->name,
-            "avatar" => $this->avatar,
-            "unreadCount" => $this->unreadCount ?? 0,
-            "index" => $this->created_at,
-            "lastMessage" => $this->lastMessage ?
-                new MessageResource($this->lastMessage)
-                : null,
-            "users" => $this->users,
+            "roomName" => $contactedUser->name,
+            "avatar" => asset('assets/images/' . $contactedUser->userProfile->profile_picture),
+            "unreadCount" => $this->messages->where("status", 0)->where("receiver_id", Auth::id())->count() ?? 0,
+            "index" => $latestMessage ? $latestMessage->created_at : $this->created_at,
+            "lastMessage" => $latestMessage ? new MessageResource($latestMessage) : null,
+            "users" => RoomUserResource::collection($this->users),
             "type" => $this->type,
             "messages_status" => $this->messages_status
         ];
