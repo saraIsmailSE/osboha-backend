@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(ModificationReasonSeeder::class);
         //$this->call(BookV2Seeder::class);
 
-        //$this->call(BooksRoleSeeder::class);
+        $this->call(BooksRoleSeeder::class);
         $this->call(NewSectionsLevelsSeeder::class);
         
         ######LOCAL#######
