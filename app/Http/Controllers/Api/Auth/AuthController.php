@@ -102,9 +102,9 @@ class AuthController extends Controller
         } catch (\Illuminate\Database\QueryException $e) {
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
-                return $this->sendError('User already exist');
+                return $this->jsonResponseWithoutMessage('User already exist','data',202);
             } else {
-                return $this->sendError($e);
+                return $this->jsonResponseWithoutMessage($e,'data',500);
             }
         }
     }
@@ -308,7 +308,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
@@ -323,9 +323,9 @@ class AuthController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET)
-            return $this->sendResponse(__($status), 'Updated Successfully!');
+            return $this->jsonResponseWithoutMessage($status, 'Updated Successfully!',200);
         else
-            return $this->sendError('ERROR', ['email' => __($status)]);
+            return $this->jsonResponseWithoutMessage($status,'data',500);
     }
 
     /**

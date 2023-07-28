@@ -46,6 +46,27 @@ class UserBookController extends Controller
         $books = UserBook::where('status', 'later')->where('user_id', $user_id)->get();
         return $this->jsonResponseWithoutMessage($books, 'data', 200);
     }
+
+
+
+    /**
+     * Find free books belongs to specific user.
+     *
+     * @param user_id
+     * @return jsonResponse[user books]
+     */
+    public function free($user_id)
+    {
+        $freeBooks = Book::whereHas('type', function ($q) {
+            $q->where('type', '=', 'free');
+        })->pluck('id')->toArray();
+
+        $userFreeBooks = UserBook::whereIn('book_id', $freeBooks)->where('user_id', $user_id)->get();
+        return $this->jsonResponseWithoutMessage($userFreeBooks, 'data', 200);
+    }
+
+
+
     /**
      * Update an existing book belongs to user .
      * 
@@ -121,10 +142,8 @@ class UserBookController extends Controller
 
     public function deleteForLater($id)
     {
-        UserBook::where('id', $id)->where('user_id',Auth::id())->delete();
+        UserBook::where('id', $id)->where('user_id', Auth::id())->delete();
         $books = UserBook::where('status', 'later')->where('user_id', Auth::id())->get();
         return $this->jsonResponseWithoutMessage($books, 'data', 200);
-
-
     }
 }

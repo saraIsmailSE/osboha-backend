@@ -65,10 +65,10 @@ class ModifiedThesesController extends Controller
         if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader', "admin"])) {
             //get lastest week
             $current_week = Week::latest()->first();
-            $main_timer = $current_week->main_timer;
+            $modify_timer = $current_week->modify_timer;
 
             //check if current date(full) greater than main timer
-            if (date('Y-m-d H:i:s') > $main_timer) {
+            if (date('Y-m-d H:i:s') > $modify_timer) {
                 return $this->jsonResponseWithoutMessage("لا يمكنك تدقيق الأطروحة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
             }
 
