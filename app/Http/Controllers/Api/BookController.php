@@ -15,10 +15,14 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\ThesisResource;
 use App\Models\BookLevel;
+use App\Models\BookType;
 use App\Models\Language;
 use App\Models\PostType;
+use App\Models\Section;
 use App\Models\TimelineType;
+use App\Models\UserBook;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class BookController extends Controller
 {
@@ -31,7 +35,9 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::with(['userBooks' => function ($query) {
+        $books = Book::whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal');
+        })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])->paginate(9);
         if ($books->isNotEmpty()) {
@@ -64,36 +70,117 @@ class BookController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'writer' => 'required',
-            'publisher' => 'required',
-            'brief' => 'required',
+            "writer" => Auth::user()->hasanyrole('admin|book_quality_tea|') ? 'required' : '',
+            'publisher' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
+            'link' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
+            'brief' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
             'start_page' => 'required',
-            'end_page' => 'required',
-            'link' => 'required',
-            'section_id' => 'required',
-            'type_id' => 'required',
-            'image' => 'required',
-            'level_id' => 'required',
-            'language_id' => 'required',
+            "end_page" => 'required',
+            'section_id' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
+            "level_id" => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
+            "type_id" => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
+            'language_id' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
+            // "book_media" => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if (Auth::user()->can('create book')) {
-            $book = Book::create($request->all());
+        DB::beginTransaction();
+        try {
+            $book = new Book();
 
-            if (!$book) {
-                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            $book->name = $request->name;
+            $book->start_page = $request->start_page;
+            $book->end_page = $request->end_page;
+
+            //writer
+            if ($request->writer) {
+                $book->writer = $request->writer;
+            } else {
+                $book->writer = 'غير محدد';
             }
 
-            $media = $this->createMedia($request->file('image'), $book->id, 'book');
-
-            if (!$media) {
-                //delete the created book
-                $book->delete();
-                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
+            //publisher
+            if ($request->publisher) {
+                $book->publisher = $request->publisher;
+            } else {
+                $book->publisher = 'غير محدد';
             }
+
+            //link
+            if ($request->link) {
+                $book->link = $request->link;
+            } else {
+                $book->link = 'https://www.platform.osboha180.com/';
+            }
+
+            //brief
+            if ($request->brief) {
+                $book->brief = $request->brief;
+            } else {
+                $book->brief = 'لا يوجد وصف';
+            }
+
+            //section_id
+            if ($request->section_id) {
+                $book->section_id = $request->section_id;
+            } else {
+                $section = Section::where('section', 'غير محدد')->first();
+                $book->section_id = $section->id;
+            }
+
+            //level_id 
+            if ($request->level_id) {
+                $book->level_id = $request->level_id;
+            } else {
+                $level = BookLevel::where('arabic_level', 'غير محدد')->first();
+                $book->level_id = $level->id;
+            }
+
+            //type_id 
+            if ($request->type_id) {
+                $book->type_id = $request->type_id;
+            } else {
+                $type = BookType::where('type', 'free')->first();
+                $book->type_id = $type->id;
+            }
+
+            //language_id
+            if ($request->language_id) {
+                $book->language_id = $request->language_id;
+            } else {
+                $language = Language::where('language', 'arabic')->first();
+
+                $book->language_id = $language->id;
+            }
+
+            if ($request->hasFile('book_media')) {
+
+                //exam_media/user_id/
+                $folder_path = 'books';
+
+                //check if exam_media folder exists
+                if (!file_exists(public_path('assets/images/' . $folder_path))) {
+                    mkdir(public_path('assets/images/' . $folder_path), 0777, true);
+                }
+
+                if ($book->media) {
+                    $this->updateMedia($request->book_media, $book->media->id, $folder_path);
+                } else {
+
+                    $this->createMedia($request->book_media, $book->id, 'book', $folder_path);
+                }
+            }
+            $book->save();
+            if ($type->type == 'free') {
+                $userBook = UserBook::create([
+                    'user_id' => Auth::id(),
+                    'book_id' => $book->id,
+                    'status' => 'in progress',
+                ]);
+            }
+
 
             //create post for book
             $post = $book->posts()->create([
@@ -102,17 +189,13 @@ class BookController extends Controller
                 'type_id' => PostType::where('type', 'book')->first()->id,
                 'timeline_id' => TimelineType::where('type', 'book')->first()->id,
             ]);
+            DB::commit();
 
-            if (!$post) {
-                //delete the created book
-                $book->delete();
-                $this->deleteMedia($media->id);
-                return $this->jsonResponseWithoutMessage("Book Not Created", 'data', 500);
-            }
-
-            return $this->jsonResponseWithoutMessage("Book Created Successfully", 'data', 200);
-        } else {
-            throw new NotAuthorized;
+            return $this->jsonResponseWithoutMessage($book, 'data', 200);
+        } catch (\Exception $e) {
+            Log::channel('books')->info($e);
+            DB::rollBack();
+            return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
     }
     /**
@@ -182,19 +265,21 @@ class BookController extends Controller
             "level_id" => 'required',
             "type_id" => 'required',
             'language_id' => 'required',
-            "book_media" => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            "book_media" => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+        
         if (Auth::user()->can('edit book')) {
             $book = Book::find($request->book_id);
             if ($book) {
                 //if there is Media
 
                 if ($request->hasFile('book_media')) {
-
-                    //exam_media/user_id/
+            
+                    //book//
                     $folder_path = 'books';
 
                     //check if exam_media folder exists
@@ -341,7 +426,9 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $books = Book::where('name', 'LIKE', '%' . $request->name . '%')
+        $books = Book::whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal');
+        })->where('name', 'LIKE', '%' . $request->name . '%')
             ->with(['userBooks' => function ($query) {
                 $query->where('user_id', Auth::user()->id);
             }])
@@ -441,7 +528,9 @@ class BookController extends Controller
     }
     public function latest()
     {
-        $books = Book::latest()->first();
+        $books = Book::whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal');
+        })->latest()->first();
         if ($books) {
             return $this->jsonResponseWithoutMessage($books, 'data', 200);
         } else {

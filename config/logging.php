@@ -123,6 +123,11 @@ return [
             'path' => storage_path('logs/newWeek.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'books' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/books.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
 
         
     ],

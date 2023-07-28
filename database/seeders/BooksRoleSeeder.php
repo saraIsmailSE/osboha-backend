@@ -2,17 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\BookLevel;
+use App\Models\BookType;
+use App\Models\Section;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
 class BooksRoleSeeder extends Seeder
 {
-    /**
-     * Create the initial roles and permissions.
-     *
-     * @return void
-     */
     public function run()
     {
         try {
