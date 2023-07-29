@@ -87,9 +87,11 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::get('/return-to-team', [AuthController::class, 'returnToTeam'])->middleware('auth:sanctum', 'verified');
 
-    Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
+
+        Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
+
         Route::post("/test-room", function (Request $request) {
             $room = Room::where('type', 'private')
                 ->whereHas("users", function ($q) use ($request) {
