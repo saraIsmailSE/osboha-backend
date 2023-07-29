@@ -50,7 +50,7 @@ class AuditMarkController extends Controller
         try {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
             if ($previous_week && !$previous_week->is_vacation) {
-                $previous_week->audit_timer = Carbon::now()->addDays(3);
+                $previous_week->audit_timer = Carbon::now()->addDays(2);
                 $previous_week->save();
 
                 $groupsID = Group::whereHas('type', function ($q) {

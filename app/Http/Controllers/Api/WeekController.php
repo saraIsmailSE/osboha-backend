@@ -231,8 +231,7 @@ class WeekController extends Controller
 
         //add 7 days to the date to get the end of the week
         $week->main_timer = $dateToAdd->addDays(7);
-        $week->modify_timer = $dateToAdd->addDays(7)->addHours(12);
-
+        $week->modify_timer = $dateToAdd->addHours(12)->addDays(7);
         if ($week->save()) { //insert new week
             return $week->id;
         }
@@ -856,6 +855,30 @@ class WeekController extends Controller
             }
         } catch (\Exception $e) {
             throw $e;
+        }
+    }
+
+
+
+    /**
+     * set_modify_timer
+     * @author Sara         
+     * @return Int new_week_id in case of SUCCESS, 
+     * @throws Exception error if anything wrong happens
+     */
+    public function set_modify_timer()
+    {
+        try {
+            $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+            if ($previous_week && !$previous_week->is_vacation) {
+                $dateToAdd = new Carbon($previous_week->modify_timer);
+                $previous_week->modify_timer = $dateToAdd->addHours(12);
+                $previous_week->save();
+                Log::channel('newWeek')->info("modify_timer updated Successfully");
+            }    
+            Log::channel('newWeek')->info("no week \ vacation");
+        } catch (\Exception $e) {
+            Log::channel('newWeek')->info($e);
         }
     }
 }
