@@ -537,7 +537,7 @@ class WeekController extends Controller
                     $exceptionTitle = 'نظام ' . $user_exception->type->type;
                 }
                 //notify the user that his/her exception finished
-                $user->notify(new MailExceptionFinished($exceptionTitle));
+            //$user->notify(new MailExceptionFinished($exceptionTitle));
                 (new NotificationController)->sendNotification($user_exception->user_id, $message . $exceptionTitle, USER_EXCEPTIONS, $this->getExceptionPath($user_exception->id));
             }
             return TRUE;
