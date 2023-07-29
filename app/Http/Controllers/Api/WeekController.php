@@ -73,7 +73,7 @@ class WeekController extends Controller
                 $this->add_marks_for_all_users($new_week_id, $last_week_ids);
                 $this->add_marks_statistics($new_week_id);
                 $this->openBooksComments();
-                $this->notifyExcludedUsers();
+                //$this->notifyExcludedUsers();
                 $this->notifyUsersNewWeek();
             }
 
