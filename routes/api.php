@@ -260,7 +260,7 @@ Route::group(['prefix' => 'v1'], function () {
             //Route::get('/statsmark', [MarkController::class, 'statsMark']);
             Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
             Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
-            Route::get('/ambassador-mark/{user_id}', [MarkController::class, 'ambassadorMark']);
+            Route::get('/ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'ambassadorMark']);
             Route::put('/accept-support/user/{user_id}', [MarkController::class, 'acceptSupport']);
             Route::put('/reject-support/user/{user_id}', [MarkController::class, 'rejectSupport']);
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
@@ -325,8 +325,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/books/{group_id}', [GroupController::class, 'books']);
             Route::get('/group-exceptions/{group_id}', [GroupController::class, 'groupExceptions']);
             Route::get('/exceptions-filter/{filter}/{group_id}', [GroupController::class, 'exceptionsFilter']);
-            Route::get('/basic-mark-view/{group_id}', [GroupController::class, 'BasicMarksView']);
-            Route::get('/all-achievements/{group_id}/{week_filter?}', [GroupController::class, 'allAchievements']);
+            Route::get('/basic-mark-view/{group_id}/{week_id}', [GroupController::class, 'BasicMarksView']);
+            Route::get('/all-achievements/{group_id}/{week_id}', [GroupController::class, 'allAchievements']);
             Route::get('/search-for-ambassador-achievement/{ambassador_name}/{group_id}/{week_filter?}', [GroupController::class, 'searchForAmbassadorAchievement']);
             Route::get('/search-for-ambassador/{ambassador_name}/{group_id}', [GroupController::class, 'searchForAmbassador']);
             Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);

@@ -317,16 +317,17 @@ class MarkController extends Controller
      * @param  $user_id
      * @return mark;
      */
-    public function ambassadorMark($user_id)
+    public function ambassadorMark($user_id,$week_id)
     {
         $user = User::find($user_id);
         if ($user) {
             $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->first();
             if ($user_group) {
                 $response['group'] = Group::where('id', $user_group->group_id)->with('groupAdministrators')->first();
-                if (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) {
 
-                    $currentWeek = Week::latest()->first();
+                if ((in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) || Auth::user()->hasRole('admin')) {
+
+                    $currentWeek = Week::find($week_id);
                     $response['currentWeek'] = $currentWeek;
                     $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
                     $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();

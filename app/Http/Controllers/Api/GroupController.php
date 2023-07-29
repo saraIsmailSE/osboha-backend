@@ -204,6 +204,9 @@ class GroupController extends Controller
                 //group posts
                 $response['post'] = Timeline::find($response['info']->id);
 
+                //previous_week
+                $response['previous_week'] = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+
                 //week avg
                 $response['week'] = Week::latest('id')->first();
 
@@ -395,32 +398,31 @@ class GroupController extends Controller
      * @param  group _id
      * @return group info , week satistics [100 - 0 -incomplete - most read]
      */
-    public function BasicMarksView($group_id)
+    public function BasicMarksView($group_id,$week_id)
     {
         $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
-        $current_week = Week::latest()->pluck('id')->first();
         $marks['group_users'] =  $marks['group']->leaderAndAmbassadors->count();
 
-        $marks['full'] = Mark::where('week_id', $current_week)
+        $marks['full'] = Mark::where('week_id', $week_id)
             ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
             ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
             ->having('out_of_100', 100)
             ->count();
 
-        $marks['incomplete'] = Mark::where('week_id', $current_week)
+        $marks['incomplete'] = Mark::where('week_id', $week_id)
             ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
             ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
             ->having('out_of_100', '<', 100)
             ->having('out_of_100', '>', 0)
             ->count();
 
-        $marks['zero'] = Mark::where('week_id', $current_week)
+        $marks['zero'] = Mark::where('week_id', $week_id)
             ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
             ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
             ->having('out_of_100', 0)
             ->count();
-        $marks['random_achievement'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
-        $marks['most_read'] = Mark::where('week_id', $current_week)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
+        $marks['random_achievement'] = Mark::where('week_id', $week_id)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
+        $marks['most_read'] = Mark::where('week_id', $week_id)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
 
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
@@ -433,18 +435,18 @@ class GroupController extends Controller
      * @return ambassadors achievments
      */
 
-    public function allAchievements($group_id, $week_filter = "current")
+    public function allAchievements($group_id, $week_id)
     {
-        if ($week_filter == 'current') {
-            $week = Week::latest()->pluck('id')->toArray();
-        }
-        if ($week_filter == 'previous') {
-            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
-        }
-
-        $marks['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
-        $marks['group_users'] = $marks['group']->userAmbassador->count() + 1;
-        $marks['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id', $marks['group']->userAmbassador->pluck('id'))->get();
+        // if ($week_filter == 'current') {
+        //     $week = Week::latest()->pluck('id')->toArray();
+        // }
+        // if ($week_filter == 'previous') {
+        //     $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
+        // }
+        $marks['week']= Week::find($week_id);
+        $marks['group'] = Group::with('allUserAmbassador')->where('id', $group_id)->first();
+        $marks['group_users'] = $marks['group']->allUserAmbassador->count() + 1;
+        $marks['ambassadors_achievement'] = Mark::where('week_id', $marks['week']->id)->whereIn('user_id', $marks['group']->allUserAmbassador->pluck('id'))->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }

@@ -34,6 +34,10 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'ambassador');
     }
+    public function allUserAmbassador()
+    {
+        return $this->belongsToMany(User::class, 'user_groups')->withPivot('user_type')->wherePivot('user_type', 'ambassador');
+    }
     public function groupLeader()
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'leader')->latest()->take(1);
