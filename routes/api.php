@@ -87,6 +87,7 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::get('/return-to-team', [AuthController::class, 'returnToTeam'])->middleware('auth:sanctum', 'verified');
 
+    Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
         Route::post("/test-room", function (Request $request) {
@@ -116,7 +117,6 @@ Route::group(['prefix' => 'v1'], function () {
             ]);
         });
 
-        Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         Route::get('/myTEST', function () {
             $user = User::find(1);
             $msg = "لديك طلب صداقة ";
@@ -134,7 +134,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::get('/session-data', [AuthController::class, 'sessionData']);
-        Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
 
         ########Users########
         Route::group(["prefix" => "users"], function () {
