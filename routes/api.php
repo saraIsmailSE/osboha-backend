@@ -52,7 +52,8 @@ use App\Http\Controllers\Api\{
     ModificationReasonController,
     ModifiedThesesController,
     UserBookController,
-    UserController
+    UserController,
+    RolesAdministrationController
 };
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
@@ -134,7 +135,6 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
-        Route::post('/assign-role', [AuthController::class, 'assignRole']);
         Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
         Route::get('/logout', [AuthController::class, 'logout']);
         Route::get('/session-data', [AuthController::class, 'sessionData']);
@@ -143,6 +143,16 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "users"], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
         });
+
+        ########Start Roles########
+        Route::group(["prefix" => "roles"], function () {
+            Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
+            Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
+            
+        });
+        ########End Roles########
+
+
         ########Book########
         Route::group(['prefix' => 'books'], function () {
             Route::get('/', [BookController::class, 'index']);
@@ -418,6 +428,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/support', [PostController::class, 'getSupportPosts']);
             Route::get('/support/latest', [PostController::class, 'getLastSupportPost']);
             Route::get('/pending/timeline/{timeline_id}/{post_id?}', [PostController::class, 'getPendingPosts']);
+            Route::get('/current-week-support', [PostController::class, 'getCurrentWeekSupportPost']);            
         });
         ########End Post########
 

@@ -622,6 +622,29 @@ class PostController extends Controller
     }
 
     /**
+     * Get support post for this week
+     * @return jsonResponseWithoutMessage     
+     */
+    public function getCurrentWeekSupportPost()
+    {
+        $current_week = Week::latest()->first();
+        $response['post'] = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+            ->whereNotNull('is_approved')
+            ->whereBetween('created_at', [$current_week->created_at, $current_week->created_at->addDays(7)])
+            ->first();
+
+        if ($response['post']) {
+            $response['userVote'] = PollOption::whereHas('votes', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->where('post_id' , $response['post']->id)->exists();
+
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+    /**
      * Return all posts that match requested user_id.
      * 
      * @param  Request  $request
