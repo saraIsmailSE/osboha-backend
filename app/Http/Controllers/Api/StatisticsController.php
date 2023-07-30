@@ -42,6 +42,7 @@ class StatisticsController extends Controller
         }
         $response['week'] = $week;
 
+        //Total Pages, Theses, Screenshotes
         $response['total_statistics'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 0)
             ->select(
@@ -50,6 +51,8 @@ class StatisticsController extends Controller
                 DB::raw('sum(total_thesis) as total_thesis'),
                 DB::raw('sum(total_screenshot) as total_screenshot'),
             )->first();
+
+        //Total 100
         $total_100 = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 0)
             ->select(
@@ -57,31 +60,33 @@ class StatisticsController extends Controller
             )->groupBy('user_id')->get();
 
         $response['total_100'] = $total_100->where('total_100', 100)->count();
-
+        //Total 0
         $total_0 = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 0)
             ->select(
                 DB::raw('sum(reading_mark + writing_mark + support) as total_0'),
             )->groupBy('user_id')->get();
 
-        $response['total_0'] = $total_100->where('total_0', 0)->count();
+        $response['total_0'] = $total_0->where('total_0', 0)->count();
 
-
+        //Most Read
         $response['most_read'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
             ->groupBy('user_id')
             ->orderBy('max_total_pages', 'desc')
             ->first();
-
+        //Freezed
         $response['freezed'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 1)
             ->count();
+        // Total Users
         $response['total_users'] = User::where('is_excluded', 0)->count();
+        //Total Excluded
         $response['is_excluded'] = User::where('is_excluded', 1)
             ->whereBetween('updated_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->count();
+        //Total New
         $response['is_new'] = User::whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
-        $response['SQL'] = DB::table('User')->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->toSql();
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
