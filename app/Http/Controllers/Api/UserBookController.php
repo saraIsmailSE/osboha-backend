@@ -6,15 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Media;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
+use App\Http\Resources\BookResource;
 use App\Http\Resources\UserExceptionResource;
 use App\Models\Book;
+use App\Models\BookType;
+use App\Models\Mark;
+use App\Models\Thesis;
 use App\Models\User;
 use App\Models\UserBook;
+use App\Models\Week;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserBookController extends Controller
 {
@@ -52,19 +58,131 @@ class UserBookController extends Controller
     /**
      * Find free books belongs to specific user.
      *
-     * @param user_id
+     * @param user_id , page for 
      * @return jsonResponse[user books]
      */
-    public function free($user_id)
+    public function free($user_id, $page)
     {
-        $freeBooks = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'free');
-        })->pluck('id')->toArray();
+        $free_book = BookType::where('type', 'free')->first();
+        $in_progress_books = 0;
 
-        $userFreeBooks = UserBook::whereIn('book_id', $freeBooks)->where('user_id', $user_id)->get();
-        return $this->jsonResponseWithoutMessage($userFreeBooks, 'data', 200);
+        $can_add_books = true;
+        $user = User::find($user_id);
+
+        $userFreeBooks = UserBook::with('book')->where('user_id', $user_id)->whereHas('book.type', function ($q) {
+            $q->where('type', '=', 'free');
+        })->paginate(9);
+
+        if ($userFreeBooks->isNotEmpty()) {
+            $books = collect();
+            foreach ($userFreeBooks as $userFreeBook) {
+                $userFreeBook->book->last_thesis = $user
+                    ->theses()
+                    ->where('book_id', $userFreeBook->book->id)
+                    ->orderBy('end_page', 'desc')
+                    ->orderBy('updated_at', 'desc')->first();
+                $books->push($userFreeBook->book);
+
+                if ($userFreeBook->status == 'in progress') {
+                    $in_progress_books++;
+                }
+            }
+
+            if (($in_progress_books < 3 || $in_progress_books == 0) && $user_id == Auth::id()) {
+                $can_add_books = true;
+            }
+            else{
+                $can_add_books = false;
+            }
+            return $this->jsonResponseWithoutMessage([
+                'books' => BookResource::collection($books),
+                'total' => $books->count(),
+                'in_progress_books' => $in_progress_books,
+                'can_add_books' => $can_add_books,
+            ], 'data', 200);
+        } else {
+            return $this->jsonResponseWithoutMessage([
+                'in_progress_books' => $in_progress_books,
+                'can_add_books' => $can_add_books,
+            ], 'data', 200);
+        }
     }
 
+    /**
+     * Check rules for free book.
+     *
+     * @param user_id
+     * @return jsonResponse[eligible_to_write_thesis boolean]
+     */
+    public function eligibleToWriteThesis($user_id)
+    {
+
+        if ((Auth::id() == $user_id) && Auth::user()->hasRole('book_quality_team')) {
+            return $this->jsonResponseWithoutMessage(true, 'data', 200);
+        } else {
+            $free_book = BookType::where('type', 'free')->first();
+
+            // two books finished
+            $userNotFreeBooks_finished = UserBook::where('user_id', $user_id)->where('status', 'finished')->whereHas('book.type', function ($q) {
+                $q->where('type', '=', 'normal');
+            })->get();
+
+            $userFreeBooks = UserBook::where('user_id', $user_id)->whereHas('book.type', function ($q) {
+                $q->where('type', '=', 'free');
+            })->get();
+
+            if ($userNotFreeBooks_finished->isNotEmpty()) {
+
+                if ($userFreeBooks->count() / $userNotFreeBooks_finished->count() == 0.5) {
+                    return $this->jsonResponseWithoutMessage(true, 'data', 200);
+                }
+            }
+            // no finished books => check for one in progress have at least 1 thesis for this week
+            else {
+                $userNotFreeBooks_notFinished = UserBook::where('user_id', $user_id)->where('status', 'in progress')->whereHas('book.type', function ($q) {
+                    $q->where('type', '=', 'normal');
+                })->get();
+
+                if ($userNotFreeBooks_notFinished->isNotEmpty()) {
+                    /* Check Theses
+                    * at least 18 pages 
+                    * at least full thesis [length=> at least 400 letters] or at least 3 screenshots
+                    */
+
+                    //current week id [ to check this week theses]
+                    $current_week = Week::latest()->pluck('id')->first();
+
+                    $thisWeekMark = Mark::where('user_id', $user_id)
+                        ->where('week_id', $current_week)
+                        ->where('total_pages', '>=', 18)
+                        ->first();
+                    if ($thisWeekMark) {
+                        //  at least 3 screenshots
+                        if ($thisWeekMark->total_screenshot >= 3) {
+                            return $this->jsonResponseWithoutMessage(true, 'data', 200);
+                        }
+                        // at least full thesis [all thesis length >= 400 ]
+                        else {
+                            $theses_max_length =  Thesis::where('mark_id', $thisWeekMark->id)
+                                ->select(
+                                    DB::raw('sum(max_length) as max_length'),
+                                )->first()->max_length;
+
+                            if ($theses_max_length >= 400) {
+                                return $this->jsonResponseWithoutMessage(true, 'data', 200);
+                            }
+                        }
+                    } else {
+                        return $this->jsonResponseWithoutMessage(false, 'data', 200);
+                    }
+                } else {
+                    return $this->jsonResponseWithoutMessage(false, 'data', 200);
+                }
+            }
+
+            //have theses from one book this week
+        }
+    }
 
 
     /**

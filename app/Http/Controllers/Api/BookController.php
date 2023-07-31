@@ -184,7 +184,7 @@ class BookController extends Controller
 
             //create post for book
             $post = $book->posts()->create([
-                'user_id' => Auth::user()->id,
+                'user_id' => Auth::id(),
                 'body' => $request->brief,
                 'type_id' => PostType::where('type', 'book')->first()->id,
                 'timeline_id' => TimelineType::where('type', 'book')->first()->id,
@@ -206,7 +206,7 @@ class BookController extends Controller
      */
     public function show($book_id)
     {
-        $book = Book::where('id', $book_id)->with('userBooks', function ($query) {
+        $book = Book::with('type')->where('id', $book_id)->with('userBooks', function ($query) {
             $query->where('user_id', Auth::user()->id);
         })->first();
 
@@ -231,6 +231,7 @@ class BookController extends Controller
             return $this->jsonResponseWithoutMessage(
                 [
                     'book' => new BookResource($book),
+                    'book_owner'=>$book_post->user_id,
                     'theses_count' => $book->theses->count(),
                     'comments_count' => $comments_count,
                     'rate' => $rate,
