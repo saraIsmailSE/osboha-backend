@@ -54,6 +54,7 @@ class ModifiedThesesController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'week_id' => 'required_if:status,rejected,one_thesis|numeric',
             'modifier_reason_id' => 'required_if:status,rejected,one_thesis|numeric',
             'thesis_id' => 'required|numeric',
             'status' => 'required|string|in:accepted,rejected,one_thesis',
@@ -64,8 +65,8 @@ class ModifiedThesesController extends Controller
         }        
         if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader', "admin"])) {
             //get lastest week
-            $current_week = Week::latest()->first();
-            $modify_timer = $current_week->modify_timer;
+            $week = Week::find($request->week_id);
+            $modify_timer = $week->modify_timer;
 
             //check if current date(full) greater than main timer
             if (date('Y-m-d H:i:s') > $modify_timer) {

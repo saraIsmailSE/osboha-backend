@@ -29,6 +29,8 @@ use App\Notifications\GeneralNotification;
 use App\Notifications\MailSupportPost;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Http\Response;
+
 
 
 class MarkController extends Controller
@@ -317,7 +319,7 @@ class MarkController extends Controller
      * @param  $user_id
      * @return mark;
      */
-    public function ambassadorMark($user_id,$week_id)
+    public function ambassadorMark($user_id, $week_id)
     {
         $user = User::find($user_id);
         if ($user) {
@@ -389,19 +391,26 @@ class MarkController extends Controller
      * @return NotFound;
      * @return NotAuthorized;
      */
-    public function acceptSupport($user_id)
+    public function acceptSupport($user_id, $week_id)
     {
         //get user group and its administrators 
         $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
         //check if auth user is an administrator in the group
         if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
-            $current_week = Week::latest()->pluck('id')->first();
-            $mark = Mark::where('week_id', $current_week)->where('user_id', $user_id)->first();
-            if ($mark) {
-                $mark->update(['support' => 10]);
-                return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+            $week = Week::find($week_id);
+            if ($week) {
+                if (date('Y-m-d H:i:s') > $week->modify_timer) {
+                    return $this->jsonResponseWithoutMessage("لا يمكنك اضافة العلامة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
+                }
+                $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
+                if ($mark) {
+                    $mark->update(['support' => 10]);
+                    return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+                } else {
+                    throw new NotFound;
+                }
             } else {
-                throw new NotFound;
+                return $this->jsonResponseWithoutMessage("Week Not Found", 'data', 200);
             }
         } else {
             throw new NotAuthorized;
@@ -413,26 +422,33 @@ class MarkController extends Controller
      * @param  $user_id
      * @return String;
      */
-    public function rejectSupport($user_id)
+    public function rejectSupport($user_id, $week_id)
     {
         $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
         //check if auth user is an administrator in group
         if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
-            $current_week = Week::latest()->pluck('id')->first();
-            $mark = Mark::where('week_id', $current_week)->where('user_id', $user_id)->first();
-            if ($mark) {
-                $mark->update(['support' => 0]);
+            $week = Week::find($week_id);
+            if ($week) {
+                if (date('Y-m-d H:i:s') > $week->modify_timer) {
+                    return $this->jsonResponseWithoutMessage("لا يمكنك رفض العلامة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
+                }
+                $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
+                if ($mark) {
+                    $mark->update(['support' => 0]);
 
-                //notify ambassador
-                $userToNotify = User::findOrFail($user_id);
-                // with email
-                $userToNotify->notify((new MailSupportPost($userToNotify->name)));
-                // with notification
-                $msg = "لقد تم رفض تصويتك على منشور الدعم لهذا الاسبوع, تفقد المنشور لتعديله";
-                (new NotificationController)->sendNotification($user_id, $msg, GROUPS, $this->getSuportPostPath());
-                return $this->jsonResponseWithoutMessage("support Mark Updated Successfully", 'data', 200);
+                    //notify ambassador
+                    $userToNotify = User::findOrFail($user_id);
+                    // with email
+                    $userToNotify->notify((new MailSupportPost($userToNotify->name)));
+                    // with notification
+                    $msg = "لقد تم رفض تصويتك على منشور الدعم لهذا الاسبوع, تفقد المنشور لتعديله";
+                    (new NotificationController)->sendNotification($user_id, $msg, GROUPS, $this->getSuportPostPath());
+                    return $this->jsonResponseWithoutMessage("support Mark Updated Successfully", 'data', 200);
+                } else {
+                    throw new NotFound;
+                }
             } else {
-                throw new NotFound;
+                return $this->jsonResponseWithoutMessage("Week Not Found", 'data', 200);
             }
         } else {
             throw new NotAuthorized;
@@ -472,7 +488,6 @@ class MarkController extends Controller
             Notification::send($users, new GeneralNotification($sender, $message, 'SUPPORT_MARK'));
 
             return $this->jsonResponseWithoutMessage("تم الاعتماد", 'data', 200);
-
         } else {
             throw new NotAuthorized;
         }

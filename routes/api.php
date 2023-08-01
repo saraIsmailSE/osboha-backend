@@ -273,8 +273,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
             Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
             Route::get('/ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'ambassadorMark']);
-            Route::put('/accept-support/user/{user_id}', [MarkController::class, 'acceptSupport']);
-            Route::put('/reject-support/user/{user_id}', [MarkController::class, 'rejectSupport']);
+            Route::put('/accept-support/user/{user_id}/{week_id}', [MarkController::class, 'acceptSupport']);
+            Route::put('/reject-support/user/{user_id}/{week_id}', [MarkController::class, 'rejectSupport']);
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
         });
         ########End Mark########
