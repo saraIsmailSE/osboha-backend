@@ -364,7 +364,7 @@ class WeekController extends Controller
      */
     public function checkSuperRolesForExcluding($user)
     {
-        if ($user->hasAnyRole(['leader', 'supervisor', 'advisor', 'consultant'])) {
+        if ($user->hasAnyRole(['leader', 'supervisor', 'advisor', 'consultant', "admin"])) {
             $lastRole = $user->roles->first();
             $arabicRole = config('constants.ARABIC_ROLES')[$lastRole->name];
             (new NotificationController)->sendNotification(
@@ -537,7 +537,7 @@ class WeekController extends Controller
                     $exceptionTitle = 'نظام ' . $user_exception->type->type;
                 }
                 //notify the user that his/her exception finished
-            //$user->notify(new MailExceptionFinished($exceptionTitle));
+                //$user->notify(new MailExceptionFinished($exceptionTitle));
                 (new NotificationController)->sendNotification($user_exception->user_id, $message . $exceptionTitle, USER_EXCEPTIONS, $this->getExceptionPath($user_exception->id));
             }
             return TRUE;
@@ -875,7 +875,7 @@ class WeekController extends Controller
                 $previous_week->modify_timer = $dateToAdd->addHours(12);
                 $previous_week->save();
                 Log::channel('newWeek')->info("modify_timer updated Successfully");
-            }    
+            }
             Log::channel('newWeek')->info("no week \ vacation");
         } catch (\Exception $e) {
             Log::channel('newWeek')->info($e);

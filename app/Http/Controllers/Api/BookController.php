@@ -19,6 +19,7 @@ use App\Models\BookType;
 use App\Models\Language;
 use App\Models\PostType;
 use App\Models\Section;
+use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\UserBook;
 use Illuminate\Support\Facades\DB;
@@ -70,7 +71,7 @@ class BookController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            "writer" => Auth::user()->hasanyrole('admin|book_quality_tea|') ? 'required' : '',
+            "writer" => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
             'publisher' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
             'link' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
             'brief' => Auth::user()->hasanyrole('admin|book_quality_team') ? 'required' : '',
@@ -187,7 +188,7 @@ class BookController extends Controller
                 'user_id' => Auth::id(),
                 'body' => $request->brief,
                 'type_id' => PostType::where('type', 'book')->first()->id,
-                'timeline_id' => TimelineType::where('type', 'book')->first()->id,
+                'timeline_id' => Timeline::where('type_id', TimelineType::where('type', 'book')->first()->id)->first()->id,
             ]);
             DB::commit();
 
@@ -231,7 +232,7 @@ class BookController extends Controller
             return $this->jsonResponseWithoutMessage(
                 [
                     'book' => new BookResource($book),
-                    'book_owner'=>$book_post->user_id,
+                    'book_owner' => $book_post->user_id,
                     'theses_count' => $book->theses->count(),
                     'comments_count' => $comments_count,
                     'rate' => $rate,
@@ -272,14 +273,14 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        
+
         if (Auth::user()->can('edit book')) {
             $book = Book::find($request->book_id);
             if ($book) {
                 //if there is Media
 
                 if ($request->hasFile('book_media')) {
-            
+
                     //book//
                     $folder_path = 'books';
 
