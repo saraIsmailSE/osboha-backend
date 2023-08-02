@@ -90,8 +90,7 @@ class UserBookController extends Controller
 
             if (($in_progress_books < 3 || $in_progress_books == 0) && $user_id == Auth::id()) {
                 $can_add_books = true;
-            }
-            else{
+            } else {
                 $can_add_books = false;
             }
             return $this->jsonResponseWithoutMessage([
@@ -117,7 +116,7 @@ class UserBookController extends Controller
     public function eligibleToWriteThesis($user_id)
     {
 
-        if ((Auth::id() == $user_id) && Auth::user()->hasRole('book_quality_team')) {
+        if (Auth::user()->hasRole('book_quality_team')) {
             return $this->jsonResponseWithoutMessage(true, 'data', 200);
         } else {
             $free_book = BookType::where('type', 'free')->first();
@@ -145,10 +144,10 @@ class UserBookController extends Controller
 
                 if ($userNotFreeBooks_notFinished->isNotEmpty()) {
                     /* Check Theses
-                    * at least 18 pages 
-                    * at least full thesis [length=> at least 400 letters] or [at least 3 screenshots or 3 theses]
-
-                    */
+                        * at least 18 pages 
+                        * at least full thesis [length=> at least 400 letters] or [at least 3 screenshots or 3 theses]
+    
+                        */
 
                     //current week id [ to check this week theses]
                     $current_week = Week::latest()->pluck('id')->first();

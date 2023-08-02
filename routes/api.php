@@ -142,6 +142,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########Users########
         Route::group(["prefix" => "users"], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
+            Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
         });
 
         ########Start Roles########
@@ -180,7 +181,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
-            Route::patch('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
+            Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
             
         });
         ########End User Book########
