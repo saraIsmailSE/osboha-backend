@@ -91,6 +91,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
+        Route::post('email/reset', [AuthController::class, 'resetEmail']);
     });
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {

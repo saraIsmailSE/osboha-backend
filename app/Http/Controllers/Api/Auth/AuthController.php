@@ -102,9 +102,9 @@ class AuthController extends Controller
         } catch (\Illuminate\Database\QueryException $e) {
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
-                return $this->jsonResponseWithoutMessage('User already exist','data',202);
+                return $this->jsonResponseWithoutMessage('User already exist', 'data', 202);
             } else {
-                return $this->jsonResponseWithoutMessage($e,'data',500);
+                return $this->jsonResponseWithoutMessage($e, 'data', 500);
             }
         }
     }
@@ -323,9 +323,9 @@ class AuthController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET)
-            return $this->jsonResponseWithoutMessage($status, 'Updated Successfully!',200);
+            return $this->jsonResponseWithoutMessage($status, 'Updated Successfully!', 200);
         else
-            return $this->jsonResponseWithoutMessage($status,'data',500);
+            return $this->jsonResponseWithoutMessage($status, 'data', 500);
     }
 
     /**
@@ -421,5 +421,33 @@ class AuthController extends Controller
         $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
 
         return $this->jsonResponseWithoutMessage('تم التعديل بنجاح', 'data', 200);
+    }
+    /**
+     *reset auth email.
+     * 
+     * @return jsonResponse;
+     */
+
+    public function resetEmail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|unique:users,email',
+        ]);
+
+        //validator errors response
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        try {
+            $user = User::find(Auth::id());
+            $user->email = $request->email;
+            $user->save();
+            //sendEmailVerificationNotification
+            $user->sendEmailVerificationNotification();
+
+            return $this->jsonResponseWithoutMessage('Reset Successfully!', 'data', 200);
+        } catch (\Exception $e) {
+            return $this->jsonResponseWithoutMessage($e, 'data', 201);
+        }
     }
 }
