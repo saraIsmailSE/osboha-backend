@@ -343,7 +343,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/all-achievements/{group_id}/{week_id}', [GroupController::class, 'allAchievements']);
             Route::get('/search-for-ambassador-achievement/{ambassador_name}/{group_id}/{week_filter?}', [GroupController::class, 'searchForAmbassadorAchievement']);
             Route::get('/search-for-ambassador/{ambassador_name}/{group_id}', [GroupController::class, 'searchForAmbassador']);
-            Route::get('/achievement-as-pages/{group_id}/{week_filter?}', [GroupController::class, 'achievementAsPages']);
+            Route::get('/achievement-as-pages/{group_id}/{week_id}', [GroupController::class, 'achievementAsPages']);
             Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
             Route::get('/audit-marks/{group_id}', [GroupController::class, 'auditMarks']);

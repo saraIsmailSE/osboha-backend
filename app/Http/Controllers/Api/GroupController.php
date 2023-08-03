@@ -455,22 +455,16 @@ class GroupController extends Controller
     /**
      * all ambassadors achievments as pages, order by total pages desc.
      * 
-     * @param  group _id , week filter [current - previous ]
+     * @param  group _id , week id
      * @return ambassadors achievments as total pages
      */
 
-    public function achievementAsPages($group_id, $week_filter = "current")
+    public function achievementAsPages($group_id, $week_id)
     {
-        if ($week_filter == 'current') {
-            $week = Week::latest()->pluck('id')->toArray();
-        }
-        if ($week_filter == 'previous') {
-            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
-        }
-
+        $week = Week::find($week_id);
         $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
         $response['group_users'] = $response['group']->userAmbassador->count() + 1;
-        $response['ambassadors_achievement'] = Mark::where('week_id', $week)->whereIn('user_id',  $response['group']->userAmbassador->pluck('id'))->orderBy('total_pages', 'desc')->get();
+        $response['ambassadors_achievement'] = Mark::where('week_id', $week->id)->whereIn('user_id',  $response['group']->userAmbassador->pluck('id'))->orderBy('total_pages', 'desc')->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 

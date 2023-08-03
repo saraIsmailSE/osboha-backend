@@ -174,7 +174,7 @@ class BookController extends Controller
                 }
             }
             $book->save();
-            if ($type->type == 'free') {
+            if ($book->type->type == 'free') {
                 $userBook = UserBook::create([
                     'user_id' => Auth::id(),
                     'book_id' => $book->id,
