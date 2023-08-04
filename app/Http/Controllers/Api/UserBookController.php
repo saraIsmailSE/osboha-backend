@@ -116,10 +116,11 @@ class UserBookController extends Controller
     public function eligibleToWriteThesis($user_id)
     {
 
+
         if (Auth::user()->hasRole('book_quality_team')) {
+
             return $this->jsonResponseWithoutMessage(true, 'data', 200);
         } else {
-            $free_book = BookType::where('type', 'free')->first();
 
             // two books finished
             $userNotFreeBooks_finished = UserBook::where('user_id', $user_id)->where('status', 'finished')->whereHas('book.type', function ($q) {
@@ -131,12 +132,10 @@ class UserBookController extends Controller
             })->get();
 
             if ($userNotFreeBooks_finished->isNotEmpty()) {
-
                 if ($userFreeBooks->count() / $userNotFreeBooks_finished->count() == 0.5) {
                     return $this->jsonResponseWithoutMessage(true, 'data', 200);
                 }
-            }
-            // no finished books => check for one in progress have at least 1 thesis for this week
+                            // no finished books => check for one in progress have at least 1 thesis for this week
             else {
                 $userNotFreeBooks_notFinished = UserBook::where('user_id', $user_id)->where('status', 'in progress')->whereHas('book.type', function ($q) {
                     $q->where('type', '=', 'normal');
@@ -156,6 +155,7 @@ class UserBookController extends Controller
                         ->where('week_id', $current_week)
                         ->where('total_pages', '>=', 18)
                         ->first();
+
                     if ($thisWeekMark) {
                         //  at least 3 screenshots or 3 theses
                         if ($thisWeekMark->total_screenshot >= 3 || $thisWeekMark->total_thesis >= 3) {
@@ -178,6 +178,8 @@ class UserBookController extends Controller
                 } else {
                     return $this->jsonResponseWithoutMessage(false, 'data', 200);
                 }
+            }
+
             }
 
             //have theses from one book this week
