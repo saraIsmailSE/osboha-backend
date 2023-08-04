@@ -287,9 +287,7 @@ class UserProfileController extends Controller
     public function profileStatistics($user_id)
     {
         $response['week'] = Week::latest()->first();
-        $group_id = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->pluck('group_id')->first();
-        return $this->jsonResponseWithoutMessage($group_id, 'data', 200);
-
+        $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
         $follow_up_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $response['group_week_avg'] = $this->groupAvg($group_id,  $response['week']->id, $follow_up_group->leaderAndAmbassadors->pluck('id'));
         //        $response['group_week_avg']=0;
