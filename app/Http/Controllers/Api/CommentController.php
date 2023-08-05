@@ -25,6 +25,7 @@ use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CommentController extends Controller
@@ -108,7 +109,11 @@ class CommentController extends Controller
                 $thesis['book_id'] = $book->id;
                 $thesis['start_page'] = $request->start_page;
                 $thesis['end_page'] = $request->end_page;
-                $thesis['type_id'] = ThesisType::where('type', $book->type->type)->first()->id;
+                if ($book->type->type == 'free') {
+                    $thesis['type_id'] = ThesisType::where('type', "normal")->first()->id;
+                } else {
+                    $thesis['type_id'] = ThesisType::where('type', $book->type->type)->first()->id;
+                }
                 if ($request->has('body')) {
                     // $thesis['max_length'] = strlen(trim($request->body)); //getting the length wrong
                     $thesis['max_length'] = Str::length(trim($request->body));
@@ -197,6 +202,8 @@ class CommentController extends Controller
 
             return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
         } catch (\Exception $e) {
+            Log::channel('books')->info($e);
+
             DB::rollback();
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
         }

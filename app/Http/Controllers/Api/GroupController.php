@@ -48,7 +48,8 @@ class GroupController extends Controller
 
     public function index()
     {
-        if (Auth::user()->can('list groups')) {
+
+        if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
             $groups = null;
             if (isset($_GET['name'])  && $_GET['name'] != '') {
 
