@@ -63,6 +63,8 @@ class WeekController extends Controller
             $new_week_id = $this->insert_week();
 
             $new_week = Week::find($new_week_id);
+            $new_week->modify_timer = $new_week->main_timer->addHours(12)->addDays(7);
+
 
             if ($new_week->is_vacation) {
                 $this->notifyUsersIsVacation();
@@ -231,7 +233,6 @@ class WeekController extends Controller
 
         //add 7 days to the date to get the end of the week
         $week->main_timer = $dateToAdd->addDays(7);
-        $week->modify_timer = $dateToAdd->addHours(12)->addDays(7);
         if ($week->save()) { //insert new week
             return $week->id;
         }
@@ -847,10 +848,10 @@ class WeekController extends Controller
             foreach ($users as $user) {
                 $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
                 $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
-                // $user->notify(
-                //     (new \App\Notifications\MailExcludeAmbassador())
-                //         ->delay(now()->addMinutes(5))
-                // );
+                $user->notify(
+                    (new \App\Notifications\MailExcludeAmbassador())
+                        ->delay(now()->addMinutes(5))
+                );
 
             }
         } catch (\Exception $e) {
