@@ -333,7 +333,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/create', [GroupController::class, 'create']);
             Route::get('/show/{group_id}', [GroupController::class, 'show']);
             Route::get('/show-basic-info/{group_id}', [GroupController::class, 'showBasicInfo']);
-            Route::post('/GroupByType', [GroupController::class, 'GroupByType']);
+            Route::get('/group-by-type/{type}', [GroupController::class, 'GroupByType']);
             Route::post('/update', [GroupController::class, 'update']);
             Route::delete('/delete/{group_id}', [GroupController::class, 'delete']);
             Route::get('/books/{group_id}', [GroupController::class, 'books']);
@@ -351,6 +351,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/statistics/{group_id}/{week_filter?}', [GroupController::class, 'statistics']);
             Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
+            Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
         });
         ############End Group############
 

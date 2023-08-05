@@ -294,9 +294,9 @@ class AuthController extends Controller
         );
 
         if ($status === Password::RESET_LINK_SENT)
-            return $this->jsonResponse(__($status), 'data', 200, 'Send Successfully!');
+        return $this->jsonResponseWithoutMessage("تفقد بريدك الالكتروني", 'data', 200);
         else
-            return $this->jsonResponseWithoutMessage(['email' => __($status)], 'data', 201);
+        return $this->jsonResponseWithoutMessage("  حدث خطأ", 'data', 200);
     }
 
     protected function sendResetResponse(Request $request)

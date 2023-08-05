@@ -91,25 +91,16 @@ class GroupController extends Controller
             throw new NotAuthorized;
         }
     }
-    public function GroupByType(Request $request)
+    public function GroupByType($type)
     {
-        $validator = Validator::make($request->all(), [
-            'type_id' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        if (Auth::user()->can('list groups')) {
-
-            $groups = Group::where('type_id', $request->type_id)->get();
-            if ($groups->isNotEmpty()) {
-                return $this->jsonResponseWithoutMessage(GroupResource::collection($groups), 'data', 200);
-            } else {
-                throw new NotFound;
-            }
+        $groups = Group::whereHas('type', function ($q) use ($type) {
+            $q->where('type', '=', $type);
+        })->get();
+        if ($groups->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage($groups, 'data', 200);
         } else {
-            throw new NotAuthorized;
+            return $this->jsonResponseWithoutMessage(null, 'data', 200);
         }
     }
 
@@ -399,7 +390,7 @@ class GroupController extends Controller
      * @param  group _id
      * @return group info , week satistics [100 - 0 -incomplete - most read]
      */
-    public function BasicMarksView($group_id,$week_id)
+    public function BasicMarksView($group_id, $week_id)
     {
         $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $marks['group_users'] =  $marks['group']->leaderAndAmbassadors->count();
@@ -444,7 +435,7 @@ class GroupController extends Controller
         // if ($week_filter == 'previous') {
         //     $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
         // }
-        $marks['week']= Week::find($week_id);
+        $marks['week'] = Week::find($week_id);
         $marks['group'] = Group::with('allUserAmbassador')->where('id', $group_id)->first();
         $marks['group_users'] = $marks['group']->allUserAmbassador->count() + 1;
         $marks['ambassadors_achievement'] = Mark::where('week_id', $marks['week']->id)->whereIn('user_id', $marks['group']->allUserAmbassador->pluck('id'))->get();
@@ -810,5 +801,64 @@ class GroupController extends Controller
 
         $response['month_achievement_title'] = Week::whereIn('id', $weeksInMonth->pluck('id'))->pluck('title')->first();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+
+
+    public function assignAdministrator(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'group_id' => 'required',
+            'user' => 'required|email',
+            'user_type' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        try {
+            $arabicRole = config('constants.ARABIC_ROLES')[$request->user_type];
+
+            //check if user have role of the selecte user_type
+            $user = User::where('email', $request->user)->first();
+            if ($user) {
+                if ($user->hasRole($request->user_type)) {
+                    //get all user ambassadors [in the advising group => they are a supervisors in other groups]
+                    $groups = Group::with('userAmbassador')->where('id', $request->group_id)->get;
+                    if ($groups->isNotEmpty()) {
+                        // get groups for each supervisor and add advisor
+                        foreach ($groups->userAmbassador as $supervisor) {
+                            // get groups for each supervisor 
+
+                            $supervisor_groups = UserGroup::where('user_id', $supervisor->id)
+                                ->where('user_type', 'supervisor')
+                                ->whereNull('user_groups.termination_reason')->get();
+
+                            //add advisor
+                            foreach ($supervisor_groups as $group) {
+                                UserGroup::updateOrCreate(
+                                    [
+                                        'user_id' => $user->id,
+                                        'group_id' => $group->id
+                                    ],
+                                    ['user_type' => $request->user_type]
+                                );
+                            }
+                        }
+                        return $this->jsonResponseWithoutMessage("تمت الاضافة", 'data', 200);
+                    } else {
+                        return $this->jsonResponseWithoutMessage("المجموعة غير موجودة", 'data', 200);
+                    }
+                } else {
+                    return $this->jsonResponseWithoutMessage("قم بترقية العضو ل" . $arabicRole . " أولاً", 'data', 200);
+                }
+            }
+            else {
+                return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
+            }
+        } catch (\Exception $e) {
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
     }
 }
