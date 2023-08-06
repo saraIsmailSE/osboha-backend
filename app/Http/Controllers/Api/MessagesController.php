@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MessageEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Traits\ResponseJson;
@@ -80,6 +81,7 @@ class MessagesController extends Controller
                 $this->createMedia($media, $message->id, 'message', 'messages/' . $room->id);
             }
         }
+        //event(new MessageEvent($message->body ,$request->receiver_id));
 
         return $this->jsonResponseWithoutMessage(
             [

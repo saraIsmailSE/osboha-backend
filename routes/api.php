@@ -61,6 +61,7 @@ use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Events\NotificationSent;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,19 +80,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
     });
     ########End Media route########
-    Route::get('/myTEST', function () {
-        // $user = User::find(1);
-        // $msg = "لديك طلب صداقة ";
-        // (new NotificationController)->sendNotification($user->id, $msg, 'friends');
-        $userToNotify = User::where('email','saraismailse@gmail.com')->first();
-        $userToNotify->notify(
-            (new \App\Notifications\UpdateExceptionStatus("status", "userException->note", "userException->start_at"," userException->end_at"))
-                ->delay(now()->addMinutes(1))
-        );
-
-        event(new NotificationsEvent('hello world'));
-
-    });
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -110,6 +98,8 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
+        Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
 
         Route::post("/test-room", function (Request $request) {
             $room = Room::where('type', 'private')
@@ -136,6 +126,15 @@ Route::group(['prefix' => 'v1'], function () {
             return response()->json([
                 'room' => $room
             ]);
+        });
+
+        Route::get('/myTEST', function () {
+            // $user = User::find(1);
+            // $msg = "لديك طلب صداقة ";
+            // (new NotificationController)->sendNotification($user->id, $msg, 'friends');
+            $userToNotify = User::where('email','saraismailse@gmail.com')->first();
+            event(new NotificationsEvent('hello world'));
+
         });
 
         Route::post('/refresh', [AuthController::class, 'refresh']);
