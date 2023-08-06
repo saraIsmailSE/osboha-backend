@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\NotificationsEvent;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 
@@ -58,6 +59,7 @@ use App\Http\Controllers\Api\{
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Events\NotificationSent;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -124,13 +126,16 @@ Route::group(['prefix' => 'v1'], function () {
         });
 
         Route::get('/myTEST', function () {
-            $user = User::find(1);
-            $msg = "لديك طلب صداقة ";
-            (new NotificationController)->sendNotification($user->id, $msg, 'friends');
+            // $user = User::find(1);
+            // $msg = "لديك طلب صداقة ";
+            // (new NotificationController)->sendNotification($user->id, $msg, 'friends');
+            $userToNotify = User::where('email','saraismailse@gmail.com')->first();
+            $userToNotify->notify(
+                (new \App\Notifications\UpdateExceptionStatus("status", "userException->note", "userException->start_at"," userException->end_at"))
+                    ->delay(now()->addMinutes(1))
+            );
 
-            // $test = 'اشعار جديد';
-            // $user=User::find(Auth::id());
-            // event(new NotificationsEvent($test,$user));
+            event(new NotificationsEvent('hello world'));
 
         });
 
