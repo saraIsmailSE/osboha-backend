@@ -295,6 +295,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/supervisors-audit/{advisor_id}', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
             Route::post('/add-note', [AuditMarkController::class, 'addNote']);
             Route::get('/get-notes/{mark_for_audit_id}', [AuditMarkController::class, 'getNotes']);
+            Route::get('/review-pending-theses/{supervisor_id}', [AuditMarkController::class, 'reviewPendingTheses']);
         });
         ######## End Audit Mark ########
         ########Modified Theses########
