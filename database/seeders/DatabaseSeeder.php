@@ -26,8 +26,9 @@ class DatabaseSeeder extends Seeder
         // $this->call(ModificationReasonSeeder::class);
         //$this->call(BookV2Seeder::class);
 
-        $this->call(BooksRoleSeeder::class);
-
+        //$this->call(BooksRoleSeeder::class);
+        //$this->call(NewSectionsLevelsSeeder::class);
+        
         ######LOCAL#######
         // $this->call(PermissionsSeeder::class);
         // $this->call(TypeSectionSeeder::class); //contains all the types and sections

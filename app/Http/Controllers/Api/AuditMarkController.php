@@ -25,6 +25,7 @@ use App\Models\AuditType;
 use App\Models\MarksForAudit;
 use App\Models\Thesis;
 use App\Models\UserException;
+use App\Models\GroupType;
 use Carbon\Carbon;
 use Throwable;
 use App\Traits\GroupTrait;
@@ -432,6 +433,46 @@ class AuditMarkController extends Controller
         } catch (Throwable $e) {
             report($e);
             return false;
+        }
+    }
+
+    public function reviewPendingTheses($supervisor_id) {
+
+        if (Auth::user()->hasanyrole('admin|advisor|supervisor')) {
+            $response = [];
+            //supervising group and leaders for this supervisor
+            $group = Group::whereHas('type', function ($q) {$q->where('type','supervising'); })
+            ->whereHas('users', function ($q) use ($supervisor_id) {$q->where('user_id',$supervisor_id); }) 
+            ->with('userAmbassador')
+            ->first();
+
+            if($group) {
+            foreach ($group->userAmbassador as $leader) {
+                // all ambassadors foreach leader
+                $ambassadors =  UserGroup::where('user_id', $leader->id)->where('user_type', 'leader')
+                ->with('group.userAmbassador')
+                ->first();
+                $c = 0;
+                foreach ($ambassadors->group->userAmbassador as $ambassador) {
+                    // pendingThesis foreach ambassador
+                    $pendingThesis = Thesis::where('user_id', $ambassador->id)->where('status', 'pending')->get();
+
+                    if(($pendingThesis->isNotEmpty())) {
+                        $response[$leader->name] ['pendingThesis']  [$ambassador->name]  = $pendingThesis;
+                        $c  += count($response[$leader->name] ['pendingThesis'] [$ambassador->name]);
+                    }
+                }
+                if ($c > 0){
+                    $response[$leader->name] ['totalPendingThesis']  = $c ;
+                }
+            }
+
+           return $this->jsonResponseWithoutMessage($response, 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
         }
     }
 }
