@@ -37,7 +37,7 @@ class BookController extends Controller
     public function index()
     {
         $books = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal');
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])->paginate(9);
@@ -429,7 +429,7 @@ class BookController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $books = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal');
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
         })->where('name', 'LIKE', '%' . $request->name . '%')
             ->with(['userBooks' => function ($query) {
                 $query->where('user_id', Auth::user()->id);
@@ -463,7 +463,9 @@ class BookController extends Controller
             $books = Book::where('language_id', $language_id)
                 ->with(['userBooks' => function ($query) {
                     $query->where('user_id', Auth::user()->id);
-                }])
+                }])->whereHas('type', function ($q) {
+                    $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+                })
                 ->paginate(9);
             if ($books->isNotEmpty()) {
                 return $this->jsonResponseWithoutMessage(
@@ -486,8 +488,10 @@ class BookController extends Controller
     {
         $books = Book::with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])
-            ->orderBy('created_at', 'desc')->take(9)->get();
+        }])->whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+        })
+        ->orderBy('created_at', 'desc')->take(9)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
