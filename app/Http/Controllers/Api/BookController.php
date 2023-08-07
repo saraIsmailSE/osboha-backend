@@ -37,7 +37,7 @@ class BookController extends Controller
     public function index()
     {
         $books = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])->paginate(9);
@@ -429,7 +429,7 @@ class BookController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $books = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })->where('name', 'LIKE', '%' . $request->name . '%')
             ->with(['userBooks' => function ($query) {
                 $query->where('user_id', Auth::user()->id);
@@ -464,7 +464,7 @@ class BookController extends Controller
                 ->with(['userBooks' => function ($query) {
                     $query->where('user_id', Auth::user()->id);
                 }])->whereHas('type', function ($q) {
-                    $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+                    $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
                 })
                 ->paginate(9);
             if ($books->isNotEmpty()) {
@@ -489,7 +489,7 @@ class BookController extends Controller
         $books = Book::with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])->whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })
         ->orderBy('created_at', 'desc')->take(9)->get();
         if ($books->isNotEmpty()) {
