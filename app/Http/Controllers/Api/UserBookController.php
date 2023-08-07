@@ -131,57 +131,54 @@ class UserBookController extends Controller
                 $q->where('type', '=', 'free');
             })->get();
 
-            if ($userNotFreeBooks_finished->isNotEmpty()) {
-                if ($userFreeBooks->count() / $userNotFreeBooks_finished->count() == 0.5) {
-                    return $this->jsonResponseWithoutMessage(true, 'data', 200);
-                }
-                // no finished books => check for one in progress have at least 1 thesis for this week
-                else {
-                    $userNotFreeBooks_notFinished = UserBook::where('user_id', $user_id)->where('status', 'in progress')->whereHas('book.type', function ($q) {
-                        $q->where('type', '=', 'normal');
-                    })->get();
+            if ($userNotFreeBooks_finished->isNotEmpty() && $userFreeBooks->count() / $userNotFreeBooks_finished->count() == 0.5) {
+                return $this->jsonResponseWithoutMessage(true, 'data', 200);
+            }
+            // no finished books => check for one in progress have at least 1 thesis for this week
+            else {
+                $userNotFreeBooks_notFinished = UserBook::where('user_id', $user_id)->where('status', 'in progress')->whereHas('book.type', function ($q) {
+                    $q->where('type', '=', 'normal');
+                })->get();
 
-                    if ($userNotFreeBooks_notFinished->isNotEmpty()) {
-                        /* Check Theses
+                if ($userNotFreeBooks_notFinished->isNotEmpty()) {
+                    /* Check Theses
                         * at least 18 pages 
                         * at least full thesis [length=> at least 400 letters] or [at least 3 screenshots or 3 theses]
     
                         */
 
-                        //current week id [ to check this week theses]
-                        $current_week = Week::latest()->pluck('id')->first();
+                    //current week id [ to check this week theses]
+                    $current_week = Week::latest()->pluck('id')->first();
 
-                        $thisWeekMark = Mark::where('user_id', $user_id)
-                            ->where('week_id', $current_week)
-                            ->where('total_pages', '>=', 18)
-                            ->first();
+                    $thisWeekMark = Mark::where('user_id', $user_id)
+                        ->where('week_id', $current_week)
+                        ->where('total_pages', '>=', 18)
+                        ->first();
 
-                        if ($thisWeekMark) {
-                            //  at least 3 screenshots or 3 theses
-                            if ($thisWeekMark->total_screenshot >= 3 || $thisWeekMark->total_thesis >= 3) {
+                    if ($thisWeekMark) {
+
+                        //  at least 3 screenshots or 3 theses
+                        if ($thisWeekMark->total_screenshot >= 3 || $thisWeekMark->total_thesis >= 3) {
+                            return $this->jsonResponseWithoutMessage(true, 'data', 200);
+                        }
+                        // at least full thesis [all thesis length >= 400 ]
+                        else {
+                            $theses_max_length =  Thesis::where('mark_id', $thisWeekMark->id)
+                                ->select(
+                                    DB::raw('sum(max_length) as max_length'),
+                                )->first()->max_length;
+
+                            if ($theses_max_length >= 400) {
                                 return $this->jsonResponseWithoutMessage(true, 'data', 200);
                             }
-                            // at least full thesis [all thesis length >= 400 ]
-                            else {
-                                $theses_max_length =  Thesis::where('mark_id', $thisWeekMark->id)
-                                    ->select(
-                                        DB::raw('sum(max_length) as max_length'),
-                                    )->first()->max_length;
-
-                                if ($theses_max_length >= 400) {
-                                    return $this->jsonResponseWithoutMessage(true, 'data', 200);
-                                }
-                            }
-                        } else {
-                            return $this->jsonResponseWithoutMessage(false, 'data', 200);
                         }
                     } else {
                         return $this->jsonResponseWithoutMessage(false, 'data', 200);
                     }
+                } else {
+                    return $this->jsonResponseWithoutMessage(false, 'data', 200);
                 }
             }
-            return $this->jsonResponseWithoutMessage(false, 'data', 200);
-
             //have theses from one book this week
         }
     }
