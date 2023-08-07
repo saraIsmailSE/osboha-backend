@@ -825,25 +825,28 @@ class GroupController extends Controller
             if ($user) {
                 if ($user->hasRole($request->user_type)) {
                     //get all user ambassadors [in the advising group => they are a supervisors in other groups]
-                    $groups = Group::with('userAmbassador')->where('id', $request->group_id)->get;
-                    if ($groups->isNotEmpty()) {
+                    $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
+
+                    if ($group) {
                         // get groups for each supervisor and add advisor
-                        foreach ($groups->userAmbassador as $supervisor) {
+                        foreach ($group->userAmbassador as $supervisor) {
                             // get groups for each supervisor 
 
                             $supervisor_groups = UserGroup::where('user_id', $supervisor->id)
                                 ->where('user_type', 'supervisor')
-                                ->whereNull('user_groups.termination_reason')->get();
+                                ->whereNull('termination_reason')->get();
 
                             //add advisor
-                            foreach ($supervisor_groups as $group) {
-                                UserGroup::updateOrCreate(
-                                    [
-                                        'user_id' => $user->id,
-                                        'group_id' => $group->id
-                                    ],
-                                    ['user_type' => $request->user_type]
-                                );
+                            if ($supervisor_groups->isNotEmpty()) {
+                                foreach ($supervisor_groups as $group) {
+                                    UserGroup::updateOrCreate(
+                                        [
+                                            'user_id' => $user->id,
+                                            'group_id' => $group->id
+                                        ],
+                                        ['user_type' => $request->user_type]
+                                    );
+                                }
                             }
                         }
                         return $this->jsonResponseWithoutMessage("تمت الاضافة", 'data', 200);
@@ -853,8 +856,7 @@ class GroupController extends Controller
                 } else {
                     return $this->jsonResponseWithoutMessage("قم بترقية العضو ل" . $arabicRole . " أولاً", 'data', 200);
                 }
-            }
-            else {
+            } else {
                 return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
             }
         } catch (\Exception $e) {

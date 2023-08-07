@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Log;
 
 class AuditMarkController extends Controller
 {
-    use ResponseJson , GroupTrait, PathTrait;
+    use ResponseJson, GroupTrait, PathTrait;
 
 
     /**
@@ -46,7 +46,7 @@ class AuditMarkController extends Controller
 
     public function generateAuditMarks()
     {
-        
+
         DB::beginTransaction();
         try {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
@@ -218,12 +218,10 @@ class AuditMarkController extends Controller
 
                 #### End Advisor Audit ####
                 Log::channel('auditMarks')->info("generated successfully");
-            
             } else {
                 Log::channel('auditMarks')->info("no Marks for audit [vacation]");
             }
             DB::commit();
-
         } catch (\Exception $e) {
             Log::channel('auditMarks')->info($e);
             DB::rollBack();
@@ -241,18 +239,17 @@ class AuditMarkController extends Controller
     public function groupAuditMarks($group_id)
     {
         $response['group'] = Group::with('leaderAndAmbassadors')->find($group_id);
-        $response['week'] = Week::where('is_vacation',0)->orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        $response['week'] = Week::where('is_vacation', 0)->orderBy('created_at', 'desc')->skip(1)->take(2)->first();
 
         $response['audit_mark'] = AuditMark::where('week_id', $response['week']->id)->where('group_id', $group_id)->first();
         //Audit Marks by type [full - variant]
-        if( $response['audit_mark']){
+        if ($response['audit_mark']) {
             $response['fullAudit'] = MarksForAudit::whereHas('type', function ($q) {
                 $q->where('name', '=', 'full');
             })->where('audit_marks_id',  $response['audit_mark']->id)->get();
             $response['variantAudit'] = MarksForAudit::whereHas('type', function ($q) {
                 $q->where('name', '=', 'variant');
             })->where('audit_marks_id',  $response['audit_mark']->id)->get();
-
         }
         $response['exceptions'] = UserException::with('User')->whereIn('user_id', $response['group']->leaderAndAmbassadors->pluck('id'))->where('week_id', $response['week']->id)->latest()->get();
 
@@ -326,7 +323,7 @@ class AuditMarkController extends Controller
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
 
             foreach ($response['groups']  as $key => $group) {
-                $week_avg= $this->groupAvg($group->id,  $previous_week, $group->leaderAndAmbassadors->pluck('id'));
+                $week_avg = $this->groupAvg($group->id,  $previous_week, $group->leaderAndAmbassadors->pluck('id'));
                 //add marks_week_avg to group object
                 $group->setAttribute('marks_week_avg', $week_avg);
             }
@@ -405,10 +402,10 @@ class AuditMarkController extends Controller
                 'from_id' => Auth::id(),
                 'body' => $request->body
             ]);
-            $mark=Mark::find($request->mark_for_audit_id);
+            $mark = Mark::find($request->mark_for_audit_id);
 
             $msg = "لقد أرسل إليك " . Auth::user()->name . " ملاحظة حول علامة";
-            (new NotificationController)->sendNotification($mark->user->parent_id, $msg, AUDIT_MARKS, $this->getAuditMarkPath( $request->mark_for_audit_id));
+            (new NotificationController)->sendNotification($mark->user->parent_id, $msg, AUDIT_MARKS, $this->getAuditMarkPath($request->mark_for_audit_id));
 
             return $this->jsonResponseWithoutMessage($note, 'data', 200);
         } catch (Throwable $e) {
@@ -427,7 +424,7 @@ class AuditMarkController extends Controller
     public function getNotes($mark_for_audit_id)
     {
         try {
-            $notes = AuditNotes::where('mark_for_audit_id' , $mark_for_audit_id)->get();
+            $notes = AuditNotes::where('mark_for_audit_id', $mark_for_audit_id)->get();
 
             return $this->jsonResponseWithoutMessage($notes, 'data', 200);
         } catch (Throwable $e) {
@@ -436,38 +433,55 @@ class AuditMarkController extends Controller
         }
     }
 
-    public function reviewPendingTheses($supervisor_id) {
-
+    public function pendingTheses($supervisor_id, $week_id = 0)
+    {
         if (Auth::user()->hasanyrole('admin|advisor|supervisor')) {
+            if ($week_id == 0) {
+                $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+                $week_id = $previous_week->id;
+            }
             $response = [];
+
             //supervising group and leaders for this supervisor
-            $group = Group::whereHas('type', function ($q) {$q->where('type','supervising'); })
-            ->whereHas('users', function ($q) use ($supervisor_id) {$q->where('user_id',$supervisor_id); }) 
-            ->with('userAmbassador')
-            ->first();
-
-            if($group) {
-            foreach ($group->userAmbassador as $leader) {
-                // all ambassadors foreach leader
-                $ambassadors =  UserGroup::where('user_id', $leader->id)->where('user_type', 'leader')
-                ->with('group.userAmbassador')
+            $group = Group::whereHas('type', function ($q) {
+                $q->where('type', 'supervising');
+            })
+                ->whereHas('users', function ($q) use ($supervisor_id) {
+                    $q->where('user_id', $supervisor_id);
+                })
+                ->with('userAmbassador')
                 ->first();
-                $c = 0;
-                foreach ($ambassadors->group->userAmbassador as $ambassador) {
-                    // pendingThesis foreach ambassador
-                    $pendingThesis = Thesis::where('user_id', $ambassador->id)->where('status', 'pending')->get();
 
-                    if(($pendingThesis->isNotEmpty())) {
-                        $response[$leader->name] ['pendingThesis']  [$ambassador->name]  = $pendingThesis;
-                        $c  += count($response[$leader->name] ['pendingThesis'] [$ambassador->name]);
+            if ($group) {
+                foreach ($group->userAmbassador as $leader) {
+                    // all ambassadors foreach leader
+                    $ambassadors =  UserGroup::where('user_id', $leader->id)->where('user_type', 'leader')
+                        ->with('group.userAmbassador')
+                        ->first();
+                    $c = 0;
+                    if ($ambassadors) {
+
+                        foreach ($ambassadors->group->userAmbassador as $ambassador) {
+                            if ($ambassador) {
+                                // pendingThesis foreach ambassador
+                                $pendingThesis = Thesis::where('user_id', $ambassador->id)->where('status', 'pending')
+                                    ->whereHas('mark', function ($q) use ($week_id) {
+                                        $q->where('week_id', $week_id);
+                                    })->get();
+
+                                if (($pendingThesis->isNotEmpty())) {
+                                    $response[$leader->name]['pendingThesis'][$ambassador->name]  = $pendingThesis;
+                                    // $c  += count($response[$leader->name]['pendingThesis'][$ambassador->name]);
+                                }
+                            }
+                        }
+                        // if ($c > 0) {
+                        //     $response[$leader->name]['totalPendingThesis']  = $c;
+                        // }
                     }
                 }
-                if ($c > 0){
-                    $response[$leader->name] ['totalPendingThesis']  = $c ;
-                }
-            }
 
-           return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotFound;
             }
