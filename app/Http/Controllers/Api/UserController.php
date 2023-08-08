@@ -26,7 +26,7 @@ class UserController extends Controller
         $response['user'] = User::with('parent')->where('email', $email )->first();
         if($response['user']){
             $response['roles'] = $response['user']->getRoleNames();
-            $response['followup_team'] = UserGroup::where('user_id' , $response['user']->id)->where('user_type','ambassador')->whereNull('termination_reason')->first();
+            $response['followup_team'] = UserGroup::with('group')->where('user_id' , $response['user']->id)->where('user_type','ambassador')->whereNull('termination_reason')->first();
             $response['groups'] = UserGroup::where('user_id' , $response['user']->id)->get();
             return $this->jsonResponseWithoutMessage($response, "data", 200);
         }

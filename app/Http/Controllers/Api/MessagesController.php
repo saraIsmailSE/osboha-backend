@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\MessageEvent;
+use App\Events\NotificationsEvent;
+use App\Events\RoomsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Traits\ResponseJson;
@@ -13,8 +15,11 @@ use Illuminate\Support\Facades\DB;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Http\Resources\MessageResource;
+use App\Http\Resources\RoomReceiverResource;
 use App\Http\Resources\RoomResource;
+use App\Http\Resources\RoomUserResource;
 use App\Models\Room;
+use App\Models\User;
 use App\Traits\MediaTraits;
 use Illuminate\Support\Str;
 
@@ -81,7 +86,24 @@ class MessagesController extends Controller
                 $this->createMedia($media, $message->id, 'message', 'messages/' . $room->id);
             }
         }
-        //event(new MessageEvent($message->body ,$request->receiver_id));
+
+        event(new MessageEvent(new MessageResource($message)));
+        $receiver = User::find($request->receiver_id);
+
+        $rooms = Room::where("type", "private")
+            ->whereHas('users', function ($q) use ($receiver) {
+                $q->where('user_id', $receiver->id)
+                    ->groupBy('room_id');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if (!$rooms->isEmpty()) {
+            $rooms = RoomReceiverResource::collection($rooms, $receiver->id);
+        }
+
+        $unreadMessages = $this->unreadMessages($receiver->id);
+        event(new RoomsEvent($rooms, $unreadMessages, $receiver));
 
         return $this->jsonResponseWithoutMessage(
             [
@@ -93,7 +115,6 @@ class MessagesController extends Controller
             200
         );
     }
-
     public function listRoomMessages($room_id)
     {
         $messages = Message::where("room_id", $room_id)
@@ -145,5 +166,12 @@ class MessagesController extends Controller
         $message->delete();
 
         return $this->jsonResponseWithoutMessage("Message Deleted Successfully", 'data', 200);
+    }
+    public function unreadMessages($user_id = null)
+    {
+        if (!$user_id) {
+            $user_id = Auth::id();
+        }
+        return Message::where("status", 0)->where("receiver_id", $user_id)->distinct('room_id')->count(['id']);
     }
 }

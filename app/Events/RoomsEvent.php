@@ -8,24 +8,29 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageEvent implements ShouldBroadcast
+class RoomsEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
+    public $rooms;
+    public $user;
+    public $unreadMessages;
 
-    public function __construct($message)
+    public function __construct($rooms,$unreadMessages, $user)
     {
-        $this->message = $message;
+
+        $this->rooms = $rooms;
+        $this->unreadMessages=$unreadMessages;
+        $this->user = $user;
     }
 
     public function broadcastOn()
     {
-        return new Channel('single-room-channel.'. $this->message->room_id );
+        return new Channel('rooms-channel.' . $this->user->id);
     }
 
     public function broadcastAs()
     {
-        return 'new-message';
+        return 'new-messages';
     }
 }
