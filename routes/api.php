@@ -98,8 +98,6 @@ Route::group(['prefix' => 'v1'], function () {
     });
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
-        Broadcast::routes(['middleware' => ['auth:sanctum']]);
-
 
         Route::post("/test-room", function (Request $request) {
             $room = Room::where('type', 'private')
@@ -630,6 +628,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post("/room/{room_id}", [MessagesController::class, "setMessagesAsRead"]);
             Route::get('/room/{room_id}', [MessagesController::class, 'listRoomMessages']);
             Route::delete("/{message_id}", [MessagesController::class, "deleteMessage"]);
+            Route::get("/unread-messages", [MessagesController::class, "unreadMessages"]);
+            
         });
         ######## Messages ########
         ######## BookStatistics ########

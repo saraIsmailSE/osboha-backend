@@ -22,12 +22,14 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 //     return Auth::check();
 // });
 
-Broadcast::channel('notifications-channel', function (User $user, int $userId) {
-    return $user->id === $userId;
+Broadcast::channel('single-room-channel.{room_id}', function (User $user, int $userId) {
+return Auth::check();
+    //return $user->id === $userId;
 });
 
-Broadcast::channel('message-channel.4', function ($user, $id) {
-    return true;
-    //return (int) $user->id === (int) $id;
-});
+Broadcast::channel('rooms-channel.{user_id}', function (User $user, int $userId) {
+    return Auth::check();
+        //return $user->id === $userId;
+    });
+    
 

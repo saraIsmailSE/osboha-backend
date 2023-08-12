@@ -267,7 +267,6 @@ class BookController extends Controller
             "level_id" => 'required',
             "type_id" => 'required',
             'language_id' => 'required',
-            "book_media" => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
         ]);
         if ($validator->fails()) {
