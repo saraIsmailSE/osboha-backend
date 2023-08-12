@@ -239,4 +239,80 @@ class RolesAdministrationController extends Controller
             return $this->jsonResponseWithoutMessage("المراقب غير موجود", 'data', 200);
         }
     }
+
+
+     public function switchLeaders(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+            'supervisor1' => 'required|email',
+            'supervisor2' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (Auth::user()->hasanyrole('admin|advisor')) {
+            //get supervisors info
+            $supervisor1 = User::where('email', $request->supervisor1)->first();
+            $supervisor2 = User::where('email', $request->supervisor2)->first();
+
+            if ($supervisor1 && $supervisor2 ) {
+                 //check if supervisor has supervisor role 
+                if ($supervisor1->hasRole('supervisor') && $supervisor2->hasRole('supervisor')) {
+
+                    //supervising group and its leaders for  supervisor 1
+                    $supervising1Group = Group::whereHas('type', function ($q) {
+                            $q->where('type', 'supervising'); })
+                        ->whereHas('users', function ($q) use ($supervisor1) {
+                            $q->where('user_id', $supervisor1->id); })
+                        ->with('userAmbassador')
+                        ->first();
+
+                    $supervising2Group = Group::whereHas('type', function ($q) {
+                            $q->where('type', 'supervising'); })
+                        ->whereHas('users', function ($q) use ($supervisor2) {
+                            $q->where('user_id', $supervisor2->id); })
+                        ->with('userAmbassador')
+                        ->first();
+                       
+                        if ($supervising1Group) {
+                            foreach ($supervising1Group->userAmbassador as $leader) {
+                                // for each leader in group 1
+                                //update supervisor 
+                                $leader->update(['parent_id'  => $supervisor2->id]);
+                                //move leader to new supervising group
+                                UserGroup::where('user_type','ambassador')->where('user_id',$leader->id)->update(['group_id'  => $supervising2Group->id]);
+                                //update supervisor in following up leader group
+                                $follow_up_group_id=UserGroup::where('user_type','leader')->where('user_id',$leader->id)->pluck('group_id')->first();
+                                UserGroup::where('user_type','supervisor')->where('group_id',$follow_up_group_id)->update(['user_id'  => $supervisor2->id]);
+                            }
+                        }
+
+                        if ($supervising2Group) {
+                            foreach ($supervising2Group->userAmbassador as $leader) {
+                                // for each leader in group 1
+                                //update supervisor 
+                                $leader->update(['parent_id'  => $supervisor1->id]);
+                                //move leader to new supervising group
+                                UserGroup::where('user_type','ambassador')->where('user_id',$leader->id)->update(['group_id'  => $supervising1Group->id]);
+                                //update supervisor in following up leader group
+                                $follow_up_group_id=UserGroup::where('user_type','leader')->where('user_id',$leader->id)->pluck('group_id')->first();
+                                UserGroup::where('user_type','supervisor')->where('group_id',$follow_up_group_id)->update(['user_id'  => $supervisor1->id]);
+                            }
+                        }
+
+                     return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
+
+                } else {
+                    return $this->jsonResponseWithoutMessage("لا يمكنك نقل العضو لموجه أخر , يجب أن يكون مراقباً أولاً", 'data', 200);
+                }
+            } else {
+                return $this->jsonResponseWithoutMessage("المراقب غير موجود", 'data', 200);
+            }
+
+        } else {
+            throw new NotAuthorized;
+        }
+    }
 }

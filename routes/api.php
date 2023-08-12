@@ -153,7 +153,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "roles"], function () {
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
             Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
-            
+            Route::post('/switch-leaders', [RolesAdministrationController::class, 'switchLeaders']);
         });
         ########End Roles########
 
