@@ -59,6 +59,8 @@ class WeekController extends Controller
 
         DB::beginTransaction();
         try {
+            Log::channel('newWeek')->info("begin");
+
             //add new week to the system
             $new_week_id = $this->insert_week();
 
@@ -67,6 +69,7 @@ class WeekController extends Controller
             $dateToAdd = new Carbon($new_week->main_timer);
             $new_week->modify_timer = $dateToAdd->addHours(12)->addDays(7);
             $new_week->save();
+
 
             if ($new_week->is_vacation) {
                 $this->notifyUsersIsVacation();
