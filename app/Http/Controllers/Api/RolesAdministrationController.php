@@ -241,9 +241,9 @@ class RolesAdministrationController extends Controller
     }
 
 
-     public function switchLeaders(Request $request)
-     {
-         $validator = Validator::make($request->all(), [
+    public function switchLeaders(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'supervisor1' => 'required|email',
             'supervisor2' => 'required|email',
         ]);
@@ -252,7 +252,7 @@ class RolesAdministrationController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if (Auth::user()->hasanyrole('admin|advisor')) {
+        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
             //get supervisors info
             $supervisor1 = User::where('email', $request->supervisor1)->first();
             $supervisor2 = User::where('email', $request->supervisor2)->first();
@@ -305,7 +305,7 @@ class RolesAdministrationController extends Controller
                      return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
 
                 } else {
-                    return $this->jsonResponseWithoutMessage("لا يمكنك نقل العضو لموجه أخر , يجب أن يكون مراقباً أولاً", 'data', 200);
+                    return $this->jsonResponseWithoutMessage("يجب أن يكون العضو مراقب أولاً" , 'data', 200);
                 }
             } else {
                 return $this->jsonResponseWithoutMessage("المراقب غير موجود", 'data', 200);
@@ -315,4 +315,89 @@ class RolesAdministrationController extends Controller
             throw new NotAuthorized;
         }
     }
+
+    public function moveLeader(Request $request)
+    {
+         $validator = Validator::make($request->all(), [
+            'leader' => 'required|email',
+            'newSupervisor' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
+            $leader = User::where('email', $request->leader)->first();
+            $newSupervisor = User::where('email', $request->newSupervisor)->first();
+            if ($leader && $newSupervisor ) {
+                if (!$leader->hasRole('leader') ) {
+                    return $this->jsonResponseWithoutMessage("يجب أن يكون العضو له دور قائد" , 'data', 200);
+                }
+                if (!$newSupervisor->hasRole('supervisor')) {
+                    return $this->jsonResponseWithoutMessage("يجب أن يكون العضو له دور مراقب" , 'data', 200);
+                }
+
+                //update parent id
+                $leader->update(['parent_id'  => $newSupervisor->id]);
+                //get the supervising group for new supervisor
+                $supervisorGroupId = Group::whereHas('type', function ($q) {
+                            $q->where('type', 'supervising'); })
+                        ->whereHas('users', function ($q) use ($newSupervisor) {
+                            $q->where('user_id', $newSupervisor->id); })
+                        ->pluck('id')
+                        ->first();
+                //move leader to new supervising group
+                UserGroup::where('user_type','ambassador')->where('user_id',$leader->id)->update(['group_id'  => $supervisorGroupId]);
+                // find leader group id
+                $leaderGroupId = UserGroup::where('user_type','leader')->where('user_id',$leader->id)->pluck('group_id')->first();
+                //add new supervisor to leader group
+                UserGroup::where('user_type','supervisor')->where('group_id',$leaderGroupId)->update(['user_id'  => $newSupervisor->id]);
+
+                return $this->jsonResponseWithoutMessage("تم النقل", 'data', 200);
+            }
+
+            return $this->jsonResponseWithoutMessage("حساب القائد أو المراقب غير موجود ", 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+    public function moveAmbassador (Request $request)
+    {
+         $validator = Validator::make($request->all(), [
+            'ambassador' => 'required|email',
+            'newLeader' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
+            $ambassador = User::where('email', $request->ambassador)->first();
+            $newLeader = User::where('email', $request->newLeader)->first();
+
+            if ($ambassador && $newLeader ) {
+                if (!$newLeader->hasRole('leader') ) {
+                    return $this->jsonResponseWithoutMessage("يجب أن يكون العضو له دور قائد" , 'data', 200);
+                }
+                //update parent id 
+                $ambassador->update(['parent_id'  => $newLeader->id]);
+                //get the leading group for new leader
+                $newLeaderGroupId = UserGroup::where('user_type','leader')->where('user_id',$newLeader->id)->pluck('group_id')->first();
+                //move ambassador to new leading group
+                UserGroup::where('user_type','ambassador')->where('user_id',$ambassador->id)->update(['group_id'  => $newLeaderGroupId]);
+
+                return $this->jsonResponseWithoutMessage("تم النقل", 'data', 200);
+            }
+
+            return $this->jsonResponseWithoutMessage("حساب القائد أو السفير  غير موجود ", 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+
+    
 }
