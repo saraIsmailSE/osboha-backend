@@ -130,9 +130,8 @@ Route::group(['prefix' => 'v1'], function () {
             // $user = User::find(1);
             // $msg = "لديك طلب صداقة ";
             // (new NotificationController)->sendNotification($user->id, $msg, 'friends');
-            $userToNotify = User::where('email','saraismailse@gmail.com')->first();
+            $userToNotify = User::where('email', 'saraismailse@gmail.com')->first();
             event(new NotificationsEvent('hello world'));
-
         });
 
         Route::post('/refresh', [AuthController::class, 'refresh']);
@@ -151,10 +150,12 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "roles"], function () {
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
             Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
-            Route::post('/supervisor-sSwap', [RolesAdministrationController::class, 'supervisorsSwap']);
+            Route::post('/supervisor-swap', [RolesAdministrationController::class, 'supervisorsSwap']);
+            Route::post('/new-supervisor-current-to-ambassador', [RolesAdministrationController::class, 'newSupervisor_currentToAmbassador']);
+            Route::post('/new-supervisor-current-to-leader', [RolesAdministrationController::class, 'newSupervisor_currentToLeader']);
             Route::post('/switch-leaders', [RolesAdministrationController::class, 'switchLeaders']);
             Route::post('/move-leader', [RolesAdministrationController::class, 'moveLeader']);
-            Route::post('/move-ambassador', [RolesAdministrationController::class, 'moveAmbassador']);
+            Route::post('/transfer-ambassador', [RolesAdministrationController::class, 'transferAmbassador']);
         });
         ########End Roles########
 
@@ -187,7 +188,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
             Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
-            
         });
         ########End User Book########
         ########Start Rate########
@@ -438,7 +438,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/support', [PostController::class, 'getSupportPosts']);
             Route::get('/support/latest', [PostController::class, 'getLastSupportPost']);
             Route::get('/pending/timeline/{timeline_id}/{post_id?}', [PostController::class, 'getPendingPosts']);
-            Route::get('/current-week-support', [PostController::class, 'getCurrentWeekSupportPost']);            
+            Route::get('/current-week-support', [PostController::class, 'getCurrentWeekSupportPost']);
         });
         ########End Post########
 
@@ -632,7 +632,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/room/{room_id}', [MessagesController::class, 'listRoomMessages']);
             Route::delete("/{message_id}", [MessagesController::class, "deleteMessage"]);
             Route::get("/unread-messages", [MessagesController::class, "unreadMessages"]);
-            
         });
         ######## Messages ########
         ######## BookStatistics ########
