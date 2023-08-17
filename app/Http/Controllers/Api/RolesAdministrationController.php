@@ -519,4 +519,93 @@ class RolesAdministrationController extends Controller
             throw new NotAuthorized;
         }
     }
+
+    /**
+     *  set new Leader and let the current ambassador only
+     * @param Request contains newLeader email, currentLeader email
+     * @return jsonResponseWithoutMessage;
+     */
+
+    public function newLeader_currentToAmbassador(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'newLeader_email' => 'required|email',
+            'currentLeader_email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
+            $currentLeader = User::where('email', $request->currentLeader_email)->first();
+
+            if ($currentLeader) {
+                //get new leader info
+                $newLeader = User::where('email', $request->newLeader_email)->first();
+
+                if ($newLeader) { 
+                    //check if new leader has leader role 
+                    if ($newLeader->hasRole('leader')) {
+                        
+                        //get leader group id
+                        $leaderGroupId = UserGroup::where('user_id', $currentLeader->id)
+                            ->where('user_type', 'leader')
+                            ->pluck('group_id')->first();
+
+                        if ($leaderGroupId) {
+                            // نقل سفراء القائد الحالي إلى القائد الجديد 
+                            //get ambassadors of currentLeader
+                            $ambassadorsID = UserGroup::where('group_id', $leaderGroupId)
+                            ->where('user_type', 'ambassador')
+                            ->pluck('user_id');
+
+                            //update parent id for ambassador
+                            User::whereIn('id', $ambassadorsID)->update(['parent_id'  => $newLeader->id]);
+
+                            //  إضافة القائد الجديد لغروب الرقابة كسفير
+                            $supervisingGroupId = UserGroup::where('user_id', $currentLeader->id)
+                            ->where('user_type', 'ambassador')
+                            ->pluck('group_id')->first();
+
+                            UserGroup::where('user_type', 'ambassador')->where('user_id', $newLeader->id)->update(['group_id'  => $supervisingGroupId]);
+
+                            // المسؤول عن القائد الجديد هو المراقب 
+                            User::where('id' , $newLeader->id)->update(['parent_id'  => User::where('id' , $currentLeader->id)->pluck('parent_id')->first()]);
+
+                            // اضافة القائد الجديد إلى مجموعة المتابعة كقائد
+                             UserGroup::where('user_type', 'leader')->where('group_id' , $leaderGroupId)->update(['user_id'  => $newLeader->id]);
+
+                            //سحب رتبة القيادة من القائد الحالي
+                            $currentLeader->removeRole('leader');
+
+                            //المسؤول عن القائد الحالي هو القائد الجديد
+                            User::where('id' , $currentLeader->id)->update(['parent_id'  => $newLeader->id]);
+                            // اضافة القائد الحالي إلى مجموعة المتابعة الخاصة به كـ سفير
+                            UserGroup::where('user_type', 'ambassador')->where('user_id', $currentLeader->id)->update(['group_id'  => $leaderGroupId]);
+                           
+                             return $this->jsonResponseWithoutMessage(" تم تبديل القائد وجعل القائد القديم سفير في نفس المجموعة", 'data', 200);
+   
+                        } else { 
+                           return $this->jsonResponseWithoutMessage("يجب أن يكون القائد الحالي قائد لفريق متابعة", 'data', 200);
+                        }
+
+                    } else {
+                        return $this->jsonResponseWithoutMessage("يجب أن يكون القائد الجديد  له دور قائداَ أولاً", 'data', 200);
+                    }
+                } else {
+                    return $this->jsonResponseWithoutMessage("القائد  الجديد غير موجود", 'data', 200);
+                }
+
+            } else {
+                return $this->jsonResponseWithoutMessage("القائد  الحالي غير موجود", 'data', 200);
+            }
+
+        } else {
+            throw new NotAuthorized;
+        }
+
+
+    }
 }
