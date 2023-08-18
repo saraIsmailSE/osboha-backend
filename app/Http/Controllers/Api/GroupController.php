@@ -836,13 +836,14 @@ class GroupController extends Controller
                                 ->where('user_type', 'supervisor')->orWhere('user_type', 'advisor')
                                 ->whereNull('termination_reason')->get();
 
+
                             //add advisor
                             if ($supervisor_groups->isNotEmpty()) {
                                 foreach ($supervisor_groups as $group) {
                                     UserGroup::updateOrCreate(
                                         [
                                             'user_id' => $user->id,
-                                            'group_id' => $group->id
+                                            'group_id' => $group->group_id
                                         ],
                                         ['user_type' => $request->user_type]
                                     );
