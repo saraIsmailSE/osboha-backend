@@ -153,8 +153,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/supervisor-swap', [RolesAdministrationController::class, 'supervisorsSwap']);
             Route::post('/new-supervisor-current-to-ambassador', [RolesAdministrationController::class, 'newSupervisor_currentToAmbassador']);
             Route::post('/new-supervisor-current-to-leader', [RolesAdministrationController::class, 'newSupervisor_currentToLeader']);
-            Route::post('/switch-leaders', [RolesAdministrationController::class, 'switchLeaders']);
-            Route::post('/move-leader', [RolesAdministrationController::class, 'moveLeader']);
+            Route::post('/new-leader-current-to-ambassador', [RolesAdministrationController::class, 'newLeader_currentToAmbassador']);
             Route::post('/transfer-ambassador', [RolesAdministrationController::class, 'transferAmbassador']);
         });
         ########End Roles########
