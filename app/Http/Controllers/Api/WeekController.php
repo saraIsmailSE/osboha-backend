@@ -67,7 +67,7 @@ class WeekController extends Controller
             $new_week = Week::find($new_week_id);
 
             $dateToAdd = new Carbon($new_week->main_timer);
-            $new_week->modify_timer = $dateToAdd->addHours(12)->addDays(7);
+            $new_week->modify_timer = $dateToAdd->addHours(12);
             $new_week->save();
 
 

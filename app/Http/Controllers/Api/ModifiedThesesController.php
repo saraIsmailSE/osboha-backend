@@ -63,7 +63,7 @@ class ModifiedThesesController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }        
-        if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader', "admin"])) {
+        if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader',"consultant", "admin"])) {
             //get lastest week
             $week = Week::find($request->week_id);
             $modify_timer = $week->modify_timer;
