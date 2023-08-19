@@ -635,9 +635,11 @@ class PostController extends Controller
             ->first();
 
         if ($response['post']) {
-            $response['userVote'] = PollOption::whereHas('votes', function ($q) {
+            $response['userVote'] = PollOption::whereHas('comments', function ($q) {
                 $q->where('user_id', Auth::id());
-            })->where('post_id' , $response['post']->id)->exists();
+            })->orWhereHas('votes', function ($q) {
+                $q->where('user_id', Auth::id());
+            })->where('post_id', $response['post']->id)->exists();
 
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         }

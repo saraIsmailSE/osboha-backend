@@ -272,10 +272,11 @@ class BookController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+        $book = Book::find($request->book_id);
+        if ($book) {
+            $book_post = $book->posts->where('type_id', PostType::where('type', 'book')->first()->id)->first();
 
-        if (Auth::user()->can('edit book')) {
-            $book = Book::find($request->book_id);
-            if ($book) {
+            if (Auth::user()->can('edit book') || $book_post->user_id == Auth::id()) {
                 //if there is Media
 
                 if ($request->hasFile('book_media')) {
@@ -311,10 +312,10 @@ class BookController extends Controller
                 $book->save();
                 return $this->jsonResponseWithoutMessage("Book Updated Successfully", 'data', 200);
             } else {
-                throw new NotFound;
+                throw new NotAuthorized;
             }
         } else {
-            throw new NotAuthorized;
+            throw new NotFound;
         }
     }
     /**
@@ -490,7 +491,7 @@ class BookController extends Controller
         }])->whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })
-        ->orderBy('created_at', 'desc')->take(9)->get();
+            ->orderBy('created_at', 'desc')->take(9)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
