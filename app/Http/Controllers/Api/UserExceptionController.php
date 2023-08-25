@@ -225,7 +225,7 @@ class UserExceptionController extends Controller
         $userException = UserException::find($exception_id);
 
         if ($userException) {
-            if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'admin'])) {
+            if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant' , 'admin'])) {
                 $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
                 $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
                 $response['user_exception'] = $userException;
