@@ -736,13 +736,13 @@ class RolesAdministrationController extends Controller
         }
     }
 
-        /**
+    /**
      * move a Leader to newSupervisor
      * @param Request contains leader email [current], newSupervisor email [new]
      * @return jsonResponseWithoutMessage;
      */
 
-    public function moveLeader(Request $request)
+    public function transferLeader(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'leader' => 'required|email',
@@ -755,7 +755,7 @@ class RolesAdministrationController extends Controller
 
         if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
             $leader = User::where('email', $request->leader)->first();
-             if ($leader) {
+            if ($leader) {
                 //get new supervisor info
                 $newSupervisor = User::where('email', $request->newSupervisor)->first();
                 if ($newSupervisor) {
@@ -764,37 +764,36 @@ class RolesAdministrationController extends Controller
                         //check if new leader has leader role
                         if ($leader->hasRole('leader')) {
 
-                             $currentAdvisorId = User::where('id' ,$leader->parent_id)->pluck('parent_id')->first();
+                            $currentAdvisorId = User::where('id', $leader->parent_id)->pluck('parent_id')->first();
                             // جعل القائد سفير في غروب الرقابة الجديد
                             $newSupervisingGroupId = Group::whereHas('type', function ($q) {
-                                    $q->where('type', 'supervising');
+                                $q->where('type', 'supervising');
+                            })
+                                ->whereHas('users', function ($q) use ($newSupervisor) {
+                                    $q->where('user_id', $newSupervisor->id);
                                 })
-                                    ->whereHas('users', function ($q) use ($newSupervisor) {
-                                        $q->where('user_id', $newSupervisor->id);
-                                    })
-                                    ->pluck('id')
-                                    ->first();
-                            if($newSupervisingGroupId){
+                                ->pluck('id')
+                                ->first();
+                            if ($newSupervisingGroupId) {
                                 UserGroup::where('user_type', 'ambassador')->where('user_id', $leader->id)->update(['group_id'  => $newSupervisingGroupId]);
 
                                 //إضافة المراقب الجديد لفريق المتابعة الخاص بالقائد
                                 // find leader group id
-                                 $leaderGroupId = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
-                                 //add new supervisor to leader group
-                                 UserGroup::where('user_type', 'supervisor')->where('group_id', $leaderGroupId)->update(['user_id'  => $newSupervisor->id]);
+                                $leaderGroupId = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
+                                //add new supervisor to leader group
+                                UserGroup::where('user_type', 'supervisor')->where('group_id', $leaderGroupId)->update(['user_id'  => $newSupervisor->id]);
 
                                 //جعل المراقب الجديد مسؤل عن القائد
-                                 $leader->update(['parent_id'  => $newSupervisor->id]);
+                                $leader->update(['parent_id'  => $newSupervisor->id]);
 
-                                 // تغيير الموجه المسؤول عن القائد إذا كان المراقب الجديد في فريق توجيه آخر
-                                if($newSupervisor->parent_id != $currentAdvisorId)
-                                {
-                                    UserGroup::where('user_type', 'advisor')->where('group_id', $leaderGroupId)->update(['user_id'  => $newSupervisor->parent_id ]);
+                                // تغيير الموجه المسؤول عن القائد إذا كان المراقب الجديد في فريق توجيه آخر
+                                if ($newSupervisor->parent_id != $currentAdvisorId) {
+                                    UserGroup::where('user_type', 'advisor')->where('group_id', $leaderGroupId)->update(['user_id'  => $newSupervisor->parent_id]);
                                 }
 
                                 return $this->jsonResponseWithoutMessage("تم النقل", 'data', 200);
                             } else {
-                                return $this->jsonResponseWithoutMessage("الفريق الرقابي الجديد غير موجود", 'data', 200)
+                                return $this->jsonResponseWithoutMessage("الفريق الرقابي الجديد غير موجود", 'data', 200);
                             }
                         } else {
                             return $this->jsonResponseWithoutMessage("يجب أن يكون القائد له دور قائد", 'data', 200);
@@ -812,5 +811,4 @@ class RolesAdministrationController extends Controller
             throw new NotAuthorized;
         }
     }
-
 }
