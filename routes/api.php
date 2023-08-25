@@ -155,6 +155,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/new-supervisor-current-to-leader', [RolesAdministrationController::class, 'newSupervisor_currentToLeader']);
             Route::post('/new-leader-current-to-ambassador', [RolesAdministrationController::class, 'newLeader_currentToAmbassador']);
             Route::post('/transfer-ambassador', [RolesAdministrationController::class, 'transferAmbassador']);
+            Route::post('/move-leader', [RolesAdministrationController::class, 'moveLeader']);
         });
         ########End Roles########
 

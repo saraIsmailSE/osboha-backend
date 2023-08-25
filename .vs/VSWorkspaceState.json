@@ -1,10 +1,7 @@
 {
   "ExpandedNodes": [
     "",
-    "\\bootstrap",
-    "\\database",
-    "\\database\\seeders"
+    "\\routes"
   ],
-  "SelectedNode": "\\database\\seeders\\DatabaseSeeder.php",
   "PreviewInSolutionExplorer": false
 }
