@@ -323,6 +323,7 @@ class CommentController extends Controller
                         $thesis['book_id'] = $thesis->book_id;
                         $thesis['start_page'] = $request->start_page;
                         $thesis['end_page'] = $request->end_page;
+                        $thesis['status'] ='pending';
                         if ($request->has('body')) {
                             $thesis['max_length'] = Str::length(trim($request->body));
                         }

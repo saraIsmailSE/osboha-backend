@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
-        $schedule->command('weekly:marks')->weekly()->sundays()->at('00:15'); //main part
+        $schedule->command('weekly:marks')->weekly()->sundays()->at('00:00'); //main part
         //auditMark
         $schedule->command('generate:auditMark')->weekly()->mondays()->at('06:02');
         $schedule->command('ModifyTimer:Week')->weekly()->tuesdays()->at('19:26');
