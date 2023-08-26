@@ -259,6 +259,8 @@ trait ThesisTraits
                     'total_screenshots' => $total_screenshots,
                     'start_page'        => $thesisToUpdate['start_page'],
                     'end_page'          => $thesisToUpdate['end_page'],
+                    'status' => 'pending',
+
                 );
 
                 if (strtolower($thesis_type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis                     

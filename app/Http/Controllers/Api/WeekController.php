@@ -330,10 +330,10 @@ class WeekController extends Controller
                     //execlude the user
                     $user->is_excluded = 1;
                     $user->save();
-                    $user->notify(
-                        (new \App\Notifications\MailExcludeAmbassador())
-                            ->delay(now()->addMinutes(3))
-                    );
+                    // $user->notify(
+                    //     (new \App\Notifications\MailExcludeAmbassador())
+                    //         ->delay(now()->addMinutes(3))
+                    // );
 
                     array_push($this->excludedUsers, $user->id);
                     event(new UpdateUserStats($user, $old_user));
@@ -350,10 +350,10 @@ class WeekController extends Controller
                         //execlude the user
                         $user->is_excluded = 1;
                         $user->save();
-                        $user->notify(
-                            (new \App\Notifications\MailExcludeAmbassador())
-                                ->delay(now()->addMinutes(3))
-                        );
+                        // $user->notify(
+                        //     (new \App\Notifications\MailExcludeAmbassador())
+                        //         ->delay(now()->addMinutes(3))
+                        // );
 
                         array_push($this->excludedUsers, $user->id);
                         event(new UpdateUserStats($user, $old_user));
@@ -854,10 +854,10 @@ class WeekController extends Controller
             foreach ($users as $user) {
                 $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
                 $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
-                $user->notify(
-                    (new \App\Notifications\MailExcludeAmbassador())
-                        ->delay(now()->addMinutes(5))
-                );
+                // $user->notify(
+                //     (new \App\Notifications\MailExcludeAmbassador())
+                //         ->delay(now()->addMinutes(5))
+                // );
 
             }
         } catch (\Exception $e) {
