@@ -442,15 +442,10 @@ class RolesAdministrationController extends Controller
 
                                         //* اضافة المراقب الجديد إلى مجموعة الرقابة كـ مراقب
                                         //* اضافة المراقب الجديد إلى مجموعات القادة كـ مراقب [بالاضافة إلى مجموعة المتابعة الخاصة بالمراقب الحالي]
-                                        UserGroup::updateOrCreate(
-                                            [
-                                                'user_id' => $currentSupervisor->id,
-                                                'user_type' => "supervisor"
-                                            ],
-                                            [
-                                                'user_id' => $newSupervisor->id,
-                                            ]
-                                        );
+                                        UserGroup::where('user_id', $currentSupervisor->id)
+                                            ->where('user_type', "supervisor")
+                                            ->update(['user_id'  => $newSupervisor->id]);
+
                                         DB::commit();
                                         return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
                                     } catch (\Exception $e) {
@@ -561,15 +556,10 @@ class RolesAdministrationController extends Controller
 
                                 //* اضافة المراقب الجديد إلى مجموعة الرقابة كـ مراقب
                                 //* اضافة المراقب الجديد إلى مجموعات القادة كـ مراقب [بالاضافة إلى مجموعة المتابعة الخاصة بالمراقب الحالي]
-                                UserGroup::updateOrCreate(
-                                    [
-                                        'user_id' => $currentSupervisor->id,
-                                        'user_type' => "supervisor"
-                                    ],
-                                    [
-                                        'user_id' => $newSupervisor->id,
-                                    ]
-                                );
+                                UserGroup::where('user_id', $currentSupervisor->id)
+                                    ->where('user_type', "supervisor")
+                                    ->update(['user_id'  => $newSupervisor->id]);
+
                                 DB::commit();
                                 return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
                             } catch (\Exception $e) {
