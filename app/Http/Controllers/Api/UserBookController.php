@@ -132,7 +132,7 @@ class UserBookController extends Controller
             })->get();
 
             //UserNotFreeBooks >= UserFreeBooks *2 +2
-            if ($userNotFreeBooks_finished->isNotEmpty() && ($$userNotFreeBooks_finished->count() >= ($userFreeBooks->count() * 2 + 2))) {
+            if ($userNotFreeBooks_finished->isNotEmpty() && ($userNotFreeBooks_finished->count() >= ($userFreeBooks->count() * 2 + 2))) {
                 return $this->jsonResponseWithoutMessage(true, 'data', 200);
             }
             // no finished books => check for one in progress have at least 1 thesis for this week
