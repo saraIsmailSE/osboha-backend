@@ -74,7 +74,7 @@ class UserExceptionController extends Controller
         $leader_id = Auth::user()->parent_id;
 
         if ($request->type_id == $freezCurrentWeek->id || $request->type_id == $freezNextWeek->id) { // تجميد عادي - الاسبوع الحالي أو القادم 
-            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'admin'])) {
+            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor','consultant', 'admin'])) {
 
                 $last4WeeksFreeze = Mark::where('user_id', Auth::id())
                     ->where('created_at', '<', $current_week->created_at)
@@ -109,6 +109,7 @@ class UserExceptionController extends Controller
                     // يوجد تجميد وتعدى 4 اسابيع
 
                     $exception['status'] = 'accepted';
+                    $exception['desired_duration'] =  'أسبوع واحد';
 
                     if ($request->type_id == $freezCurrentWeek->id) {
                         Mark::where('week_id', $current_week->id)
