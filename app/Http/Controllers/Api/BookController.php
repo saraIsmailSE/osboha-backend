@@ -501,16 +501,10 @@ class BookController extends Controller
 
     public function getMostReadableBooks()
     {
-        $books = Book::select('books.*', DB::raw('count(*) as total'))
-            ->with('theses')
-            ->with(['userBooks' => function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            }])
-            ->groupBy('book_id')
-            ->groupBy('user_id')
-            ->orderBy('total', 'desc')
-            ->take(9)
-            ->get();
+        $books = Book::withCount(['userBooks' => function ($query) {
+            $query->where('status', '!=', 'later');
+        }])
+            ->orderBy('user_books_count', 'desc')->take(9)->get();
 
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
