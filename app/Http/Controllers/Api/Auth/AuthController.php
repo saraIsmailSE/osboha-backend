@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -73,6 +74,7 @@ class AuthController extends Controller
             return $this->jsonResponseWithoutMessage($ambassador->errors(), 'data', 500);
         }
         try {
+            DB::beginTransaction();
 
             $user = new User($request->all());
             $user->password = bcrypt($request->input('password'));
@@ -98,13 +100,17 @@ class AuthController extends Controller
 
             $success['token'] = $user->createToken('sanctumAuth')->plainTextToken;
             $success['user'] = $user->load('userProfile', 'roles:id,name', 'roles.permissions:id,name');
+
+            DB::commit();
             return $this->jsonResponseWithoutMessage($success, 'data', 200);
         } catch (\Illuminate\Database\QueryException $e) {
             $errorCode = $e->errorInfo[1];
             if ($errorCode == 1062) {
                 return $this->jsonResponseWithoutMessage('User already exist', 'data', 202);
             } else {
-                return $this->jsonResponseWithoutMessage($e, 'data', 500);
+                Log::channel('newUser')->info($e);    
+                DB::rollBack();    
+                return $this->jsonResponseWithoutMessage('حدث خطأ، يرجى المحاولة فيما بعد', 'data', 202);
             }
         }
     }
@@ -294,9 +300,9 @@ class AuthController extends Controller
         );
 
         if ($status === Password::RESET_LINK_SENT)
-        return $this->jsonResponseWithoutMessage("تفقد بريدك الالكتروني", 'data', 200);
+            return $this->jsonResponseWithoutMessage("تفقد بريدك الالكتروني", 'data', 200);
         else
-        return $this->jsonResponseWithoutMessage("  حدث خطأ", 'data', 200);
+            return $this->jsonResponseWithoutMessage("  حدث خطأ", 'data', 200);
     }
 
     protected function sendResetResponse(Request $request)

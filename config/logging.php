@@ -133,6 +133,11 @@ return [
             'path' => storage_path('logs/books.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'newUser' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/newUser.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
 
         
     ],
