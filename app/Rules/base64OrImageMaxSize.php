@@ -30,13 +30,16 @@ class base64OrImageMaxSize implements InvokableRule
     {
         if (is_string($value)) {
             $image = $value;
-            $imageParts = explode(";base64,", $image);
-            $imageBase64 = base64_decode($imageParts[1]);
-            if (strlen($imageBase64) > $this->maxSize) {
+            $imageBase64 = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
+            $size = strlen($imageBase64);
+            $bytes = ($size / 4) * 3;
+
+            if ($bytes > $this->maxSize) {
                 $fail('The ' . $attribute . ' must be less than ' . $this->maxSize . ' bytes.');
             }
         } else {
             $image = $value;
+
             if ($image->getSize() > $this->maxSize) {
                 $fail('The ' . $attribute . ' must be less than ' . $this->maxSize . ' bytes.');
             }
