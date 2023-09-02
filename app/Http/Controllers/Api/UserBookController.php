@@ -127,7 +127,7 @@ class UserBookController extends Controller
                 $q->where('type', '=', 'normal');
             })->get();
 
-            $userFreeBooks = UserBook::where('user_id', $user_id)->whereHas('book.type', function ($q) {
+            $userFreeBooks = UserBook::where('user_id', $user_id)->where('status', 'finished')->whereHas('book.type', function ($q) {
                 $q->where('type', '=', 'free');
             })->get();
 
