@@ -27,7 +27,7 @@ class CreateMediaTable extends Migration
             $table->integer('book_id')->nullable();
             $table->integer('group_id')->nullable();
             $table->integer('room_id')->nullable();
-            $table->integer('message_id')->nullable();
+            // $table->integer('message_id')->nullable();
             $table->timestamps();
         });
     }
