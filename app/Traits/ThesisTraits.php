@@ -468,7 +468,7 @@ trait ThesisTraits
         //if the thesis is within a duration of exams exception, the mark will be full if the user satisfies the conditions
         $is_exams_exception = $this->check_exam_exception();
         if ($is_exams_exception) {
-            if ($total_pages >= 10 && ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= MAX_SCREENSHOTS)) {
+            if ($total_pages >= 10 && ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= 2)) {
                 return [
                     'reading_mark' => config('constants.FULL_READING_MARK'),
                     'writing_mark' => config('constants.FULL_WRITING_MARK'),

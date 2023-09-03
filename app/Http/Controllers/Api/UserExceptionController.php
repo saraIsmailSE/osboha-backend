@@ -423,7 +423,7 @@ class UserExceptionController extends Controller
                         if ($request->decision == 1) {
                             //اعفاء الأسبوع الحالي
                             Mark::where('week_id', $current_week->id)
-                                ->where('user_id', Auth::id())
+                                ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;
@@ -444,7 +444,7 @@ class UserExceptionController extends Controller
                         } else if ($request->decision == 4) {
                             //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
                             Mark::where('week_id', $current_week->id)
-                                ->where('user_id', Auth::id())
+                                ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;
