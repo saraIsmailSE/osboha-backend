@@ -17,9 +17,11 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Models\ExceptionType;
 use App\Models\Mark;
+use App\Models\Thesis;
 use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * UserExceptionController to create exception for user
@@ -74,7 +76,7 @@ class UserExceptionController extends Controller
         $leader_id = Auth::user()->parent_id;
 
         if ($request->type_id == $freezCurrentWeek->id || $request->type_id == $freezNextWeek->id) { // تجميد عادي - الاسبوع الحالي أو القادم 
-            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor','consultant', 'admin'])) {
+            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
 
                 $last4WeeksFreeze = Mark::where('user_id', Auth::id())
                     ->where('created_at', '<', $current_week->created_at)
@@ -149,15 +151,15 @@ class UserExceptionController extends Controller
             if ($request->hasFile('exam_media')) {
                 //exam_media/user_id/
                 $folder_path = 'exam_media/' . Auth::id();
-    
+
                 //check if exam_media folder exists
                 if (!file_exists(public_path('assets/images/' . $folder_path))) {
                     mkdir(public_path('assets/images/' . $folder_path), 0777, true);
                 }
-    
+
                 $this->createMedia($request->exam_media, $userException->id, 'user_exception', $folder_path);
             }
-    
+
 
             //Notify User
             $userToNotify = User::find(Auth::id());
@@ -226,7 +228,7 @@ class UserExceptionController extends Controller
         $userException = UserException::find($exception_id);
 
         if ($userException) {
-            if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant' , 'admin'])) {
+            if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
                 $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
                 $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
                 $response['user_exception'] = $userException;
@@ -436,7 +438,7 @@ class UserExceptionController extends Controller
                         } else if ($request->decision == 3) {
                             //اعفاء لأسبوعين الحالي و القادم
                             Mark::where('week_id', $current_week->id)
-                                ->where('user_id', Auth::id())
+                                ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;
@@ -493,6 +495,7 @@ class UserExceptionController extends Controller
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;
                             $userException->end_at = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
+                            $this->calculate_mark_for_exam($owner_of_exception,$current_week);
                         } else if ($request->decision == 2) {
                             //اعفاء الأسبوع القادم
                             $userException->week_id =  $current_week->id;
@@ -503,6 +506,7 @@ class UserExceptionController extends Controller
                             $userException->week_id =  $current_week->id;
                             $userException->start_at = $current_week->created_at;
                             $userException->end_at = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
+                            $this->calculate_mark_for_exam($owner_of_exception,$current_week);
                         }
 
                         //notify leader                        
@@ -531,6 +535,25 @@ class UserExceptionController extends Controller
             }
         } else {
             throw new NotFound();
+        }
+    }
+
+
+
+    public function calculate_mark_for_exam($owner_of_exception,$current_week)
+    {
+        $thisWeekMark = Mark::where('week_id', $current_week->id)
+            ->where('user_id', $owner_of_exception->id)->first();
+
+        $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
+            ->select(
+                DB::raw('sum(max_length) as max_length'),
+            )->first()->max_length;
+
+        if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= COMPLETE_THESIS_LENGTH || $thisWeekMark->total_screenshots >= 2)) {
+            $thisWeekMark->reading_mark = config('constants.FULL_READING_MARK');
+            $thisWeekMark->writing_mark = config('constants.FULL_WRITING_MARK');
+            $thisWeekMark->save();
         }
     }
 

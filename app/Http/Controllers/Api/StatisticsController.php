@@ -90,4 +90,10 @@ class StatisticsController extends Controller
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
+
+    public function lastWeek()
+    {
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        return $this->jsonResponseWithoutMessage($previous_week, 'data', 200);
+    }
 }

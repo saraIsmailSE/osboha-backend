@@ -282,6 +282,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::put('/accept-support/user/{user_id}/{week_id}', [MarkController::class, 'acceptSupport']);
             Route::put('/reject-support/user/{user_id}/{week_id}', [MarkController::class, 'rejectSupport']);
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
+            Route::get('/top-users-by-month', [MarkController::class, 'topUsersByMonth']);
+            Route::get('/top-users-by-week', [MarkController::class, 'topUsersByWeek']);
+
         });
         ########End Mark########
 
@@ -471,6 +474,7 @@ Route::group(['prefix' => 'v1'], function () {
         ######## Statistics ########
         Route::group(['prefix' => 'statistics'], function () {
             Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
+            Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
         });
         ######## End Statisticx########
 
