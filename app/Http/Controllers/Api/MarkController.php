@@ -28,6 +28,7 @@ use App\Models\Thesis;
 use App\Notifications\GeneralNotification;
 use App\Notifications\MailSupportPost;
 use App\Traits\PathTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\Response;
 
@@ -491,5 +492,94 @@ class MarkController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
+
+
+    /*
+    # Top Users by Month Endpoint Documentation
+
+    This endpoint retrieves statistics for the top users based on the maximum values of total_pages and total_thesis recorded within the current month.
+
+    ## Endpoint
+
+    `GET /top-users-by-month`
+
+    ## Parameters
+
+    None
+
+    ## Response
+
+    A successful response will return a JSON object containing the maximum values of total_pages and total_thesis recorded within the current month.
+
+    ## Errors
+
+    - `500 Internal Server Error`: If an unexpected error occurs during processing.
+    */
+
+
+    public function topUsersByMonth()
+    {
+        $lastMonth = Carbon::now()->subMonth();
+        $startOfMonth = strval($lastMonth->startOfMonth());
+        $endOfMonth = strval($lastMonth->endOfMonth());
+
+        $response['max_total_pages'] = Mark::with('user')
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->groupBy('user_id')
+            ->orderBy('max_total_pages', 'desc')
+            ->first();
+        $response['max_total_thesis'] = Mark::with('user')
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->groupBy('user_id')
+            ->orderBy('max_total_thesis', 'desc')
+            ->first();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    /*
+    # Top Users by Week Endpoint Documentation
+
+    This endpoint retrieves statistics for the top users based on the maximum values of total_pages and total_thesis recorded within the previous week.
+
+    ## Endpoint
+
+    `GET /top-users-by-week`
+
+    ## Parameters
+
+    None
+
+    ## Response
+
+    A successful response will return a JSON object containing the maximum values of total_pages and total_thesis recorded within the previous week.
+
+    ## Errors
+
+    - `500 Internal Server Error`: If an unexpected error occurs during processing.
+    */
+    public function topUsersByWeek()
+    {
+        $response['previous_week'] = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+
+        $response['max_total_pages'] = Mark::with('user')
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
+            ->where('week_id', $response['previous_week']->id)
+            ->groupBy('user_id')
+            ->orderBy('max_total_pages', 'desc')
+            ->first();
+        $response['max_total_thesis'] = Mark::with('user')
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
+            ->where('week_id', $response['previous_week']->id)
+            ->groupBy('user_id')
+            ->orderBy('max_total_thesis', 'desc')
+            ->first();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }

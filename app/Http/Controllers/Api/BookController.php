@@ -528,11 +528,11 @@ class BookController extends Controller
     }
     public function latest()
     {
-        $books = Book::whereHas('type', function ($q) {
+        $book = Book::whereHas('type', function ($q) {
             $q->where('type', '=', 'normal');
         })->latest()->first();
-        if ($books) {
-            return $this->jsonResponseWithoutMessage($books, 'data', 200);
+        if ($book) {
+            return $this->jsonResponseWithoutMessage(new BookResource($book), 'data', 200);
         } else {
             throw new NotFound;
         }
