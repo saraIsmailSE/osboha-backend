@@ -22,8 +22,8 @@ class Kernel extends ConsoleKernel
         //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
         $schedule->command('weekly:marks')->weekly()->sundays()->at('00:00'); //main part
         //auditMark
-        $schedule->command('generate:auditMark')->weekly()->sundays()->at('13:25');
-        $schedule->command('ModifyTimer:Week')->weekly()->tuesdays()->at('19:26');
+        $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
+        $schedule->command('ModifyTimer:Week')->weekly()->tuesdays()->at('22:00');
         //finishedException 
         
         // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
