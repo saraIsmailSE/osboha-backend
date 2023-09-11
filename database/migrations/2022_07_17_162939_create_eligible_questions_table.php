@@ -23,8 +23,8 @@ return new class extends Migration
             $table->enum('status', ['accept','ready','audit', 'review', 'audited','rejected','retard'])->nullable();
             $table->bigInteger('reviewer_id')->unsigned()->nullable();
             $table->bigInteger('auditor_id')->unsigned()->nullable();
-            $table->bigInteger("user_book_id")->unsigned()->index();
-            $table->foreign("user_book_id")->references("id")->on("user_book");
+            $table->bigInteger("eligible_user_books_id")->unsigned()->index();
+            $table->foreign("eligible_user_books_id")->references("id")->on("eligible_user_books");
             $table->timestamps();
         });
     }

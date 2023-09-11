@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('general_summary_grade');
             $table->integer('thesis_grade');
             $table->integer('check_reading_grade');
-            $table->bigInteger("user_book_id")->unsigned()->index();
-            $table->foreign("user_book_id")->references("id")->on("user_book");
+            $table->bigInteger("eligible_user_books_id")->unsigned()->index();
+            $table->foreign("eligible_user_books_id")->references("id")->on("eligible_user_books");
             $table->timestamps();
         });
     }
