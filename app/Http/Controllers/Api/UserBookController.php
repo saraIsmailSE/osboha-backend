@@ -124,14 +124,14 @@ class UserBookController extends Controller
 
             // two books finished
             $userNotFreeBooks_finished = UserBook::where('user_id', $user_id)->where('status', 'finished')->whereHas('book.type', function ($q) {
-                $q->where('type', '=', 'normal');
+                $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
             })->get();
 
             $userFreeBooks = UserBook::where('user_id', $user_id)->where('status', 'finished')->whereHas('book.type', function ($q) {
                 $q->where('type', '=', 'free');
             })->get();
 
-            
+
             //UserNotFreeBooks >= UserFreeBooks *2 +2
             if ($userNotFreeBooks_finished->isNotEmpty() && ($userNotFreeBooks_finished->count() >= ($userFreeBooks->count() * 2 + 2))) {
                 return $this->jsonResponseWithoutMessage(true, 'data', 200);
