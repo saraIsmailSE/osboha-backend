@@ -139,7 +139,7 @@ class UserBookController extends Controller
             // no finished books => check for one in progress have at least 1 thesis for this week
             else {
                 $userNotFreeBooks_notFinished = UserBook::where('user_id', $user_id)->where('status', 'in progress')->whereHas('book.type', function ($q) {
-                    $q->where('type', '=', 'normal');
+                    $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
                 })->get();
 
                 if ($userNotFreeBooks_notFinished->isNotEmpty()) {
