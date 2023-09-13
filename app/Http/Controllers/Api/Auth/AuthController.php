@@ -108,8 +108,8 @@ class AuthController extends Controller
             if ($errorCode == 1062) {
                 return $this->jsonResponseWithoutMessage('User already exist', 'data', 202);
             } else {
-                Log::channel('newUser')->info($e);    
-                DB::rollBack();    
+                Log::channel('newUser')->info($e);
+                DB::rollBack();
                 return $this->jsonResponseWithoutMessage('حدث خطأ، يرجى المحاولة فيما بعد', 'data', 202);
             }
         }
@@ -447,14 +447,21 @@ class AuthController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         try {
+            DB::beginTransaction();
+
             $user = User::find(Auth::id());
             $user->email = $request->email;
+            $user->email_verified_at = null;
             $user->save();
             //sendEmailVerificationNotification
             $user->sendEmailVerificationNotification();
+            DB::commit();
 
             return $this->jsonResponseWithoutMessage('Reset Successfully!', 'data', 200);
         } catch (\Exception $e) {
+            // Log::channel('newWeek')->info($e);
+            Log::error($e);
+
             return $this->jsonResponseWithoutMessage($e, 'data', 201);
         }
     }

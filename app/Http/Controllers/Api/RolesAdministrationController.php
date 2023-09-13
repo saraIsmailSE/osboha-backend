@@ -502,6 +502,9 @@ class RolesAdministrationController extends Controller
                 //get new supervisor info
                 $newSupervisor = User::where('email', $request->newSupervisor)->first();
                 if ($newSupervisor) {
+
+                    $supervisingGroupTypeID = GroupType::where('type', 'supervising')->pluck('id')->first();
+
                     //check if new supervisor has supervisor role 
                     if ($newSupervisor->hasRole('supervisor')) {
 
@@ -543,22 +546,29 @@ class RolesAdministrationController extends Controller
                                 //* سحب رتبة الرقابة من المراقب الحالي
                                 $currentSupervisor->removeRole("supervisor");
 
-                                //* اضافة المراقب الحالي كـ سفير في مجموعة المتابعة الخاصة بالمراقب الجديد 
+                                //* اضافة المراقب الجديد إلى مجموعة الرقابة كـ مراقب
+                                //* اضافة المراقب الجديد إلى مجموعات القادة كـ مراقب [بالاضافة إلى مجموعة المتابعة الخاصة بالمراقب الحالي]
+                                UserGroup::where('user_id', $currentSupervisor->id)
+                                    ->where('user_type', "supervisor")
+                                    ->update(['user_id'  => $newSupervisor->id]);
+
+
+                                //* اضافة المراقب الحالي كـ سفير في مجموعة الرقابة الخاصة بالمراقب الجديد 
+                                $newSupervisor_SupervisingGroupID = UserGroup::where('user_id', $newSupervisor->id)
+                                    ->whereHas('group', function ($q)  use ($supervisingGroupTypeID) {
+                                        $q->where('type_id', '=', $supervisingGroupTypeID);
+                                    })->where('user_type', 'supervisor')->pluck('group_id')->first();
+
                                 UserGroup::updateOrCreate(
                                     [
                                         'user_id' => $currentSupervisor->id,
                                         'user_type' => "ambassador"
                                     ],
                                     [
-                                        'group_id' => $newSupervisor_leadingGroup->group_id
+                                        'group_id' => $newSupervisor_SupervisingGroupID
                                     ]
                                 );
 
-                                //* اضافة المراقب الجديد إلى مجموعة الرقابة كـ مراقب
-                                //* اضافة المراقب الجديد إلى مجموعات القادة كـ مراقب [بالاضافة إلى مجموعة المتابعة الخاصة بالمراقب الحالي]
-                                UserGroup::where('user_id', $currentSupervisor->id)
-                                    ->where('user_type', "supervisor")
-                                    ->update(['user_id'  => $newSupervisor->id]);
 
                                 DB::commit();
                                 return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
