@@ -458,11 +458,15 @@ class AuthController extends Controller
             DB::commit();
 
             return $this->jsonResponseWithoutMessage('Reset Successfully!', 'data', 200);
-        } catch (\Exception $e) {
-            // Log::channel('newWeek')->info($e);
-            Log::error($e);
-
-            return $this->jsonResponseWithoutMessage($e, 'data', 201);
+        } catch (\Illuminate\Database\QueryException $e) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062) {
+                return $this->jsonResponseWithoutMessage('User already exist', 'data', 201);
+            } else {
+                Log::channel('newUser')->info($e);
+                DB::rollBack();
+                return $this->jsonResponseWithoutMessage('حدث خطأ، يرجى المحاولة فيما بعد', 'data', 201);
+            }
         }
     }
 }
