@@ -530,14 +530,14 @@ class MarkController extends Controller
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->groupBy('user_id')
             ->orderBy('max_total_pages', 'desc')
-            ->first();
+            ->limit(53)->get();
         $response['max_total_thesis'] = Mark::with('user')
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->groupBy('user_id')
             ->orderBy('max_total_thesis', 'desc')
-            ->first();
+            ->limit(53)->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
@@ -572,14 +572,14 @@ class MarkController extends Controller
             ->where('week_id', $response['previous_week']->id)
             ->groupBy('user_id')
             ->orderBy('max_total_pages', 'desc')
-            ->first();
+            ->limit(53)->get();
         $response['max_total_thesis'] = Mark::with('user')
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
             ->where('week_id', $response['previous_week']->id)
             ->groupBy('user_id')
             ->orderBy('max_total_thesis', 'desc')
-            ->first();
+            ->limit(53)->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }
