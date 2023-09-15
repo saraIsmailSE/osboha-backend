@@ -116,6 +116,7 @@ class UserBookController extends Controller
     public function eligibleToWriteThesis($user_id)
     {
 
+        return $this->jsonResponseWithoutMessage(true, 'data', 200);
 
         if (Auth::user()->hasRole('book_quality_team')) {
 
