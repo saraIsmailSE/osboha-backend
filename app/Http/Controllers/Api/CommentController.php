@@ -66,7 +66,7 @@ class CommentController extends Controller
             //image is required only if the comment is not a thesis and has no body
             'image' => [
                 new base64OrImage(),
-                new base64OrImageMaxSize(2 * 1024 * 1024),
+                new base64OrImageMaxSize(1 * 1024 * 1024),
                 function ($attribute, $value, $fail) use ($request) {
                     if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
                         $fail('The image field is required.');
@@ -75,7 +75,7 @@ class CommentController extends Controller
             ],
             //screenshots have to be an array of images
             'screenShots' => 'array',
-            'screenShots.*' => [new base64OrImage(), new base64OrImageMaxSize(2 * 1024 * 1024)],
+            'screenShots.*' => [new base64OrImage(), new base64OrImageMaxSize(1 * 1024 * 1024)],
             'start_page' => 'required_if:type,thesis|numeric',
             'end_page' => 'required_if:type,thesis|numeric',
         ]);

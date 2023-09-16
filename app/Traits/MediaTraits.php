@@ -30,6 +30,14 @@ trait MediaTraits
                 $media->move(public_path($fullPath), $imageName);
             }
 
+
+            // // resize the image to a width of 500 and constrain aspect ratio (auto height)
+            // Image::make($folderPath)->resize(500, null, function ($constraint) {
+            //     $constraint->aspectRatio();
+            // });
+
+
+
             // link media with comment
             $media = new Media();
             $media->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
