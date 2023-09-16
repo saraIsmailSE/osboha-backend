@@ -205,8 +205,8 @@ class UserExceptionController extends Controller
                     (new NotificationController)->sendNotification($admin_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
                 } else {
                     //notify advisor & leader                    
-                    $advisor_id = $group->groupAdvisor[0]->id;
-                    (new NotificationController)->sendNotification($advisor_id, $msg, ADVISOR_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                    // $advisor_id = $group->groupAdvisor[0]->id;
+                    // (new NotificationController)->sendNotification($advisor_id, $msg, ADVISOR_EXCEPTIONS, $this->getExceptionPath($userException->id));
                     //Notify Leader
                     (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
                 }
@@ -407,10 +407,10 @@ class UserExceptionController extends Controller
             $group = $user_group->group;
             //the head of owner_of_exception
             $leader_id = $owner_of_exception->parent_id;
-            $advisor_id = $group->groupAdvisor[0]->id;
+            // $advisor_id = $group->groupAdvisor[0]->id;
 
             if ($userException->type_id == $exceptionalFreez->id) { //exceptional freezing
-                if (Auth::id() == $advisor_id || Auth::user()->hasRole('admin')) {
+                if (Auth::user()->hasRole('admin')) {
 
                     $userException->note = $request->note;
                     $userException->reviewer_id = Auth::id();
