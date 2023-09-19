@@ -129,11 +129,6 @@ class CommentController extends Controller
                     //theses/book_id/user_id/
                     $folder_path = 'theses/' . $book->id . '/' . Auth::id();
 
-                    //check if theses folder exists
-                    if (!file_exists(public_path('assets/images/' . $folder_path))) {
-                        mkdir(public_path('assets/images/' . $folder_path), 0777, true);
-                    }
-
                     if (!$request->has('body')) {
                         $this->createMedia($request->screenShots[0], $comment->id, 'comment', $folder_path);
                         $comment->type = 'screenshot';
@@ -170,12 +165,8 @@ class CommentController extends Controller
 
             if ($request->has('image')) {
                 // if comment has media
-                // upload media
+                // upload media                
                 $folder_path = 'comments/' . Auth::id();
-                if (!file_exists(public_path('assets/images/' . $folder_path))) {
-                    mkdir(public_path('assets/images/' . $folder_path), 0777, true);
-                }
-
                 $this->createMedia($request->image, $comment->id, 'comment', $folder_path);
             }
 

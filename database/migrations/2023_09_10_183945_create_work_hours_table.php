@@ -13,9 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        // Schema::table('books', function (Blueprint $table) {
-        //     $table->text('link')->change();
-        // });
+        Schema::create('work_hours', function (Blueprint $table) {
+            $table->id();
+            $table->bigInteger("user_id")->unsigned();
+            $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
+            $table->integer("minutes")->default(0);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        // Schema::table('books', function (Blueprint $table) {
-        //     $table->string('link')->change();
-        // });
+        Schema::dropIfExists('work_hours');
     }
 };

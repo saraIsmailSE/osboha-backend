@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Image;
+use Intervention\Image\Facades\Image as ResizeImage;
 
 trait MediaTraits
 {
@@ -14,7 +15,14 @@ trait MediaTraits
     {
         try {
             $fullPath = 'assets/images' . ($folderPath ? '/' . $folderPath : '');
+
+            //check folder exist
+            if (!File::exists(public_path($fullPath))) {
+                File::makeDirectory(public_path($fullPath), 0777, true, true);
+            }
+
             $imageName = rand(100000, 999999) . time() . '.';
+            $imageFile = null;
             if (is_string($media)) {
                 //base64 image
                 $image = $media;
@@ -23,20 +31,27 @@ trait MediaTraits
                 $imageType = $imageTypeAux[1];
                 $imageBase64 = base64_decode($imageParts[1]);
                 $imageName = $imageName . $imageType;
-                file_put_contents(public_path($fullPath . '/' . $imageName), $imageBase64);
+
+                $imageFile = $imageBase64;
+                //resize image
+                ResizeImage::make($imageBase64)->resize(500, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save(public_path($fullPath . '/' . $imageName));
+
+                // file_put_contents(public_path($fullPath . '/' . $imageName), $imageBase64);
             } else {
                 //image file
                 $imageName = $imageName . $media->extension();
-                $media->move(public_path($fullPath), $imageName);
+                $imageFile = $media;
+
+                // $media->move(public_path($fullPath), $imageName);
             }
 
 
             // // resize the image to a width of 500 and constrain aspect ratio (auto height)
-            // Image::make($folderPath)->resize(500, null, function ($constraint) {
-            //     $constraint->aspectRatio();
-            // });
-
-
+            ResizeImage::make($imageFile)->resize(500, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save(public_path($fullPath . '/' . $imageName));
 
             // link media with comment
             $media = new Media();

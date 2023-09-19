@@ -42,6 +42,7 @@ use App\Http\Controllers\Api\{
     BookLevelController,
     LanguageController,
     ExceptionTypeController,
+    GeneralConversationController,
     GroupTypeController,
     MediaController,
     PostTypeController,
@@ -170,7 +171,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/type/{type_id}', [BookController::class, 'bookByType'])->where('type_id', '[0-9]+');
             Route::get('/level/{level}', [BookController::class, 'bookByLevel']);
             Route::get('/section/{section_id}', [BookController::class, 'bookBySection'])->where('section_id', '[0-9]+');
-            Route::post('/name', [BookController::class, 'bookByName']);
+            Route::get('/name', [BookController::class, 'bookByName']);
             Route::get('/language/{language}', [BookController::class, 'bookByLanguage']);
             Route::get('/recent-added-books', [BookController::class, 'getRecentAddedBooks']);
             Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
@@ -284,7 +285,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
             Route::get('/top-users-by-month', [MarkController::class, 'topUsersByMonth']);
             Route::get('/top-users-by-week', [MarkController::class, 'topUsersByWeek']);
-
         });
         ########End Mark########
 
@@ -644,7 +644,31 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## BookStatistics ########
 
+        ######## GeneralConversation ########
+        Route::group(['prefix' => 'general-conversations'], function () {
+            Route::group(['prefix' => 'questions'], function () {
+                Route::post('/', [GeneralConversationController::class, 'addQuestion']);
+                Route::get('/', [GeneralConversationController::class, 'getQuestions']);
+                Route::put('/close-overdue', [GeneralConversationController::class, 'closeOverdueQuestions']);
+                Route::put('/{question_id}/close', [GeneralConversationController::class, 'closeQuestion']);
+                Route::put('/{question_id}/solve', [GeneralConversationController::class, 'solveQuestion']);
+                Route::put('/{question_id}/assign-to-parent', [GeneralConversationController::class, 'AssignQuestionToParent']);
+                Route::get('/assigned-to-me', [GeneralConversationController::class, 'getAssignedToMeQuestions']);
+                Route::get('/my-questions', [GeneralConversationController::class, 'getMyQuestions']);
+                Route::get('/statistics', [GeneralConversationController::class, 'getQuestionsStatistics']);
+            });
 
+            Route::group(['prefix' => 'answers'], function () {
+                Route::post('/', [GeneralConversationController::class, 'answerQuestion']);
+            });
+
+            Route::group(['prefix' => 'working-hours'], function () {
+                Route::post('/', [GeneralConversationController::class, 'addWorkingHours']);
+                Route::get('/', [GeneralConversationController::class, 'getWorkingHours']);
+                Route::get('/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
+            });
+        });
+        ######## BookStatistics ########
 
     });
 });

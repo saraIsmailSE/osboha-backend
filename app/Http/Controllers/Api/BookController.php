@@ -161,10 +161,10 @@ class BookController extends Controller
                 //exam_media/user_id/
                 $folder_path = 'books';
 
-                //check if exam_media folder exists
-                if (!file_exists(public_path('assets/images/' . $folder_path))) {
-                    mkdir(public_path('assets/images/' . $folder_path), 0777, true);
-                }
+                // //check if exam_media folder exists
+                // if (!file_exists(public_path('assets/images/' . $folder_path))) {
+                //     mkdir(public_path('assets/images/' . $folder_path), 0777, true);
+                // }
 
                 if ($book->media) {
                     $this->updateMedia($request->book_media, $book->media->id, $folder_path);
@@ -421,16 +421,15 @@ class BookController extends Controller
      */
     public function bookByName(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        if (!$request->name) {
+            return $this->index();
         }
+
         $books = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
-        })->where('name', 'LIKE', '%' . $request->name . '%')
+            $q->where('type', 'normal')
+                ->orWhere('type', 'ramadan');
+        })
+            ->where('name', 'LIKE', '%' . $request->name . '%')
             ->with(['userBooks' => function ($query) {
                 $query->where('user_id', Auth::user()->id);
             }])
@@ -445,7 +444,14 @@ class BookController extends Controller
                 200
             );
         } else {
-            throw new NotFound;
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'books' => [],
+                    'total' => 0,
+                ],
+                'data',
+                200
+            );
         }
     }
 
