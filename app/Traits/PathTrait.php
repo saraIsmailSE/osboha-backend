@@ -69,4 +69,9 @@ trait PathTrait
 
         return $path;
     }
+
+    function getGeneralConversationPath($conversation_id)
+    {
+        return 'general-conversation/' . $conversation_id;
+    }
 }

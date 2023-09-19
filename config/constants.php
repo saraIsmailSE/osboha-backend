@@ -61,6 +61,7 @@ return [
     'PART_WRITING_MARK' => 8,
     'FULL_READING_MARK' => 50,
     'FULL_WRITING_MARK' => 40,
+    "COMPLETE_THESIS_LENGTH" => 400,
     'ACCEPTED_STATUS' => 'accepted',
     'REJECTED_STATUS' => 'rejected',
     'PENDING_STATUS' => 'pending',
@@ -77,6 +78,6 @@ return [
         'consultant' => 'مستشار',
         'admin' => 'ادارة'
     ],
-    'FRONT_URL'=>'https://www.platform.osboha180.com',
+    'FRONT_URL' => 'https://www.platform.osboha180.com',
 
 ];

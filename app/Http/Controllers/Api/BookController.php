@@ -161,10 +161,10 @@ class BookController extends Controller
                 //exam_media/user_id/
                 $folder_path = 'books';
 
-                //check if exam_media folder exists
-                if (!file_exists(public_path('assets/images/' . $folder_path))) {
-                    mkdir(public_path('assets/images/' . $folder_path), 0777, true);
-                }
+                // //check if exam_media folder exists
+                // if (!file_exists(public_path('assets/images/' . $folder_path))) {
+                //     mkdir(public_path('assets/images/' . $folder_path), 0777, true);
+                // }
 
                 if ($book->media) {
                     $this->updateMedia($request->book_media, $book->media->id, $folder_path);
