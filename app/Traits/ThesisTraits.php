@@ -121,6 +121,17 @@ trait ThesisTraits
         }
 
         if ($mark_record) {
+            //check if thesis is added before (same book and same pages)
+            $addedBefore = Thesis::where('book_id', $thesis['book_id'])
+                ->where('start_page', $thesis['start_page'])
+                ->where('end_page', $thesis['end_page'])
+                ->where('mark_id', $mark_record->id)
+                ->first();
+
+            if ($addedBefore) {
+                throw new \Exception('Thesis is added before');
+            }
+
             //get thesis type
             $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
 

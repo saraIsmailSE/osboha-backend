@@ -421,16 +421,15 @@ class BookController extends Controller
      */
     public function bookByName(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        if (!$request->name) {
+            return $this->index();
         }
+
         $books = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
-        })->where('name', 'LIKE', '%' . $request->name . '%')
+            $q->where('type', 'normal')
+                ->orWhere('type', 'ramadan');
+        })
+            ->where('name', 'LIKE', '%' . $request->name . '%')
             ->with(['userBooks' => function ($query) {
                 $query->where('user_id', Auth::user()->id);
             }])
@@ -445,7 +444,14 @@ class BookController extends Controller
                 200
             );
         } else {
-            throw new NotFound;
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'books' => [],
+                    'total' => 0,
+                ],
+                'data',
+                200
+            );
         }
     }
 

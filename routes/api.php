@@ -171,7 +171,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/type/{type_id}', [BookController::class, 'bookByType'])->where('type_id', '[0-9]+');
             Route::get('/level/{level}', [BookController::class, 'bookByLevel']);
             Route::get('/section/{section_id}', [BookController::class, 'bookBySection'])->where('section_id', '[0-9]+');
-            Route::post('/name', [BookController::class, 'bookByName']);
+            Route::get('/name', [BookController::class, 'bookByName']);
             Route::get('/language/{language}', [BookController::class, 'bookByLanguage']);
             Route::get('/recent-added-books', [BookController::class, 'getRecentAddedBooks']);
             Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
