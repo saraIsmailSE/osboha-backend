@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\AnnouncementPosted;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Media;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\PostResource;
+use App\Jobs\SendNotificationJob;
 use App\Models\PollOption;
 use App\Models\PostType;
 use App\Models\TimelineType;
@@ -135,6 +137,11 @@ class PostController extends Controller
                 }
 
                 $post = Post::create($input);
+
+                if ($post->type->type === 'announcement') {
+                    //send notification to all users in the system
+                    $this->sendAnnouncementNotification($post);
+                }
 
                 if ($pending_msg) {
                     if ($pending_type === GROUP_POSTS) {
@@ -883,6 +890,35 @@ class PostController extends Controller
                 },
             ],
         ]);
+    }
+
+    /**
+     * Send notification to users after posting an announcement
+     * @param  Post  $post
+     * @return void
+     */
+    public function sendAnnouncementNotification(Post $post)
+    {
+        $message = 'لقد تم نشر إعلان جديد, تفقد الإعلانات 📢';
+        User::where('is_excluded', 0)
+            ->where('is_hold', 0)
+            ->where('parent_id', '!=', null)
+            ->chunk(100, function ($users) use ($message, $post) {
+                try {
+                    foreach ($users as $user) {
+                        dispatch(
+                            new SendNotificationJob(
+                                $user->id,
+                                $message,
+                                ANNOUNCEMENT,
+                                $this->getPostPath($post->id),
+                            )
+                        );
+                    }
+                } catch (\Exception $e) {
+                    throw $e;
+                }
+            });
     }
 
     public function getLastSupportPost()

@@ -443,9 +443,7 @@ class GeneralConversationController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponse(
-                [
-                    "dataTypeOFMinutes" => gettype($request->minutes),
-                ],
+                $validator->errors()->first(),
                 'data',
                 Response::HTTP_UNPROCESSABLE_ENTITY,
                 $validator->errors()->first()
@@ -467,9 +465,11 @@ class GeneralConversationController extends Controller
             $workingHours->save();
         }
 
-        return $this->jsonResponseWithoutMessage([
-            "workingHours" => $workingHours,
-        ], 'data', Response::HTTP_OK);
+        return $this->jsonResponseWithoutMessage(
+            $workingHours,
+            'data',
+            Response::HTTP_OK
+        );
     }
 
     public function getWorkingHours()
@@ -489,55 +489,104 @@ class GeneralConversationController extends Controller
             ->whereBetween('created_at', [$created_at, $main_timer])
             ->get();
 
-        $totalMinutes = $workingHours->sum(function ($item) {
-            return $item->sum('minutes');
-        });
-
 
         return $this->jsonResponseWithoutMessage(
-            [
-                "workingHours" => $workingHours,
-                "totalMinutes" => $totalMinutes,
-            ],
+            $workingHours,
+
             'data',
             Response::HTTP_OK
         );
     }
 
-    public function getWorkingHoursStatistics()
+    public function getWorkingHoursStatistics(Request $request)
     {
-        if (!Auth::user()->hasAnyRole(['admin', 'consultant', 'advisor'])) {
+        if (!Auth::user()->hasAnyRole(['admin'])) {
             throw new NotAuthorized;
         }
 
-        // $previousWeek = Week::orderBy('created_at', 'desc')->skip(1)->first();
-        $previousWeek = Week::latest()->first();
-        $created_at = $previousWeek->created_at;
-        $main_timer = $previousWeek->main_timer;
+        /* Requirements:- 
+        - number of hours the last week
+        - number of hours based on the selected month
+        - working hours for each user grouped by week and role
+        */
 
-        //get all working hours grouped by created_at date and sorted based on the user roles
-        $workingHours = WorkHour::whereBetween('created_at', [$created_at, $main_timer])
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->user->roles->pluck('name')->first();
+        $lastWeek = Week::orderBy('created_at', 'desc')->skip(1)->first();
+
+        $selected_month = $request->month;
+
+        //if no month is selected, get the current month 
+        if (!$selected_month) {
+            $selected_month = Carbon::now()->month;
+        }
+
+        $minutesOfLastWeek = WorkHour::where('week_id', $lastWeek->id)->sum('minutes');
+        $minutesOfSelectedMonth = WorkHour::whereMonth('created_at', $selected_month)->sum('minutes');
+
+        // $availableMonths =  Week::selectRaw('MONTH(created_at) AS month, MONTH(main_timer) AS month')
+        //     ->whereYear('created_at', date('Y'))
+        //     ->orderBy('created_at', 'asc')
+        //     ->orderBy('main_timer', 'asc')
+        //     ->pluck('month')
+        //     ->unique()
+        //     ->flatten();
+
+        $weeksOfTheSelectedMonth = Week::whereMonth('created_at', $selected_month)
+            // ->orWhereMonth('main_timer', $selected_month)
+            ->pluck('id');
+
+        $workingHours = WorkHour::whereHas('user.roles', function ($query) {
+
+            $query->whereIn('name', ['admin', 'consultant', 'advisor']);
+        })
+            ->whereIn('week_id', $weeksOfTheSelectedMonth)
+            ->orderBy('week_id', 'desc')
+            ->get();
+
+        $groupedData = $workingHours
+
+            //group by week title
+            ->groupBy(function ($week) {
+                return $week->week->title;
             })
-            ->map(function ($item) {
-                return $item->groupBy('user_id');
+            ->map(function ($group) {
+                //group by user role
+                return $group->groupBy(function ($item) {
+                    return config('constants.ARABIC_ROLES')[$item->user->roles->first()->name];
+                })
+                    //sort by role id
+                    ->sortBy(function ($item) {
+                        return $item->first()->user->roles->first()->id;
+                    })
+                    ->map(function ($roleGroup) {
+                        //group by user id
+                        return $roleGroup->groupBy(function ($item) {
+                            return $item->user->id;
+                        })->map(function ($userGroup) {
+                            //return user info and sum of minutes
+                            $user = $userGroup->first()->user;
+                            return [
+                                "user" => UserInfoResource::make($user),
+                                "minutes" => $userGroup->sum('minutes'),
+                            ];
+                        })
+                            //sort by minutes
+                            ->sortByDesc('minutes')
+                            //return values only without keys
+                            ->values()
+                            ->toArray();
+                    });
             });
 
 
-
-        $totalMinutes = $workingHours->sum(function ($item) {
-            return $item->sum('minutes');
-        });
-
-        return $this->jsonResponseWithoutMessage(
-            [
-                "workingHours" => $workingHours,
-                "totalMinutes" => $totalMinutes,
+        return $this->jsonResponseWithoutMessage([
+            "selectedMonth" => $selected_month,
+            "lastWeek" => [
+                "id" => $lastWeek->id,
+                "title" => $lastWeek->title,
+                "minutes" => $minutesOfLastWeek,
             ],
-            'data',
-            Response::HTTP_OK
-        );
+            "minutesOfSelectedMonth" => $minutesOfSelectedMonth,
+            "workingHours" => $groupedData,
+        ], 'data', Response::HTTP_OK);
     }
 }

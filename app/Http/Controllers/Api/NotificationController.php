@@ -52,17 +52,26 @@ class NotificationController extends Controller
         if (!defined('SUPPORT_MARK')) define('SUPPORT_MARK', 'support_mark');
         if (!defined('AUDIT_MARKS')) define('AUDIT_MARKS', 'audit_marks');
         if (!defined('MARKS')) define('MARKS', 'marks');
+
+        if (!defined('ANNOUNCEMENT')) define('ANNOUNCEMENT', 'announcement');
     }
     /**
      * Send notification to a specific user by its id with a message and insert it to the database.
      * 
      * @param  $reciver_id , $message
      */
-    public function sendNotification($reciver_id, $message, $type, $path = null)
+    public function sendNotification($reciver_id, $message, $type, $path = null, $delay = null)
     {
         $sender = User::find(Auth::id()) ?? User::find(1);
         $reciver = User::where('id', $reciver_id)->first();
-        $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
+        // $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
+
+
+        if ($delay) {
+            $reciver->notify((new GeneralNotification($sender, $message, $type, $path))->delay($delay));
+        } else {
+            $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
+        }
     }
     /**
      * To show all notifications for auth user.
