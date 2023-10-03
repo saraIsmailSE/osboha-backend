@@ -79,6 +79,7 @@ Route::group(['prefix' => 'v1'], function () {
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
+        Route::post('/upload', [MediaController::class, 'upload']);
     });
     ########End Media route########
 

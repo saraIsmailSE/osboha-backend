@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
 use Illuminate\Support\Facades\File;
+use App\Rules\base64OrImage;
+use App\Rules\base64OrImageMaxSize;
 
 
 class MediaController extends Controller
@@ -58,6 +60,33 @@ class MediaController extends Controller
 
 
     /**
+     *upload media to the system. [for testing]
+     * 
+     * @param  Request  $request
+     * @return jsonResponse;
+     */
+    public function upload(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'image' => [
+                'required',
+                new base64OrImage(),
+                new base64OrImageMaxSize(1 * 1024 * 1024),
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $folder_path = 'testMedia';
+        $this->uploadTest($request->image, $folder_path);
+
+        return $this->jsonResponseWithoutMessage("Media added Successfully", 'data', 200);
+    }
+
+
+    /**
      * Find and show an existing media in the system by its id.
      *
      * @param  media id
@@ -68,7 +97,7 @@ class MediaController extends Controller
         $media = Media::find($id);
         if ($media) {
             $path = public_path() . '/assets/images/' . $media->media;
-            return response()->download($path,rand(100000, 999999) . time());
+            return response()->download($path, rand(100000, 999999) . time());
         } else {
             return $this->sendError('file nout found TEST');
         }

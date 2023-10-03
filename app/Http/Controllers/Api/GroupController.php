@@ -833,9 +833,11 @@ class GroupController extends Controller
                             // get groups for each supervisor 
 
                             $supervisor_groups = UserGroup::where('user_id', $supervisor->id)
-                                ->where('user_type', 'supervisor')->orWhere('user_type', 'advisor')
+                                ->where(function ($query) {
+                                    $query->where('user_type', 'supervisor')
+                                        ->orWhere('user_type', 'advisor');
+                                })
                                 ->whereNull('termination_reason')->get();
-
 
                             //add advisor
                             if ($supervisor_groups->isNotEmpty()) {
