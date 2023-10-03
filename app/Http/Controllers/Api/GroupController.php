@@ -844,10 +844,12 @@ class GroupController extends Controller
                                 foreach ($supervisor_groups as $group) {
                                     UserGroup::updateOrCreate(
                                         [
-                                            'user_id' => $user->id,
+                                            'user_type' => $request->user_type,
                                             'group_id' => $group->group_id
                                         ],
-                                        ['user_type' => $request->user_type]
+                                        [
+                                            'user_id' => $user->id
+                                        ]
                                     );
                                 }
                             }
