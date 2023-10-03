@@ -15,9 +15,12 @@ return new class extends Migration
     {
         Schema::create('work_hours', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger("user_id")->unsigned();
-            $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
             $table->integer("minutes")->default(0);
+            $table->bigInteger("user_id")->unsigned()->index();
+            $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
+
+            $table->unsignedBigInteger('week_id')->index();
+            $table->foreign('week_id')->references('id')->on('weeks')->onDelete('cascade');
             $table->timestamps();
         });
     }

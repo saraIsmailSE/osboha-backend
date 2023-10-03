@@ -12,6 +12,7 @@ class WorkHour extends Model
     protected $fillable = [
         "user_id",
         "minutes",
+        "week_id"
     ];
 
     public function user()
@@ -19,11 +20,8 @@ class WorkHour extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getFormattedTimeAttribute()
+    public function week()
     {
-        $hours = floor($this->minutes / 60);
-        $minutes = $this->minutes % 60;
-
-        return sprintf("%02d:%02d", $hours, $minutes);
+        return $this->belongsTo(Week::class);
     }
 }

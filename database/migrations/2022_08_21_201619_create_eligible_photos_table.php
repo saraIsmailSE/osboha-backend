@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->text('path');
             $table->bigInteger("thesis_id")->unsigned()->index();
-            $table->foreign("thesis_id")->references("id")->on("thesis");
+            $table->foreign("thesis_id")->references("id")->on("theses");
             $table->timestamps();
         });
     }
