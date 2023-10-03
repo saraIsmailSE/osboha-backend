@@ -83,7 +83,11 @@ Route::group(['prefix' => 'v1'], function () {
     });
     ########End Media route########
 
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/php-info', function () {
+        return     phpinfo();
+    });
+    
+        Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
 
     Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
