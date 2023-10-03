@@ -55,7 +55,8 @@ use App\Http\Controllers\Api\{
     ModifiedThesesController,
     UserBookController,
     UserController,
-    RolesAdministrationController
+    RolesAdministrationController,
+    phpInfo,
 };
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
@@ -83,9 +84,7 @@ Route::group(['prefix' => 'v1'], function () {
     });
     ########End Media route########
 
-    Route::get('/php-info', function () {
-        return     phpinfo();
-    });
+    Route::get('/php-info', [phpInfo::class, 'index']);
     
         Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
