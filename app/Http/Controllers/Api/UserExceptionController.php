@@ -408,10 +408,9 @@ class UserExceptionController extends Controller
             // $advisor_id = $group->groupAdvisor[0]->id;
 
             if ($userException->type_id == $exceptionalFreez->id) { //exceptional freezing
-                $groudAdvisor = $group->groupAdvisor[0];
+                // $groudAdvisor = $group->groupAdvisor[0];
                 if (
-                    Auth::id() == $groudAdvisor->id ||
-                    Auth::user()->hasRole('admin')
+                    Auth::user()->hasanyrole('admin|consultant|advisor')
                 ) {
 
                     $userException->note = $request->note;

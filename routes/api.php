@@ -56,7 +56,6 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    phpInfo,
 };
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
@@ -84,9 +83,8 @@ Route::group(['prefix' => 'v1'], function () {
     });
     ########End Media route########
 
-    Route::get('/php-info', [phpInfo::class, 'index']);
     
-        Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
 
     Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
