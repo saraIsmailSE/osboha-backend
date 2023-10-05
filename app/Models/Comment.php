@@ -20,6 +20,8 @@ class Comment extends Model
     ];
 
     protected $withCount = ['reactions'];
+    protected $with = ['user.roles', 'media', 'replies'];
+    protected $appends = ['is_liked'];
     /**
      * Self Relation.
      * replies relation means that this model(comment) has many replies
@@ -56,5 +58,10 @@ class Comment extends Model
     public function reactions()
     {
         return $this->hasMany(Reaction::class)->where('type_id', 1); // 1 is the id of like type (for now)
+    }
+
+    public function getIsLikedAttribute()
+    {
+        return $this->reactions->where('user_id', auth()->id())->where('type_id', 1)->count() > 0;
     }
 }
