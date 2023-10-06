@@ -191,7 +191,7 @@ class CommentController extends Controller
                 (new NotificationController)->sendNotification($reciever_id, $message, USER_POSTS, $this->getPostPath($post->id));
             }
 
-            return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
+            return $this->jsonResponseWithoutMessage($comment, 'data', 200);
         } catch (\Exception $e) {
             Log::channel('books')->info($e);
 
@@ -222,7 +222,8 @@ class CommentController extends Controller
 
         if ($comments->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
-                'comments' => CommentResource::collection($comments),
+                // 'comments' => CommentResource::collection($comments),
+                'comments' => $comments->items(),
                 'last_page' => $comments->lastPage(),
             ], 'data', 200);
         }
@@ -399,8 +400,12 @@ class CommentController extends Controller
 
                     $comment->load('replies');
 
+                    if ($comment->type === 'thesis' || $comment->type === 'screenshot') {
+                        $comment->load('thesis');
+                    }
+
                     DB::commit();
-                    return $this->jsonResponseWithoutMessage(new CommentResource($comment), 'data', 200);
+                    return $this->jsonResponseWithoutMessage($comment, 'data', 200);
                 } catch (\Exception $e) {
                     DB::rollback();
                     return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);

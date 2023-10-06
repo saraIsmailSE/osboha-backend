@@ -185,13 +185,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(UserException::class);
     }
 
-    
+
     public function exceptionsReview()
     {
         return $this->hasMany(UserException::class, "reviewer_id");
     }
 
-    
+
     public function userBooks()
     {
         return $this->hasMany(UserBook::class);

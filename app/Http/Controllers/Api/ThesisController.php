@@ -30,7 +30,7 @@ class ThesisController extends Controller
         $thesis = Thesis::with('comment')->with('mark.week')->find($thesis_id);
 
         if ($thesis) {
-            return $this->jsonResponseWithoutMessage(new ThesisResource($thesis), 'data', 200);
+            return $this->jsonResponseWithoutMessage($thesis, 'data', 200);
         } else {
             throw new NotFound;
         }
@@ -52,17 +52,15 @@ class ThesisController extends Controller
                     $query->where('id', $user_id);
                 }
             })
-            ->with('reactions', function ($query) {
-                $query->where('user_id', Auth::id());
-            })
-            ->withCount('reactions')
             ->with('thesis')
             ->orderBy('created_at', 'desc')->paginate(10);
 
         if ($comments->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
                 [
-                    'theses' => CommentResource::collection($comments),
+                    // 'theses' => CommentResource::collection($comments),
+
+                    'theses' => $comments->items(),
                     'total' => $comments->total(),
                 ],
                 'data',
@@ -95,9 +93,6 @@ class ThesisController extends Controller
                     $query->where('id', $thesis_id);
                 }
             })
-            ->with('reactions', function ($query) {
-                $query->where('user_id', Auth::id());
-            })
             ->withCount('reactions')
             ->with('thesis')
             ->orderBy('created_at', 'desc')->paginate(10);
@@ -105,7 +100,8 @@ class ThesisController extends Controller
         if ($comments->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
                 [
-                    'theses' => CommentResource::collection($comments),
+                    // 'theses' => CommentResource::collection($comments),
+                    'theses' => $comments->items(),
                     'total' => $comments->total(),
                 ],
                 'data',
@@ -133,15 +129,13 @@ class ThesisController extends Controller
             ->where('type', 'thesis')
             ->where('comment_id', 0)
             ->with('thesis')
-            ->with('reactions', function ($query) {
-                $query->where('user_id', Auth::id());
-            })
             ->withCount('reactions')
             ->orderBy('created_at', 'desc')->paginate(10);
 
         if ($theses->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
-                'theses' => CommentResource::collection($theses),
+                // 'theses' => CommentResource::collection($theses),
+                'theses' => $theses->items(),
                 'total' => $theses->total(),
             ], 'data', 200);
         } else {
@@ -161,12 +155,11 @@ class ThesisController extends Controller
             ->whereHas('thesis.mark', function ($query) use ($week_id) {
                 $query->where('week_id', $week_id);
             })
-            ->with('replies')
             ->with('thesis')
             ->orderBy('created_at', 'desc')->get();
 
         if ($theses->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage(CommentResource::collection($theses), 'data', 200);
+            return $this->jsonResponseWithoutMessage($theses, 'data', 200);
         } else {
             throw new NotFound;
         }
