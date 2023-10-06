@@ -96,8 +96,6 @@ class FriendController extends Controller
                 $input['user_id'] = Auth::id();
                 Friend::create($input);
 
-                $msg = "لقد أرسل إليك " . Auth::user()->name . " طلب صداقة";
-                (new NotificationController)->sendNotification($request->friend_id, $msg, FRIENDS, $this->getProfilePath(Auth::id()));
                 return $this->jsonResponseWithoutMessage("Friendship Created Successfully", 'data', 200);
             }
         } else {
