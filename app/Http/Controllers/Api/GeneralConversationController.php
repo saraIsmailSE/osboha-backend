@@ -459,6 +459,7 @@ class GeneralConversationController extends Controller
             $workingHours = WorkHour::create([
                 "user_id" => $user->id,
                 "minutes" => $request->minutes,
+                "week_id" => Week::latest()->first()->id,
             ]);
         } else {
             $workingHours->minutes += $request->minutes;
@@ -520,7 +521,7 @@ class GeneralConversationController extends Controller
         }
 
         $minutesOfLastWeek = WorkHour::where('week_id', $lastWeek->id)->sum('minutes');
-        $minutesOfSelectedMonth = WorkHour::whereMonth('created_at', $selected_month)->sum('minutes');
+        // $minutesOfSelectedMonth = WorkHour::whereMonth('created_at', $selected_month)->sum('minutes');
 
         // $availableMonths =  Week::selectRaw('MONTH(created_at) AS month, MONTH(main_timer) AS month')
         //     ->whereYear('created_at', date('Y'))
@@ -531,16 +532,20 @@ class GeneralConversationController extends Controller
         //     ->flatten();
 
         $weeksOfTheSelectedMonth = Week::whereMonth('created_at', $selected_month)
-            // ->orWhereMonth('main_timer', $selected_month)
+            ->orWhereMonth('main_timer', $selected_month)
             ->pluck('id');
 
-        $workingHours = WorkHour::whereHas('user.roles', function ($query) {
-
-            $query->whereIn('name', ['admin', 'consultant', 'advisor']);
-        })
-            ->whereIn('week_id', $weeksOfTheSelectedMonth)
+        $workingHours = WorkHour::
+            // whereHas('user.roles', function ($query) {
+            //     $query->whereIn('name', ['admin', 'consultant', 'advisor']);
+            // })
+            // ->whereIn('week_id', $weeksOfTheSelectedMonth)
+            // ->
+            whereMonth('created_at', $selected_month)
             ->orderBy('week_id', 'desc')
             ->get();
+
+        $minutesOfSelectedMonth = $workingHours->sum('minutes');
 
         $groupedData = $workingHours
 
@@ -562,11 +567,20 @@ class GeneralConversationController extends Controller
                         return $roleGroup->groupBy(function ($item) {
                             return $item->user->id;
                         })->map(function ($userGroup) {
-                            //return user info and sum of minutes
+                            //group by day
+                            $days = $userGroup->groupBy(function ($item) {
+                                return $item->created_at->format('d');
+                            })->map(function ($dayGroup) {
+                                //sum minutes of each day
+                                return $dayGroup->sum('minutes');
+                            });
+
+                            //return user info with days and total minutes
                             $user = $userGroup->first()->user;
                             return [
                                 "user" => UserInfoResource::make($user),
-                                "minutes" => $userGroup->sum('minutes'),
+                                "days" => $days,
+                                "minutes" => $days->sum(),
                             ];
                         })
                             //sort by minutes
