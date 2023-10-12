@@ -457,6 +457,9 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
             Route::get('/finishedException', [UserExceptionController::class, 'finishedException']);
             Route::get('/user-exceptions/{user_id}', [UserExceptionController::class, 'userExceptions']);
             Route::get('/exceptions-filter/{filter}/{user_id}', [UserExceptionController::class, 'exceptionsFilter']);
+            Route::post('/set-exceptional-freez', [UserExceptionController::class, 'setExceptionalFreez']);
+            Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
+
         });
         ############End UserException########
 
