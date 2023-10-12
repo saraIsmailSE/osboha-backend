@@ -138,8 +138,13 @@ return [
             'path' => storage_path('logs/newUser.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'media' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/media.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
 
-        
+
     ],
 
 ];

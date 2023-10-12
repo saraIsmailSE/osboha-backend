@@ -204,10 +204,11 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
         Route::post('/upload', [MediaController::class, 'upload']);
+        Route::delete('/old', [MediaController::class, 'removeOldMedia']);
     });
     ########End Media route########
 
-    
+
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
 
