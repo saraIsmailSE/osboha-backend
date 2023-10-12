@@ -6,6 +6,7 @@ use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Media;
+use App\Models\Week;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
@@ -13,7 +14,9 @@ use App\Traits\MediaTraits;
 use Illuminate\Support\Facades\File;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Termwind\Components\Dd;
 
 class MediaController extends Controller
 {
@@ -174,6 +177,45 @@ class MediaController extends Controller
             return response()->download($path, $_GET['fileName']);
         } else {
             return $this->sendError('file nout found');
+        }
+    }
+
+    /**
+     * Remove media files of the old records from the public folder.
+     * Keep the records of the current week and the last week.
+     * @return JsonResponse;     
+     */
+    public function removeOldMedia()
+    {
+        //get last week
+        $lastWeek = Week::orderBy('id', 'desc')
+            ->skip(1)
+            ->take(1)
+            ->first();
+
+        $created_at = $lastWeek->created_at;
+
+        //get all media records of the last week that has comment_id not null
+
+        $media = DB::table('media')
+            ->where('created_at', '<', $created_at)
+            ->where('type', 'image')
+            ->whereNotNull('comment_id')
+            ->pluck('media');
+
+        //delete media files 
+        try {
+            $deletedFiles = $this->deleteMediaFiles($media);
+
+            //log the deleted files            
+            Log::channel('media')->info('Deleted media files', [
+                'deletedFiles' => $deletedFiles,
+                'message' => count($deletedFiles) > 0 ? '(' . count($deletedFiles) . ') Media files deleted successfully' : 'No media files deleted'
+            ]);
+        } catch (\Throwable $th) {
+            Log::channel('media')->error('Error while deleting media files', [
+                'error' => $th->getMessage() . ' in ' . $th->getFile() . ' at line ' . $th->getLine(),
+            ]);
         }
     }
 }
