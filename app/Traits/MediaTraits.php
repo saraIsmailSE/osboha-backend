@@ -214,4 +214,18 @@ trait MediaTraits
         }
     }
 
+    function deleteMediaFiles($files)
+    {
+        $filesDeleted = [];
+        foreach ($files as $file) {
+            //check if file exist
+            if (File::exists(public_path('assets/images/' . $file))) {
+                //delete file
+                File::delete(public_path('assets/images/' . $file));
+                $filesDeleted[] = $file;
+            }
+        }
+
+        return $filesDeleted;
+    }
 }
