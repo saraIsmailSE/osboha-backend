@@ -215,6 +215,125 @@ class UserExceptionController extends Controller
         }
     }
 
+
+    public function setExceptionalFreez(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'reason' => 'required|string',
+            'user_id' => 'required|int',
+            'week_id' => 'required|int',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            //get exceptional freez type id
+            $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+
+            $week = Week::find($request->week_id);
+            $exception['reason'] = $request->reason;
+            $exception['type_id'] =  $exceptionalFreez->id;
+            $exception['user_id'] = $request->user_id;
+
+            $parentOfAuth = Auth::user()->parent_id;
+
+            $successMessage = "";
+            $exception['status'] = 'pending';
+            $exception['week_id'] =  $week->id;
+            $exception['start_at'] = $week->created_at;
+            $exception['end_at'] = Carbon::parse($week->created_at->addDays(7))->format('Y-m-d');
+
+            $userException = UserException::updateOrCreate(
+                ['user_id' => $request->user_id, 'week_id' => $week->id],
+                $exception
+            );
+            $userException->fresh();
+
+            // response msg
+            $successMessage = "تم طلب التجميد لغاية " . $exception['end_at'];
+
+
+            //Notify User
+            $userToNotify = User::find($request->user_id);
+
+            //notify parent of Auth
+            $msg = "قام  " . Auth::user()->name . " باعطاء نظام تجميد استثنائي للسفير" . $userToNotify->name;
+            (new NotificationController)->sendNotification($parentOfAuth, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
+
+            DB::commit();
+
+            return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
+    public function setNewUser(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'reason' => 'required|string',
+            'user_id' => 'required|int',
+            'week_id' => 'required|int',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            //get exceptional freez type id
+            $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+
+            $week = Week::find($request->week_id);
+            $exception['reason'] = $request->reason;
+            $exception['type_id'] =  $exceptionalFreez->id;
+            $exception['user_id'] = $request->user_id;
+
+            $parentOfAuth = Auth::user()->parent_id;
+
+            $successMessage = "";
+            $exception['status'] = 'accepted';
+            $exception['week_id'] =  $week->id;
+            $exception['start_at'] = $week->created_at;
+            $exception['end_at'] = Carbon::parse($week->created_at->addDays(7))->format('Y-m-d');
+
+            $userException = UserException::updateOrCreate(
+                ['user_id' => $request->user_id, 'week_id' => $week->id],
+                $exception
+            );
+            $userException->fresh();
+
+            // response msg
+            $successMessage = "تم تعيين السفير كعضو جديد ";
+
+
+            //Notify User
+            $userToNotify = User::find($request->user_id);
+            $msg = "قام  " . Auth::user()->name . " بتعيينك كعضو جديد، وعدم احتساب علامتك للأسبوع الحالي ";
+            (new NotificationController)->sendNotification($userToNotify->id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
+
+            //notify parent of Auth
+            $msg = "قام  " . Auth::user()->name . " بتعيين " . $userToNotify->name . " كـ عضو جديد";
+            (new NotificationController)->sendNotification($parentOfAuth, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
+
+            DB::commit();
+
+            return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
     /**
      * Find an existing user exception in the system by its id display it.
      * 
@@ -230,6 +349,8 @@ class UserExceptionController extends Controller
                 $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
                 $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
                 $response['user_exception'] = $userException;
+                //weeks [current - last]
+                $response['weeks'] = Week::orderBy('created_at', 'desc')->take(2)->get();
 
                 //last freez
                 $response['last_freez'] = UserException::where('user_id', $userException->user_id)->where(function ($q) {
@@ -385,6 +506,7 @@ class UserExceptionController extends Controller
         $input = $request->all();
         $validator = Validator::make($input, [
             'decision' => 'required',
+            'week_id' => 'required|int',
             'note' => 'string',
         ]);
 
@@ -418,40 +540,40 @@ class UserExceptionController extends Controller
 
                     if (in_array($request->decision, [1, 2, 3, 4])) {
 
-                        $current_week = Week::latest()->first();
+                        $desired_week = Week::find($request->week_id);
 
                         $userException->status = 'accepted';
                         $status = 'مقبول';
 
                         if ($request->decision == 1) {
                             //اعفاء الأسبوع الحالي
-                            Mark::where('week_id', $current_week->id)
+                            Mark::where('week_id', $desired_week->id)
                                 ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
-                            $userException->week_id =  $current_week->id;
-                            $userException->start_at = $current_week->created_at;
-                            $userException->end_at = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
+                            $userException->week_id =  $desired_week->id;
+                            $userException->start_at = $desired_week->created_at;
+                            $userException->end_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
                         } else if ($request->decision == 2) {
                             //اعفاء الأسبوع القادم
-                            $userException->week_id =  $current_week->id;
-                            $userException->start_at = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
-                            $userException->end_at = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
+                            $userException->week_id =  $desired_week->id;
+                            $userException->start_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
+                            $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
                         } else if ($request->decision == 3) {
                             //اعفاء لأسبوعين الحالي و القادم
-                            Mark::where('week_id', $current_week->id)
+                            Mark::where('week_id', $desired_week->id)
                                 ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
-                            $userException->week_id =  $current_week->id;
-                            $userException->start_at = $current_week->created_at;
-                            $userException->end_at = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
+                            $userException->week_id =  $desired_week->id;
+                            $userException->start_at = $desired_week->created_at;
+                            $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
                         } else if ($request->decision == 4) {
                             //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
-                            Mark::where('week_id', $current_week->id)
+                            Mark::where('week_id', $desired_week->id)
                                 ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
-                            $userException->week_id =  $current_week->id;
-                            $userException->start_at = $current_week->created_at;
-                            $userException->end_at = Carbon::parse($current_week->created_at->addDays(21))->format('Y-m-d');
+                            $userException->week_id =  $desired_week->id;
+                            $userException->start_at = $desired_week->created_at;
+                            $userException->end_at = Carbon::parse($desired_week->created_at->addDays(21))->format('Y-m-d');
                         }
                         //notify leader
                         $msg = "السفير:  " . Auth::user()->name . " تحت التجميد الاستثنائي لغاية:  " . $userException->end_at;
@@ -486,28 +608,28 @@ class UserExceptionController extends Controller
 
                     if (in_array($request->decision, [1, 2, 3])) {
 
-                        $current_week = Week::latest()->first();
+                        $desired_week = Week::find($request->week_id);
 
                         $userException->status = 'accepted';
                         $status = 'مقبول';
 
                         if ($request->decision == 1) {
                             //اعفاء الأسبوع الحالي
-                            $userException->week_id =  $current_week->id;
-                            $userException->start_at = $current_week->created_at;
-                            $userException->end_at = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
-                            $this->calculate_mark_for_exam($owner_of_exception, $current_week);
+                            $userException->week_id =  $desired_week->id;
+                            $userException->start_at = $desired_week->created_at;
+                            $userException->end_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
+                            $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
                         } else if ($request->decision == 2) {
                             //اعفاء الأسبوع القادم
-                            $userException->week_id =  $current_week->id;
-                            $userException->start_at = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
-                            $userException->end_at = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
+                            $userException->week_id =  $desired_week->id;
+                            $userException->start_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
+                            $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
                         } else if ($request->decision == 3) {
                             //اعفاء لأسبوعين الحالي و القادم
-                            $userException->week_id =  $current_week->id;
-                            $userException->start_at = $current_week->created_at;
-                            $userException->end_at = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
-                            $this->calculate_mark_for_exam($owner_of_exception, $current_week);
+                            $userException->week_id =  $desired_week->id;
+                            $userException->start_at = $desired_week->created_at;
+                            $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
+                            $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
                         }
 
                         //notify leader                        
