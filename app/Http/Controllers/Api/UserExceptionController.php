@@ -262,7 +262,7 @@ class UserExceptionController extends Controller
             $userToNotify = User::find($request->user_id);
 
             //notify parent of Auth
-            $msg = "قام  " . Auth::user()->name . " باعطاء نظام تجميد استثنائي للسفير" . $userToNotify->name;
+            $msg = "قام  " . Auth::user()->name . " بطلب نظام تجميد استثنائي للسفير  "  . $userToNotify->name;
             (new NotificationController)->sendNotification($parentOfAuth, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
 
             DB::commit();
@@ -576,7 +576,7 @@ class UserExceptionController extends Controller
                             $userException->end_at = Carbon::parse($desired_week->created_at->addDays(21))->format('Y-m-d');
                         }
                         //notify leader
-                        $msg = "السفير:  " . Auth::user()->name . " تحت التجميد الاستثنائي لغاية:  " . $userException->end_at;
+                        $msg = "السفير:  " . $owner_of_exception->name . " تحت التجميد الاستثنائي لغاية:  " . $userException->end_at;
                         (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
                     } else {
                         // رفض
@@ -633,7 +633,7 @@ class UserExceptionController extends Controller
                         }
 
                         //notify leader                        
-                        $msg = "السفير:  " . Auth::user()->name . " تحت نظام الامتحانات لغاية:  " . $userException->end_at;
+                        $msg = "السفير:  " . $owner_of_exception->name . " تحت نظام الامتحانات لغاية:  " . $userException->end_at;
                         (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
                     } else {
                         // رفض

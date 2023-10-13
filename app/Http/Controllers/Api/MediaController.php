@@ -99,10 +99,14 @@ class MediaController extends Controller
     {
         $media = Media::find($id);
         if ($media) {
-            $path = public_path() . '/assets/images/' . $media->media;
-            return response()->download($path, rand(100000, 999999) . time());
+            try {
+                $path = public_path() . '/assets/images/' . $media->media;
+                return response()->download($path, rand(100000, 999999) . time());
+            } catch (\Exception $e) {
+                throw new NotFound;
+            }
         } else {
-            return $this->sendError('file nout found TEST');
+            return $this->jsonResponseWithoutMessage("NOT FOUND", 'data', 404);
         }
     }
 
