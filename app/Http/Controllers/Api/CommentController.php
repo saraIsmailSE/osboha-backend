@@ -158,9 +158,6 @@ class CommentController extends Controller
                 }
                 /**asmaa **/
                 $this->createThesis($thesis);
-                $comment->load(['replies', 'thesis', 'user.userBooks' => function ($query) use ($book) {
-                    $query->where('book_id', $book->id);
-                }]);
             }
 
             if ($request->has('image')) {
@@ -189,6 +186,14 @@ class CommentController extends Controller
             //notify the creator
             if ($message && $reciever_id) {
                 (new NotificationController)->sendNotification($reciever_id, $message, USER_POSTS, $this->getPostPath($post->id));
+            }
+
+            $comment = $comment->fresh();
+
+            if ($comment->type == 'thesis' || $comment->type == 'screenshot') {
+                $comment->load(['thesis', 'user.userBooks' => function ($query) use ($book) {
+                    $query->where('book_id', $book->id);
+                }]);
             }
 
             return $this->jsonResponseWithoutMessage($comment, 'data', 200);
