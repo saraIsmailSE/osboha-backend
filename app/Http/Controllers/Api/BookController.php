@@ -355,7 +355,9 @@ class BookController extends Controller
     {
         $books = Book::where('type_id', $type_id)->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])
+        }])->whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+        })
             ->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
@@ -380,7 +382,9 @@ class BookController extends Controller
 
         $books = Book::where('level_id', $level_id)->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])
+        }])->whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+        })
             ->paginate(9);
 
         if ($books->isNotEmpty()) {
@@ -405,7 +409,9 @@ class BookController extends Controller
      */
     public function bookBySection($section_id)
     {
-        $books = Book::where('section_id', $section_id)->get();
+        $books = Book::whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+        })->where('section_id', $section_id)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -529,7 +535,9 @@ class BookController extends Controller
     {
         $books = Book::with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])
+        }])->whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+        })
             ->get();
         $randomBook = $books->random();
         if ($randomBook) {
@@ -541,7 +549,7 @@ class BookController extends Controller
     public function latest()
     {
         $book = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal');
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
         })->latest()->first();
         if ($book) {
             return $this->jsonResponseWithoutMessage(new BookResource($book), 'data', 200);
