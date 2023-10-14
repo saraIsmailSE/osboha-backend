@@ -582,40 +582,86 @@ class PostController extends Controller
     {
         $user = Auth::user();
 
-        $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
-            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+        // $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+        //     ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+        //     ->whereNotNull('is_approved')
+        //     ->withCount('comments')
+        //     ->with('pollOptions.votes', function ($query) {
+        //         $query->where('user_id', Auth::id());
+        //     })
+        //     ->withCount('pollVotes')
+        //     ->with('user')
+        //     ->with('taggedUsers.user')
+        //     ->withCount('reactions')
+        //     ->with('reactions', function ($query) use ($user) {
+        //         $query->where('user_id', $user->id);
+        //     })
+        //     ->latest()
+        //     ->paginate(25);
+
+        // Fetch the required IDs first
+        $announcementTypeId = PostType::where('type', 'announcement')->value('id');
+        $mainTimelineTypeId = TimelineType::where('type', 'main')->value('id');
+        $mainTimelineId = Timeline::where('type_id', $mainTimelineTypeId)->value('id');
+
+        $announcements = Post::where('type_id', $announcementTypeId)
+            ->where('timeline_id', $mainTimelineId)
             ->whereNotNull('is_approved')
             ->withCount('comments')
-            ->with('pollOptions.votes', function ($query) {
+            ->with(['pollOptions.votes' => function ($query) {
                 $query->where('user_id', Auth::id());
-            })
+            }])
             ->withCount('pollVotes')
             ->with('user')
             ->with('taggedUsers.user')
             ->withCount('reactions')
-            ->with('reactions', function ($query) use ($user) {
+            ->with(['reactions' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })
+            }])
             ->latest()
             ->paginate(25);
 
-        $last_pinned_announcement = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
-            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+        // $last_pinned_announcement = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+        //     ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+        //     ->where('is_pinned', 1)
+        //     ->whereNotNull('is_approved')
+        //     ->withCount('comments')
+        //     ->with('pollOptions.votes', function ($query) {
+        //         $query->where('user_id', Auth::id());
+        //     })
+        //     ->withCount('pollVotes')
+        //     ->with('user')
+        //     ->with('taggedUsers.user')
+        //     ->withCount('reactions')
+        //     ->with('reactions', function ($query) use ($user) {
+        //         $query->where('user_id', $user->id);
+        //     })
+        //     ->orderBy('updated_at', 'desc')
+        //     ->first();
+
+        // Fetch the required IDs first
+        $announcementTypeId = PostType::where('type', 'announcement')->value('id');
+        $mainTimelineTypeId = TimelineType::where('type', 'main')->value('id');
+        $mainTimelineId = Timeline::where('type_id', $mainTimelineTypeId)->value('id');
+
+        $last_pinned_announcement = Post::where('type_id', $announcementTypeId)
+            ->where('timeline_id', $mainTimelineId)
             ->where('is_pinned', 1)
             ->whereNotNull('is_approved')
             ->withCount('comments')
-            ->with('pollOptions.votes', function ($query) {
+            ->with(['pollOptions.votes' => function ($query) {
                 $query->where('user_id', Auth::id());
-            })
+            }])
             ->withCount('pollVotes')
             ->with('user')
             ->with('taggedUsers.user')
             ->withCount('reactions')
-            ->with('reactions', function ($query) use ($user) {
+            ->with(['reactions' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })
+            }])
             ->orderBy('updated_at', 'desc')
             ->first();
+
 
         if ($last_pinned_announcement && $announcements->currentPage() == 1) {
             $announcements->prepend($last_pinned_announcement);
