@@ -212,16 +212,29 @@ class CommentController extends Controller
      */
     public function getPostComments($post_id, $user_id = null)
     {
+        // $comments = Comment::where('post_id', $post_id)
+        //     ->whereHas('user', function ($query) use ($user_id) {
+        //         if ($user_id) {
+        //             $query->where('id', $user_id);
+        //         }
+        //     })
+        //     ->where('comment_id', 0)
+        //     ->with('reactions', function ($query) {
+        //         $query->where('user_id', Auth::id());
+        //     })
+        //     ->orderBy('created_at', 'desc')
+        //     ->paginate(10);
+
         $comments = Comment::where('post_id', $post_id)
-            ->whereHas('user', function ($query) use ($user_id) {
-                if ($user_id) {
-                    $query->where('id', $user_id);
-                }
+            ->when($user_id, function ($query, $user_id) {
+                return $query->whereHas('user', function ($innerQuery) use ($user_id) {
+                    $innerQuery->where('id', $user_id);
+                });
             })
             ->where('comment_id', 0)
-            ->with('reactions', function ($query) {
+            ->with(['reactions' => function ($query) {
                 $query->where('user_id', Auth::id());
-            })
+            }])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
