@@ -523,20 +523,23 @@ class PostController extends Controller
 
         $announcements = null;
         if ($posts->currentPage() == 1) {
-            $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
+            // Fetch the required ID first
+            $announcementTypeId = PostType::where('type', 'announcement')->value('id');
+
+            $announcements = Post::where('type_id', $announcementTypeId)
                 ->where('is_pinned', 1)
                 ->whereNotNull('is_approved')
                 ->withCount('comments')
-                ->with('pollOptions.votes', function ($query) use ($user) {
+                ->with(['pollOptions.votes' => function ($query) use ($user) {
                     $query->where('user_id', $user->id);
-                })
+                }])
                 ->withCount('pollVotes')
                 ->with('user')
                 ->with('taggedUsers.user')
                 ->withCount('reactions')
-                ->with('reactions', function ($query) use ($user) {
+                ->with(['reactions' => function ($query) use ($user) {
                     $query->where('user_id', $user->id);
-                })
+                }])
                 ->orderBy('updated_at', 'desc')
                 ->take(1)
                 ->get();
