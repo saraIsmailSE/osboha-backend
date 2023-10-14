@@ -451,40 +451,73 @@ class PostController extends Controller
     {
         $user = Auth::user()->load('userProfile', 'groups', 'friends.userProfile', 'friendsOf.userProfile');
 
-        $posts = Post::whereIn(
-            'timeline_id',
-            Timeline::whereIn(
-                'type_id',
-                TimelineType::where('type', 'main')->pluck('id')
-            )->orWhere('id', $user->userProfile->timeline_id)
-                ->orWhereIn('id', $user->groups()->pluck('timeline_id'))
-                ->orWhereIn('id', $user->friends()->get()->map(function ($friend) {
-                    return $friend->userProfile->timeline_id;
-                }))
-                ->orWhereIn('id', $user->friendsOf()->get()->map(function ($friend) {
-                    return $friend->userProfile->timeline_id;
-                }))
-                ->pluck('id')
-        )
-            ->where('type_id', '!=', PostType::where('type', 'announcement')->first()->id)
-            ->where('type_id', '!=', PostType::where('type', 'support')->first()->id)
+        // $posts = Post::whereIn(
+        //     'timeline_id',
+        //     Timeline::whereIn(
+        //         'type_id',
+        //         TimelineType::where('type', 'main')->pluck('id')
+        //     )->orWhere('id', $user->userProfile->timeline_id)
+        //         ->orWhereIn('id', $user->groups()->pluck('timeline_id'))
+        //         ->orWhereIn('id', $user->friends()->get()->map(function ($friend) {
+        //             return $friend->userProfile->timeline_id;
+        //         }))
+        //         ->orWhereIn('id', $user->friendsOf()->get()->map(function ($friend) {
+        //             return $friend->userProfile->timeline_id;
+        //         }))
+        //         ->pluck('id')
+        // )
+        //     ->where('type_id', '!=', PostType::where('type', 'announcement')->first()->id)
+        //     ->where('type_id', '!=', PostType::where('type', 'support')->first()->id)
+        //     ->whereNotNull('is_approved')
+        //     ->withCount('comments')
+        //     ->with('user')
+        //     //check which option is selected by the user
+        //     ->with('pollOptions.votes', function ($query) use ($user) {
+        //         $query->where('user_id', $user->id);
+        //     })
+        //     ->withCount('pollVotes')
+        //     ->with('taggedUsers.user')
+        //     ->withCount('reactions')
+        //     ->with('reactions', function ($query) use ($user) {
+        //         $query->where('user_id', $user->id);
+        //     })
+        //     ->with('timeline', function ($query) {
+        //         $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
+        //             ->with('profile.user')->with('group.groupAdministrators')->with('type');
+        //     })
+        //     ->latest()
+        //     ->paginate(25);
+
+        // Fetch required IDs first to prevent nested sub-queries
+        $mainTimelineTypeIds = TimelineType::where('type', 'main')->pluck('id');
+        $excludedPostTypeIds = PostType::whereIn('type', ['announcement', 'support'])->pluck('id');
+        $timelineTypeIdsForProfileGroup = TimelineType::whereIn('type', ['profile', 'group'])->pluck('id');
+
+        $friendTimelineIds = $user->friends->merge($user->friendsOf)->pluck('userProfile.timeline_id');
+
+        $posts = Post::where(function ($query) use ($mainTimelineTypeIds, $user, $friendTimelineIds) {
+            $query->whereIn('timeline_id', $mainTimelineTypeIds)
+                ->orWhere('timeline_id', $user->userProfile->timeline_id)
+                ->orWhereIn('timeline_id', $user->groups->pluck('timeline_id'))
+                ->orWhereIn('timeline_id', $friendTimelineIds);
+        })
+            ->whereNotIn('type_id', $excludedPostTypeIds)
             ->whereNotNull('is_approved')
             ->withCount('comments')
             ->with('user')
-            //check which option is selected by the user
-            ->with('pollOptions.votes', function ($query) use ($user) {
+            ->with(['pollOptions.votes' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })
+            }])
             ->withCount('pollVotes')
             ->with('taggedUsers.user')
             ->withCount('reactions')
-            ->with('reactions', function ($query) use ($user) {
+            ->with(['reactions' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })
-            ->with('timeline', function ($query) {
-                $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
-                    ->with('profile.user')->with('group.groupAdministrators')->with('type');
-            })
+            }])
+            ->with(['timeline' => function ($query) use ($timelineTypeIdsForProfileGroup) {
+                $query->whereIn('type_id', $timelineTypeIdsForProfileGroup)
+                    ->with(['profile.user', 'group.groupAdministrators', 'type']);
+            }])
             ->latest()
             ->paginate(25);
 
