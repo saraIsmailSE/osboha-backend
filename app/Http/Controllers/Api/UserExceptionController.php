@@ -312,6 +312,11 @@ class UserExceptionController extends Controller
             );
             $userException->fresh();
 
+            Mark::where('week_id', $week->id)
+                ->where('user_id', $request->user_id)
+                ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
+
+
             // response msg
             $successMessage = "تم تعيين السفير كعضو جديد ";
 
