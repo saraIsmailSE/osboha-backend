@@ -87,7 +87,9 @@ class CommentController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::id();
         if (!$request->has('post_id')) {
-            $input['post_id'] = Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
+            $bookPostTypeId = PostType::where('type', 'book')->value('id');
+            $input['post_id'] = Post::where('book_id', $request->book_id)
+                ->where('type_id', $bookPostTypeId)->first()->id;
         }
 
         $post = Post::find($input['post_id']);
@@ -182,6 +184,7 @@ class CommentController extends Controller
                     $reciever_id = $parentComment->user_id;
                 }
             }
+
 
             //notify the creator
             if ($message && $reciever_id) {
