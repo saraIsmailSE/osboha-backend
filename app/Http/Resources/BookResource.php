@@ -31,7 +31,7 @@ class BookResource extends JsonResource
             'media' => new MediaResource($this->media),
             "posts" => PostResource::collection($this->whenLoaded('post')),
             'userBooks' => UserBookResource::collection($this->whenLoaded('userBooks')),
-            'last_thesis' => $this->last_thesis ? new ThesisResource($this->last_thesis) : null,
+            'last_thesis' => $this->last_thesis ?? null,
             "allow_comments" => $this->posts->where('book_id', $this->id)->first()->allow_comments,
             'created_at' => $this->created_at,
         ];
