@@ -273,6 +273,9 @@ class ReactionController extends Controller
             $reaction->delete();
             return $this->jsonResponseWithoutMessage(false, 'data', 200);
         } else {
+            /**
+             * @todo: slow query - asmaa         
+             */
             $reaction = Reaction::create([
                 'user_id' => $user_id,
                 'post_id' => $post_id,

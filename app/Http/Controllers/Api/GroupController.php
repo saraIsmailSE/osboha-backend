@@ -35,6 +35,7 @@ use App\Traits\GroupTrait;
  * - group posts list
  */
 
+//all the queries of the group need enhancement because of the model relations (conditions with pivot table) - asmaa
 class GroupController extends Controller
 {
 
@@ -52,11 +53,16 @@ class GroupController extends Controller
         if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
             $groups = null;
             if (isset($_GET['name'])  && $_GET['name'] != '') {
-
+                /**
+                 * @todo: slow query - asmaa         
+                 */
                 $groups = Group::withCount('users')
                     ->where('name', 'like', '%' . $_GET['name'] . '%')
                     ->paginate(30);
             } else {
+                /**
+                 * @todo: slow query - asmaa         
+                 */
                 $groups = Group::withCount('users')->paginate(30);
             }
 
@@ -83,6 +89,9 @@ class GroupController extends Controller
     public function searchGroupByName($name)
     {
         if (Auth::user()->can('list groups')) {
+            /**
+             * @todo: slow query - asmaa         
+             */
             $groups = Group::withCount('users')
                 ->where('name', 'like', '%' . $name . '%')
                 ->paginate(2)();
