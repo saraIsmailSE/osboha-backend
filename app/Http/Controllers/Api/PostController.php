@@ -446,6 +446,7 @@ class PostController extends Controller
      * main timeline, user timeline, groups timelines, friends timelines, friends of timelines.
      *       
      * @return jsonResponseWithoutMessage     
+     * @todo: slow query - asmaa
      */
     public function getPostsForMainPage()
     {
@@ -640,9 +641,9 @@ class PostController extends Controller
         //     ->first();
 
         // Fetch the required IDs first
-        $announcementTypeId = PostType::where('type', 'announcement')->value('id');
-        $mainTimelineTypeId = TimelineType::where('type', 'main')->value('id');
-        $mainTimelineId = Timeline::where('type_id', $mainTimelineTypeId)->value('id');
+        // $announcementTypeId = PostType::where('type', 'announcement')->value('id');
+        // $mainTimelineTypeId = TimelineType::where('type', 'main')->value('id');
+        // $mainTimelineId = Timeline::where('type_id', $mainTimelineTypeId)->value('id');
 
         $last_pinned_announcement = Post::where('type_id', $announcementTypeId)
             ->where('timeline_id', $mainTimelineId)
@@ -679,6 +680,7 @@ class PostController extends Controller
     /**
      * Get support posts
      * @return jsonResponseWithoutMessage     
+     * @todo: slow query - asmaa
      */
     public function getSupportPosts()
     {

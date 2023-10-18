@@ -103,11 +103,15 @@ class NotificationController extends Controller
      * Make all notifications as read for the auth user.
      * 
      * @return jsonResponseWithoutMessage
+     
      */
     public function markAllAsRead()
     {
         $user = User::find(Auth::id());
 
+        /**
+         * @todo: slow query - asmaa         
+         */
         $user->unreadNotifications()->update(['read_at' => now()]);
 
         return $this->jsonResponseWithoutMessage(auth()->user()->notifications()->paginate(20), 'data', 200);

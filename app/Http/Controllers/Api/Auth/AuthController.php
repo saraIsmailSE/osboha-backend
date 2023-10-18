@@ -319,6 +319,9 @@ class AuthController extends Controller
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
+                /**
+                 * @todo: slow query - asmaa         
+                 */
                 $user->forceFill([
                     'password' => Hash::make($password)
                 ])->createToken('random key')->accessToken;
@@ -398,6 +401,7 @@ class AuthController extends Controller
      *return excluded member [FOR NOW].
      * 
      * @return jsonResponse;
+     * @todo: slow query - asmaa
      */
 
     public function returnToTeam()
@@ -406,6 +410,9 @@ class AuthController extends Controller
         $user = User::Find(Auth::id());
         $user->is_excluded = 0;
         $user->save();
+        /**
+         * @todo: slow query - asmaa         
+         */
         // update termination_reason to null
         UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')
             ->update([
