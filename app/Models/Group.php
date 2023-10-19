@@ -89,14 +89,13 @@ class Group extends Model
     public static function boot()
     {
         parent::boot();
-        self::deleting(function ($group) { 
+        self::deleting(function ($group) {
             $group->audits()->each(function ($audits) {
-                $audits->delete(); 
+                $audits->delete();
             });
             $group->allUsers()->each(function ($allUsers) {
-                $allUsers->delete(); 
+                $allUsers->delete();
             });
         });
     }
-
 }

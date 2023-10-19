@@ -422,7 +422,9 @@ class UserGroupController extends Controller
         if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
             $user_group = UserGroup::where('group_id', $group_id)->where('user_id', $user_id);
             if ($user_group) {
-
+                /**
+                 * @todo: slow query - asmaa         
+                 */
                 $user_group->delete();
 
                 return $this->jsonResponseWithoutMessage('User Deleted', 'data', 200);

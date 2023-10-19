@@ -112,6 +112,9 @@ class UserExceptionController extends Controller
                     $exception['desired_duration'] =  'أسبوع واحد';
 
                     if ($request->type_id == $freezCurrentWeek->id) {
+                        /**
+                         * @todo: slow query - asmaa         
+                         */
                         Mark::where('week_id', $current_week->id)
                             ->where('user_id', Auth::id())
                             ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
@@ -311,7 +314,9 @@ class UserExceptionController extends Controller
                 $exception
             );
             $userException->fresh();
-
+            /**
+             * @todo: slow query - asmaa         
+             */
             Mark::where('week_id', $week->id)
                 ->where('user_id', $request->user_id)
                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
@@ -552,6 +557,9 @@ class UserExceptionController extends Controller
 
                         if ($request->decision == 1) {
                             //اعفاء الأسبوع الحالي
+                            /**
+                             * @todo: slow query - asmaa         
+                             */
                             Mark::where('week_id', $desired_week->id)
                                 ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
@@ -565,6 +573,9 @@ class UserExceptionController extends Controller
                             $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
                         } else if ($request->decision == 3) {
                             //اعفاء لأسبوعين الحالي و القادم
+                            /**
+                             * @todo: slow query - asmaa         
+                             */
                             Mark::where('week_id', $desired_week->id)
                                 ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
@@ -573,6 +584,9 @@ class UserExceptionController extends Controller
                             $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
                         } else if ($request->decision == 4) {
                             //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
+                            /**
+                             * @todo: slow query - asmaa         
+                             */
                             Mark::where('week_id', $desired_week->id)
                                 ->where('user_id', $owner_of_exception->id)
                                 ->update(['reading_mark' => 0, 'writing_mark' => 0, 'total_pages' => 0, 'support' => 0, 'total_thesis' => 0, 'total_screenshot' => 0, 'is_freezed' => 1]);
