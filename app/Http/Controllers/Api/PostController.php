@@ -168,7 +168,7 @@ class PostController extends Controller
                     }
                 }
 
-                if ($request->has('media') && !$request->votes) {
+                if ($request->has('media')) {
                     //loop through the media array and upload each media
                     foreach ($request->media as $media) {
                         $this->createMedia($media, $post->id, 'post', 'posts/' . Auth::id());
