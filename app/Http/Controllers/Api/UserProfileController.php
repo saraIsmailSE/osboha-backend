@@ -70,6 +70,8 @@ class UserProfileController extends Controller
             //books
             $userBooks =  UserBook::where(function ($query) {
                 $query->Where('status', 'in progress')->orWhere('status', 'finished');
+            })->whereHas('book.type', function ($q) {
+                $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
             })->where('user_id', $user_id)->get()->pluck('book');
             $profile['books'] = BookResource::collection($userBooks);
 
