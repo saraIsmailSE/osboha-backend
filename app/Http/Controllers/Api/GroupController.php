@@ -79,27 +79,7 @@ class GroupController extends Controller
             throw new NotAuthorized;
         }
     }
-    /**
-     * Get groups by name.
-     * 
-     * @param  group name
-     * @return groups;
-     */
 
-    public function searchGroupByName($name)
-    {
-        if (Auth::user()->can('list groups')) {
-            /**
-             * @todo: slow query - asmaa         
-             */
-            $groups = Group::withCount('users')
-                ->where('name', 'like', '%' . $name . '%')
-                ->paginate(2)();
-            return $this->jsonResponseWithoutMessage($groups, 'data', 200);
-        } else {
-            throw new NotAuthorized;
-        }
-    }
     public function GroupByType($type)
     {
 
