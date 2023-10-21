@@ -417,10 +417,10 @@ class UserGroupController extends Controller
         }
     }
 
-    public function delete($group_id, $user_id)
+    public function delete($user_group_id)
     {
         if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
-            $user_group = UserGroup::where('group_id', $group_id)->where('user_id', $user_id);
+            $user_group = UserGroup::find($user_group_id);
             if ($user_group) {
                 /**
                  * @todo: slow query - asmaa         

@@ -633,7 +633,7 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
             Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
             Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
-            Route::delete('/delete/{group_id}/{user_id}', [UserGroupController::class, 'delete']);
+            Route::delete('/delete/{user_group_id}', [UserGroupController::class, 'delete']);
         });
         ######## End UserGroup ########
         ####### Start Thesis ########
