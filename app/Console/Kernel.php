@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('media:deleteOld')->weekly()->sundays()->at('05:00');
 
         //test part
-        $schedule->command('media:deleteOld')->everyMinute();
+       // $schedule->command('media:deleteOld')->everyMinute();
     }
 
     /**
