@@ -22,6 +22,7 @@ class Post extends Model
     ];
 
     protected $with = array('media');
+    protected $appends = ['comments_count', 'reactions_count', 'reacted_by_user'];
 
     public function comments()
     {
@@ -85,6 +86,23 @@ class Post extends Model
 
     public function reactions()
     {
-        return $this->hasMany(Reaction::class, 'post_id')->where('type_id', 1); //get likes only (just for now)
+        //get likes only (just for now)
+        return $this->belongsToMany(User::class, 'reactions', 'post_id', 'user_id')->withPivot('type_id')->withTimestamps();
+    }
+
+    //attributes
+    public function getCommentsCountAttribute()
+    {
+        return $this->comments()->count();
+    }
+
+    public function getReactionsCountAttribute()
+    {
+        return $this->reactions()->count();
+    }
+
+    public function getReactedByUserAttribute()
+    {
+        return $this->reactions->contains(auth()->user());
     }
 }

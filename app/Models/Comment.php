@@ -57,11 +57,12 @@ class Comment extends Model
 
     public function reactions()
     {
-        return $this->hasMany(Reaction::class)->where('type_id', 1); // 1 is the id of like type (for now)
+        // 1 is the id of like type (for now)
+        return $this->belongsToMany(User::class, 'reactions', 'comment_id', 'user_id')->wherePivot('type_id', 1)->withPivot('type_id')->withTimestamps();
     }
 
     public function getIsLikedAttribute()
     {
-        return $this->reactions->where('user_id', auth()->id())->where('type_id', 1)->count() > 0;
+        return $this->reactions->contains(auth()->user());
     }
 }
