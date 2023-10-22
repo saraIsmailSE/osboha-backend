@@ -54,6 +54,7 @@ class NotificationController extends Controller
         if (!defined('MARKS')) define('MARKS', 'marks');
 
         if (!defined('ANNOUNCEMENT')) define('ANNOUNCEMENT', 'announcement');
+        if (!defined('SUPPORT')) define('SUPPORT', 'support');
     }
     /**
      * Send notification to a specific user by its id with a message and insert it to the database.
