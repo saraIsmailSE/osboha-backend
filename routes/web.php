@@ -17,3 +17,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/db', [ App\Http\Controllers\Api\EligibleMoveDBController::class, 'moveEligibleDB']);

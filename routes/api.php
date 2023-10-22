@@ -64,6 +64,7 @@ use App\Http\Controllers\Api\{
     EligibleGeneralInformationsController,
     EligibleFQAController,
     EligibleEmailVerificationController,
+    EligibleMoveDBController
 
 };
 
@@ -915,6 +916,9 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
     Route::patch('/{id}', [FQAController::class, 'update'])->middleware(['auth:api', 'role:admin']);
     Route::delete('/{id}', [FQAController::class, 'destroy'])->middleware(['auth:api', 'role:admin']);
 });
+
+//move Eligible DB routes
+Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
 
 
 });

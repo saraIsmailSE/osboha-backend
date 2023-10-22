@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(EligibleRoles::class);
+        /*
         ##### DONE ON SERVER#####
         // $this->call(PermissionsSeeder::class);
         // $this->call(TypeSectionSeeder::class); //contains all the types and sections
@@ -53,6 +55,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(FriendSeeder::class);
         // $this->call(ModificationReasonSeeder::class);
         // $this->call(ModifiedThesesSeeder::class);
+        */
 
 
     }
