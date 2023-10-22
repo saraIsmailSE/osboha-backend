@@ -57,7 +57,7 @@ class EligibleMoveDBController extends Controller
                     ]);
 
                   //notify user with email
-                    //$user->notify((new MoveToPlatform()));
+                    $user->notify((new MoveToPlatform()));
                 }
 
                 //user platform account
@@ -248,15 +248,11 @@ class EligibleMoveDBController extends Controller
 
            }
             DB::commit();
-                 dd ('done');
-
             return $this->jsonResponseWithoutMessage('تم النقل بنجاح', 'data', 200);
         } catch (\Exception $e) {
 
             DB::rollBack();
-            dd( $e->getMessage() );
-
-            // return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
     }
 }
