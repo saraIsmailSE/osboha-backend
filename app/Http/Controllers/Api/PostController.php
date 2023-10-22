@@ -57,146 +57,47 @@ class PostController extends Controller
      */
     public function create(Request $request)
     {
-
         $validator = $this->validatePost($request);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        $user_id = Auth::id();
+        $timeline = Timeline::find($request->timeline_id);
 
-        if (Auth::user()->can('create post')) {
-
-            $input['body'] = $request->body;
-            $input['timeline_id'] = $request->timeline_id;
-            $input['user_id'] = $user_id;
-
+        if ($timeline) {
+            $user_id = Auth::id();
             $type_id = PostType::where('type', $request->type)->first()->id;
 
+            $input['body'] = $request->body;
+            $input['user_id'] = $user_id;
+            $input['timeline_id'] = $request->timeline_id;
             $input['type_id'] = $type_id;
 
-            $timeline = Timeline::find($request->timeline_id);
+            $notificationData = [
+                'pending_msg' => null,
+                'pending_userId' => null,
+                'pending_type' => null,
+                'pending_path' => null
+            ];
 
-            $notification = new NotificationController();
+            $result =  $this->processTimlineType($timeline, $request);
 
-            if (!empty($timeline)) {
-                $pending_msg = null;
-                $timeline_type = $timeline->type->type;
-                if ($timeline_type == 'group') { //timeline type => group
-                    $group = Group::where('timeline_id', $timeline->id)->first();
-                    $user_types = UserGroup::where([
-                        ['group_id', $group->id],
-                        ['user_id', $user_id]
-                    ])->pluck('user_type')->toArray();
-                    $allowed_types = ['advisor', 'supervisor', 'leader', 'admin'];
-                    if (!array_intersect($allowed_types, $user_types)) {
-                        $input['is_approved'] = null;
+            $input = array_merge($input, $result['input']);
+            $notificationData = array_merge($notificationData, $result['notificationData']);
 
-                        $leader = UserGroup::where([
-                            ['group_id', $group->id],
-                            ['user_type', "leader"]
-                        ])->first();
-                        $pending_msg = "لقد نشر " . Auth::user()->name . " منشور في المجموعة " . $group->name . " يحتاج موافقة";
-                        $pending_userId = $leader->user_id;
-                        $pending_type = GROUP_POSTS;
-                    }
-                } elseif ($timeline_type == 'profile') { //timeline type => profile
-                    if ($timeline->profile->user_id != Auth::id()) { // post in another profile
+            $post = $this->addPost($input, $request);
 
-                        $user = User::findOrFail($timeline->profile->user_id);
-                        //profileSetting => 1- for public 2- for friends 3- only me
-                        if (($user->profileSetting->posts == 2 && !Friend::where('user_id', $user->id)->where('friend_id', Auth::id())->exists()) ||
-                            $user->profileSetting->posts == 3
-                        ) {
+            $this->sendPostNotifications($post, $notificationData, $request, $timeline);
 
-                            $input['is_approved'] = null;
+            $successMsg = 'تم إضافة المنشور بنجاح';
 
-                            $pending_msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية يحتاج موافقة';
-                            $pending_userId = $timeline->profile->user_id;
-                            $pending_type = PROFILE_POSTS;
-                        } else {
-                            $pending_msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية';
-                            $pending_userId = $timeline->profile->user_id;
-                            $pending_type = PROFILE_POSTS;
-                        }
-                        $pending_path = $this->getProfilePath($timeline->profile->user_id);
-                    }
-                } else { //timeline type => book || news || main (1-2-3)        
-                    //only supervisors and above are allowed to create announcements
-                    if ($request->type === 'announcement') {
-                        if (!Auth::user()->can('create announcement')) {
-                            throw new NotAuthorized;
-                        }
-                    }
-                }
-
-                if ($request->type == 'book') { //post type is book
-                    $input['book_id'] = $request->book_id;
-                } else {
-                    $input['book_id'] = null;
-                }
-
-                $post = Post::create($input);
-
-                if ($post->type->type === 'announcement') {
-                    //send notification to all users in the system
-                    $this->sendAnnouncementNotification($post);
-                }
-
-                if ($pending_msg) {
-                    if ($pending_type === GROUP_POSTS) {
-                        $pending_path = $pending_path = $this->getPendingPostsPath($group->timeline_id, $post->id);
-                    }
-                    $notification->sendNotification($pending_userId, $pending_msg, $pending_type, $pending_path);
-                }
-
-                if ($request->has('tags')) {
-                    foreach ($request->tags as $tag) {
-                        $post->taggedUsers()->create([
-                            'user_id' => $tag
-                        ]);
-                        $notification->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور', TAGS, $this->getPostPath($post->id));
-                    }
-                }
-
-                if ($request->has('votes')) {
-                    foreach ($request->votes as $vote) {
-                        PollOption::create([
-                            'post_id' => $post->id,
-                            'option' => $vote
-                        ]);
-                    }
-                }
-
-                if ($request->has('media')) {
-                    //loop through the media array and upload each media
-                    foreach ($request->media as $media) {
-                        $this->createMedia($media, $post->id, 'post', 'posts/' . Auth::id());
-                    }
-                }
-
-                $post = $post->fresh();
-
-                //load the post with user
-                $post->load([
-                    'user',
-                    'pollOptions.votes' => function ($query) {
-                        $query->where('user_id', Auth::id());
-                    },
-                    'pollVotes.votesCount',
-                    'taggedUsers.user',
-                ]);
-
-                $successMsg = 'تم إضافة المنشور بنجاح';
-
-                if ($post->is_approved === null) {
-                    $successMsg = 'تم إضافة المنشور, يرجى الانتظار حتى يتم الموافقة عليه';
-                }
-
-                return $this->jsonResponse(new PostResource($post), 'data', 200, $successMsg);
-            } else {
-                throw new NotFound;
+            if ($post->is_approved === null) {
+                $successMsg = 'تم إضافة المنشور, يرجى الانتظار حتى يتم الموافقة عليه';
             }
+
+            return $this->jsonResponse(new PostResource($post), 'data', 200, $successMsg);
+        } else {
+            throw new NotFound;
         }
     }
 
@@ -450,118 +351,16 @@ class PostController extends Controller
      */
     public function getPostsForMainPage()
     {
-        $user = Auth::user()->load('userProfile', 'groups', 'friends.userProfile', 'friendsOf.userProfile');
-
-        // $posts = Post::whereIn(
-        //     'timeline_id',
-        //     Timeline::whereIn(
-        //         'type_id',
-        //         TimelineType::where('type', 'main')->pluck('id')
-        //     )->orWhere('id', $user->userProfile->timeline_id)
-        //         ->orWhereIn('id', $user->groups()->pluck('timeline_id'))
-        //         ->orWhereIn('id', $user->friends()->get()->map(function ($friend) {
-        //             return $friend->userProfile->timeline_id;
-        //         }))
-        //         ->orWhereIn('id', $user->friendsOf()->get()->map(function ($friend) {
-        //             return $friend->userProfile->timeline_id;
-        //         }))
-        //         ->pluck('id')
-        // )
-        //     ->where('type_id', '!=', PostType::where('type', 'announcement')->first()->id)
-        //     ->where('type_id', '!=', PostType::where('type', 'support')->first()->id)
-        //     ->whereNotNull('is_approved')
-        //     ->withCount('comments')
-        //     ->with('user')
-        //     //check which option is selected by the user
-        //     ->with('pollOptions.votes', function ($query) use ($user) {
-        //         $query->where('user_id', $user->id);
-        //     })
-        //     ->withCount('pollVotes')
-        //     ->with('taggedUsers.user')
-        //     ->withCount('reactions')
-        //     ->with('reactions', function ($query) use ($user) {
-        //         $query->where('user_id', $user->id);
-        //     })
-        //     ->with('timeline', function ($query) {
-        //         $query->whereIn('type_id', TimelineType::whereIn('type', ['profile', 'group'])->pluck('id'))
-        //             ->with('profile.user')->with('group.groupAdministrators')->with('type');
-        //     })
-        //     ->latest()
-        //     ->paginate(25);
-
-        // Fetch required IDs first to prevent nested sub-queries
-        $mainTimelineTypeIds = TimelineType::where('type', 'main')->pluck('id');
-        $excludedPostTypeIds = PostType::whereIn('type', ['announcement', 'support'])->pluck('id');
-        $timelineTypeIdsForProfileGroup = TimelineType::whereIn('type', ['profile', 'group'])->pluck('id');
-
-        $friendTimelineIds = $user->friends->merge($user->friendsOf)->pluck('userProfile.timeline_id');
-
-        $posts = Post::where(function ($query) use ($mainTimelineTypeIds, $user, $friendTimelineIds) {
-            $query->whereIn('timeline_id', $mainTimelineTypeIds)
-                ->orWhere('timeline_id', $user->userProfile->timeline_id)
-                ->orWhereIn('timeline_id', $user->groups->pluck('timeline_id'))
-                ->orWhereIn('timeline_id', $friendTimelineIds);
-        })
-            ->whereNotIn('type_id', $excludedPostTypeIds)
-            ->whereNotNull('is_approved')
-            ->withCount('comments')
-            ->with('user')
-            ->with(['pollOptions.votes' => function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            }])
-            ->withCount('pollVotes')
-            ->with('taggedUsers.user')
-            ->withCount('reactions')
-            ->with(['reactions' => function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            }])
-            ->with(['timeline' => function ($query) use ($timelineTypeIdsForProfileGroup) {
-                $query->whereIn('type_id', $timelineTypeIdsForProfileGroup)
-                    ->with(['profile.user', 'group.groupAdministrators', 'type']);
-            }])
-            ->latest()
-            ->paginate(25);
+        $posts = $this->selectMainPosts();
 
         $announcements = null;
         if ($posts->currentPage() == 1) {
-            // Fetch the required ID first
-            $announcementTypeId = PostType::where('type', 'announcement')->value('id');
+            //get the last pinned announcement
+            $announcements = $this->selectPostsQuery('announcement', null, true);
 
-            $announcements = Post::where('type_id', $announcementTypeId)
-                ->where('is_pinned', 1)
-                ->whereNotNull('is_approved')
-                ->withCount('comments')
-                ->with(['pollOptions.votes' => function ($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                }])
-                ->withCount('pollVotes')
-                ->with('user')
-                ->with('taggedUsers.user')
-                ->withCount('reactions')
-                ->with(['reactions' => function ($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                }])
-                ->orderBy('updated_at', 'desc')
-                ->take(1)
-                ->get();
-
-            if ($announcements->isEmpty()) {
-                $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
-                    ->whereNotNull('is_approved')
-                    ->withCount('comments')
-                    ->with('pollOptions.votes', function ($query) use ($user) {
-                        $query->where('user_id', $user->id);
-                    })
-                    ->withCount('pollVotes')
-                    ->with('user')
-                    ->with('taggedUsers.user')
-                    ->withCount('reactions')
-                    ->with('reactions', function ($query) use ($user) {
-                        $query->where('user_id', $user->id);
-                    })
-                    ->latest()
-                    ->take(2)
-                    ->get();
+            //if there is no pinned announcement get the last two announcements
+            if (!$announcements) {
+                $announcements = $this->selectPostsQuery('announcement', 2);
             }
         }
 
@@ -581,88 +380,9 @@ class PostController extends Controller
      */
     public function getAnnouncements()
     {
-        $user = Auth::user();
+        $announcements = $this->selectPostsQuery('announcement');
 
-        // $announcements = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
-        //     ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
-        //     ->whereNotNull('is_approved')
-        //     ->withCount('comments')
-        //     ->with('pollOptions.votes', function ($query) {
-        //         $query->where('user_id', Auth::id());
-        //     })
-        //     ->withCount('pollVotes')
-        //     ->with('user')
-        //     ->with('taggedUsers.user')
-        //     ->withCount('reactions')
-        //     ->with('reactions', function ($query) use ($user) {
-        //         $query->where('user_id', $user->id);
-        //     })
-        //     ->latest()
-        //     ->paginate(25);
-
-        // Fetch the required IDs first
-        $announcementTypeId = PostType::where('type', 'announcement')->value('id');
-        $mainTimelineTypeId = TimelineType::where('type', 'main')->value('id');
-        $mainTimelineId = Timeline::where('type_id', $mainTimelineTypeId)->value('id');
-
-        $announcements = Post::where('type_id', $announcementTypeId)
-            ->where('timeline_id', $mainTimelineId)
-            ->whereNotNull('is_approved')
-            ->withCount('comments')
-            ->with(['pollOptions.votes' => function ($query) {
-                $query->where('user_id', Auth::id());
-            }])
-            ->withCount('pollVotes')
-            ->with('user')
-            ->with('taggedUsers.user')
-            ->withCount('reactions')
-            ->with(['reactions' => function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            }])
-            ->latest()
-            ->paginate(25);
-
-        // $last_pinned_announcement = Post::where('type_id', PostType::where('type', 'announcement')->first()->id)
-        //     ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
-        //     ->where('is_pinned', 1)
-        //     ->whereNotNull('is_approved')
-        //     ->withCount('comments')
-        //     ->with('pollOptions.votes', function ($query) {
-        //         $query->where('user_id', Auth::id());
-        //     })
-        //     ->withCount('pollVotes')
-        //     ->with('user')
-        //     ->with('taggedUsers.user')
-        //     ->withCount('reactions')
-        //     ->with('reactions', function ($query) use ($user) {
-        //         $query->where('user_id', $user->id);
-        //     })
-        //     ->orderBy('updated_at', 'desc')
-        //     ->first();
-
-        // Fetch the required IDs first
-        // $announcementTypeId = PostType::where('type', 'announcement')->value('id');
-        // $mainTimelineTypeId = TimelineType::where('type', 'main')->value('id');
-        // $mainTimelineId = Timeline::where('type_id', $mainTimelineTypeId)->value('id');
-
-        $last_pinned_announcement = Post::where('type_id', $announcementTypeId)
-            ->where('timeline_id', $mainTimelineId)
-            ->where('is_pinned', 1)
-            ->whereNotNull('is_approved')
-            ->withCount('comments')
-            ->with(['pollOptions.votes' => function ($query) {
-                $query->where('user_id', Auth::id());
-            }])
-            ->withCount('pollVotes')
-            ->with('user')
-            ->with('taggedUsers.user')
-            ->withCount('reactions')
-            ->with(['reactions' => function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            }])
-            ->orderBy('updated_at', 'desc')
-            ->first();
-
+        $last_pinned_announcement = $this->selectPostsQuery('announcement', null, true);
 
         if ($last_pinned_announcement && $announcements->currentPage() == 1) {
             $announcements->prepend($last_pinned_announcement);
@@ -684,23 +404,7 @@ class PostController extends Controller
      */
     public function getSupportPosts()
     {
-        $user = Auth::user();
-        $posts = Post::where('type_id', PostType::where('type', 'support')->first()->id)
-            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
-            ->whereNotNull('is_approved')
-            ->withCount('comments')
-            ->with('pollOptions.votes', function ($query) {
-                $query->where('user_id', Auth::id());
-            })
-            ->withCount('pollVotes')
-            ->with('user')
-            ->with('taggedUsers.user')
-            ->withCount('reactions')
-            ->with('reactions', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->latest()
-            ->paginate(25);
+        $posts = $this->selectPostsQuery('support');
 
         if ($posts->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
@@ -911,106 +615,13 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Validate post request
-     * 
-     * @param  Request  $request
-     * @return Validator
-     */
-    public function validatePost(Request $request)
-    {
-        $post_types = PostType::all()->pluck('type')->toArray();
-
-        return Validator::make($request->all(), [
-            'body' => 'required_with:votes|required_without:media|nullable|string',
-            'type' => 'required|string|in:' . implode(',', $post_types),
-            'timeline_id' => 'required|integer',
-            'tags' => 'nullable|array',
-            'tags.*' => 'integer',
-            'votes' => 'nullable|array',
-            'votes.*' => 'string',
-            'media' => 'required_without_all:body,votes|array',
-            'media.*' => [
-                function ($attribute, $value, $fail) {
-                    //check if is it image (base64 or image)
-
-                    $is_image = Validator::make(
-                        ['upload' => $value],
-                        ['upload' => new base64OrImage()]
-                    )->passes();
-
-                    //check if is it video
-                    $is_video = Validator::make(
-                        ['upload' => $value],
-                        ['upload' => 'mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4']
-                    )->passes();
-
-                    //return error if not image or video
-                    if (!$is_video && !$is_image) {
-                        $fail(':attribute must be image (.png, .jpeg, .jpg) or video.');
-                    }
-
-                    //if video, check if it is less than 10MB
-                    if ($is_video) {
-                        $validator = Validator::make(
-                            ['video' => $value],
-                            ['video' => "max:102400"]
-                        );
-                        if ($validator->fails()) {
-                            $fail(":attribute must be 10 megabytes or less.");
-                        }
-                    }
-
-                    //if image, check if it is less than 2MB
-                    if ($is_image) {
-                        $validator = Validator::make(
-                            ['image' => $value],
-                            ['image' => new base64OrImageMaxSize(2 * 1024 * 1024)]
-                        );
-                        if ($validator->fails()) {
-                            $fail(":attribute must be two megabytes or less.");
-                        }
-                    }
-                },
-            ],
-        ]);
-    }
-
-    /**
-     * Send notification to users after posting an announcement
-     * @param  Post  $post
-     * @return void
-     */
-    public function sendAnnouncementNotification(Post $post)
-    {
-        $message = 'لقد تم نشر إعلان جديد, تفقد الإعلانات 📢';
-        User::where('is_excluded', 0)
-            ->where('is_hold', 0)
-            ->where('parent_id', '!=', null)
-            ->chunk(100, function ($users) use ($message, $post) {
-                try {
-                    foreach ($users as $user) {
-                        dispatch(
-                            new SendNotificationJob(
-                                $user->id,
-                                $message,
-                                ANNOUNCEMENT,
-                                $this->getPostPath($post->id),
-                            )
-                        );
-                    }
-                } catch (\Exception $e) {
-                    throw $e;
-                }
-            });
-    }
-
     public function getLastSupportPost()
     {
         $currentWeek = Week::latest()->first();
         $createdAt = $currentWeek->created_at;
         $mainTimer = $currentWeek->main_timer;
-        $post = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+        $postType = PostType::where('type', 'support')->first();
+        $post = Post::where('type_id', $postType->id)
             ->where('created_at', '>=', $createdAt)
             ->where('created_at', '<', $mainTimer)
             ->latest()->first();
@@ -1031,10 +642,7 @@ class PostController extends Controller
     public function getPendingPosts($timeline_id, $post_id = null)
     {
         //check if timeline exists        
-        $timeline = Timeline::find($timeline_id);
-        if (!$timeline) {
-            throw new NotFound;
-        }
+        $timeline = Timeline::findorFail($timeline_id);
 
         //check if timeline is profile or group
         $timeline_type = $timeline->type->type;
@@ -1105,5 +713,351 @@ class PostController extends Controller
             ], 'data', 200);
         }
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+
+    //helpers
+    /**
+     * Validate post request
+     * 
+     * @param  Request  $request
+     * @return Validator
+     */
+    private function validatePost(Request $request)
+    {
+        $post_types = PostType::all()->pluck('type')->toArray();
+
+        return Validator::make($request->all(), [
+            'body' => 'required_with:votes|required_without:media|nullable|string',
+            'type' => 'required|string|in:' . implode(',', $post_types),
+            'timeline_id' => 'required|integer',
+            'tags' => 'nullable|array',
+            'tags.*' => 'integer',
+            'votes' => 'nullable|array',
+            'votes.*' => 'string',
+            'media' => 'required_without_all:body,votes|array',
+            'media.*' => [
+                function ($attribute, $value, $fail) {
+                    //check if is it image (base64 or image)
+
+                    $is_image = Validator::make(
+                        ['upload' => $value],
+                        ['upload' => new base64OrImage()]
+                    )->passes();
+
+                    //check if is it video
+                    $is_video = Validator::make(
+                        ['upload' => $value],
+                        ['upload' => 'mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4']
+                    )->passes();
+
+                    //return error if not image or video
+                    if (!$is_video && !$is_image) {
+                        $fail(':attribute must be image (.png, .jpeg, .jpg) or video.');
+                    }
+
+                    //if video, check if it is less than 10MB
+                    if ($is_video) {
+                        $validator = Validator::make(
+                            ['video' => $value],
+                            ['video' => "max:102400"]
+                        );
+                        if ($validator->fails()) {
+                            $fail(":attribute must be 10 megabytes or less.");
+                        }
+                    }
+
+                    //if image, check if it is less than 2MB
+                    if ($is_image) {
+                        $validator = Validator::make(
+                            ['image' => $value],
+                            ['image' => new base64OrImageMaxSize(2 * 1024 * 1024)]
+                        );
+                        if ($validator->fails()) {
+                            $fail(":attribute must be two megabytes or less.");
+                        }
+                    }
+                },
+            ],
+        ]);
+    }
+
+    /**
+     * Send notification to users after posting an announcement
+     * @param  Post  $post
+     * @return void
+     */
+    private function sendNotificationsToAllUsers(Post $post, string $type, string $message)
+    {
+        User::where('is_excluded', 0)
+            ->where('is_hold', 0)
+            ->where('parent_id', '!=', null)
+            ->chunk(100, function ($users) use ($post, $type, $message) {
+                try {
+                    foreach ($users as $user) {
+                        dispatch(
+                            new SendNotificationJob(
+                                $user->id,
+                                $message,
+                                $type,
+                                $this->getPostPath($post->id),
+                            )
+                        );
+                    }
+                } catch (\Exception $e) {
+                    throw $e;
+                }
+            });
+    }
+
+    private function getPostStatusInGroup($timeline)
+    {
+        $input = [];
+        $user_id = Auth::id();
+        $group = Group::where('timeline_id', $timeline->id)->first();
+        $user_types = UserGroup::where([
+            ['group_id', $group->id],
+            ['user_id', $user_id]
+        ])->pluck('user_type')->toArray();
+        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin'];
+        if (!array_intersect($allowed_types, $user_types)) {
+            $input['is_approved'] = null;
+
+            $leader = Auth::user()->parent;
+            $pending_msg = "لقد نشر " . Auth::user()->name . " منشور في المجموعة " . $group->name . " يحتاج موافقة";
+            $pending_userId = $leader->user_id;
+            $pending_type = GROUP_POSTS;
+        }
+
+        return [
+            'input' => $input,
+            'notificationData' => [
+                'pending_msg' => $pending_msg,
+                'pending_userId' => $pending_userId,
+                'pending_type' => $pending_type
+            ]
+        ];
+    }
+
+    private function getPostsStatusInProfile($timeline)
+    {
+        $input = [];
+        if ($timeline->profile->user_id != Auth::id()) { // post in another profile
+
+            $user = User::findOrFail($timeline->profile->user_id);
+            $is_friend = Friend::where('user_id', $user->id)->where('friend_id', Auth::id())->exists();
+            //profileSetting => 1- for public 2- for friends 3- only me
+            if (($user->profileSetting->posts == 2 && !$is_friend) || $user->profileSetting->posts == 3) {
+                $input['is_approved'] = null;
+
+                $pending_msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية يحتاج موافقة';
+                $pending_userId = $timeline->profile->user_id;
+                $pending_type = PROFILE_POSTS;
+            } else {
+                $pending_msg = 'لقد قام ' . Auth::user()->name . ' بنشر منشور في صفحتك الشخصية';
+                $pending_userId = $timeline->profile->user_id;
+                $pending_type = PROFILE_POSTS;
+            }
+            $pending_path = $this->getProfilePath($timeline->profile->user_id);
+        }
+
+        return [
+            'input' => $input,
+            'notificationData' => [
+                'pending_msg' => $pending_msg,
+                'pending_userId' => $pending_userId,
+                'pending_type' => $pending_type,
+                'pending_path' => $pending_path
+            ]
+        ];
+    }
+
+    private function processTimlineType($timeline, $request)
+    {
+        $input = [];
+        $notificationData = [];
+        $timeline_type = $timeline->type->type;
+        if ($timeline_type == 'group') { //timeline type => group
+            $status = $this->getPostStatusInGroup($timeline);
+            $input = $status['input'];
+            $notificationData = $status['notificationData'];
+        } elseif ($timeline_type == 'profile') { //timeline type => profile
+            $status = $this->getPostStatusInProfile($timeline);
+            $input =  $status['input'];
+            $notificationData = $status['notificationData'];
+        } else { //timeline type => book || news || main (1-2-3)        
+            //only supervisors and above are allowed to create announcements
+            if ($request->type === 'announcement') {
+                if (!Auth::user()->can('create announcement')) {
+                    throw new NotAuthorized;
+                }
+            }
+        }
+
+        return [
+            'input' => $input,
+            'notificationData' => $notificationData
+        ];
+    }
+
+    private function addPost($input, $request)
+    {
+        //add the book id of the post if the post type is book
+        if ($request->type == 'book') {
+            $input['book_id'] = $request->book_id;
+        } else {
+            $input['book_id'] = null;
+        }
+
+        //create post
+        $post = Post::create($input);
+
+        //add the votes options of the post
+        if ($request->has('votes')) {
+            foreach ($request->votes as $vote) {
+                PollOption::create([
+                    'post_id' => $post->id,
+                    'option' => $vote
+                ]);
+            }
+        }
+
+        //add the media of the post
+        if ($request->has('media')) {
+            //loop through the media array and upload each media
+            foreach ($request->media as $media) {
+                $this->createMedia($media, $post->id, 'post', 'posts/' . Auth::id());
+            }
+        }
+
+        $post = $post->fresh();
+
+        //load the post with user
+        $post->load([
+            'user',
+            'pollOptions.votes' => function ($query) {
+                $query->where('user_id', Auth::id());
+            },
+            'pollVotes.votesCount',
+            'taggedUsers.user',
+        ]);
+
+        return $post;
+    }
+
+    private function sendPostNotifications($post, $notificationData, $request, $timeline)
+    {
+        $notification = new NotificationController();
+        //send notification to all users in the system after posting an announcement
+        if ($post->type->type === 'announcement') {
+            //send notification to all users in the system
+            $this->sendNotificationsToAllUsers($post, ANNOUNCEMENT, 'لقد تم نشر إعلان جديد, تفقد الإعلانات 📢');
+        } else if ($post->type->type === 'support') {
+            $this->sendNotificationsToAllUsers($post, SUPPORT, 'لقد تم نشر منشور اعرف مشروعك, تفقده الآن ⏰');
+        }
+
+        //send notifications about pending posts
+        if ($notificationData['pending_msg']) {
+            if ($notificationData['pending_type'] === GROUP_POSTS) {
+                $notificationData['pending_path'] = $this->getPendingPostsPath($timeline->id, $post->id);
+            }
+            $notification->sendNotification($notificationData['pending_userId'], $notificationData['pending_msg'], $notificationData['pending_type'], $notificationData['pending_path']);
+        }
+
+        //send notifications to tagged users
+        if ($request->has('tags')) {
+            foreach ($request->tags as $tag) {
+                $post->taggedUsers()->create([
+                    'user_id' => $tag
+                ]);
+                $notification->sendNotification($tag, Auth::user()->name . ' أشار إليك في منشور', TAGS, $this->getPostPath($post->id));
+            }
+        }
+    }
+
+    /**
+     * Get the announcements
+     * @param string $type
+     * @param int $limit 
+     * @param bool $pinned
+     */
+    private function selectPostsQuery($type, $limit = null, $pinned = false)
+    {
+        $post_type_id = PostType::where('type', $type)->first()->id;
+
+        $posts =  Post::where('type_id', $post_type_id)
+            ->whereNotNull('is_approved');
+
+        if ($pinned) {
+            $posts = $posts->where('is_pinned', 1);
+        } else {
+            $posts = $posts->where('is_pinned', 0);
+        }
+
+        $posts = $posts
+            ->with(['pollOptions.votes' => function ($query) {
+                $query->where('user_id', Auth::id());
+            }])
+            ->withCount('pollVotes')
+            ->with('user')
+            ->with('taggedUsers.user')
+            ->latest();
+
+        if ($pinned) {
+            return $posts->first();
+        }
+
+        if ($limit) {
+            return $posts->take($limit)->get();
+        }
+
+        return $posts->paginate(25);
+    }
+
+    private function selectMainPosts()
+    {
+        //eager load 
+        $user = Auth::user()->load('userProfile', 'groups', 'friends.userProfile', 'friendsOf.userProfile');
+
+        //get the ids of the excluded post types
+        $excludedPostTypeIds = PostType::whereIn('type', ['announcement', 'support'])->pluck('id');
+
+        //get the ids of the timelines that the user can see
+        $mainTimelineTypeId = TimelineType::where('type', 'main')->first()->id;;
+        $mainTimelineId = Timeline::where('type_id', $mainTimelineTypeId)->first()->id;
+        $profileTimelineId = $user->userProfile->timeline_id;
+        $groupTimelineIds = $user->groups->pluck('timeline_id');
+        $friendTimelineIds = $user->friends->merge($user->friendsOf)->pluck('userProfile.timeline_id');
+
+        //get the ids of the timeline types that the user can be tagged in
+        $timelineTypeIdsForProfileGroup = TimelineType::whereIn('type', ['profile', 'group'])->pluck('id');
+
+        //merge all the timeline ids
+        $allTimelineIds = array_merge(
+            [$mainTimelineId, $profileTimelineId],
+            $groupTimelineIds->toArray(),
+            $friendTimelineIds->toArray()
+        );
+
+        return Post::whereIn('timeline_id', $allTimelineIds)
+            ->whereNotIn('type_id', $excludedPostTypeIds)
+            ->whereNotNull('is_approved')
+            ->withCount('comments')
+            ->with('user')
+            ->with(['pollOptions.votes' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
+            ->withCount('pollVotes')
+            ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with(['reactions' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
+            ->with(['timeline' => function ($query) use ($timelineTypeIdsForProfileGroup) {
+                $query->whereIn('type_id', $timelineTypeIdsForProfileGroup)
+                    ->with(['profile.user', 'group.groupAdministrators', 'type']);
+            }])
+            ->latest()
+            ->paginate(25);
     }
 }

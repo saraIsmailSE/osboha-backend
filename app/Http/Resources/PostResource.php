@@ -31,7 +31,7 @@ class PostResource extends JsonResource
             'votes_count' => $this->poll_votes_count ?? 0,
             "comments_count" => $this->comments_count ?? 0,
             'reactions_count' => $this->reactions_count ?? 0,
-            'reacted_by_user' => $this->reactions->contains('user_id', auth()->id()),
+            'reacted_by_user' => $this->reacted_by_user ?? false,
             'created_at' => $this->created_at,
         ];
     }

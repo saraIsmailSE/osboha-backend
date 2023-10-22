@@ -15,6 +15,8 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\ReactionResource;
 use App\Http\Resources\ReactionTypeResource;
 use App\Http\Resources\UserInfoResource;
+use App\Models\Comment;
+use App\Models\Post;
 use App\Models\ReactionType;
 use App\Models\User;
 
@@ -266,21 +268,13 @@ class ReactionController extends Controller
     public function reactOnPost($post_id, $type_id)
     {
         $user_id = Auth::id();
+        $post = Post::findOrFail($post_id);
 
-        $reaction = Reaction::where('user_id', $user_id)->where('post_id', $post_id)->where('type_id', $type_id)->first();
-
-        if ($reaction) {
-            $reaction->delete();
+        if ($post->reactions->contains($user_id)) {
+            $post->reactions()->detach($user_id);
             return $this->jsonResponseWithoutMessage(false, 'data', 200);
         } else {
-            /**
-             * @todo: slow query - asmaa         
-             */
-            $reaction = Reaction::create([
-                'user_id' => $user_id,
-                'post_id' => $post_id,
-                'type_id' => $type_id
-            ]);
+            $post->reactions()->attach($user_id, ['type_id' => $type_id]);
             return $this->jsonResponseWithoutMessage(true, 'data', 200);
         }
     }
@@ -289,17 +283,13 @@ class ReactionController extends Controller
     {
         $user_id = Auth::id();
 
-        $reaction = Reaction::where('user_id', $user_id)->where('comment_id', $comment_id)->where('type_id', $type_id)->first();
+        $comment = Comment::findOrFail($comment_id);
 
-        if ($reaction) {
-            $reaction->delete();
+        if ($comment->reactions->contains($user_id)) {
+            $comment->reactions()->detach($user_id);
             return $this->jsonResponseWithoutMessage(false, 'data', 200);
         } else {
-            $reaction = Reaction::create([
-                'user_id' => $user_id,
-                'comment_id' => $comment_id,
-                'type_id' => $type_id
-            ]);
+            $comment->reactions()->attach($user_id, ['type_id' => $type_id]);
             return $this->jsonResponseWithoutMessage(true, 'data', 200);
         }
     }
