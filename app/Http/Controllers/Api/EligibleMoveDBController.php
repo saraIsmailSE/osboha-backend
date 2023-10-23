@@ -153,11 +153,11 @@ class EligibleMoveDBController extends Controller
 
                         
                  
-                        $eligible_user_book = DB::table('eligible_user_books')->insert(
+                        $eligible_user_book = DB::table('eligible_user_books')->updateOrInsert(
                           [ 'user_id' => $user_platdorm->id,
                             'book_id' => $book_id_platform,
-                           'status' => $user_book->status,
-                             'reviews' => $user_book->reviews]
+                            'status' => $user_book->status],
+                             ['reviews' => $user_book->reviews]
                         );
                         
                         $eligible_user_book_id = DB::table('eligible_user_books')->where('user_id',$user_platdorm->id)->where('book_id',$book_id_platform)->pluck('id')->first();
