@@ -842,6 +842,10 @@ class PostController extends Controller
     private function getPostsStatusInProfile($timeline)
     {
         $input = [];
+        $pending_msg='';
+        $pending_userId='';
+        $pending_type='';
+        $pending_path='';
         if ($timeline->profile->user_id != Auth::id()) { // post in another profile
 
             $user = User::findOrFail($timeline->profile->user_id);
