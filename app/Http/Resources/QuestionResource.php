@@ -21,6 +21,7 @@ class QuestionResource extends JsonResource
             "user" =>  UserInfoResource::make($this->user),
             "assignee" => UserInfoResource::make($this->assignee),
             "answers" => count($this->answers) > 0 ? AnswerResource::collection($this->answers) : [],
+            "user_parents" => $this->user_parents,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
         ];
