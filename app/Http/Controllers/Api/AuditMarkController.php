@@ -380,6 +380,34 @@ class AuditMarkController extends Controller
     }
 
 
+    public function advisorMainAudit($advisor_id)
+    {
+
+        if (Auth::user()->hasanyrole('admin|advisor')) {
+            $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
+            // get advisor audit
+            $advisorAudit = AuditMark::where('auditor_id', $advisor_id)->where('week_id', $previous_week)->first();
+
+            $response = [];
+            foreach ($advisorAudit->marksForAudit as $key => $mark) { //for each audit of advisor 
+                $auditInfo['audit_mark']=$mark;
+                // get userinfo from mark
+                $userMark = Mark::find($mark->mark_id);
+
+                //group where user is ambassador
+                $ambassador_group_id = UserGroup::where('user_type', 'ambassador')->where('user_id', $userMark->user_id)->first();
+                // get supervisor of the group
+                $supervisorID = UserGroup::where('user_type', 'supervisor')->where('group_id', $ambassador_group_id->group_id)->first();
+                $supervisor=User::find($supervisorID->user_id); 
+                $auditInfo['supervisor_name'] = $supervisor->name;
+                $response[$key] = $auditInfo;
+            }
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
     /**
      * Add audit note.
      *
