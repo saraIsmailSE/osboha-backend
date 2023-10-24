@@ -19,6 +19,7 @@ use App\Traits\ResponseJson;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -439,21 +440,22 @@ class GeneralConversationController extends Controller
     {
         $validator = Validator::make(request()->all(), [
             'minutes' => 'required|numeric',
+            "date" => "required|date",
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponse(
+            return $this->jsonResponseWithoutMessage(
                 $validator->errors()->first(),
                 'data',
                 Response::HTTP_UNPROCESSABLE_ENTITY,
-                $validator->errors()->first()
             );
         }
 
         $user = Auth::user();
+        $date = Carbon::parse($request->date);
 
         //find working hours for today, if not found create new one else update it by adding to the current minutes
-        $workingHours = WorkHour::where("user_id", $user->id)->whereDate("created_at", Carbon::today())->first();
+        $workingHours = WorkHour::where("user_id", $user->id)->whereDate("created_at", $date)->first();
 
         if (!$workingHours) {
             $workingHours = WorkHour::create([
@@ -509,39 +511,45 @@ class GeneralConversationController extends Controller
         - number of hours the last week
         - number of hours based on the selected month
         - working hours for each user grouped by week and role
+        - working hours for each user in each week day
         */
 
-        $lastWeek = Week::orderBy('created_at', 'desc')->skip(1)->first();
 
-        $selected_month = $request->month;
+        //selected date 
+        $selected_date = $request->date;
 
-        //if no month is selected, get the current month 
-        if (!$selected_month) {
-            $selected_month = Carbon::now()->month;
+        //if no date is selected, get the current date 
+        if ($selected_date) {
+            $selected_date = Carbon::parse($selected_date)->toDateString();
+        } else {
+            $selected_date = Carbon::now()->toDateString();
+        }
+
+        $selected_month = Carbon::parse($selected_date)->month;
+        $selected_year = Carbon::parse($selected_date)->year;
+
+        //get the last week where year between created_at and main_timer and month between created_at and main_timer
+        $weeks = Week::whereYear('created_at', '<=', $selected_year)
+            ->whereYear('main_timer', '>=', $selected_year)
+            ->whereMonth('created_at', '<=', $selected_month)
+            ->whereMonth('main_timer', '>=', $selected_month)
+            ->orderBy('created_at', 'desc');
+
+
+        $lastWeek = $weeks->first();
+        if (!$lastWeek) {
+            return $this->jsonResponseWithoutMessage(
+                [],
+                'data',
+                Response::HTTP_OK
+            );
         }
 
         $minutesOfLastWeek = WorkHour::where('week_id', $lastWeek->id)->sum('minutes');
-        // $minutesOfSelectedMonth = WorkHour::whereMonth('created_at', $selected_month)->sum('minutes');
 
-        // $availableMonths =  Week::selectRaw('MONTH(created_at) AS month, MONTH(main_timer) AS month')
-        //     ->whereYear('created_at', date('Y'))
-        //     ->orderBy('created_at', 'asc')
-        //     ->orderBy('main_timer', 'asc')
-        //     ->pluck('month')
-        //     ->unique()
-        //     ->flatten();
+        $weeksOfTheSelectedMonth = $weeks->pluck('id')->toArray();
 
-        $weeksOfTheSelectedMonth = Week::whereMonth('created_at', $selected_month)
-            ->orWhereMonth('main_timer', $selected_month)
-            ->pluck('id');
-
-        $workingHours = WorkHour::
-            // whereHas('user.roles', function ($query) {
-            //     $query->whereIn('name', ['admin', 'consultant', 'advisor']);
-            // })
-            // ->whereIn('week_id', $weeksOfTheSelectedMonth)
-            // ->
-            whereMonth('created_at', $selected_month)
+        $workingHours = WorkHour::whereIn('week_id', $weeksOfTheSelectedMonth)
             ->orderBy('week_id', 'desc')
             ->get();
 
