@@ -882,7 +882,7 @@ class PostController extends Controller
             $input = $status['input'];
             $notificationData = $status['notificationData'];
         } elseif ($timeline_type == 'profile') { //timeline type => profile
-            $status = $this->getPostStatusInProfile($timeline);
+            $status = $this->getPostsStatusInProfile($timeline);
             $input =  $status['input'];
             $notificationData = $status['notificationData'];
         } else { //timeline type => book || news || main (1-2-3)        
