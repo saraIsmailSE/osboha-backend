@@ -12,7 +12,8 @@ class WorkHour extends Model
     protected $fillable = [
         "user_id",
         "minutes",
-        "week_id"
+        "week_id",
+        "created_at",
     ];
 
     public function user()

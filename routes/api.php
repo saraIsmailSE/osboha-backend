@@ -463,7 +463,6 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
             Route::get('/exceptions-filter/{filter}/{user_id}', [UserExceptionController::class, 'exceptionsFilter']);
             Route::post('/set-exceptional-freez', [UserExceptionController::class, 'setExceptionalFreez']);
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
-
         });
         ############End UserException########
 
@@ -782,6 +781,7 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
             Route::group(['prefix' => 'questions'], function () {
                 Route::post('/', [GeneralConversationController::class, 'addQuestion']);
                 Route::get('/', [GeneralConversationController::class, 'getQuestions']);
+                Route::get('/{question_id}', [GeneralConversationController::class, 'getQuestionById']);
                 Route::put('/close-overdue', [GeneralConversationController::class, 'closeOverdueQuestions']);
                 Route::put('/{question_id}/close', [GeneralConversationController::class, 'closeQuestion']);
                 Route::put('/{question_id}/solve', [GeneralConversationController::class, 'solveQuestion']);
