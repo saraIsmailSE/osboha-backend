@@ -299,9 +299,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/update-mark-for-audit-status/{id}', [AuditMarkController::class, 'updateMarkForAuditStatus']);
             Route::get('/groups-audit/{supervisor_id}', [AuditMarkController::class, 'groupsAudit']);
             Route::get('/supervisors-audit/{advisor_id}', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
+            Route::get('/advisor-main-audit/{advisor_id}', [AuditMarkController::class, 'advisorMainAudit']);
             Route::post('/add-note', [AuditMarkController::class, 'addNote']);
             Route::get('/get-notes/{mark_for_audit_id}', [AuditMarkController::class, 'getNotes']);
             Route::get('/pending-theses/{supervisor_id}/{week_id?}', [AuditMarkController::class, 'pendingTheses']);
+
+            
         });
         ######## End Audit Mark ########
         ########Modified Theses########
