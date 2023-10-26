@@ -404,7 +404,23 @@ class PostController extends Controller
      */
     public function getSupportPosts()
     {
-        $posts = $this->selectPostsQuery('support');
+        $user = Auth::user();
+        $posts = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+            ->whereNotNull('is_approved')
+            ->withCount('comments')
+            ->with('pollOptions.votes', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->withCount('pollVotes')
+            ->with('user')
+            ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->latest()
+            ->paginate(25);
 
         if ($posts->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
