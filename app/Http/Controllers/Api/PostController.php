@@ -360,7 +360,7 @@ class PostController extends Controller
 
             //if there is no pinned announcement get the last two announcements
             if (!$announcements) {
-                $announcements = $this->selectPostsQuery('announcement', 2);
+                $announcements = $this->selectPostsQuery('announcement', 1);
             }
         }
 
