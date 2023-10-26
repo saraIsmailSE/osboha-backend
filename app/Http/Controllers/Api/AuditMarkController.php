@@ -371,6 +371,9 @@ class AuditMarkController extends Controller
                 }
                 // marks week avg for all $supervisor groups
                 $supervisorinfo['groups_avg'] = $total_marks_week / $supervisorinfo['num_of_leaders'];
+                $auditMarksRecored = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id',$previous_week)->first();
+                $supervisorinfo['audit_count'] = MarksForAudit::where('audit_marks_id', $auditMarksRecored->id )->count();
+                $supervisorinfo['audit_audited'] = MarksForAudit::where('status','!=', 'not_audited')->where('audit_marks_id', $auditMarksRecored->id )->count();
                 $response[$key] = $supervisorinfo;
             }
             return $this->jsonResponseWithoutMessage($response, 'data', 200);

@@ -272,6 +272,8 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
         Route::group(["prefix" => "users"], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
+            Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
+            
         });
 
         ########Start Roles########
