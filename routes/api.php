@@ -65,9 +65,6 @@ use App\Http\Controllers\Api\Eligible\{
     EligibleQuestionController,
     EligibleCertificatesController,
     EligibleGeneralInformationsController,
-    EligibleFQAController,
-    EligibleEmailVerificationController,
-    EligibleMoveDBController
 };
 
 use App\Http\Resources\RoomResource;
