@@ -19,20 +19,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
+
         $schedule->command('weekly:marks')->weekly()->sundays()->at('00:00'); //main part
         //auditMark
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('00:00');
-        //finishedException 
-
-        // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
 
         //delete old media every week on sunday at 5:00 am
         $schedule->command('media:deleteOld')->weekly()->sundays()->at('05:00');
 
-        //test part
-       // $schedule->command('media:deleteOld')->everyMinute();
+        $schedule->command('eligible:moveEligibleDB')->weekly()->sundays()->at('21:51');
     }
 
     /**

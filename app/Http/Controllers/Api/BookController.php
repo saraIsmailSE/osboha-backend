@@ -60,6 +60,31 @@ class BookController extends Controller
         }
     }
 
+    public function getAllForEligible()
+    {
+        $books['books'] = Book::whereHas('type', function ($q) {
+            $q->where('type', '=', 'normal');
+        })->paginate(9);
+        if ($books['books']->isNotEmpty()) {
+
+            // SELECT * FROM `user_book` WHERE user_id =1 and (status != 'finished' || status is null )
+
+            $books['open_book'] = Book::whereHas('eligibleUserBook', function ($q) {
+                $q->where('user_id', Auth::id())
+                    ->where(function ($query) {
+                        $query->where('status', '!=', 'finished')
+                            ->where('status', '!=', 'rejected')
+                            ->orWhereNull('status');
+                    });
+            })->get();
+
+            return $this->jsonResponseWithoutMessage($books, "data", '200');
+        } else {
+            throw new NotFound;
+        }
+    }
+
+
     /**
      *Add a new book to the system (“create book” permission is required).
      * 

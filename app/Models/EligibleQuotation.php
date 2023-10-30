@@ -14,10 +14,10 @@ class EligibleQuotation extends Model
     protected $fillable = [
 
         'text',
-        "question_id"
+        "eligible_question_id"
     ];
 
     public function question(){
-        return $this->belongsTo(EligibleQuestion::class,'question_id');
+        return $this->belongsTo(EligibleQuestion::class,'eligible_question_id');
     }
 }

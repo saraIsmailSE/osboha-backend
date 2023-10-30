@@ -10,7 +10,7 @@ class EligibleCertificates extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_book_id',
+        'eligible_user_books_id',
         "final_grade",
         'general_summary_grade',
         "thesis_grade",
@@ -18,6 +18,6 @@ class EligibleCertificates extends Model
     ];
 
     public function user_book(){
-        return $this->belongsTo(EligibleUserBook::class,'user_book_id');
+        return $this->belongsTo(EligibleUserBook::class,'eligible_user_books_id');
     }
 }

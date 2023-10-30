@@ -18,51 +18,54 @@ class EligibleUserBook extends Model
 
     protected $table = 'eligible_user_books';
 
-    protected $with = array('thesises','user','book','questions','generalInformation');
+    protected $with = array('thesises', 'user', 'book', 'questions', 'generalInformation');
 
 
-    public function user(){
-        return $this->belongsTo(User::class,'user_id');
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function book(){
-        return $this->belongsTo(Book::class,'book_id');
+    public function book()
+    {
+        return $this->belongsTo(Book::class, 'book_id');
     }
 
-    public function certificates(){
-        return $this->hasMany(EligibleCertificates::class);
+    public function certificates()
+    {
+        return $this->hasMany(EligibleCertificates::class, 'eligible_user_books_id');
     }
 
-    public function thesises(){
-        return $this->hasMany(EligibleGeneralThesis::class);
+    public function thesises()
+    {
+        return $this->hasMany(EligibleThesis::class, 'eligible_user_books_id');
     }
 
-    public function questions(){
-        return $this->hasMany(EligibleQuestion::class);
+    public function questions()
+    {
+        return $this->hasMany(EligibleQuestion::class, 'eligible_user_books_id');
     }
-    public function generalInformation(){
-        return $this->hasOne(EligibleGeneralInformations::class);
+    public function generalInformation()
+    {
+        return $this->hasOne(EligibleGeneralInformations::class, 'eligible_user_books_id');
     }
 
     public static function boot()
     {
         parent::boot();
-        self::deleting(function ($userBook) { 
+        self::deleting(function ($userBook) {
             $userBook->generalInformation()->each(function ($generalInformation) {
-                $generalInformation->delete(); 
+                $generalInformation->delete();
             });
             $userBook->questions()->each(function ($questions) {
-                $questions->delete(); 
+                $questions->delete();
             });
             $userBook->thesises()->each(function ($thesises) {
-                $thesises->delete(); 
+                $thesises->delete();
             });
             $userBook->certificates()->each(function ($certificates) {
-                $certificates->delete(); 
+                $certificates->delete();
             });
         });
     }
-
 }
-
-

@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('eligible_quotations', function (Blueprint $table) {
             $table->id();
             $table->text('text');
-            $table->bigInteger("question_id")->unsigned()->index()->nullable();
-            $table->foreign("question_id")->references("id")->on("eligible_questions");
+            $table->bigInteger("eligible_question_id")->unsigned()->index()->nullable();
+            $table->foreign("eligible_question_id")->references("id")->on("eligible_questions");
             $table->timestamps();
         });
     }

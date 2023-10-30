@@ -18,7 +18,6 @@ class EligibleRoles extends Seeder
         $user = Role::create(['name' => 'user']);
         $reviewer = Role::create(['name' => 'reviewer']);
         $super_reviewer = Role::create(['name' => 'auditor']);
-        $auditer = Role::create(['name' => 'book-quality']);
         $super_auditer = Role::create(['name' => 'user_accept']);
         $super_auditer = Role::create(['name' => 'super_auditer']);
         $super_auditer = Role::create(['name' => 'super_reviewer']);

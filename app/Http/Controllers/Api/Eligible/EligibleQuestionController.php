@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Eligible;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EligibleGeneralInformations;
 use App\Models\EligibleQuestion;
 use App\Models\EligibleQuotation;
-use App\Models\EligibleGeneralThesis;
+use App\Models\EligibleThesis;
 use App\Models\User;
 use App\Models\EligibleUserBook;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +25,6 @@ class EligibleQuestionController extends Controller
 
         $question = EligibleQuestion::all();
         return $this->jsonResponseWithoutMessage($question, 'Questions', 200);
-
     }
 
 
@@ -34,7 +34,7 @@ class EligibleQuestionController extends Controller
             'question' => 'required',
             'quotes' => 'required',
             'quotes.*.text' => 'required',
-            'eligible_eligible_user_book_id ' => 'required',
+            'eligible_user_books_id' => 'required',
             "starting_page" => 'required',
             "ending_page" => 'required'
         ]);
@@ -42,38 +42,40 @@ class EligibleQuestionController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $input = $request->all();
-        $quotationInput = $input['quotes'];
+        $quotationInput = $request->quotes;
         $qoutes = [];
 
         foreach ($quotationInput as $value) {
 
-            $qoute = EligibleQuestion::create($value);
+            $qoute = EligibleQuotation::create($value);
             array_push($qoutes, $qoute);
         }
         try {
-            $newQuestion = EligibleQuestion::create($input);
+            $newQuestion = EligibleQuestion::create([
+                'question' => $request->question,
+                'eligible_user_books_id' => $request->eligible_user_books_id,
+                "starting_page" => $request->starting_page,
+                "ending_page" => $request->ending_page
+
+            ]);
             $newQuestion->quotation()->saveMany($qoutes);
         } catch (\Illuminate\Database\QueryException $e) {
             echo ($e);
-            return $this->jsonResponseWithoutMessage('User Book does not exist.','data', 200);
+            return $this->jsonResponseWithoutMessage('User Book does not exist.', 'data', 200);
         }
         $question = EligibleQuestion::find($newQuestion->id);
-        return $this->jsonResponseWithoutMessage("Question Craeted Successfully", $question, 200);
-
+        return $this->jsonResponseWithoutMessage($question, 'data', 200);
     }
 
 
     public function show($id)
     {
-        $question = EligibleQuestion::where('id', $id)->with('eligible_eligible_user_book_id .book')->first();
+        $question = EligibleQuestion::where('id', $id)->with('user_book.book')->first();
 
         if (is_null($question)) {
             return $this->jsonResponseWithoutMessage("Question does not exist", 'data', 200);
-
         }
-        return $this->jsonResponseWithoutMessage("Question", $question, 200);
-
+        return $this->jsonResponseWithoutMessage($question, 'data', 200);
     }
 
 
@@ -88,7 +90,6 @@ class EligibleQuestionController extends Controller
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-
         }
 
         $input = $request->all();
@@ -100,7 +101,7 @@ class EligibleQuestionController extends Controller
 
             $question = EligibleQuestion::find($id);
             if (Auth::id() == $question->user_book->user_id) {
-                EligibleQuotation::where('question_id', $question->id)->delete();
+                EligibleQuotation::where('eligible_question_id', $question->id)->delete();
                 foreach ($quotationInput as $value) {
                     $qoute = EligibleQuotation::create($value);
                     array_push($qoutes, $qoute);
@@ -113,25 +114,18 @@ class EligibleQuestionController extends Controller
             }
         } catch (\Error $e) {
 
-            return $this->jsonResponseWithoutMessage('',$e, 200);
+            return $this->jsonResponseWithoutMessage('', $e, 200);
         }
-        return $this->jsonResponseWithoutMessage('Question updated Successfully!',$question, 200);
-
-
+        return $this->jsonResponseWithoutMessage($question, 'data', 200);
     }
 
     public function destroy($id)
     {
 
-        EligibleQuotation::where('question_id', $id)->delete();
+        EligibleQuotation::where('eligible_question_id', $id)->delete();
         $result = EligibleQuestion::destroy($id);
 
-
-        if ($result == 0) {
-
-            return $this->sendError('Question does not exist');
-        }
-        return $this->sendResponse($result, 'Question deleted Successfully');
+        return $this->jsonResponseWithoutMessage("deleted", 'data', 200);
     }
 
     public function addDegree(Request $request,  $id)
@@ -157,39 +151,36 @@ class EligibleQuestionController extends Controller
         try {
             $question->save();
             // Stage Up
-            $auditedTheses = EligibleGeneralThesis::where('eligible_user_book_id ', $question->eligible_user_book_id )->where('status', 'audited')->count();
-            $auditedGeneralInfo = EligibleGeneralInformations::where('eligible_user_book_id ', $question->eligible_user_book_id )->where('status', 'audited')->count();
-            $auditedQuestions = EligibleQuestion::where('eligible_user_book_id ', $question->eligible_user_book_id )->where('status', 'audited')->count();
+            $auditedTheses = EligibleThesis::where('eligible_user_books_id', $question->eligible_user_books_id)->where('status', 'audited')->count();
+            $auditedGeneralInfo = EligibleGeneralInformations::where('eligible_user_books_id', $question->eligible_user_books_id)->where('status', 'audited')->count();
+            $auditedQuestions = EligibleQuestion::where('eligible_user_books_id', $question->eligible_user_books_id)->where('status', 'audited')->count();
             if ($auditedTheses >= 8 && $auditedQuestions >= 5 && $auditedGeneralInfo) {
-                $userBook = EligibleUserBook::where('id', $question->eligible_user_book_id )->update(['status' => 'audited']);
+                $userBook = EligibleUserBook::where('id', $question->eligible_user_books_id)->update(['status' => 'audited']);
             }
         } catch (\Error $e) {
-            
-            return $this->jsonResponseWithoutMessage('Questions does not exist','data', 200);
 
+            return $this->jsonResponseWithoutMessage('Questions does not exist', 'data', 200);
         }
-        return $this->jsonResponseWithoutMessage('Degree added Successfully!','data', 200);
-
+        return $this->jsonResponseWithoutMessage('Degree added Successfully!', 'data', 200);
     }
     //ready to review
     public function reviewQuestion($id)
     {
         try {
-            $question = EligibleQuestion::where('eligible_user_book_id ', $id)->where(function ($query) {
+            $question = EligibleQuestion::where('eligible_user_books_id', $id)->where(function ($query) {
                 $query->where('status', 'retard')
                     ->orWhereNull('status');
             })->update(['status' => 'ready']);
         } catch (\Error $e) {
-            return $this->jsonResponseWithoutMessage('Question does not exist','data', 200);
-
+            return $this->jsonResponseWithoutMessage('Question does not exist', 'data', 200);
         }
     }
 
     public function review(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required_without:eligible_user_book_id ',
-            'eligible_user_book_id ' => 'required_without:id',
+            'id' => 'required_without:eligible_user_books_id',
+            'eligible_user_books_id' => 'required_without:id',
             'status' => 'required',
             'reviewer_id' => 'required',
             'reviews' => 'required_if:status,rejected'
@@ -207,10 +198,10 @@ class EligibleQuestionController extends Controller
                 $question->reviewer_id = $request->reviewer_id;
                 if ($request->has('reviews')) {
                     $question->reviews = $request->reviews;
-                    $userBook = EligibleUserBook::find($question->eligible_user_book_id );
+                    $userBook = EligibleUserBook::find($question->eligible_user_books_id);
                     $user = User::find($userBook->user_id);
-                    $userBook->status=$request->status;
-                    $userBook->reviews=$request->reviews;
+                    $userBook->status = $request->status;
+                    $userBook->reviews = $request->reviews;
                     $userBook->save();
                     $user->notify(
                         (new \App\Notifications\RejectAchievement())->delay(now()->addMinutes(2))
@@ -218,48 +209,45 @@ class EligibleQuestionController extends Controller
                 }
 
                 $question->save();
-            } else if ($request->has('eligible_user_book_id ')) {
-                $questions = EligibleQuestion::where('eligible_user_book_id ', $request->eligible_user_book_id )->update(['status' => $request->status]);
+            } else if ($request->has('eligible_user_books_id')) {
+                $questions = EligibleQuestion::where('eligible_user_books_id', $request->eligible_user_books_id)->update(['status' => $request->status]);
             }
         } catch (\Error $e) {
-            return $this->jsonResponseWithoutMessage('Question does not exist','data', 200);
-
+            return $this->jsonResponseWithoutMessage('Question does not exist', 'data', 200);
         }
     }
 
 
 
-    public function finalDegree($eligible_user_book_id )
+    public function finalDegree($eligible_user_books_id)
     {
-        $degrees = EligibleQuestion::where("eligible_user_book_id ", $eligible_user_book_id )->avg('degree');
-        return $this->jsonResponseWithoutMessage('Final Degree!',$degrees, 200);
-
+        $degrees = EligibleQuestion::where("eligible_user_books_id", $eligible_user_books_id)->avg('degree');
+        return $this->jsonResponseWithoutMessage($degrees, 'data', 200);
     }
 
     public function getUserBookQuestions($id)
     {
-        $questions = EligibleQuestion::where('eligible_user_book_id ', $id)->get();
-        return $this->jsonResponseWithoutMessage('Questions',$questions, 200);
-
+        $questions = EligibleQuestion::where('eligible_user_books_id', $id)->get();
+        return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }
     public function getByStatus($status)
     {
-        $questions =  EligibleQuestion::with("user_book.user")->with("user_book.book")->with("user_book.questions")->where('status', $status)->groupBy('eligible_user_book_id ')->get();
-        return $this->jsonResponseWithoutMessage('Questions',$questions, 200);
+        $questions =  EligibleQuestion::with("user_book.user")->with("user_book.book")->with("user_book.questions")->where('status', $status)->groupBy('eligible_user_books_id')->get();
+        return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }
 
-    public function getByUserBook($eligible_user_book_id )
+    public function getByUserBook($eligible_user_books_id)
     {
-        $response['questions'] =  EligibleQuestion::with("user_book.user")->with("user_book.book")->with('reviewer')->with('auditor')->where('eligible_user_book_id ', $eligible_user_book_id )->get();
-        $response['acceptedQuestions'] =  EligibleQuestion::where('eligible_user_book_id ', $eligible_user_book_id )->where('status', 'accept')->count();
-        $response['userBook'] =  EligibleUserBook::find($eligible_user_book_id );
-        return $this->jsonResponseWithoutMessage('Questions',$questions, 200);
+        $response['questions'] =  EligibleQuestion::with("user_book.user")->with("user_book.book")->with('reviewer')->with('auditor')->where('eligible_user_books_id', $eligible_user_books_id)->get();
+        $response['acceptedQuestions'] =  EligibleQuestion::where('eligible_user_books_id', $eligible_user_books_id)->where('status', 'accept')->count();
+        $response['userBook'] =  EligibleUserBook::find($eligible_user_books_id);
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
     public function getByBook($book_id)
     {
         $questions['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->first();
-        $questions['questions'] =  EligibleQuestion::with('reviewer')->with('auditor')->where('eligible_user_book_id ', $questions['user_book']->id)->get();
-        return $this->jsonResponseWithoutMessage('Questions',$questions, 200);
+        $questions['questions'] =  EligibleQuestion::with('reviewer')->with('auditor')->where('eligible_user_books_id', $questions['user_book']->id)->get();
+        return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }
 
     public static function questionsStatistics()
@@ -284,12 +272,12 @@ class EligibleQuestionController extends Controller
 
     public static function questionsStatisticsForUser($id)
     {
-        $questionsCount = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_book_id ')->where('user_id', $id)->count();
-        $very_excellent =  EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_book_id ')->where('degree', '>=', 95)->where('degree', '<=', 100)->count();
-        $excellent = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_book_id ')->where('degree', '>', 94.9)->where('degree', '<', 95)->count();
-        $veryGood = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_book_id ')->where('degree', '>', 89.9)->where('degree', '<', 85)->count();
-        $good = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_book_id ')->where('degree', '>', 84.9)->where('degree', '<', 80)->count();
-        $accebtable = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_book_id ')->where('degree', '>', 79.9)->where('degree', '<', 70)->count();
+        $questionsCount = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_books_id')->where('user_id', $id)->count();
+        $very_excellent =  EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_books_id')->where('degree', '>=', 95)->where('degree', '<=', 100)->count();
+        $excellent = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_books_id')->where('degree', '>', 94.9)->where('degree', '<', 95)->count();
+        $veryGood = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_books_id')->where('degree', '>', 89.9)->where('degree', '<', 85)->count();
+        $good = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_books_id')->where('degree', '>', 84.9)->where('degree', '<', 80)->count();
+        $accebtable = EligibleUserBook::join('questions', 'user_book.id', '=', 'questions.eligible_user_books_id')->where('degree', '>', 79.9)->where('degree', '<', 70)->count();
         return [
             "total" => $questionsCount,
             "very_excellent" => ($very_excellent / $questionsCount) * 100,

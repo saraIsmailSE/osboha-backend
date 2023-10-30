@@ -1,8 +1,11 @@
 <?php
 
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Eligible;
 
+use App\Models\EligibleGeneralInformations;
+use App\Models\EligibleQuestion;
+use App\Models\EligibleThesis;
 use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Facades\Auth;
@@ -173,8 +176,7 @@ class EligibleUserController extends Controller
     try {
       $user->update($updateParam);
     } catch (\Error $e) {
-      return $this->jsonResponseWithoutMessage('User does not exist',$e, 200);
-
+      return $this->jsonResponseWithoutMessage('User does not exist', $e, 200);
     }
     return $this->sendResponse($user, 'User updated Successfully!');
   }
@@ -220,8 +222,7 @@ class EligibleUserController extends Controller
       )->get();
       return $this->sendResponse($users, 'All Un Accepted Users!');
     } catch (\Error $e) {
-      return $this->jsonResponseWithoutMessage('All Users Have Been Accepted',$e, 200);
-
+      return $this->jsonResponseWithoutMessage('All Users Have Been Accepted', $e, 200);
     }
   }
 
@@ -237,8 +238,7 @@ class EligibleUserController extends Controller
 
       return $this->sendResponse($users, 'All Un Accepted Reviewers And Auditors!');
     } catch (\Error $e) {
-      return $this->jsonResponseWithoutMessage('All Reviewers And Auditors Have Been Accepted',$e, 200);
-
+      return $this->jsonResponseWithoutMessage('All Reviewers And Auditors Have Been Accepted', $e, 200);
     }
   }
 
@@ -251,8 +251,7 @@ class EligibleUserController extends Controller
     try {
       $user->update(['is_active' => true, 'picture' => null]);
     } catch (\Error $e) {
-      return $this->jsonResponseWithoutMessage('User does not exist',$e, 200);
-
+      return $this->jsonResponseWithoutMessage('User does not exist', $e, 200);
     }
 
     return $this->sendResponse($user, 'user activated!');
@@ -313,10 +312,10 @@ class EligibleUserController extends Controller
   public function getUserStatistics()
   {
     $id = Auth::id();
-    $thesises =  ThesisController::thesisStatisticsForUser($id);
-    $qestions =  QuestionController::questionsStatisticsForUser($id);
-    $generalInformations = GeneralInformationsController::generalInformationsStatisticsForUser($id);
-    $certificates =   UserBook::join('certificates', 'user_book.id', '=', 'certificates.user_book_id')->where('user_id', $id)->count();
+    $thesises =  EligibleThesis::thesisStatisticsForUser($id);
+    $qestions =  EligibleQuestion::questionsStatisticsForUser($id);
+    $generalInformations = EligibleGeneralInformations::generalInformationsStatisticsForUser($id);
+    $certificates =   EligibleUserBook::join('certificates', 'user_book.id', '=', 'certificates.user_book_id')->where('user_id', $id)->count();
 
     $response = [
       "thesises" => $thesises,

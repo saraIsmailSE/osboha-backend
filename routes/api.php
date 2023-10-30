@@ -56,7 +56,10 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    phpInfo,
+    EligibleMoveDBController
+};
+
+use App\Http\Controllers\Api\Eligible\{
     EligibleUserBookController,
     EligibleThesisController,
     EligibleQuestionController,
@@ -65,9 +68,7 @@ use App\Http\Controllers\Api\{
     EligibleFQAController,
     EligibleEmailVerificationController,
     EligibleMoveDBController
-
 };
-
 
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
@@ -78,127 +79,14 @@ use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Osboha Main API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
 |
 */
 
+Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
+
 Route::group(['prefix' => 'v1'], function () {
-
-
-    
-//user book routes
-Route::group(['prefix' => 'eligible-userbook'], function () {
-    Route::get('/', [EligibleUserBookController::class, 'index'])->middleware(['auth:api']);
-    Route::post('/store', [EligibleUserBookController::class, 'store'])->middleware(['auth:api']);
-    Route::get('/status/{status}', [EligibleUserBookController::class, 'getUserBookByStatus'])->middleware(['auth:api', 'verified', "role:admin|book-quality"]);
-    Route::patch('/status/{id}', [EligibleUserBookController::class, 'changeStatus'])->middleware(['auth:api', 'verified', "role:admin"]);
-    Route::get('/last-achievement', [EligibleUserBookController::class, "lastAchievement"])->middleware(['auth:api', 'verified']);
-    Route::get('/finished-achievement', [EligibleUserBookController::class, "finishedAchievement"])->middleware(['auth:api', 'verified']);
-    Route::get('/count', [EligibleUserBookController::class, "checkOpenBook"])->middleware(['auth:api', 'verified']);
-    Route::get('/certificate/{id}', [EligibleUserBookController::class, "checkCertificate"])->middleware(['auth:api', 'verified']);
-    Route::get('/statistics/{id}', [EligibleUserBookController::class, "getStatistics"])->middleware(['auth:api', 'verified']);
-    Route::get('/general-statistics/', [EligibleUserBookController::class, "getGeneralstatistics"]);
-    Route::get('/by-book-id/{bookId}', [EligibleUserBookController::class, "getByBookID"])->middleware(['auth:api', 'verified']);
-    Route::get('/stage-status/{id}', [EligibleUserBookController::class, "getStageStatus"])->middleware(['auth:api', 'verified']);
-    Route::get('/{id}', [EligibleUserBookController::class, 'show'])->middleware(['auth:api', 'verified']);
-    Route::patch('/{id}', [EligibleUserBookController::class, 'update'])->middleware(['auth:api']);
-    Route::delete('/{id}', [EligibleUserBookController::class, 'destroy'])->middleware(['auth:api']);
-    Route::post('/review', [EligibleUserBookController::class, "review"])->middleware(['auth:api', 'verified']);
-    Route::get('/ready/to', [EligibleUserBookController::class, "readyToAudit"])->middleware(['auth:api', 'verified']);
-});
-
-
-
-
-
-//thesis routes
-Route::group(['prefix' => 'eligible-thesises'], function () {
-    Route::get('/image', [EligibleThesisController::class, 'image']);
-    Route::get('/', [EligibleThesisController::class, 'index']);
-    Route::post('/', [EligibleThesisController::class, 'store'])->middleware(['auth:api', 'verified']);
-    Route::get('final-degree/{id}', [EligibleThesisController::class, "finalDegree"])->middleware(['auth:api', 'verified']);
-    Route::get('by-status/{status}', [EligibleThesisController::class, "getByStatus"])->middleware(['auth:api', 'verified']);
-    Route::get('/photo-count/{id}', [EligibleThesisController::class, 'getThesisPhotosCount']);
-    Route::get('/{id}', [EligibleThesisController::class, 'show'])->middleware(['auth:api', 'verified']);
-    Route::patch('update-photo/{id}', [EligibleThesisController::class, "updatePhoto"])->middleware(['auth:api', 'verified']);
-    Route::patch('review-thesis/{id}', [EligibleThesisController::class, "reviewThesis"])->middleware(['auth:api', 'verified']);
-    Route::patch('/{id}', [EligibleThesisController::class, 'update'])->middleware(['auth:api', 'verified']);
-    Route::delete('/photo/{id}', [EligibleThesisController::class, 'deletePhoto'])->middleware(['auth:api', 'verified']);
-    Route::delete('/{id}', [EligibleThesisController::class, 'destroy'])->middleware(['auth:api', 'verified']);
-    Route::patch('add-degree/{id}', [EligibleThesisController::class, "addDegree"])->middleware(['auth:api', 'role:admin|auditor|super_auditer']);
-
-    Route::post('update-photo', [EligibleThesisController::class, "updatePicture"])->middleware(['auth:api', 'verified']);
-    Route::post('upload/{id}', [EligibleThesisController::class, "uploadPhoto"])->middleware(['auth:api', 'verified']);
-    Route::get('user_book_id/{user_book_id}&{status?}', [ThesisController::class, "getByUserBook"])->middleware(['auth:api', 'verified']);
-    Route::get('book/{book_id}', [EligibleThesisController::class, "getByBook"])->middleware(['auth:api', 'verified']);
-    Route::post('/review', [EligibleThesisController::class, "review"])->middleware(['auth:api', 'verified']);
-});
-
-//questions routes
-Route::group(['prefix' => 'eligible-questions'], function () {
-    Route::get('/', [EligibleQuestionController::class, 'index'])->middleware(['auth:api']);
-    Route::post('/', [EligibleQuestionController::class, 'store'])->middleware(['auth:api']);
-    Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"])->middleware(['auth:api', 'verified']);
-    Route::get('user-book/{id}', [EligibleQuestionController::class, "getUserBookQuestions"])->middleware(['auth:api', 'verified']);
-    Route::get('/{id}', [EligibleQuestionController::class, 'show'])->middleware(['auth:api']);
-    Route::patch('/{id}', [EligibleQuestionController::class, 'update'])->middleware(['auth:api', 'verified']);
-    Route::delete('/{id}', [EligibleQuestionController::class, 'destroy'])->middleware(['auth:api', 'verified']);
-    Route::patch('add-degree/{id}', [EligibleQuestionController::class, "addDegree"])->middleware(['auth:api', 'role:admin|auditor|super_auditer']);
-    Route::get('book/{book_id}', [EligibleQuestionController::class, "getByBook"])->middleware(['auth:api', 'verified']);
-    Route::get('final-degree/{id}', [EligibleQuestionController::class, "finalDegree"])->middleware(['auth:api']);
-    Route::get('user_book_id/{user_book_id}', [EligibleQuestionController::class, "getByUserBook"])->middleware(['auth:api']);
-    Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"])->middleware(['auth:api']);
-    Route::post('/review', [EligibleQuestionController::class, "review"])->middleware(['auth:api']);
-    Route::patch('review-question/{id}', [EligibleQuestionController::class, "reviewQuestion"])->middleware(['auth:api', 'verified']);
-});
-
-//certificates routes
-Route::group(['prefix' => 'eligible-certificates'], function () {
-    Route::get('/', [EligibleCertificatesController::class, 'index'])->middleware(['auth:api', 'role:admin']);
-    Route::post('/', [EligibleCertificatesController::class, 'store']);
-    Route::get('/user', [EligibleCertificatesController::class, 'getUserCertificates'])->middleware(['auth:api', 'verified']);
-    Route::get('/{id}', [EligibleCertificatesController::class, 'show'])->middleware(['auth:api', 'verified']);
-    Route::get('/full-certificate/{user_book_id}', [CertificatesController::class, 'fullCertificate'])->middleware(['auth:api', 'verified']);
-    Route::patch('/{id}', [EligibleCertificatesController::class, 'update'])->middleware(['auth:api', 'role:admin|reviewer|super_reviewer']);
-    Route::delete('/{id}', [EligibleCertificatesController::class, 'destroy'])->middleware(['auth:api', 'role:admin']);
-
-    // generate PDF
-    Route::get('/generate-pdf/{user_book_id}', [PDFController::class, 'generatePDF']);
-});
-
-
-//general informations routes
-Route::group(['prefix' => 'eligible-general-informations'], function () {
-    Route::get('/', [GeneralInformationsController::class, 'index'])->middleware(['auth:api', 'role:super_reviewer|reviewer|admin']);
-    Route::post('/', [GeneralInformationsController::class, 'store'])->middleware(['auth:api']);
-    Route::get('/user_book_id/{user_book_id}', [GeneralInformationsController::class, 'getByUserBookId'])->middleware(['auth:api']);
-    Route::get('/{id}', [GeneralInformationsController::class, 'show'])->middleware(['auth:api']);
-    Route::patch('/{id}', [GeneralInformationsController::class, 'update'])->middleware(['auth:api']);
-    Route::delete('/{id}', [GeneralInformationsController::class, 'destroy'])->middleware(['auth:api']);
-    Route::patch('add-degree/{id}', [GeneralInformationsController::class, "addDegree"])->middleware(['auth:api', 'role:admin|auditor|super_auditer']);
-    Route::get('book/{book_id}', [GeneralInformationsController::class, "getByBook"])->middleware(['auth:api', 'verified']);
-    Route::get('final-degree/{id}', [GeneralInformationsController::class, "finalDegree"])->middleware(['auth:api']);
-    Route::get('user_book_id/{user_book_id}', [GeneralInformationsController::class, "getByUserBook"])->middleware(['auth:api']);
-    Route::get('status/{status}', [GeneralInformationsController::class, "getByStatus"])->middleware(['auth:api']);
-    Route::post('/review', [GeneralInformationsController::class, "review"])->middleware(['auth:api']);
-    Route::patch('review-general-informations/{id}', [GeneralInformationsController::class, "reviewGeneralInformations"])->middleware(['auth:api', 'verified']);
-});
-
-
-// fqa routes
-Route::group(['prefix' => 'eligible-fqa'], function () {
-    Route::get('/', [FQAController::class, 'index']);
-    Route::post('/', [FQAController::class, 'store'])->middleware(['auth:api', 'role:admin']);
-    Route::get('/{id}', [FQAController::class, 'show']);
-    Route::patch('/{id}', [FQAController::class, 'update'])->middleware(['auth:api', 'role:admin']);
-    Route::delete('/{id}', [FQAController::class, 'destroy'])->middleware(['auth:api', 'role:admin']);
-});
-
 
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
@@ -273,7 +161,7 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
-            
+            Route::get('/info/{id}', [UserController::class, 'getInfo']);
         });
 
         ########Start Roles########
@@ -306,6 +194,8 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
             Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
             Route::get('/latest', [BookController::class, 'latest']);
+            Route::get('/eligible', [BookController::class, 'getAllForEligible']);
+            Route::get('/eligible/name', [BookController::class, 'getBooksByNameForEligible']);
         });
         ########End Book########
         ########User Book########
@@ -429,8 +319,6 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
             Route::post('/add-note', [AuditMarkController::class, 'addNote']);
             Route::get('/get-notes/{mark_for_audit_id}', [AuditMarkController::class, 'getNotes']);
             Route::get('/pending-theses/{supervisor_id}/{week_id?}', [AuditMarkController::class, 'pendingTheses']);
-
-            
         });
         ######## End Audit Mark ########
         ########Modified Theses########
@@ -805,129 +693,108 @@ Route::group(['prefix' => 'eligible-fqa'], function () {
         });
         ######## BookStatistics ########
 
-    });
 
 
 
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| API Routes Eligible
-|--------------------------------------------------------------------------
+        /*
+|--------------------------------------------------------------------------|
+|                       Eligible API Routes                                |
+|--------------------------------------------------------------------------|
 */
-//user book routes
-Route::group(['prefix' => 'eligible-userbook'], function () {
-    Route::get('/', [EligibleUserBookController::class, 'index'])->middleware(['auth:api']);
-    Route::post('/store', [EligibleUserBookController::class, 'store'])->middleware(['auth:api']);
-    Route::get('/status/{status}', [EligibleUserBookController::class, 'getUserBookByStatus'])->middleware(['auth:api', 'verified', "role:admin|book-quality"]);
-    Route::patch('/status/{id}', [EligibleUserBookController::class, 'changeStatus'])->middleware(['auth:api', 'verified', "role:admin"]);
-    Route::get('/last-achievement', [EligibleUserBookController::class, "lastAchievement"])->middleware(['auth:api', 'verified']);
-    Route::get('/finished-achievement', [EligibleUserBookController::class, "finishedAchievement"])->middleware(['auth:api', 'verified']);
-    Route::get('/count', [EligibleUserBookController::class, "checkOpenBook"])->middleware(['auth:api', 'verified']);
-    Route::get('/certificate/{id}', [EligibleUserBookController::class, "checkCertificate"])->middleware(['auth:api', 'verified']);
-    Route::get('/statistics/{id}', [EligibleUserBookController::class, "getStatistics"])->middleware(['auth:api', 'verified']);
-    Route::get('/general-statistics/', [EligibleUserBookController::class, "getGeneralstatistics"]);
-    Route::get('/by-book-id/{bookId}', [EligibleUserBookController::class, "getByBookID"])->middleware(['auth:api', 'verified']);
-    Route::get('/stage-status/{id}', [EligibleUserBookController::class, "getStageStatus"])->middleware(['auth:api', 'verified']);
-    Route::get('/{id}', [EligibleUserBookController::class, 'show'])->middleware(['auth:api', 'verified']);
-    Route::patch('/{id}', [EligibleUserBookController::class, 'update'])->middleware(['auth:api']);
-    Route::delete('/{id}', [EligibleUserBookController::class, 'destroy'])->middleware(['auth:api']);
-    Route::post('/review', [EligibleUserBookController::class, "review"])->middleware(['auth:api', 'verified']);
-    Route::get('/ready/to', [EligibleUserBookController::class, "readyToAudit"])->middleware(['auth:api', 'verified']);
-});
+        //user book routes
+        Route::group(['prefix' => 'eligible-userbook'], function () {
+            Route::get('/', [EligibleUserBookController::class, 'index']);
+            Route::post('/store', [EligibleUserBookController::class, 'store']);
+            Route::get('/status/{status}', [EligibleUserBookController::class, 'getUserBookByStatus']);
+            Route::patch('/status/{id}', [EligibleUserBookController::class, 'changeStatus']);
+            Route::get('/last-achievement', [EligibleUserBookController::class, "lastAchievement"]);
+            Route::get('/finished-achievement', [EligibleUserBookController::class, "finishedAchievement"]);
+            Route::get('/count', [EligibleUserBookController::class, "checkOpenBook"]);
+            Route::get('/certificate/{id}', [EligibleUserBookController::class, "checkCertificate"]);
+            Route::get('/statistics/{id}', [EligibleUserBookController::class, "getStatistics"]);
+            Route::get('/general-statistics/', [EligibleUserBookController::class, "getGeneralstatistics"]);
+            Route::get('/by-book-id/{bookId}', [EligibleUserBookController::class, "getByBookID"]);
+            Route::get('/stage-status/{id}', [EligibleUserBookController::class, "getStageStatus"]);
+            Route::get('/{id}', [EligibleUserBookController::class, 'show']);
+            Route::patch('/{id}', [EligibleUserBookController::class, 'update']);
+            Route::delete('/{id}', [EligibleUserBookController::class, 'destroy']);
+            Route::post('/review', [EligibleUserBookController::class, "review"]);
+            Route::get('/ready/to', [EligibleUserBookController::class, "readyToAudit"]);
+        });
+
+        //thesis routes
+        Route::group(['prefix' => 'eligible-theses'], function () {
+            Route::get('/image', [EligibleThesisController::class, 'image']);
+            Route::get('/', [EligibleThesisController::class, 'index']);
+            Route::post('/', [EligibleThesisController::class, 'store']);
+            Route::get('final-degree/{id}', [EligibleThesisController::class, "finalDegree"]);
+            Route::get('by-status/{status}', [EligibleThesisController::class, "getByStatus"]);
+            Route::get('/photo-count/{id}', [EligibleThesisController::class, 'getThesisPhotosCount']);
+            Route::get('/{id}', [EligibleThesisController::class, 'show']);
+            Route::patch('update-photo/{id}', [EligibleThesisController::class, "updatePhoto"]);
+            Route::patch('review-thesis/{id}', [EligibleThesisController::class, "reviewThesis"]);
+            Route::patch('/{id}', [EligibleThesisController::class, 'update']);
+            Route::delete('/photo/{id}', [EligibleThesisController::class, 'deletePhoto']);
+            Route::delete('/{id}', [EligibleThesisController::class, 'destroy']);
+            Route::patch('add-degree/{id}', [EligibleThesisController::class, "addDegree"]);
+
+            Route::post('update-photo', [EligibleThesisController::class, "updatePicture"]);
+            Route::post('upload/{id}', [EligibleThesisController::class, "uploadPhoto"]);
+            Route::get('user_book_id/{user_book_id}&{status?}', [EligibleThesisController::class, "getByUserBook"]);
+            Route::get('book/{book_id}', [EligibleThesisController::class, "getByBook"]);
+            Route::post('/review', [EligibleThesisController::class, "review"]);
+        });
+
+        //questions routes
+        Route::group(['prefix' => 'eligible-questions'], function () {
+            Route::get('/', [EligibleQuestionController::class, 'index']);
+            Route::post('/', [EligibleQuestionController::class, 'store']);
+            Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"]);
+            Route::get('user-book/{id}', [EligibleQuestionController::class, "getUserBookQuestions"]);
+            Route::get('/{id}', [EligibleQuestionController::class, 'show']);
+            Route::patch('/{id}', [EligibleQuestionController::class, 'update']);
+            Route::delete('/{id}', [EligibleQuestionController::class, 'destroy']);
+            Route::patch('add-degree/{id}', [EligibleQuestionController::class, "addDegree"]);
+            Route::get('book/{book_id}', [EligibleQuestionController::class, "getByBook"]);
+            Route::get('final-degree/{id}', [EligibleQuestionController::class, "finalDegree"]);
+            Route::get('user_book_id/{user_book_id}', [EligibleQuestionController::class, "getByUserBook"]);
+            Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"]);
+            Route::post('/review', [EligibleQuestionController::class, "review"]);
+            Route::patch('review-question/{id}', [EligibleQuestionController::class, "reviewQuestion"]);
+        });
+
+        //certificates routes
+        Route::group(['prefix' => 'eligible-certificates'], function () {
+            Route::get('/', [EligibleCertificatesController::class, 'index']);
+            Route::post('/', [EligibleCertificatesController::class, 'store']);
+            Route::get('/user', [EligibleCertificatesController::class, 'getUserCertificates']);
+            Route::get('/{id}', [EligibleCertificatesController::class, 'show']);
+            Route::get('/full-certificate/{user_book_id}', [CertificatesController::class, 'fullCertificate']);
+            Route::patch('/{id}', [EligibleCertificatesController::class, 'update']);
+            Route::delete('/{id}', [EligibleCertificatesController::class, 'destroy']);
+
+            // generate PDF
+            Route::get('/generate-pdf/{user_book_id}', [PDFController::class, 'generatePDF']);
+        });
 
 
-
-
-
-//thesis routes
-Route::group(['prefix' => 'eligible-thesises'], function () {
-    Route::get('/image', [EligibleThesisController::class, 'image']);
-    Route::get('/', [EligibleThesisController::class, 'index']);
-    Route::post('/', [EligibleThesisController::class, 'store'])->middleware(['auth:api', 'verified']);
-    Route::get('final-degree/{id}', [EligibleThesisController::class, "finalDegree"])->middleware(['auth:api', 'verified']);
-    Route::get('by-status/{status}', [EligibleThesisController::class, "getByStatus"])->middleware(['auth:api', 'verified']);
-    Route::get('/photo-count/{id}', [EligibleThesisController::class, 'getThesisPhotosCount']);
-    Route::get('/{id}', [EligibleThesisController::class, 'show'])->middleware(['auth:api', 'verified']);
-    Route::patch('update-photo/{id}', [EligibleThesisController::class, "updatePhoto"])->middleware(['auth:api', 'verified']);
-    Route::patch('review-thesis/{id}', [EligibleThesisController::class, "reviewThesis"])->middleware(['auth:api', 'verified']);
-    Route::patch('/{id}', [EligibleThesisController::class, 'update'])->middleware(['auth:api', 'verified']);
-    Route::delete('/photo/{id}', [EligibleThesisController::class, 'deletePhoto'])->middleware(['auth:api', 'verified']);
-    Route::delete('/{id}', [EligibleThesisController::class, 'destroy'])->middleware(['auth:api', 'verified']);
-    Route::patch('add-degree/{id}', [EligibleThesisController::class, "addDegree"])->middleware(['auth:api', 'role:admin|auditor|super_auditer']);
-
-    Route::post('update-photo', [EligibleThesisController::class, "updatePicture"])->middleware(['auth:api', 'verified']);
-    Route::post('upload/{id}', [EligibleThesisController::class, "uploadPhoto"])->middleware(['auth:api', 'verified']);
-    Route::get('user_book_id/{user_book_id}&{status?}', [ThesisController::class, "getByUserBook"])->middleware(['auth:api', 'verified']);
-    Route::get('book/{book_id}', [EligibleThesisController::class, "getByBook"])->middleware(['auth:api', 'verified']);
-    Route::post('/review', [EligibleThesisController::class, "review"])->middleware(['auth:api', 'verified']);
-});
-
-//questions routes
-Route::group(['prefix' => 'eligible-questions'], function () {
-    Route::get('/', [EligibleQuestionController::class, 'index'])->middleware(['auth:api']);
-    Route::post('/', [EligibleQuestionController::class, 'store'])->middleware(['auth:api']);
-    Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"])->middleware(['auth:api', 'verified']);
-    Route::get('user-book/{id}', [EligibleQuestionController::class, "getUserBookQuestions"])->middleware(['auth:api', 'verified']);
-    Route::get('/{id}', [EligibleQuestionController::class, 'show'])->middleware(['auth:api']);
-    Route::patch('/{id}', [EligibleQuestionController::class, 'update'])->middleware(['auth:api', 'verified']);
-    Route::delete('/{id}', [EligibleQuestionController::class, 'destroy'])->middleware(['auth:api', 'verified']);
-    Route::patch('add-degree/{id}', [EligibleQuestionController::class, "addDegree"])->middleware(['auth:api', 'role:admin|auditor|super_auditer']);
-    Route::get('book/{book_id}', [EligibleQuestionController::class, "getByBook"])->middleware(['auth:api', 'verified']);
-    Route::get('final-degree/{id}', [EligibleQuestionController::class, "finalDegree"])->middleware(['auth:api']);
-    Route::get('user_book_id/{user_book_id}', [EligibleQuestionController::class, "getByUserBook"])->middleware(['auth:api']);
-    Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"])->middleware(['auth:api']);
-    Route::post('/review', [EligibleQuestionController::class, "review"])->middleware(['auth:api']);
-    Route::patch('review-question/{id}', [EligibleQuestionController::class, "reviewQuestion"])->middleware(['auth:api', 'verified']);
-});
-
-//certificates routes
-Route::group(['prefix' => 'eligible-certificates'], function () {
-    Route::get('/', [EligibleCertificatesController::class, 'index'])->middleware(['auth:api', 'role:admin']);
-    Route::post('/', [EligibleCertificatesController::class, 'store']);
-    Route::get('/user', [EligibleCertificatesController::class, 'getUserCertificates'])->middleware(['auth:api', 'verified']);
-    Route::get('/{id}', [EligibleCertificatesController::class, 'show'])->middleware(['auth:api', 'verified']);
-    Route::get('/full-certificate/{user_book_id}', [CertificatesController::class, 'fullCertificate'])->middleware(['auth:api', 'verified']);
-    Route::patch('/{id}', [EligibleCertificatesController::class, 'update'])->middleware(['auth:api', 'role:admin|reviewer|super_reviewer']);
-    Route::delete('/{id}', [EligibleCertificatesController::class, 'destroy'])->middleware(['auth:api', 'role:admin']);
-
-    // generate PDF
-    Route::get('/generate-pdf/{user_book_id}', [PDFController::class, 'generatePDF']);
-});
-
-
-//general informations routes
-Route::group(['prefix' => 'eligible-general-informations'], function () {
-    Route::get('/', [GeneralInformationsController::class, 'index'])->middleware(['auth:api', 'role:super_reviewer|reviewer|admin']);
-    Route::post('/', [GeneralInformationsController::class, 'store'])->middleware(['auth:api']);
-    Route::get('/user_book_id/{user_book_id}', [GeneralInformationsController::class, 'getByUserBookId'])->middleware(['auth:api']);
-    Route::get('/{id}', [GeneralInformationsController::class, 'show'])->middleware(['auth:api']);
-    Route::patch('/{id}', [GeneralInformationsController::class, 'update'])->middleware(['auth:api']);
-    Route::delete('/{id}', [GeneralInformationsController::class, 'destroy'])->middleware(['auth:api']);
-    Route::patch('add-degree/{id}', [GeneralInformationsController::class, "addDegree"])->middleware(['auth:api', 'role:admin|auditor|super_auditer']);
-    Route::get('book/{book_id}', [GeneralInformationsController::class, "getByBook"])->middleware(['auth:api', 'verified']);
-    Route::get('final-degree/{id}', [GeneralInformationsController::class, "finalDegree"])->middleware(['auth:api']);
-    Route::get('user_book_id/{user_book_id}', [GeneralInformationsController::class, "getByUserBook"])->middleware(['auth:api']);
-    Route::get('status/{status}', [GeneralInformationsController::class, "getByStatus"])->middleware(['auth:api']);
-    Route::post('/review', [GeneralInformationsController::class, "review"])->middleware(['auth:api']);
-    Route::patch('review-general-informations/{id}', [GeneralInformationsController::class, "reviewGeneralInformations"])->middleware(['auth:api', 'verified']);
-});
-
-
-// fqa routes
-Route::group(['prefix' => 'eligible-fqa'], function () {
-    Route::get('/', [FQAController::class, 'index']);
-    Route::post('/', [FQAController::class, 'store'])->middleware(['auth:api', 'role:admin']);
-    Route::get('/{id}', [FQAController::class, 'show']);
-    Route::patch('/{id}', [FQAController::class, 'update'])->middleware(['auth:api', 'role:admin']);
-    Route::delete('/{id}', [FQAController::class, 'destroy'])->middleware(['auth:api', 'role:admin']);
-});
-
-//move Eligible DB routes
-Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
-
-
+        //general informations routes
+        Route::group(['prefix' => 'eligible-general-informations'], function () {
+            Route::get('/', [EligibleGeneralInformationsController::class, 'index']);
+            Route::post('/', [EligibleGeneralInformationsController::class, 'store']);
+            Route::get('/user_book_id/{user_book_id}', [EligibleGeneralInformationsController::class, 'getByUserBookId']);
+            Route::get('/{id}', [EligibleGeneralInformationsController::class, 'show']);
+            Route::patch('/{id}', [EligibleGeneralInformationsController::class, 'update']);
+            Route::delete('/{id}', [EligibleGeneralInformationsController::class, 'destroy']);
+            Route::patch('add-degree/{id}', [EligibleGeneralInformationsController::class, "addDegree"]);
+            Route::get('book/{book_id}', [EligibleGeneralInformationsController::class, "getByBook"]);
+            Route::get('final-degree/{id}', [EligibleGeneralInformationsController::class, "finalDegree"]);
+            Route::get('user_book_id/{user_book_id}', [EligibleGeneralInformationsController::class, "getByUserBook"]);
+            Route::get('status/{status}', [EligibleGeneralInformationsController::class, "getByStatus"]);
+            Route::post('/review', [EligibleGeneralInformationsController::class, "review"]);
+            Route::patch('review-general-informations/{id}', [EligibleGeneralInformationsController::class, "reviewGeneralInformations"]);
+        });
+    });
+    //move Eligible DB routes
+    Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
 });

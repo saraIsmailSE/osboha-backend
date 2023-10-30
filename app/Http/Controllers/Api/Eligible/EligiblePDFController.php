@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Eligible;
 
+use App\Http\Controllers\Controller;
 use App\Models\EligibleCertificates;
 use App\Models\EligibleUserBook;
 use App\Notifications\Eligible_Certificate;

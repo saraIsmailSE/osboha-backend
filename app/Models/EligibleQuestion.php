@@ -15,7 +15,7 @@ class EligibleQuestion extends Model
         'reviewer_id',
         'auditor_id',
         'question',
-        'eligible_user_book_id',
+        'eligible_user_books_id',
         "starting_page",
         "ending_page"
     ];
@@ -24,10 +24,10 @@ class EligibleQuestion extends Model
 
 
     public function user_book(){
-        return $this->belongsTo(EligibleUserBook::class,'user_book_id');
+        return $this->belongsTo(EligibleUserBook::class,'eligible_user_books_id');
     }
     function reviewer(){
- 
+
         return $this->belongsTo(User::class);
     }
     public function auditor(){

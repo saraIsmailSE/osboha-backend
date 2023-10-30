@@ -197,6 +197,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(UserBook::class);
     }
 
+
+    public function eligibleReviewes()
+    {
+        return $this->hasMany(Thesis::class, 'reviewer_id');
+    }
+    public function eligibleAudites()
+    {
+        return $this->hasMany(Thesis::class, 'auditor_id');
+    }
+
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new \App\Notifications\MailResetPasswordNotification($token));

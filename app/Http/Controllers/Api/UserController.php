@@ -85,4 +85,14 @@ class UserController extends Controller
             return $this->jsonResponseWithoutMessage($error, 'data', 500);
         }
     }
+    public function getInfo($id)
+    {
+        try {
+            //get user info
+            $user = User::findOrFail($id);
+            return $this->jsonResponseWithoutMessage($user, 'data', 200);
+        } catch (\Illuminate\Database\QueryException $error) {
+            return $this->jsonResponseWithoutMessage($error, 'data', 500);
+        }
+    }
 }
