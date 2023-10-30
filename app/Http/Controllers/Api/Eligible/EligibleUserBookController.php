@@ -25,11 +25,20 @@ class EligibleUserBookController extends Controller
     use ResponseJson;
     public function index()
     {
-
         $userbook = EligibleUserBook::all();
         return $this->jsonResponseWithoutMessage($userbook, 'data', 200);
     }
 
+    public function checkAchievement($id)
+    {
+
+        $already_have_one = EligibleUserBook::where('user_id', Auth::id())->where(function ($query) {
+            $query->where('status', '!=', 'finished')
+                ->where('status', '!=', 'rejected')
+                ->orWhereNull('status');
+        })->get();
+        return $this->jsonResponseWithoutMessage($already_have_one, 'data', 200);
+    }
 
     public function store(Request $request)
     {

@@ -701,7 +701,7 @@ Route::group(['prefix' => 'v1'], function () {
         //user book routes
         Route::group(['prefix' => 'eligible-userbook'], function () {
             Route::get('/', [EligibleUserBookController::class, 'index']);
-            Route::post('/store', [EligibleUserBookController::class, 'store']);
+            Route::post('/', [EligibleUserBookController::class, 'store']);
             Route::get('/status/{status}', [EligibleUserBookController::class, 'getUserBookByStatus']);
             Route::patch('/status/{id}', [EligibleUserBookController::class, 'changeStatus']);
             Route::get('/last-achievement', [EligibleUserBookController::class, "lastAchievement"]);
@@ -717,6 +717,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::delete('/{id}', [EligibleUserBookController::class, 'destroy']);
             Route::post('/review', [EligibleUserBookController::class, "review"]);
             Route::get('/ready/to', [EligibleUserBookController::class, "readyToAudit"]);
+            Route::get('/check-achievement/{id}', [EligibleUserBookController::class, 'checkAchievement']);
         });
 
         //thesis routes
