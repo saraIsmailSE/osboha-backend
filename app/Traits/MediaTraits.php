@@ -136,6 +136,19 @@ trait MediaTraits
         return $imageName;
     }
 
+    function createOfficialDocument($imagePath, $imageName)
+    {
+        $pathToSave = 'assets/images/Official_Document/';
+        //check folder exist
+        if (!File::exists(public_path($pathToSave))) {
+            File::makeDirectory(public_path($pathToSave), 0777, true, true);
+        }
+        Image::make($imagePath)->resize(500, null, function ($constraint) {
+            $constraint->aspectRatio();
+        })->save(public_path($pathToSave . '/' . $imageName));
+        return $imageName;
+    }
+
     function resizeImage($width, $hight, $imagePath, $pathToSave, $imageName)
     {
         try {

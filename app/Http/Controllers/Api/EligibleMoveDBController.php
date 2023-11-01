@@ -49,6 +49,7 @@ class EligibleMoveDBController extends Controller
                     //create user profile, with profile settings
                     UserProfile::create([
                         'user_id' => $user->id,
+                        'first_name_ar' => $user->name,
                         'timeline_id' => $timeline->id
                     ]);
                     ProfileSetting::create([
@@ -61,6 +62,17 @@ class EligibleMoveDBController extends Controller
 
                 //user platform account
                 $user_platdorm = User::where('email', $user_certificate->email)->get()->first();
+
+                // Set allowed_to_eligible
+                $user_platdorm->allowed_to_eligible = $user_certificate->is_active;
+                $user_platdorm->save();
+
+                //Update profile name
+                $userProfile = UserProfile::where('user_id', $user_platdorm->id)->first();
+                if (is_null($userProfile->first_name_ar)) {
+                    $userProfile->first_name_ar = $user_certificate->name;
+                    $userProfile->save();
+                }
 
                 //assignRoles to the ueser 
                 $user_roles_id = DB::connection('mysql_second')->table("model_has_roles")->where('model_id', $user_certificate->id)->pluck('role_id')->toArray();
@@ -158,7 +170,12 @@ class EligibleMoveDBController extends Controller
                                 'book_id' => $book_id_platform,
                                 'status' => $user_book->status
                             ],
-                            ['reviews' => $user_book->reviews]
+                            [
+                                'reviews' => $user_book->reviews,
+                                'created_at' => $user_book->created_at,
+                                'updated_at' => $user_book->updated_at,
+                            ]
+
                         );
 
                         $eligible_user_book_id = DB::table('eligible_user_books')->where('user_id', $user_platdorm->id)->where('book_id', $book_id_platform)->pluck('id')->first();
@@ -175,7 +192,10 @@ class EligibleMoveDBController extends Controller
                                     'degree' => $general_information->degree,
                                     'status' => $general_information->status,
                                     'reviewer_id' => 1,
-                                    'auditor_id' => 1
+                                    'auditor_id' => 1,
+                                    'created_at' => $general_information->created_at,
+                                    'updated_at' => $general_information->updated_at,
+
                                 ]
                             );
                         }
@@ -197,7 +217,10 @@ class EligibleMoveDBController extends Controller
                                         'degree' => $general_thesis->degree,
                                         'status' => $general_thesis->status,
                                         'reviewer_id' => 1,
-                                        'auditor_id' => 1
+                                        'auditor_id' => 1,
+                                        'created_at' => $general_thesis->created_at,
+                                        'updated_at' => $general_thesis->updated_at,
+
                                     ]
                                 );
                             }
@@ -220,7 +243,10 @@ class EligibleMoveDBController extends Controller
                                         'degree' => $question->degree,
                                         'status' => $question->status,
                                         'reviewer_id' => 1,
-                                        'auditor_id' => 1
+                                        'auditor_id' => 1,
+                                        'created_at' => $question->created_at,
+                                        'updated_at' => $question->updated_at,
+
                                     ]
                                 );
 
@@ -235,7 +261,10 @@ class EligibleMoveDBController extends Controller
                                                 'question_id' => $eligible_question_id,
                                                 'text' => $quotation->text
                                             ],
-                                            []
+                                            [
+                                                'created_at' => $quotation->created_at,
+                                                'updated_at' => $quotation->updated_at,
+                                            ]
                                         );
                                     }
                                 }
@@ -253,6 +282,9 @@ class EligibleMoveDBController extends Controller
                                     'general_summary_grade' => $certificate->general_summary_grade,
                                     'thesis_grade' => $certificate->thesis_grade,
                                     'check_reading_grade' => $certificate->check_reading_grade,
+                                    'created_at' => $certificate->created_at,
+                                    'updated_at' => $certificate->updated_at,
+
                                 ]
                             );
                         }

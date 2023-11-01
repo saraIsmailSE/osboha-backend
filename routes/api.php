@@ -98,6 +98,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/register', [AuthController::class, 'signUp']);
 
     Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
+    Route::get('/official_document/{user_id}', [UserProfileController::class, 'getOfficialDocument'])->where('file_name', '.*');
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
@@ -159,6 +160,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
             Route::get('/info/{id}', [UserController::class, 'getInfo']);
+            Route::get('/list-un-allowed-to-eligible', [UserController::class, 'listUnAllowedToEligible']);
         });
 
         ########Start Roles########
@@ -484,9 +486,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [UserProfileController::class, 'update']);
             Route::post('/update-profile-pic', [UserProfileController::class, 'updateProfilePic']);
             Route::post('/update-profile-cover', [UserProfileController::class, 'updateProfileCover']);
-            // Route::get('/profile-image/{fileName}/{profileID}', [UserProfileController::class, 'getImages']);
-
-
+            Route::post('/update-official-document', [UserProfileController::class, 'updateOfficialDocument']);
         });
         ########End User-Profile########
 
@@ -738,7 +738,7 @@ Route::group(['prefix' => 'v1'], function () {
 
             Route::post('update-photo', [EligibleThesisController::class, "updatePicture"]);
             Route::post('upload/{id}', [EligibleThesisController::class, "uploadPhoto"]);
-            Route::get('user_book_id/{user_book_id}&{status?}', [EligibleThesisController::class, "getByUserBook"]);
+            Route::get('eligible_user_books_id/{user_book_id}&{status?}', [EligibleThesisController::class, "getByUserBook"]);
             Route::get('book/{book_id}', [EligibleThesisController::class, "getByBook"]);
             Route::post('/review', [EligibleThesisController::class, "review"]);
         });

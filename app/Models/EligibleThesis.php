@@ -30,14 +30,18 @@ class EligibleThesis extends Model
         return $this->belongsTo(EligibleUserBook::class, 'eligible_user_books_id');
     }
 
+    public function photos()
+    {
+        return $this->hasMany(Photos::class);
+    }
     function reviewer()
     {
 
-        return $this->belongsTo(User::class,'reviewer_id');
+        return $this->belongsTo(User::class);
     }
     public function auditor()
     {
-        return $this->belongsTo(User::class,'auditor_id');
+        return $this->belongsTo(User::class);
     }
 
     public static function boot()

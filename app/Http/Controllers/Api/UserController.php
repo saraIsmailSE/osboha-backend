@@ -95,4 +95,13 @@ class UserController extends Controller
             return $this->jsonResponseWithoutMessage($error, 'data', 500);
         }
     }
+    public function listUnAllowedToEligible()
+    {
+        try {
+            $users = User::where('allowed_to_eligible', 0)->get();
+            return $this->jsonResponseWithoutMessage($users, 'data', 200);
+        } catch (\Error $e) {
+            return $this->jsonResponseWithoutMessage('Error Happend', $e, 200);
+        }
+    }
 }

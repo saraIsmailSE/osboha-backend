@@ -109,10 +109,11 @@ class EligibleUserBookController extends Controller
     public function show($id)
     {
         $userBook = EligibleUserBook::find($id);
-        if (is_null($userBook)) {
-            return $this->jsonResponseWithoutMessage('UserBook does not exist', 'data', 200);
+
+        if ($userBook) {
+            return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
         }
-        return $userBook;
+        return $this->jsonResponseWithoutMessage('UserBook does not exist', 'data', 200);
     }
 
     public function lastAchievement()
@@ -265,8 +266,8 @@ class EligibleUserBookController extends Controller
     public function readyToAudit()
     {
 
-        $readyToAudit['theses'] = DB::select("SELECT eligible_user_books_id FROM(SELECT COUNT(id) AS totalThesis, eligible_user_books_id FROM thesis WHERE STATUS = 'accept' GROUP BY eligible_user_books_id) AS b WHERE b.totalThesis>=8");
-        $readyToAudit['questions'] = DB::select("SELECT eligible_user_books_id FROM(SELECT COUNT(id) AS totalQuestions, eligible_user_books_id FROM questions WHERE STATUS = 'accept' GROUP BY eligible_user_books_id) AS b WHERE b.totalQuestions >=5");
+        $readyToAudit['theses'] = DB::select("SELECT eligible_user_books_id FROM(SELECT COUNT(id) AS totalThesis, eligible_user_books_id FROM eligible_thesis WHERE STATUS = 'accept' GROUP BY eligible_user_books_id) AS b WHERE b.totalThesis>=8");
+        $readyToAudit['questions'] = DB::select("SELECT eligible_user_books_id FROM(SELECT COUNT(id) AS totalQuestions, eligible_user_books_id FROM eligible_questions WHERE STATUS = 'accept' GROUP BY eligible_user_books_id) AS b WHERE b.totalQuestions >=5");
         return $this->jsonResponseWithoutMessage($readyToAudit, 'data', 200);
     }
 

@@ -200,7 +200,11 @@ class EligibleThesisController extends Controller
 
     public function getByStatus($status)
     {
-        $theses =  EligibleThesis::with("user_book.user")->with("user_book.book")->where('status', $status)->orderBy('updated_at', 'asc')->groupBy('eligible_user_books_id')->get();
+        $theses =  EligibleThesis::with("user_book")
+            ->where('status', $status)
+            ->groupBy('eligible_user_books_id')
+            ->orderBy('updated_at', 'asc')
+            ->get();
 
         return $this->jsonResponseWithoutMessage($theses, 'data', 200);
     }
@@ -214,7 +218,7 @@ class EligibleThesisController extends Controller
         }
         $response['acceptedThesises'] =  EligibleThesis::where('eligible_user_books_id', $eligible_user_books_id)->where('status', 'accept')->count();
         $response['userBook'] =  EligibleUserBook::find($eligible_user_books_id);
-        return $this->jsonResponseWithoutMessage('Thesises', $response, 200);
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
     public function getByBook($book_id)
