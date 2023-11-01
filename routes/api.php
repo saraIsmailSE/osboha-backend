@@ -161,6 +161,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
             Route::get('/info/{id}', [UserController::class, 'getInfo']);
             Route::get('/list-un-allowed-to-eligible', [UserController::class, 'listUnAllowedToEligible']);
+            
         });
 
         ########Start Roles########
@@ -318,6 +319,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/add-note', [AuditMarkController::class, 'addNote']);
             Route::get('/get-notes/{mark_for_audit_id}', [AuditMarkController::class, 'getNotes']);
             Route::get('/pending-theses/{supervisor_id}/{week_id?}', [AuditMarkController::class, 'pendingTheses']);
+
+            
         });
         ######## End Audit Mark ########
         ########Modified Theses########

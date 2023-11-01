@@ -85,6 +85,7 @@ class UserController extends Controller
             return $this->jsonResponseWithoutMessage($error, 'data', 500);
         }
     }
+    
     public function getInfo($id)
     {
         try {
