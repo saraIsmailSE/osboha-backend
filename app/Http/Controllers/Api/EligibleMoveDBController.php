@@ -19,7 +19,7 @@ use App\Models\Section;
 use App\Notifications\MoveToPlatform;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 
 class EligibleMoveDBController extends Controller
 {
@@ -296,6 +296,7 @@ class EligibleMoveDBController extends Controller
         } catch (\Exception $e) {
 
             DB::rollBack();
+            Log::channel('laravel')->info($e);
             return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
     }
