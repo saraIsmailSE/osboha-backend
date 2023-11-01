@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 
 class EligibleMoveDBController extends Controller
 {
+    use ResponseJson;
     public function moveEligibleDB()
     {
         DB::beginTransaction();

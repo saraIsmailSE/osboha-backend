@@ -78,11 +78,7 @@ class EligibleUserController extends Controller
     return $this->sendResponse($result, 'User deleted Successfully!');
   }
 
-
-
-
-
-  public function listUnactiveUser()
+  public function listUnAllowedToEligible()
   {
     try {
       $users = User::with('roles')->where('allowed_to_eligible', 0)->whereHas(
@@ -107,7 +103,7 @@ class EligibleUserController extends Controller
     }
     return $this->jsonResponseWithoutMessage($user, 'data', 200);
   }
-
+de
 
   public function getUserStatistics()
   {

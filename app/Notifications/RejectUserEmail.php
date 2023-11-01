@@ -25,7 +25,7 @@ class RejectUserEmail extends Notification implements ShouldQueue
     public function __construct($rejectNote)
     {        $this->rejectNote=$rejectNote;
 
-        $this->pageUrl = 'https://www.eligible.osboha180.com/user/update-info';
+        $this->pageUrl = 'https://www.platform.osboha180.com/user/profile/update/';
     }
 
     /**
@@ -55,7 +55,7 @@ class RejectUserEmail extends Notification implements ShouldQueue
         للأسف لم يتم قبول تسجيلك في موقع توثيق القراءة - أصبوحة 180 بسبب عدم تطابق المعلومات مع الشروط. الرجاء تحديث بياناتك ومراعاة تقديم معلوماتك التي تطابق الوثائق الرسمية.')
         ->line('سبب الرفض ')
         ->line($this->rejectNote)
-        ->action('تحديث بياناتي', $this->pageUrl);
+        ->action('تحديث بياناتي', $this->pageUrl . $notifiable->id);
 }
 
     /**

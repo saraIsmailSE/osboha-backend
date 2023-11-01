@@ -28,7 +28,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_blocked',
         'is_hold',
         'is_excluded',
-        'parent_id'
+        'parent_id',
+        'allowed_to_eligible'
     ];
 
     /**
