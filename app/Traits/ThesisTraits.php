@@ -105,18 +105,23 @@ trait ThesisTraits
             }
 
             $week_id = $week->id;
-            $mark_record = Mark::where('user_id', Auth::id())
-                ->where('week_id', $week_id)
-                ->first();
+            // $mark_record = Mark::where('user_id', Auth::id())
+            //     ->where('week_id', $week_id)
+            //     ->first();
 
-            //asmaa - check if the week is vacation or not and create mark record if it is vacation
-            if ($week->is_vacation == 1 && !$mark_record) {
-                $mark_record = Mark::create([
-                    'user_id' => Auth::id(),
-                    'week_id' => $week_id,
-                ]);
-            }
+            // //asmaa - check if the week is vacation or not and create mark record if it is vacation
+            // if ($week->is_vacation == 1 && !$mark_record) {
+            //     $mark_record = Mark::create([
+            //         'user_id' => Auth::id(),
+            //         'week_id' => $week_id,
+            //     ]);
+            // }
+            $mark_record = Mark::firstOrCreate(
+                ['week_id' =>  $week_id],
+                ['user_id' => Auth::id()]
+            );
         } else {
+
             $mark_record = Mark::find($thesis['mark_id']);
         }
 
