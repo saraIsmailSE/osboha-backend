@@ -69,7 +69,7 @@ class Comment extends Model
     {
         parent::boot();
         self::deleting(function ($comment) {
-            $comment->generalInformation()->each(function ($reactions) {
+            $comment->reactions()->each(function ($reactions) {
                 $reactions->delete();
             });
         });
