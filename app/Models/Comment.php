@@ -72,6 +72,9 @@ class Comment extends Model
             $comment->reactions()->each(function ($reactions) {
                 $reactions->delete();
             });
+            $comment->getIsLikedAttribute()->each(function ($getIsLikedAttribute) {
+                $getIsLikedAttribute->delete();
+            });
         });
     }
 }
