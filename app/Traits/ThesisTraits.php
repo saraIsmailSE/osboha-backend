@@ -117,14 +117,14 @@ trait ThesisTraits
             //     ]);
             // }
             $mark_record = Mark::firstOrCreate(
-                ['week_id' =>  $week_id],
-                ['user_id' => Auth::id()]
+                ['week_id' =>  $week->id, 'user_id' => Auth::id()],
+                ['week_id' =>  $week->id, 'user_id' => Auth::id()]
             );
         } else {
 
             $mark_record = Mark::find($thesis['mark_id']);
         }
-
+        
         if ($mark_record) {
             //check if thesis is added before (same book and same pages)
             $addedBefore = Thesis::where('book_id', $thesis['book_id'])
