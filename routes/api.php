@@ -57,6 +57,7 @@ use App\Http\Controllers\Api\{
     UserController,
     RolesAdministrationController,
 };
+use App\Http\Controllers\QuestionFollowupController;
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -149,7 +150,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
-            
         });
 
         ########Start Roles########
@@ -305,8 +305,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/add-note', [AuditMarkController::class, 'addNote']);
             Route::get('/get-notes/{mark_for_audit_id}', [AuditMarkController::class, 'getNotes']);
             Route::get('/pending-theses/{supervisor_id}/{week_id?}', [AuditMarkController::class, 'pendingTheses']);
-
-            
         });
         ######## End Audit Mark ########
         ########Modified Theses########
@@ -678,8 +676,15 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::get('/', [GeneralConversationController::class, 'getWorkingHours']);
                 Route::get('/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
             });
+
+            Route::prefix('followup')->group(function () {
+                Route::post('/', [QuestionFollowupController::class, 'addFollowup']);
+                Route::get('/statistics', [QuestionFollowupController::class, 'getFollowupStatistics']);
+            });
         });
         ######## BookStatistics ########
 
     });
+
+    Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
 });

@@ -669,10 +669,11 @@ trait ThesisTraits
      */
     public function check_exam_exception()
     {
+        $date = Carbon::now()->format('Y-m-d');
         $user_exception = UserException::where('user_id', Auth::id())
             ->where('status', config('constants.ACCEPTED_STATUS'))
-            ->whereDate('end_at', '>', Carbon::now())
-            ->whereDate('start_at', '<=', Carbon::now())
+            ->whereDate('end_at', '>', $date)
+            ->whereDate('start_at', '<=', $date)
             ->with('type', function ($query) {
                 $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
                     ->orWhere('type', config('constants.EXAMS_SEASONAL_TYPE'));
