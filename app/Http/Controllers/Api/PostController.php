@@ -476,6 +476,7 @@ class PostController extends Controller
                 ->first();
         });
 
+
         if ($response['post']) {
             $response['userVote'] = PollOption::whereHas('votes', function ($q) {
                 $q->where('user_id', Auth::id());
@@ -664,14 +665,22 @@ class PostController extends Controller
 
     public function getLastSupportPost()
     {
-        $currentWeek = Week::latest()->first();
-        $createdAt = $currentWeek->created_at;
-        $mainTimer = $currentWeek->main_timer;
-        $postType = PostType::where('type', 'support')->first();
-        $post = Post::where('type_id', $postType->id)
-            ->where('created_at', '>=', $createdAt)
-            ->where('created_at', '<', $mainTimer)
-            ->latest()->first();
+        $current_week = Week::latest()->first();
+        // $createdAt = $current_week->created_at;
+        // $mainTimer = $current_week->main_timer;
+
+        $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
+            return PostType::where('type', 'support')->value('id');
+        });
+
+        $post = Cache::remember('current_week_support_post', now()->addHours(24), function () use ($supportPostTypeId, $current_week) {
+            return Post::where('type_id', $supportPostTypeId)
+                ->whereBetween('created_at', [
+                    $current_week->created_at,
+                    $current_week->created_at->addDays(7)
+                ])
+                ->latest()->first();
+        });
 
         if ($post) {
             return $this->jsonResponseWithoutMessage($post, 'data', 200);
