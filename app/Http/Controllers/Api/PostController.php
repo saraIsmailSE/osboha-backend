@@ -448,10 +448,12 @@ class PostController extends Controller
      */
     public function getCurrentWeekSupportPost()
     {
-        $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
-            return Week::latest()->first();
-        });
-        
+        // $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
+        //     return Week::latest()->first();
+        // });
+
+        $current_week =  Week::latest()->first();
+
         // Cache the PostType ID for 'support' for a certain amount of time. 
         $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
             return PostType::where('type', 'support')->value('id');
@@ -462,28 +464,17 @@ class PostController extends Controller
             return Timeline::where('type_id', TimelineType::where('type', 'main')->value('id'))->value('id');
         });
 
-        // $response['post'] = Cache::remember('current_week_support_post', 60 * 60 * 60, function () use ($supportPostTypeId, $mainTimelineId, $current_week) {
-        //     Post::where('type_id', $supportPostTypeId)
-        //         ->where('timeline_id', $mainTimelineId)
-        //         ->whereNotNull('is_approved')
-        //         ->whereBetween('created_at', [
-        //             $current_week->created_at,
-        //             $current_week->created_at->addDays(7)
-        //         ])
-        //         ->first();
-        // });
 
-
-        // Then use these cached values in your main query.
-        $response['post'] = Post::where('type_id', $supportPostTypeId)
-            ->where('timeline_id', $mainTimelineId)
-            ->whereNotNull('is_approved')
-            ->whereBetween('created_at', [
-                $current_week->created_at,
-                $current_week->created_at->addDays(7)
-            ])
-            ->first();
-
+        $response['post'] = Cache::remember('current_week_support_post', now()->addHours(24), function () use ($supportPostTypeId, $mainTimelineId, $current_week) {
+            return Post::where('type_id', $supportPostTypeId)
+                ->where('timeline_id', $mainTimelineId)
+                ->whereNotNull('is_approved')
+                ->whereBetween('created_at', [
+                    $current_week->created_at,
+                    $current_week->created_at->addDays(7)
+                ])
+                ->first();
+        });
 
         if ($response['post']) {
             $response['userVote'] = PollOption::whereHas('votes', function ($q) {
