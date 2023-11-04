@@ -31,8 +31,7 @@ use App\Traits\PathTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\Response;
-
-
+use Illuminate\Support\Facades\Cache;
 
 class MarkController extends Controller
 {
@@ -524,20 +523,16 @@ class MarkController extends Controller
         $startOfMonth = strval($lastMonth->startOfMonth());
         $endOfMonth = strval($lastMonth->endOfMonth());
 
-        $response['max_total_pages'] = Mark::with('user')
+        $response['max_total_pages'] = Cache::remember('max_total_pages_in_month', now()->addHours(24), function () use ($startOfMonth, $endOfMonth) {
+            return Mark::with('user')
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->groupBy('user_id')
             ->orderBy('max_total_pages', 'desc')
             ->limit(53)->get();
-        $response['max_total_thesis'] = Mark::with('user')
-            ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
-            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->groupBy('user_id')
-            ->orderBy('max_total_thesis', 'desc')
-            ->limit(53)->get();
+        });
+        
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
