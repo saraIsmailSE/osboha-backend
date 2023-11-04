@@ -462,15 +462,16 @@ class PostController extends Controller
             return Timeline::where('type_id', TimelineType::where('type', 'main')->value('id'))->value('id');
         });
 
-        // Then use these cached values in your main query.
-        $response['post'] = Post::where('type_id', $supportPostTypeId)
-            ->where('timeline_id', $mainTimelineId)
-            ->whereNotNull('is_approved')
-            ->whereBetween('created_at', [
-                $current_week->created_at,
-                $current_week->created_at->addDays(7)
-            ])
-            ->first();
+        $response['post'] = Cache::remember('current_week_support_post', 60 * 60 * 60, function () use ($supportPostTypeId, $mainTimelineId, $current_week) {
+            Post::where('type_id', $supportPostTypeId)
+                ->where('timeline_id', $mainTimelineId)
+                ->whereNotNull('is_approved')
+                ->whereBetween('created_at', [
+                    $current_week->created_at,
+                    $current_week->created_at->addDays(7)
+                ])
+                ->first();
+        });
 
 
         if ($response['post']) {
