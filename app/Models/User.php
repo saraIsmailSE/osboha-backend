@@ -201,4 +201,15 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new \App\Notifications\MailResetPasswordNotification($token));
     }
+
+    public function questionsFollowups()
+    {
+        return $this->hasMany(QuestionFollowup::class);
+    }
+
+    public function todaysFollowup()
+    {
+        return $this->questionsFollowups()
+            ->whereDate('date', now()->format('Y-m-d'));
+    }
 }

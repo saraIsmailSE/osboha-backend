@@ -11,23 +11,14 @@ use App\Models\User;
 use App\Models\Week;
 use App\Traits\MediaTraits;
 use App\Traits\ThesisTraits;
+use App\Traits\WeekTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class ThesisSeeder extends Seeder
 {
-    use ThesisTraits, MediaTraits;
-
-    private function search_for_week_title($date, $year_weeks)
-    {
-        foreach ($year_weeks as $val) {
-            if ($val['date'] === $date) {
-                return $val['title'];
-            }
-        }
-        return null;
-    }
+    use ThesisTraits, MediaTraits, WeekTrait;
 
     /**
      * Run the database seeds.
