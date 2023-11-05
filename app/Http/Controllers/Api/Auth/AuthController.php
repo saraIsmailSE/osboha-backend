@@ -33,6 +33,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
+
 class AuthController extends Controller
 {
     use ResponseJson;

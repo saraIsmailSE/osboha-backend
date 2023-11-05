@@ -105,21 +105,26 @@ trait ThesisTraits
             }
 
             $week_id = $week->id;
-            $mark_record = Mark::where('user_id', Auth::id())
-                ->where('week_id', $week_id)
-                ->first();
+            // $mark_record = Mark::where('user_id', Auth::id())
+            //     ->where('week_id', $week_id)
+            //     ->first();
 
-            //asmaa - check if the week is vacation or not and create mark record if it is vacation
-            if ($week->is_vacation == 1 && !$mark_record) {
-                $mark_record = Mark::create([
-                    'user_id' => Auth::id(),
-                    'week_id' => $week_id,
-                ]);
-            }
+            // //asmaa - check if the week is vacation or not and create mark record if it is vacation
+            // if ($week->is_vacation == 1 && !$mark_record) {
+            //     $mark_record = Mark::create([
+            //         'user_id' => Auth::id(),
+            //         'week_id' => $week_id,
+            //     ]);
+            // }
+            $mark_record = Mark::firstOrCreate(
+                ['week_id' =>  $week->id, 'user_id' => Auth::id()],
+                ['week_id' =>  $week->id, 'user_id' => Auth::id()]
+            );
         } else {
+
             $mark_record = Mark::find($thesis['mark_id']);
         }
-
+        
         if ($mark_record) {
             //check if thesis is added before (same book and same pages)
             $addedBefore = Thesis::where('book_id', $thesis['book_id'])
@@ -664,10 +669,11 @@ trait ThesisTraits
      */
     public function check_exam_exception()
     {
+        $date = Carbon::now()->format('Y-m-d');
         $user_exception = UserException::where('user_id', Auth::id())
             ->where('status', config('constants.ACCEPTED_STATUS'))
-            ->whereDate('end_at', '>', Carbon::now())
-            ->whereDate('start_at', '<=', Carbon::now())
+            ->whereDate('end_at', '>', $date)
+            ->whereDate('start_at', '<=', $date)
             ->with('type', function ($query) {
                 $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
                     ->orWhere('type', config('constants.EXAMS_SEASONAL_TYPE'));

@@ -398,7 +398,7 @@ class AuditMarkController extends Controller
                 $userMark = Mark::find($mark->mark_id);
 
                 //group where user is ambassador
-                $ambassador_group_id = UserGroup::where('user_type', 'ambassador')->where('user_id', $userMark->user_id)->first();
+                $ambassador_group_id = UserGroup::where('user_type', 'ambassador')->where('user_id', $userMark->user_id)->whereIsNull('termination_reason')->first();
                 // get supervisor of the group
                 $supervisorID = UserGroup::where('user_type', 'supervisor')->where('group_id', $ambassador_group_id->group_id)->first();
                 $supervisor=User::find($supervisorID->user_id); 

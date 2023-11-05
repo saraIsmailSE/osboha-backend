@@ -16,6 +16,7 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\UserInfoResource;
 use App\Models\Book;
+use App\Models\Mark;
 use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;

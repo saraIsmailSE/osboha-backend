@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotAuthorized;
+use App\Exports\WorkingHoursExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnswerResource;
 use App\Http\Resources\QuestionResource;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GeneralConversationController extends Controller
 {
@@ -329,9 +331,17 @@ class GeneralConversationController extends Controller
                 ->orderBy('created_at', 'desc')->paginate($perPage);
         }
 
+        $user_followup = $user->todaysFollowup()->first();
+
         if ($questions->isEmpty()) {
             return $this->jsonResponse(
-                [],
+                [
+                    "questions" => [],
+                    "total" => 0,
+                    "last_page" => 0,
+                    "has_more_pages" => false,
+                    "user_followup" => $user_followup
+                ],
                 'data',
                 Response::HTTP_OK,
                 "لا يوجد أسئلة"
@@ -343,6 +353,7 @@ class GeneralConversationController extends Controller
             "total" => $questions->total(),
             "last_page" => $questions->lastPage(),
             "has_more_pages" => $questions->hasMorePages(),
+            "user_followup" => $user_followup
 
         ], 'data', Response::HTTP_OK);
     }
@@ -466,7 +477,7 @@ class GeneralConversationController extends Controller
     {
         $validator = Validator::make(request()->all(), [
             'minutes' => 'required|numeric',
-            "date" => "required|date|before_or_equal:today",
+            "date" => "required|date",
         ]);
 
         if ($validator->fails()) {
@@ -632,6 +643,7 @@ class GeneralConversationController extends Controller
             });
 
 
+        // return Excel::download(new WorkingHoursExport($groupedData), 'working_hours.xlsx');
         return $this->jsonResponseWithoutMessage([
             "selectedMonth" => $selected_month,
             "lastWeek" => [

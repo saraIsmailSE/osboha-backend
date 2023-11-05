@@ -3,6 +3,8 @@
 use Carbon\Carbon;
 
 $date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
+$part_reading_mark = 10;
+$part_writing_mark = 8;
 return [
     'YEAR_WEEKS' => array(
         array('title' => 'الاول من فبراير', 'date' => $date, 'is_vacation' => 0),
@@ -57,8 +59,8 @@ return [
         array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(49)->format('Y-m-d'), 'is_vacation' => 0),
     ),
     'SUPPORT_MARK' => 10,
-    'PART_READING_MARK' => 10,
-    'PART_WRITING_MARK' => 8,
+    'PART_READING_MARK' => $part_reading_mark,
+    'PART_WRITING_MARK' => $part_writing_mark,
     'FULL_READING_MARK' => 50,
     'FULL_WRITING_MARK' => 40,
     "COMPLETE_THESIS_LENGTH" => 400,
@@ -79,5 +81,4 @@ return [
         'admin' => 'ادارة'
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
-
 ];

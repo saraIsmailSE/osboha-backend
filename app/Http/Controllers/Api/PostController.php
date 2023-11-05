@@ -27,6 +27,7 @@ use App\Models\Week;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
 use App\Traits\PathTrait;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
@@ -405,8 +406,17 @@ class PostController extends Controller
     public function getSupportPosts()
     {
         $user = Auth::user();
-        $posts = Post::where('type_id', PostType::where('type', 'support')->first()->id)
-            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
+
+        $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
+            return PostType::where('type', 'support')->value('id');
+        });
+
+        $mainTimelineId = Cache::remember('timeline_id_main', 60 * 60 * 60, function () {
+            return Timeline::where('type_id', TimelineType::where('type', 'main')->value('id'))->value('id');
+        });
+
+        $posts = Post::where('type_id', $supportPostTypeId)
+            ->where('timeline_id', $mainTimelineId)
             ->whereNotNull('is_approved')
             ->withCount('comments')
             ->with('pollOptions.votes', function ($query) {
@@ -438,12 +448,34 @@ class PostController extends Controller
      */
     public function getCurrentWeekSupportPost()
     {
-        $current_week = Week::latest()->first();
-        $response['post'] = Post::where('type_id', PostType::where('type', 'support')->first()->id)
-            ->where('timeline_id', Timeline::where('type_id', TimelineType::where('type', 'main')->first()->id)->first()->id)
-            ->whereNotNull('is_approved')
-            ->whereBetween('created_at', [$current_week->created_at, $current_week->created_at->addDays(7)])
-            ->first();
+        // $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
+        //     return Week::latest()->first();
+        // });
+
+        $current_week =  Week::latest()->first();
+
+        // Cache the PostType ID for 'support' for a certain amount of time. 
+        $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
+            return PostType::where('type', 'support')->value('id');
+        });
+
+        // Cache the Timeline ID for 'main' type for a certain amount of time.
+        $mainTimelineId = Cache::remember('timeline_id_main', 60 * 60 * 60, function () {
+            return Timeline::where('type_id', TimelineType::where('type', 'main')->value('id'))->value('id');
+        });
+
+
+        $response['post'] = Cache::remember('current_week_support_post', now()->addHours(24), function () use ($supportPostTypeId, $mainTimelineId, $current_week) {
+            return Post::where('type_id', $supportPostTypeId)
+                ->where('timeline_id', $mainTimelineId)
+                ->whereNotNull('is_approved')
+                ->whereBetween('created_at', [
+                    $current_week->created_at,
+                    $current_week->created_at->addDays(7)
+                ])
+                ->first();
+        });
+
 
         if ($response['post']) {
             $response['userVote'] = PollOption::whereHas('votes', function ($q) {
@@ -633,14 +665,22 @@ class PostController extends Controller
 
     public function getLastSupportPost()
     {
-        $currentWeek = Week::latest()->first();
-        $createdAt = $currentWeek->created_at;
-        $mainTimer = $currentWeek->main_timer;
-        $postType = PostType::where('type', 'support')->first();
-        $post = Post::where('type_id', $postType->id)
-            ->where('created_at', '>=', $createdAt)
-            ->where('created_at', '<', $mainTimer)
-            ->latest()->first();
+        $current_week = Week::latest()->first();
+        // $createdAt = $current_week->created_at;
+        // $mainTimer = $current_week->main_timer;
+
+        $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
+            return PostType::where('type', 'support')->value('id');
+        });
+
+        $post = Cache::remember('current_week_support_post', now()->addHours(24), function () use ($supportPostTypeId, $current_week) {
+            return Post::where('type_id', $supportPostTypeId)
+                ->whereBetween('created_at', [
+                    $current_week->created_at,
+                    $current_week->created_at->addDays(7)
+                ])
+                ->latest()->first();
+        });
 
         if ($post) {
             return $this->jsonResponseWithoutMessage($post, 'data', 200);
@@ -858,10 +898,10 @@ class PostController extends Controller
     private function getPostsStatusInProfile($timeline)
     {
         $input = [];
-        $pending_msg='';
-        $pending_userId='';
-        $pending_type='';
-        $pending_path='';
+        $pending_msg = '';
+        $pending_userId = '';
+        $pending_type = '';
+        $pending_path = '';
         if ($timeline->profile->user_id != Auth::id()) { // post in another profile
 
             $user = User::findOrFail($timeline->profile->user_id);

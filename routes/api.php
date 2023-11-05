@@ -67,6 +67,7 @@ use App\Http\Controllers\Api\Eligible\{
     EligibleGeneralInformationsController,
 };
 
+use App\Http\Controllers\QuestionFollowupController;
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -689,6 +690,11 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::get('/', [GeneralConversationController::class, 'getWorkingHours']);
                 Route::get('/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
             });
+
+            Route::prefix('followup')->group(function () {
+                Route::post('/', [QuestionFollowupController::class, 'addFollowup']);
+                Route::get('/statistics', [QuestionFollowupController::class, 'getFollowupStatistics']);
+            });
         });
         ######## BookStatistics ########
 
@@ -797,4 +803,6 @@ Route::group(['prefix' => 'v1'], function () {
     });
     //move Eligible DB routes
     Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
+
+    Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
 });

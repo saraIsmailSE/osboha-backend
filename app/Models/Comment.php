@@ -65,4 +65,16 @@ class Comment extends Model
     {
         return $this->reactions->contains(auth()->user());
     }
+    public static function boot()
+    {
+        parent::boot();
+        self::deleting(function ($comment) {
+            $comment->reactions()->each(function ($reactions) {
+                $reactions->delete();
+            });
+            $comment->getIsLikedAttribute()->each(function ($getIsLikedAttribute) {
+                $getIsLikedAttribute->delete();
+            });
+        });
+    }
 }
