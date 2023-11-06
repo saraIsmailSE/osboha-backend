@@ -206,7 +206,7 @@ class EligibleMoveDBController extends Controller
 
                         if ($general_theses->isNotEmpty()) {
                             foreach ($general_theses as $general_thesis) {
-                                DB::table('eligible_general_thesis')->updateOrInsert(
+                                DB::table('eligible_thesis')->updateOrInsert(
                                     [
                                         'eligible_user_books_id' => $eligible_user_book_id,
                                         'thesis_text' => $general_thesis->thesis_text
@@ -234,7 +234,7 @@ class EligibleMoveDBController extends Controller
                             foreach ($questions as $question) {
                                 DB::table('eligible_questions')->updateOrInsert(
                                     [
-                                        'eligible_user_book_id' => $eligible_user_book_id,
+                                        'eligible_user_books_id' => $eligible_user_book_id,
                                         'question' => $question->question,
                                         'starting_page' => $question->starting_page,
                                         'ending_page' => $question->ending_page
@@ -259,7 +259,7 @@ class EligibleMoveDBController extends Controller
                                     foreach ($quotations as $quotation) {
                                         DB::table('eligible_quotations')->updateOrInsert(
                                             [
-                                                'question_id' => $eligible_question_id,
+                                                'eligible_question_id' => $eligible_question_id,
                                                 'text' => $quotation->text
                                             ],
                                             [
