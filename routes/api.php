@@ -65,6 +65,7 @@ use App\Http\Controllers\Api\Eligible\{
     EligibleQuestionController,
     EligibleCertificatesController,
     EligibleGeneralInformationsController,
+    EligiblePDFController,
 };
 
 use App\Http\Controllers\QuestionFollowupController;
@@ -775,12 +776,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [EligibleCertificatesController::class, 'store']);
             Route::get('/user', [EligibleCertificatesController::class, 'getUserCertificates']);
             Route::get('/{id}', [EligibleCertificatesController::class, 'show']);
-            Route::get('/full-certificate/{user_book_id}', [CertificatesController::class, 'fullCertificate']);
+            Route::get('/full-certificate/{user_book_id}', [EligibleCertificatesController::class, 'fullCertificate']);
             Route::patch('/{id}', [EligibleCertificatesController::class, 'update']);
             Route::delete('/{id}', [EligibleCertificatesController::class, 'destroy']);
 
             // generate PDF
-            Route::get('/generate-pdf/{user_book_id}', [PDFController::class, 'generatePDF']);
+            Route::get('/generate-pdf/{user_book_id}', [EligiblePDFController::class, 'generatePDF']);
         });
 
 
