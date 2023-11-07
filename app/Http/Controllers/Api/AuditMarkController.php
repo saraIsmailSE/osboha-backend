@@ -389,7 +389,7 @@ class AuditMarkController extends Controller
         if (Auth::user()->hasanyrole('admin|advisor')) {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get advisor audit
-            $advisorAudit = AuditMark::where('auditor_id', $advisor_id)->where('week_id', $previous_week)->first();
+            $advisorAudit = AuditMark::where('auditor_id', $advisor_id)->whereNull('group_id')->where('week_id', $previous_week)->first();
 
             $response = [];
             foreach ($advisorAudit->marksForAudit as $key => $mark) { //for each audit of advisor 
