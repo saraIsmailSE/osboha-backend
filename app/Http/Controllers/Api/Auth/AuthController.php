@@ -412,7 +412,8 @@ class AuthController extends Controller
         $user->is_excluded = 0;
 
         $userGroup = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->first();
-        $leader = UserGroup::where('group_id', $userGroup->user_id)->where('user_type', 'leader')->first();
+
+        $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->first();
         $user->parent_id = $leader->user_id;
         $user->save();
         /**
