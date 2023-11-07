@@ -410,15 +410,18 @@ class AuthController extends Controller
         //update is_excluded to 0
         $user = User::Find(Auth::id());
         $user->is_excluded = 0;
+
+        $userGroup = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->first();
+        $leader = UserGroup::where('group_id', $userGroup->user_id)->where('user_type', 'leader')->first();
+        $user->parent_id = $leader->user_id;
         $user->save();
         /**
          * @todo: slow query - asmaa         
          */
         // update termination_reason to null
-        UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')
-            ->update([
-                'termination_reason' => null
-            ]);
+        $userGroup->termination_reason = null;
+        $userGroup->save();
+
 
         $current_week_id = Week::latest()->pluck('id')->first();
         Mark::updateOrCreate(

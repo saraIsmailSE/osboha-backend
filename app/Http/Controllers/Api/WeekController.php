@@ -68,7 +68,7 @@ class WeekController extends Controller
             $new_week = Week::find($new_week_id);
 
             $dateToAdd = new Carbon($new_week->main_timer);
-            $new_week->modify_timer = $dateToAdd->addHours(21);
+            $new_week->modify_timer = $dateToAdd->addHours(22);
             $new_week->save();
 
             if (!$new_week->is_vacation) {
@@ -301,6 +301,7 @@ class WeekController extends Controller
 
                 //execlude the user
                 $user->is_excluded = 1;
+                $user->parent_id = null;
                 $user->save();
 
                 array_push($this->excludedUsers, $user->id);

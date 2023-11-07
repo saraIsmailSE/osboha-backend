@@ -1008,13 +1008,15 @@ class PostController extends Controller
     private function sendPostNotifications($post, $notificationData, $request, $timeline)
     {
         $notification = new NotificationController();
+    
+        // Stopped By Sara
         //send notification to all users in the system after posting an announcement
-        if ($post->type->type === 'announcement') {
-            //send notification to all users in the system
-            $this->sendNotificationsToAllUsers($post, ANNOUNCEMENT, 'لقد تم نشر إعلان جديد, تفقد الإعلانات 📢');
-        } else if ($post->type->type === 'support') {
-            $this->sendNotificationsToAllUsers($post, SUPPORT, 'لقد تم نشر منشور اعرف مشروعك, تفقده الآن ⏰');
-        }
+        // if ($post->type->type === 'announcement') {
+        //     //send notification to all users in the system
+        //     $this->sendNotificationsToAllUsers($post, ANNOUNCEMENT, 'لقد تم نشر إعلان جديد, تفقد الإعلانات 📢');
+        // } else if ($post->type->type === 'support') {
+        //     $this->sendNotificationsToAllUsers($post, SUPPORT, 'لقد تم نشر منشور اعرف مشروعك, تفقده الآن ⏰');
+        // }
 
         //send notifications about pending posts
         if ($notificationData['pending_msg']) {
