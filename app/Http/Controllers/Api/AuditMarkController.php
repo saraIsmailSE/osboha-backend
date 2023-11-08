@@ -371,9 +371,9 @@ class AuditMarkController extends Controller
                 }
                 // marks week avg for all $supervisor groups
                 $supervisorinfo['groups_avg'] = $total_marks_week / $supervisorinfo['num_of_leaders'];
-                $auditMarksRecored = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id',$previous_week)->first();
-                $supervisorinfo['audit_count'] = MarksForAudit::where('audit_marks_id', $auditMarksRecored->id )->count();
-                $supervisorinfo['audit_audited'] = MarksForAudit::where('status','!=', 'not_audited')->where('audit_marks_id', $auditMarksRecored->id )->count();
+                $auditMarksRecored = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id', $previous_week)->first();
+                $supervisorinfo['audit_count'] = MarksForAudit::where('audit_marks_id', $auditMarksRecored->id)->count();
+                $supervisorinfo['audit_audited'] = MarksForAudit::where('status', '!=', 'not_audited')->where('audit_marks_id', $auditMarksRecored->id)->count();
                 $response[$key] = $supervisorinfo;
             }
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
@@ -393,19 +393,21 @@ class AuditMarkController extends Controller
 
             $response = [];
             foreach ($advisorAudit->marksForAudit as $key => $mark) { //for each audit of advisor 
-                $auditInfo['audit_mark']=$mark;
+                $auditInfo['audit_mark'] = $mark;
                 // get userinfo from mark
                 $userMark = Mark::find($mark->mark_id);
 
                 //group where user is ambassador
                 $ambassador_group_id = UserGroup::where('user_type', 'ambassador')->where('user_id', $userMark->user_id)->first();
+                if ($ambassador_group_id) {
+                    $supervisorID = UserGroup::where('user_type', 'supervisor')->where('group_id', $ambassador_group_id->group_id)->first();
+                    if ($supervisorID) {
+                        $supervisor = User::find($supervisorID->user_id);
+                        $auditInfo['supervisor_name'] = $supervisor->name;
+                        $response[$key] = $auditInfo;
+                    }
+                }
                 // get supervisor of the group
-                $supervisorID = UserGroup::where('user_type', 'supervisor')->where('group_id', $ambassador_group_id->group_id)->first();
-                if($supervisorID){
-                    $supervisor=User::find($supervisorID->user_id); 
-                    $auditInfo['supervisor_name'] = $supervisor->name;
-                    $response[$key] = $auditInfo;
-                }   
             }
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
