@@ -230,11 +230,11 @@ class PostController extends Controller
                     }
 
                     //delete reactions
-                    $post->reactions()->delete();
+                    $post->reactions()->detach();
 
                     //delete comments and their media/reactions/replies/replies reactions
                     $post->comments->each(function ($comment) {
-                        $comment->reactions()->delete();
+                        $comment->reactions()->detach();
 
                         $media = $comment->media;
                         if ($media) {

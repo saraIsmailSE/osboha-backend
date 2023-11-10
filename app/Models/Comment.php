@@ -69,9 +69,7 @@ class Comment extends Model
     {
         parent::boot();
         self::deleting(function ($comment) {
-            $comment->reactions()->each(function ($reactions) {
-                $reactions->delete();
-            });
+            $comment->reactions()->detach();
             $comment->getIsLikedAttribute()->each(function ($getIsLikedAttribute) {
                 $getIsLikedAttribute->delete();
             });
