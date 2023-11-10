@@ -494,14 +494,14 @@ class CommentController extends Controller
                     }
 
                     //delete reactions on this comment
-                    $comment->reactions()->delete();
+                    $comment->reactions()->detach();
 
                     //delete replies
                     $replies = Comment::where('comment_id', $comment->id);
 
                     //delete replies reactions
                     $replies->each(function ($reply) {
-                        $reply->reactions()->delete();
+                        $reply->reactions()->detach();
 
                         //delete replies media
                         if ($reply->media) {
