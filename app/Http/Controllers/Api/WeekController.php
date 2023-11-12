@@ -78,6 +78,7 @@ class WeekController extends Controller
             }
 
             DB::commit();
+            $this->openBooksComments();
 
             if ($new_week->is_vacation) {
                 $this->notifyUsersIsVacation();
@@ -95,8 +96,6 @@ class WeekController extends Controller
             DB::rollBack();
             return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
-
-        $this->openBooksComments();
     }
 
     /**
@@ -674,8 +673,13 @@ class WeekController extends Controller
                 }
             });
 
+        // كتاب متعة الحديث محذوف من المنهج
+        Post::where('book_id', 599)
+            ->update(['allow_comments' => 0]);
+
         return $this->jsonResponseWithoutMessage('تم فتح التعليقات على الكتب', 'data', 200);
     }
+
 
     /**
      * Notify all the users that a new week has started
