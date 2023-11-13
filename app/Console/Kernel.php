@@ -31,8 +31,8 @@ class Kernel extends ConsoleKernel
         //delete old media every week on sunday at 5:00 am
         $schedule->command('media:deleteOld')->weekly()->sundays()->at('05:00');
 
-        //test part
-       // $schedule->command('media:deleteOld')->everyMinute();
+        //moveEligibleDB
+        $schedule->command('eligible:moveEligibleDB')->weekly()->mondays()->at('20:43');
     }
 
     /**

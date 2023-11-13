@@ -120,9 +120,9 @@ class EligibleUserBookController extends Controller
     {
 
         $userBook['last_achievement'] = EligibleUserBook::where('user_id', Auth::id())->latest()->first();
-        $userBook['statistics'] = EligibleUserBook::join('eligible_general_informations', 'eligible_user_books.id', '=', 'eligible_general_informations.user_books_id')
-            ->join('eligible_questions', 'eligible_user_book.id', '=', 'eligible_questions.user_books_id')
-            ->join('eligible_thesis', 'eligible_user_books.id', '=', 'eligible_thesis.user_books_id')
+        $userBook['statistics'] = EligibleUserBook::join('eligible_general_informations', 'eligible_user_books.id', '=', 'eligible_general_informations.eligible_user_books_id')
+            ->join('eligible_questions', 'eligible_user_books.id', '=', 'eligible_questions.eligible_user_books_id')
+            ->join('eligible_thesis', 'eligible_user_books.id', '=', 'eligible_thesis.eligible_user_books_id')
             ->select(DB::raw('avg(eligible_general_informations.degree) as general_informations_degree,avg(eligible_questions.degree) as questions_degree,avg(eligible_thesis.degree) as thesises_degree'))
             ->where('user_id', Auth::id())
             ->orderBy('eligible_user_books.created_at', 'desc')->first();
@@ -211,7 +211,7 @@ class EligibleUserBookController extends Controller
         } catch (\Error $e) {
             return $this->jsonResponseWithoutMessage('UserBook does not exist', 'data', 200);
         }
-        return $this->jsonResponseWithoutMessage($userBook, 'UserBook updated Successfully!', 'data', 200);
+        return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
     }
     public function review(Request $request)
     {
@@ -221,7 +221,7 @@ class EligibleUserBookController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage('errors', $validator->errors(), 'data', 200);
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 200);
         }
 
         try {
@@ -248,7 +248,7 @@ class EligibleUserBookController extends Controller
         $open_book = EligibleUserBook::where('user_id', $id)->where('status', '!=', 'finished')->count();
 
 
-        return $this->jsonResponseWithoutMessage($open_book, 'Open Book', 'data', 200);
+        return $this->jsonResponseWithoutMessage($open_book, 'data', 200);
     }
 
 

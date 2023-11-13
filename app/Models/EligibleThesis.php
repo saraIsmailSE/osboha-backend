@@ -30,10 +30,6 @@ class EligibleThesis extends Model
         return $this->belongsTo(EligibleUserBook::class, 'eligible_user_books_id');
     }
 
-    public function photos()
-    {
-        return $this->hasMany(Photos::class);
-    }
     function reviewer()
     {
 
@@ -44,13 +40,4 @@ class EligibleThesis extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function boot()
-    {
-        parent::boot();
-        self::deleting(function ($thesis) { // before delete() method call this
-            $thesis->photos()->each(function ($photo) {
-                $photo->delete(); // <-- direct deletion
-            });
-        });
-    }
 }

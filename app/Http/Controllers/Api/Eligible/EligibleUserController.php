@@ -103,7 +103,6 @@ class EligibleUserController extends Controller
     }
     return $this->jsonResponseWithoutMessage($user, 'data', 200);
   }
-de
 
   public function getUserStatistics()
   {

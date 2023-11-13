@@ -28,6 +28,7 @@ class EligibleMoveDBController extends Controller
     {
         DB::beginTransaction();
         try {
+            Log::channel('laravel')->info('start');
 
             $users_certificate = DB::connection('mysql_second')->table("users")->get();
             foreach ($users_certificate as $key => $user_certificate) {
@@ -36,6 +37,7 @@ class EligibleMoveDBController extends Controller
                     $user->name = $user_certificate->name;
                     $user->password = $user_certificate->password;
                     $user->email = $user_certificate->email;
+                    $user->allowed_to_eligible = $user_certificate->is_active;
                     $user->gender = 'undefined';
                     $user->parent_id = null;
                     $user->assignRole('ambassador');
@@ -58,7 +60,7 @@ class EligibleMoveDBController extends Controller
                     ]);
 
                     //notify user with email
-                    $user->notify((new MoveToPlatform()));
+                    //$user->notify((new MoveToPlatform()));
                 }
 
                 //user platform account
@@ -251,7 +253,7 @@ class EligibleMoveDBController extends Controller
                                     ]
                                 );
 
-                                $eligible_question_id = DB::table('eligible_questions')->where('eligible_user_book_id', $eligible_user_book_id)->where('question', $question->question)->pluck('id')->first();
+                                $eligible_question_id = DB::table('eligible_questions')->where('eligible_user_books_id', $eligible_user_book_id)->where('question', $question->question)->pluck('id')->first();
 
                                 // move quotations 
                                 $quotations = DB::connection('mysql_second')->table("quotations")->where('question_id', $question->id)->get();
@@ -298,7 +300,7 @@ class EligibleMoveDBController extends Controller
 
             DB::rollBack();
             Log::channel('laravel')->info($e);
-            return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
+            // return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
     }
 }
