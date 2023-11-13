@@ -20,6 +20,7 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use App\Http\Resources\PostResource;
 use App\Jobs\SendNotificationJob;
+use App\Models\Comment;
 use App\Models\PollOption;
 use App\Models\PostType;
 use App\Models\TimelineType;
@@ -230,11 +231,11 @@ class PostController extends Controller
                     }
 
                     //delete reactions
-                    $post->reactions()->delete();
+                    $post->reactions()->detach();
 
                     //delete comments and their media/reactions/replies/replies reactions
                     $post->comments->each(function ($comment) {
-                        $comment->reactions()->delete();
+                        $comment->reactions()->detach();
 
                         $media = $comment->media;
                         if ($media) {
@@ -481,7 +482,7 @@ class PostController extends Controller
             $response['userVote'] = PollOption::whereHas('votes', function ($q) {
                 $q->where('user_id', Auth::id());
             })->where('post_id', $response['post']->id)->exists();
-
+            $response['userComment'] = Comment::where('post_id', $response['post']->id)->where('user_id', Auth::id())->exists();
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         }
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
@@ -1008,13 +1009,15 @@ class PostController extends Controller
     private function sendPostNotifications($post, $notificationData, $request, $timeline)
     {
         $notification = new NotificationController();
+
+        // Stopped By Sara
         //send notification to all users in the system after posting an announcement
-        if ($post->type->type === 'announcement') {
-            //send notification to all users in the system
-            $this->sendNotificationsToAllUsers($post, ANNOUNCEMENT, 'لقد تم نشر إعلان جديد, تفقد الإعلانات 📢');
-        } else if ($post->type->type === 'support') {
-            $this->sendNotificationsToAllUsers($post, SUPPORT, 'لقد تم نشر منشور اعرف مشروعك, تفقده الآن ⏰');
-        }
+        // if ($post->type->type === 'announcement') {
+        //     //send notification to all users in the system
+        //     $this->sendNotificationsToAllUsers($post, ANNOUNCEMENT, 'لقد تم نشر إعلان جديد, تفقد الإعلانات 📢');
+        // } else if ($post->type->type === 'support') {
+        //     $this->sendNotificationsToAllUsers($post, SUPPORT, 'لقد تم نشر منشور اعرف مشروعك, تفقده الآن ⏰');
+        // }
 
         //send notifications about pending posts
         if ($notificationData['pending_msg']) {

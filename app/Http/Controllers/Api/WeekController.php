@@ -68,7 +68,7 @@ class WeekController extends Controller
             $new_week = Week::find($new_week_id);
 
             $dateToAdd = new Carbon($new_week->main_timer);
-            $new_week->modify_timer = $dateToAdd->addHours(21);
+            $new_week->modify_timer = $dateToAdd->addHours(22);
             $new_week->save();
 
             if (!$new_week->is_vacation) {
@@ -78,6 +78,7 @@ class WeekController extends Controller
             }
 
             DB::commit();
+            $this->openBooksComments();
 
             if ($new_week->is_vacation) {
                 $this->notifyUsersIsVacation();
@@ -95,8 +96,6 @@ class WeekController extends Controller
             DB::rollBack();
             return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
-
-        $this->openBooksComments();
     }
 
     /**
@@ -301,6 +300,7 @@ class WeekController extends Controller
 
                 //execlude the user
                 $user->is_excluded = 1;
+                $user->parent_id = null;
                 $user->save();
 
                 array_push($this->excludedUsers, $user->id);
@@ -370,8 +370,8 @@ class WeekController extends Controller
     {
         //get all the users and update their records if they are excluded (just ambassdors0)
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
-            // ->where('parent_id', '!=', null)
-            ->where('id', '>=', 27)
+            ->where('parent_id', '!=', null)
+            // ->where('id', '>=', 27)
             // ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
             ->orderBy('id')
             ->chunkByID(100, function ($users) use ($last_week_ids, $new_week_id) {
@@ -557,9 +557,9 @@ class WeekController extends Controller
         $mark_third_last_week_freezed = count($marks) > 2 ? $marks[2]->is_freezed : null;
 
 
-        //2 consecutive zeros of last 2 weeks or zero - freezed - zero => excluded
         $is_excluded = false;
 
+        //2 consecutive zeros of last 2 weeks or zero - freezed - zero => excluded
         if ($mark_last_week === 0 && !is_null($mark_second_last_week) && $mark_second_last_week === 0) {
             // dd('2 consecutive zeros of last 2 weeks');
             //check if freezed or not
@@ -573,7 +573,7 @@ class WeekController extends Controller
             $mark_third_last_week && $mark_third_last_week === 0
         ) {
             //check if freezed or not
-            if (!$last_week_freezed && ($mark_third_last_week && !$mark_third_last_week_freezed)) {
+            if (!$last_week_freezed && (!is_null($mark_third_last_week) && !$mark_third_last_week_freezed)) {
                 $is_excluded = true;
             }
         }
@@ -673,8 +673,13 @@ class WeekController extends Controller
                 }
             });
 
+        // كتاب متعة الحديث محذوف من المنهج
+        Post::where('book_id', 599)
+            ->update(['allow_comments' => 0]);
+
         return $this->jsonResponseWithoutMessage('تم فتح التعليقات على الكتب', 'data', 200);
     }
+
 
     /**
      * Notify all the users that a new week has started

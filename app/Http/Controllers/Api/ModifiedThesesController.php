@@ -97,7 +97,7 @@ class ModifiedThesesController extends Controller
             //send notification to user
             $arabicStatus = '';
 
-            if ($request->status === 'approved') {
+            if ($request->status === 'accepted') {
                 $arabicStatus = 'قبول';
             } else if ($request->status === 'rejected') {
                 $arabicStatus = 'رفض';
