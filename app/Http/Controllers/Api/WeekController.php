@@ -68,7 +68,7 @@ class WeekController extends Controller
             $new_week = Week::find($new_week_id);
 
             $dateToAdd = new Carbon($new_week->main_timer);
-            $new_week->modify_timer = $dateToAdd->addHours(22);
+            $new_week->modify_timer = $dateToAdd->addHours(23);
             $new_week->save();
 
             if (!$new_week->is_vacation) {
@@ -784,7 +784,6 @@ class WeekController extends Controller
                 $previous_week->save();
                 Log::channel('newWeek')->info("modify_timer updated Successfully");
             }
-            Log::channel('newWeek')->info("no week \ vacation");
         } catch (\Exception $e) {
             Log::channel('newWeek')->info($e);
         }
