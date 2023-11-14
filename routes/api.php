@@ -368,6 +368,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
+            #Rufaidah#
+            Route::get('/Statistics/{supervising_group_id}/{week_filter?}', [StatisticsSupervisorController::class, 'Statistics']);
+
         });
         ############End Group############
 
