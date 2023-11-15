@@ -21,14 +21,13 @@ class Group extends Model
 
     protected $with = array('Timeline', 'type');
 
-
     public function allUsers()
     {
         return $this->hasMany(UserGroup::class, 'group_id');
     }
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('id','user_type', 'termination_reason')->withTimestamps();
+        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('id', 'user_type', 'termination_reason')->withTimestamps();
     }
     public function userAmbassador()
     {
@@ -65,6 +64,11 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'ambassador');
     }
+    public function ambassadorsWithdrawn()
+    {
+        return $this->belongsToMany(User::class, 'user_groups')->where('user_groups.termination_reason','withdran')->withPivot('user_type')->wherePivot('user_type', 'ambassador');
+    }
+
     public function admin()
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'admin');

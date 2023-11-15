@@ -150,6 +150,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
+            Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
+
         });
 
         ########Start Roles########
@@ -368,8 +370,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
-            #Rufaidah#
-            Route::get('/Statistics/{supervising_group_id}/{week_filter?}', [StatisticsSupervisorController::class, 'Statistics']);
 
         });
         ############End Group############
@@ -486,6 +486,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'statistics'], function () {
             Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
             Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
+            Route::get('/supervising-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
+
         });
         ######## End Statisticx########
 

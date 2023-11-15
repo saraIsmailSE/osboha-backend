@@ -38,6 +38,13 @@ class UserController extends Controller
         }
     }
 
+    public function listInChargeOf()
+    {
+        $response = User::where('parent_id', Auth::id())->get();
+        return $this->jsonResponseWithoutMessage($response, "data", 200);
+
+    }
+
     public function assignToParent(Request $request)
     {
         $validator = Validator::make($request->all(), [
