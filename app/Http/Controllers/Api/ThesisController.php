@@ -26,6 +26,15 @@ class ThesisController extends Controller
      */
     public function show($thesis_id)
     {
+        return $this->jsonResponseWithoutMessage(
+            [
+                'theses' => [],
+                'total' => 0,
+            ],
+            'data',
+            200
+        );
+
 
         $thesis = Thesis::with('comment')->with('mark.week')->find($thesis_id);
 
@@ -44,6 +53,14 @@ class ThesisController extends Controller
      */
     public function listBookThesis($book_id, $user_id = null)
     {
+        return $this->jsonResponseWithoutMessage(
+            [
+                'theses' => [],
+                'total' => 0,
+            ],
+            'data',
+            200
+        );
         $post_id = Post::where('book_id', $book_id)->where('type_id', PostType::where('type', 'book')->first()->id)->first()->id;
         $comments = Comment::where('post_id', $post_id)
             ->where('comment_id', 0)
