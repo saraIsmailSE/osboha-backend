@@ -29,98 +29,132 @@ class StatisticsSupervisorController extends Controller
      * 
      * @return statistics;
      */
-    public function Statistics($supervising_group_id, $week_filter = "current")
+    public function Statistics($group_id)
     {
+        
+        //previous_week
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        //last_previous_week
+        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+        $supervising_group_id = $group_id;
+        $i = 0;
+        $responseOfsara =[ ];
+        $zero_varible_last=NULL ;$zero_varible_two_last=NULL;
         $group = Group::find($supervising_group_id);
         if (!$group) {
             throw new NotFound;
         }
-        $response['week'] = Week::latest()->first();
+        $week = Week::latest()->first();
         //القادة(سفراء) في الفريق الرقابي
-        $response['all_leaders_in_group'] = Group::with('ambassadors')
+         $all_leaders_in_group = Group::with('ambassadors')
             ->where('id', $supervising_group_id)
             ->first();
-        //عدد القادة في كل فريق رقابي   
-        $response['number_leaders_in_group'] = $response['all_leaders_in_group']->ambassadors->count();
-        //القادةالمنسحبين في الفريق الرقابي
-        $response['all_leadersWithdrawn_in_group'] = Group::with('ambassadorsWithdrawn')
-            ->where('id', $supervising_group_id)
-            ->first();
-        //عدد القادةالمنسحبين في كل فريق رقابي   
-        $response['number_leadersWithdrawn_in_group'] = $response['all_leadersWithdrawn_in_group']->ambassadorsWithdrawn->count();
-
+     
         //افرقة المتابعة الخاصة بالقادة
-        $response['group_followups'] = UserGroup::where('user_type', 'leader')
-            ->whereIn('user_id', $response['all_leaders_in_group']->ambassadors->pluck('pivot.user_id'))
+        $group_followups = UserGroup::with('user')->where('user_type', 'leader')
+            ->whereIn('user_id', $all_leaders_in_group->ambassadors->pluck('pivot.user_id'))
+            ->whereNull('termination_reason')
             ->get();
-        // السفراء بكل فريق متابعة  
-        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
-            $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
-                ->where('user_type', 'ambassador')
-                ->get();
-        }
-        //تجميد كل فريق على حدا                      
-        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
-            $response['is_freezed'][$group_id] = Mark::where('week_id', $response['week']->id)
-                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
-                ->where('user_groups.group_id', '=', $group_id)
-                ->where('is_freezed', 1)
-                ->count();
-        }
+        
+        foreach($group_followups as $key =>$group)    {
 
-        //اصفار كل فريق على حدا                      
-        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
-            $response['marks_zero'][$group_id] = Mark::where('week_id', $response['week']->id)
-                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
-                ->where('user_groups.group_id', '=', $group_id)
-                ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
-                ->having('out_of_100', 0)
-                ->count();
-        }
-        //احصائيات العلامات والتجميد لكل فريق على حدا
-        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
-            $response['total_statistics'][$group_id] = Mark::without('user,week')->where('week_id', 1)
-                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
-                ->where('user_groups.group_id', '=', $group_id)
+           $response['leader_name']        = $group->user->name;
+           $response['group_name']         = $group->group->name;
+           $users_in_group = Group::with('ambassadors')->where('id', $group->group->id)->first();
+
+            
+           $response['number_ambassadors'] =   UserGroup::where('group_id',$group->group->id)
+                                                            ->where('user_type', 'ambassador')
+                                                            ->whereNull('termination_reason')
+                                                            ->count();
+
+           
+            $general_average = Mark::where('week_id', $previous_week->id)
+                                    ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                                    ->where('user_groups.group_id', '=', $group->group->id)
+                                    ->whereNull('user_groups.termination_reason')
+                                    ->where('is_freezed', 0)
+                                    ->select(
+                                        DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
+                                    )->get();
+            $response['general_average'] = $general_average->pluck('team_out_of_100')->first();
+        
+
+           $response['is_freezed'] = Mark::where('week_id', $previous_week->id)
+                                       ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                                        ->where('user_groups.group_id', '=', $group->group->id)
+                                        ->where('is_freezed', 1)
+                                        ->count();
+
+           
+            $response['ambassadors_withdraw_in_group'] = UserGroup::where('group_id', $group->group->id)
+                                                                ->where('user_type', 'ambassador')
+                                                                ->whereNotNull('termination_reason')
+                                                                ->count();    
+
+            $response['is_new_followup'] = UserGroup::where('group_id', $group->id)
+            ->whereBetween('created_at', [$week->created_at, $week->created_at->addDays(7)])->get()->count();
+            
+            foreach($users_in_group->ambassadors->pluck('id') as $user_id){
+                if($zero_varible_two_last= Mark::without('user')->where('week_id', $last_previous_week)
+                                                ->where('user_id', $user_id)
+                                                ->where('is_freezed', 0)
+                                                ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
+                                                ->having('out_of_100', '=', 0)
+                                                ->groupBy('user_id')
+                                                ->get() )
+                {
+
+                    $zero_varible_last= Mark::without('user')->where('week_id', $previous_week)
+                                        ->where('user_id', $user_id)
+                                        ->where('is_freezed', 0)
+                                        ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
+                                        ->havingBetween('out_of_100', [10, 100])
+                                        ->groupBy('user_id')
+                                        ->count();
+
+
+                    if($zero_varible_last > 0) {
+                        $i = $i+1;
+                    }
+                } 
+                $response['number_zero_varible'] = $i;
+            }
+            // خاص بالقادة
+            $total_pages_leader = Mark::without('week')->where('week_id', $previous_week)
+                ->where('user_id', $group->user->id)
                 ->where('is_freezed', 0)
                 ->select(
-                    DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
-                    DB::raw('avg(reading_mark) as team_reading_mark'),
-                    DB::raw('avg(writing_mark) as team_writing_mark'),
-                    DB::raw('avg(support) as team_support_mark'),
-                    DB::raw('sum(total_pages) as total_pages'),
-                    DB::raw('sum(total_thesis) as total_thesis'),
-                    DB::raw('sum(total_screenshot) as total_screenshot'),
+                    DB::raw('sum(total_pages) as total_pages')
                 )->get();
-        }
-        //عدد الصفحات والدعم و الاطروحات  لكل قائد
-        foreach ($response['all_leaders_in_group']->ambassadors->pluck('id') as $user_id) {
-            $response['total_statistics_leader'][$user_id] = Mark::without('week')->where('week_id', 1)
-                ->where('user_id', $user_id)
-                ->where('is_freezed', 0)
-                ->select(
-                    DB::raw('avg(support) as team_support_mark'),
-                    DB::raw('sum(total_pages) as total_pages'),
-                    DB::raw('sum(total_thesis) as total_thesis'),
-                )->get();
-        }
+            $response['total_pages_leader'] = $total_pages_leader->pluck('total_pages')->first();
 
-        //الاعضاء الجدد في فرق المتابعة
-        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
-            $response['is_new_fllowup'][$group_id] = UserGroup::where('group_id', $group_id)
-                ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
-        }
-        //الاعضاء الجدد في فريق الرقابة
-        $response['is_new_supervising'] = UserGroup::where('group_id', $supervising_group_id)
-            ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
+            $total= Mark::without('week')->where('week_id', $previous_week)
+                                    ->where('user_id', $group->user->id)
+                                    ->where('is_freezed', 0)
+                                    ->select('total_thesis','total_screenshot')
+                                    ->get();
 
-        //عدد السفراءالمنسحبين بكل فريق متابعة
-        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
-            $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
-                ->where('user_type', 'leader')
-                ->whereNotNull('termination_reason')
-                ->count();
+            if($total->pluck('total_thesis')->first() > 0)
+            {
+                $response['total_thesis_or_screenshot'] = 'thesis';
+            }
+            if($total->pluck('total_screenshot')->first() > 0)
+            {
+                $response['total_thesis_or_screenshot'] = 'screenshot';
+            }
+            $responseOfsara[$key] = $response;
+            $i =0;   
+
+            
         }
-        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        return  $responseOfsara;
+          
+        
+       
+        
+
+       
+        //return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }
