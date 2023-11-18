@@ -19,7 +19,7 @@ class Comment extends Model
         'type',
     ];
 
-    protected $withCount = ['reactions'];
+    // protected $withCount = ['reactions'];
     protected $with = ['user.roles', 'media', 'replies'];
     protected $appends = ['is_liked'];
     /**
