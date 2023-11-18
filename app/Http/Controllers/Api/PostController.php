@@ -114,7 +114,7 @@ class PostController extends Controller
         $authUser = Auth::user();
         $post = Post::where('id', $post_id)
             ->whereNotNull('is_approved')
-            ->withCount('comments')
+            //->withCount('comments')
             ->with('user')
             ->with('pollOptions.votes', function ($query) {
                 $query->where('user_id', Auth::id());
@@ -285,7 +285,7 @@ class PostController extends Controller
         $user = Auth::user();
         $posts = Post::where('timeline_id', $timeline_id)
             ->whereNotNull('is_approved')
-            ->withCount('comments')
+            //->withCount('comments')
             ->with('user')
             ->with('pollOptions.votes', function ($query) {
                 $query->where('user_id', Auth::id());
@@ -310,7 +310,7 @@ class PostController extends Controller
             $last_pinned_post = Post::where('timeline_id', $timeline_id)
                 ->whereNotNull('is_approved')
                 ->where('is_pinned', 1)
-                ->withCount('comments')
+                //->withCount('comments')
                 ->with('user')
                 ->with('pollOptions.votes', function ($query) {
                     $query->where('user_id', Auth::id());
@@ -419,7 +419,7 @@ class PostController extends Controller
         $posts = Post::where('type_id', $supportPostTypeId)
             ->where('timeline_id', $mainTimelineId)
             ->whereNotNull('is_approved')
-            ->withCount('comments')
+            //->withCount('comments')
             ->with('pollOptions.votes', function ($query) {
                 $query->where('user_id', Auth::id());
             })
@@ -726,7 +726,7 @@ class PostController extends Controller
                 ['timeline_id', $timeline_id],
                 ['id', $post_id]
             ])
-                ->withCount('comments')
+                //->withCount('comments')
                 ->with('user')
                 ->withCount('pollVotes')
                 ->with('taggedUsers.user')
@@ -749,7 +749,7 @@ class PostController extends Controller
             ['timeline_id', $timeline_id],
             ['is_approved', null]
         ])
-            ->withCount('comments')
+          //  ->withCount('comments')
             ->with('user')
             ->withCount('pollVotes')
             ->with('taggedUsers.user')
@@ -1105,7 +1105,7 @@ class PostController extends Controller
         return Post::whereIn('timeline_id', $allTimelineIds)
             ->whereNotIn('type_id', $excludedPostTypeIds)
             ->whereNotNull('is_approved')
-            ->withCount('comments')
+           // ->withCount('comments')
             ->with('user')
             ->with(['pollOptions.votes' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
