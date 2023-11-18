@@ -22,7 +22,7 @@ class Post extends Model
     ];
 
     protected $with = array('media');
-    //protected $appends = ['comments_count', 'reactions_count', 'reacted_by_user'];
+    protected $appends = ['comments_count', 'reactions_count', 'reacted_by_user'];
 
     public function comments()
     {

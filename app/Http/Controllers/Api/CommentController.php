@@ -216,8 +216,6 @@ class CommentController extends Controller
      */
     public function getPostComments($post_id, $user_id = null)
     {
-        // 11-18-2023
-        return $this->jsonResponseWithoutMessage([], 'data', 200);
         // $comments = Comment::where('post_id', $post_id)
         //     ->whereHas('user', function ($query) use ($user_id) {
         //         if ($user_id) {
@@ -263,9 +261,6 @@ class CommentController extends Controller
 
     public function getPostCommentsUsers($post_id)
     {
-        // 11-18-2023
-        return $this->jsonResponseWithoutMessage([], 'data', 200);
-
         //get the user related to the comment and remove the duplicates
         $users = Comment::where('post_id', $post_id)
             ->where('comment_id', 0)
