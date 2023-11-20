@@ -554,10 +554,10 @@ class RolesAdministrationController extends Controller
 
 
                                 //* اضافة المراقب الحالي كـ سفير في مجموعة الرقابة الخاصة بالمراقب الجديد 
-                                $newSupervisor_SupervisingGroupID = UserGroup::where('user_id', $newSupervisor->id)
+                                $newSupervisor_SupervisingGroupID = UserGroup::where('user_id', $newSupervisor->id)->where('user_type', 'supervisor')
                                     ->whereHas('group', function ($q)  use ($supervisingGroupTypeID) {
                                         $q->where('type_id', '=', $supervisingGroupTypeID);
-                                    })->where('user_type', 'supervisor')->pluck('group_id')->first();
+                                    })->pluck('group_id')->first();
 
                                 UserGroup::updateOrCreate(
                                     [
