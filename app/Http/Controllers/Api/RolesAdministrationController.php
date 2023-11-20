@@ -424,10 +424,11 @@ class RolesAdministrationController extends Controller
 
                                         $currentSupervisor_supervisingGroup = Group::with('user_groups')->whereHas('type', function ($q) {
                                             $q->where('type', '=', 'supervising');
+                                        })->whereHas('user_groups', function ($q) use ($currentSupervisor) {
+                                            $q->where('user_id', $currentSupervisor->id)
+                                                ->where('user_type', 'supervisor')
+                                                ->whereNull('termination_reason');
                                         })
-                                            ->where('user_groups.user_id', $currentSupervisor->id)
-                                            ->where('user_groups.user_type', 'supervisor')
-                                            ->whereNull('user_groups.termination_reason')
                                             ->first();
 
                                         UserGroup::updateOrCreate(
