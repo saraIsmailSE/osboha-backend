@@ -422,7 +422,7 @@ class RolesAdministrationController extends Controller
 
                                         //get current supervisor Supervising group [where he is a supervisor]
 
-                                        $currentSupervisor_supervisingGroup = Group::whereHas('type', function ($q) {
+                                        $currentSupervisor_supervisingGroup = Group::with('user_groups')->whereHas('type', function ($q) {
                                             $q->where('type', '=', 'supervising');
                                         })
                                             ->where('user_groups.user_id', $currentSupervisor->id)
@@ -554,10 +554,10 @@ class RolesAdministrationController extends Controller
 
 
                                 //* اضافة المراقب الحالي كـ سفير في مجموعة الرقابة الخاصة بالمراقب الجديد 
-                                $newSupervisor_SupervisingGroupID = UserGroup::where('user_id', $newSupervisor->id)->where('user_type', 'supervisor')
+                                $newSupervisor_SupervisingGroupID = UserGroup::where('user_id', $newSupervisor->id)
                                     ->whereHas('group', function ($q)  use ($supervisingGroupTypeID) {
                                         $q->where('type_id', '=', $supervisingGroupTypeID);
-                                    })->pluck('group_id')->first();
+                                    })->where('user_type', 'supervisor')->pluck('group_id')->first();
 
                                 UserGroup::updateOrCreate(
                                     [
