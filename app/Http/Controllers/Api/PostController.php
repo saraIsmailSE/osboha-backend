@@ -877,6 +877,7 @@ class PostController extends Controller
             ['user_id', $user_id]
         ])->pluck('user_type')->toArray();
         $allowed_types = ['advisor', 'supervisor', 'leader', 'admin'];
+        $pending_msg ='';
         if (!array_intersect($allowed_types, $user_types)) {
             $input['is_approved'] = null;
 
