@@ -115,10 +115,11 @@ class StatisticsController extends Controller
 
         // الفريق الرقابي مع القادة بداخله
 
-        $supervisorGrop = Group::with('userAmbassador')->find($supervisingGroup->group_id);
-        if (!$supervisorGrop) {
+        $supervisorGroup = Group::with('userAmbassador')->find($supervisingGroup->group_id);
+        if (!$supervisorGroup) {
             throw new NotFound;
         }
+
 
         //previous_week
         $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
@@ -135,7 +136,7 @@ class StatisticsController extends Controller
         //افرقة المتابعة الخاصة بالقادة
 
         $group_followups = UserGroup::with('user')->where('user_type', 'leader')
-            ->whereIn('user_id', $supervisorGrop->userAmbassador->pluck('id'))
+            ->whereIn('user_id', $supervisorGroup->userAmbassador->pluck('id'))
             ->whereNull('termination_reason')
             ->get();
 
@@ -204,9 +205,10 @@ class StatisticsController extends Controller
         }
         // leaders reading
         $leadersReading = Mark::where('week_id', $previous_week->id)
-            ->whereIn('user_id', $supervisorGrop->userAmbassador->pluck('id'))
+            ->whereIn('user_id', $supervisorGroup->userAmbassador->pluck('id'))
             ->get();
-        $response['leaders_reading'] = $leadersReading;
+            $response['leaders_reading'] = $leadersReading;
+            $response['supervisor_group'] = $supervisorGroup;
 
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
