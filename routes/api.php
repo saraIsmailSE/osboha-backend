@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\{
     RoomController,
     SectionController,
     StatisticsController,
+    StatisticsSupervisorController,
     BookTypeController,
     BookLevelController,
     LanguageController,
@@ -77,6 +78,7 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Route::group(['prefix' => 'v1'], function () {
+
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
@@ -688,6 +690,12 @@ Route::group(['prefix' => 'v1'], function () {
             });
         });
         ######## BookStatistics ########
+
+
+        ######## StatisticsSupervisor ########
+        Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
+        ######## END StatisticsSupervisor ########
+
 
     });
 
