@@ -406,6 +406,8 @@ class PostController extends Controller
      */
     public function getSupportPosts()
     {
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+
         $user = Auth::user();
 
         $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
@@ -666,6 +668,8 @@ class PostController extends Controller
 
     public function getLastSupportPost()
     {
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+
         $current_week = Week::latest()->first();
         // $createdAt = $current_week->created_at;
         // $mainTimer = $current_week->main_timer;
