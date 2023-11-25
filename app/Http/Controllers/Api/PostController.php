@@ -451,6 +451,8 @@ class PostController extends Controller
      */
     public function getCurrentWeekSupportPost()
     {
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+
         // $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
         //     return Week::latest()->first();
         // });
