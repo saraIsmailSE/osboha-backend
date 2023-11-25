@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('user_groups', function (Blueprint $table) {
-            $table->index(['group_id']);
+        Schema::table('notifications', function (Blueprint $table) {
+            $table->index(['notifiable_id']);
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('user_groups', function (Blueprint $table) {
-            $table->dropIndex('group_id');
+        Schema::table('notifications', function (Blueprint $table) {
+            $table->dropIndex('notifiable_id');
         });
     }
 };
