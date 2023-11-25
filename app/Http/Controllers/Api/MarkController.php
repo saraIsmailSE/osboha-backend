@@ -336,7 +336,8 @@ class MarkController extends Controller
 
                     /*support -- asmaa*/
                     $main_timer = $currentWeek->main_timer;
-                    $support_post = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+                    $PostTypeSupport=PostType::where('type', 'support')->first()->id;
+                    $support_post = Post::where('type_id', $PostTypeSupport)
                         ->where('created_at', '>', $currentWeek->created_at)
                         ->where('created_at', '<', $main_timer)
                         ->latest()
