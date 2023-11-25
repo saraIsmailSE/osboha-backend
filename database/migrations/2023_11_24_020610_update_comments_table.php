@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('poll_options', function (Blueprint $table) {
+        Schema::table('comments', function (Blueprint $table) {
             // Update the column type if necessary
-            $table->unsignedBigInteger('post_id')->change();
+            $table->unsignedBigInteger('user_id')->change();
 
             // Add foreign key constraint
-            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -29,8 +29,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('poll_options', function (Blueprint $table) {
-            $table->dropForeign(['post_id']);
+        Schema::table('comments', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
         });
     }
 };
