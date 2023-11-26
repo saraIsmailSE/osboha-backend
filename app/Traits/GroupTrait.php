@@ -20,8 +20,12 @@ trait GroupTrait
                 ->where('is_freezed', 0)
                 ->select(
                     DB::raw('avg(reading_mark + writing_mark + support) as out_of_100')
-                )->first()->out_of_100;
-            return $avg;
+                )->first();
+
+            if ($avg)
+                return $avg->out_of_100;
+
+            return 0;
         } catch (\Error $e) {
             report($e);
             return false;

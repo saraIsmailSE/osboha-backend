@@ -9,15 +9,10 @@ use App\Models\Mark;
 use App\Models\User;
 use App\Models\UserException;
 use App\Models\Week;
-use App\Models\UserStatistic;
-use App\Models\MarkStatistic;
 use App\Traits\ResponseJson;
-use App\Events\UpdateUserStats;
 use App\Models\Post;
 use App\Models\PostType;
 use App\Models\UserGroup;
-use App\Notifications\MailExceptionFinished;
-use App\Notifications\MailExcludeAmbassador;
 use App\Traits\PathTrait;
 use App\Traits\ThesisTraits;
 use App\Traits\WeekTrait;
@@ -27,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -36,6 +30,8 @@ class WeekController extends Controller
     use ResponseJson, ThesisTraits, PathTrait, WeekTrait;
 
     protected $excludedUsers = [];
+    protected $newWeekId = null;
+    protected $lastWeekIds = [];
 
     /**
      * Add new week with mark records for all users in the system
@@ -51,8 +47,8 @@ class WeekController extends Controller
     {
         $this->excludedUsers = [];
         //get last three weeks ids
-        $last_week_ids = $this->get_last_weeks_ids();
-        // dd($last_week_ids);
+        $this->lastWeekIds = $this->get_last_weeks_ids();
+        // dd($this->lastWeekIds);
 
         //close books and support comments
         $this->closeBooksAndSupportComments();
@@ -63,18 +59,16 @@ class WeekController extends Controller
             Log::channel('newWeek')->info("begin");
 
             //add new week to the system
-            $new_week_id = $this->insert_week();
+            $this->newWeekId = $this->insert_week();
 
-            $new_week = Week::find($new_week_id);
+            $new_week = Week::find($this->newWeekId);
 
             $dateToAdd = new Carbon($new_week->main_timer);
             $new_week->modify_timer = $dateToAdd->addHours(23);
             $new_week->save();
 
             if (!$new_week->is_vacation) {
-                $this->add_users_statistics($new_week_id);
-                $this->add_marks_for_all_users($new_week_id, $last_week_ids);
-                $this->add_marks_statistics($new_week_id);
+                $this->check_all_users();
             }
 
             DB::commit();
@@ -179,7 +173,6 @@ class WeekController extends Controller
     /**
      * insert new week into weeks table
      * @author Asmaa         
-     * @return Int new_week_id in case of SUCCESS, 
      * @throws Exception error if anything wrong happens
      */
     private function insert_week()
@@ -242,6 +235,47 @@ class WeekController extends Controller
     }
 
     /**
+     * check which user is excluded and which is not
+     * @author Asmaa
+     * get all the users except the excluded and hold users
+     * chunk the data to begin checking on those who are excluded
+     * update the excluded users
+     * @uses update_excluded_user() 
+     * @return True if the marks and updating exculded members are done correctly, 
+     * @throws Exception error if anything wrong happens
+     */
+
+    private function check_all_users()
+    {
+
+        //get all the users and update their records if they are excluded (just ambassdors0)
+        $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
+            ->where('parent_id', '!=', null)
+            // ->where('id', '>=', 18)
+            // ->whereIn('id', [19, 20, 21, 22, 23]) //for testing - to be deleted
+            ->orderBy('id')
+            ->chunkByID(100, function ($users) {
+                try {
+                    //to avoid executing an updated Statement for every single user in our DB
+                    DB::beginTransaction();
+
+                    foreach ($users as $user) {
+                        //update execluded member then insert mark
+                        $this->update_excluded_user($user);
+                    }
+
+                    DB::commit();
+                } catch (\Exception $exception) {
+                    Log::channel('newWeek')->info($exception);
+                    DB::rollBack();
+                    throw $exception;
+                }
+            }, 'users.id', 'id');
+
+        return $all_users;
+    }
+
+    /**
      * update excluded user then add mark
      * @author Asmaa     
      * 1- check exam exception for user and update status if finished
@@ -252,61 +286,46 @@ class WeekController extends Controller
      * 3.3- if the user is excluded then update the status of the user to excluded
      * 3.4- if the user is not excluded then insert mark for single user
      * @param Object $user 
-     * @param Array $last_week_ids
-     * @param Int $new_week_id
-     * @uses insert_mark_for_single_user()
      * @uses check_exams_exception_for_user()
      * @uses UpdateUserStats Event
      * @return True if the updating excluded member or inserting new mark record is done correctly, 
      * @return Null if anything wrong happens 
      * 
      */
-    private function update_excluded_user_then_add_mark($user, $last_week_ids, $new_week_id)
+    private function update_excluded_user($user)
     {
-        if (count($last_week_ids) > 0) {
+        if (count($this->lastWeekIds) > 0) {
             //check if the user has exams exception then update the status if finished
-            $this->check_exams_exception_for_user($new_week_id, $user->id);
-        }
-
-        if (count($last_week_ids) < 2) { //for new system
-            return $this->insert_mark_for_single_user($new_week_id, $user->id);
+            $this->check_exams_exception_for_user($user->id);
         }
 
         $marks = Mark::where('user_id', $user->id)
-            ->whereIn('week_id', $last_week_ids)
+            ->whereIn('week_id', $this->lastWeekIds)
             ->orderBy('week_id', 'desc')
             ->get();
 
-        if ($marks->isNotEmpty()) {
-            if (count($marks) < 2) {
-                return $this->insert_mark_for_single_user($new_week_id, $user->id);
-            }
+        $is_excluded = $this->checkExcludedUserFromMarks($marks, $user->id);
+        //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
+        if (!$is_excluded) {
+            //check mark for super roles
+            $markOfLastWeek = $marks->count() > 0 ? ($marks->first()->reading_mark + $marks->first()->writing_mark + $marks->first()->support) : 0;
+            $this->checkFullMarkForSuperRoles($user, $markOfLastWeek);
+        } else {
+            $old_user = $user->getOriginal();
 
-            $is_excluded = $this->checkExcludedUserFromMarks($marks);
-
-            //if the user does not satisfy the below cases so he/she is not excluded then insert a record for him/her
-            if (!$is_excluded) {
-                //check mark for super roles
-                $this->checkFullMarkForSuperRoles($user, ($marks[0]->reading_mark + $marks[0]->writing_mark + $marks[0]->support));
-                //insert new mark record
-                return $this->insert_mark_for_single_user($new_week_id, $user->id);
-            } else {
-                $old_user = $user->getOriginal();
-
-                if ($this->checkSuperRolesForExcluding($user)) {
-
-                    return $this->insert_mark_for_single_user($new_week_id, $user->id);
-                }
-
-                //execlude the user
-                $user->is_excluded = 1;
-                $user->parent_id = null;
-                $user->save();
-
-                array_push($this->excludedUsers, $user->id);
-                event(new UpdateUserStats($user, $old_user));
+            //check if the excluded user is a super role, if yes then do not exclude him/her
+            if ($this->checkSuperRolesForExcluding($user)) {
                 return $user;
             }
+
+            //execlude the user
+            $user->is_excluded = 1;
+            // $user->parent_id = null; //moved to the notifyExcludedUser function
+            array_push($this->excludedUsers, $user->id);
+            $user->save();
+
+            // event(new UpdateUserStats($user, $old_user));
+            return $user;
         }
     }
 
@@ -353,114 +372,42 @@ class WeekController extends Controller
     }
 
     /**
-     * add mark record for each user, except the excluded and hold users
+     * check if the user is freezed in a week or not then update the status of the user if he/she is freezed
      * @author Asmaa
-     * get all the users except the excluded and hold users
-     * chunk the data to begin checking on those who are excluded
-     * update the excluded users
-     * insert new marks records for those who are not excluded
-     * @param Int $new_week_id (of the current week id), 
-     * @param array $last_week_ids (array of last week ids integers)  
-     * @uses update_excluded_user_then_add_mark() 
-     * @return True if the marks and updating exculded members are done correctly, 
-     * @throws Exception error if anything wrong happens
-     */
-
-    private function add_marks_for_all_users($new_week_id, $last_week_ids)
-    {
-        //get all the users and update their records if they are excluded (just ambassdors0)
-        $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
-            ->where('parent_id', '!=', null)
-            // ->where('id', '>=', 27)
-            // ->whereIn('id', [6, 7, 8, 9, 10, 11, 12]) //for testing - to be deleted
-            ->orderBy('id')
-            ->chunkByID(100, function ($users) use ($last_week_ids, $new_week_id) {
-                try {
-                    //to avoid executing an updated Statement for every single user in our DB
-                    DB::beginTransaction();
-
-                    foreach ($users as $user) {
-                        //update execluded member then insert mark
-                        $this->update_excluded_user_then_add_mark($user, $last_week_ids, $new_week_id);
-                    }
-
-                    DB::commit();
-                } catch (\Exception $exception) {
-                    Log::channel('newWeek')->info($exception);
-                    DB::rollBack();
-                    throw $exception;
-                }
-            }, 'users.id', 'id');
-
-        return $all_users;
-    }
-
-    /**
-     * insert new mark record for a specific user
-     * @author Asmaa
+     * @param Int $user_id
      * @param Int $week_id
-     * @param Int $user_id      
-     * @return Int inserted_mark_id if the inserting succeed
-     * @throws Exception error if anything wrong happens
+     * @return True if the user is freezed in that week
+     * @return False if the user is not freezed in that week
      */
-    private function insert_mark_for_single_user($week_id, $user_id)
+    private function checkFreezedInWeek($week_id, $user_id)
     {
-        $is_freezed = $this->check_freezed_user($user_id, $week_id);
+        $week = Week::find($week_id);
+        $week_startAt = Carbon::parse($week->created_at)->format('Y-m-d');
+        $week_endAt = Carbon::parse($week->main_timer)->format('Y-m-d');
 
-        $mark = new Mark();
-        $mark->user_id = $user_id;
-        $mark->week_id = $week_id;
-        $mark->reading_mark = 0;
-        $mark->writing_mark = 0;
-        $mark->total_pages = 0;
-        $mark->support = 0;
-        $mark->total_thesis = 0;
-        $mark->total_screenshot = 0;
-        $mark->is_freezed = $is_freezed;
-
-        if ($mark->save()) {
-            return $mark->id;
-        } else {
-            // return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
-            throw new \Exception('Something went wrong, could not add mark');
-        }
-    }
-
-    /**
-     * check if the user is gonna be freezed or not
-     * @author Asmaa     
-     * get the exception record of the user of types freeze
-     * check if the exception duration finished, update the status of the exception if it finished  
-     * @param Int $user_id 
-     * @return True if the user going to be freezed
-     * @return False if the user finished his/her exception period or he/she has no exception 
-     */
-    private function check_freezed_user($user_id)
-    {
-        //get the duration and starting week id of the exception case if the user has one
         $user_exception = UserException::where('user_id', $user_id)
-            ->where('status', config('constants.ACCEPTED_STATUS'))
+            ->whereIn('status', [config('constants.ACCEPTED_STATUS'), config('constants.FINISHED_STATUS')])
             ->with('type', function ($query) {
                 $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
                     ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'))
                     ->orWhere('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
             })
+            ->whereDate('start_at', '>=', $week_startAt)
+            ->whereDate('end_at', '<=', $week_endAt)
             ->latest('id')
             ->first();
 
-        if ($user_exception === null) {
-            return FALSE;
+        //update the status of the exception if it finished
+        if ($user_exception && $user_exception->status == config('constants.ACCEPTED_STATUS')) {
+            $end_at = Carbon::parse($user_exception->end_at)->format('Y-m-d');
+            $current_date = Carbon::now()->format('Y-m-d');
+
+            if ($current_date >= $end_at) { //exception duration finished
+                $this->update_exception_status($user_exception->id, 'finished');
+            }
         }
 
-        $end_at = Carbon::parse($user_exception->end_at)->format('Y-m-d');
-        $current_date = Carbon::now()->format('Y-m-d');
-
-        if ($current_date >= $end_at) { //exception duration finished
-            $this->update_exception_status($user_exception->id, 'finished');
-            return FALSE;
-        } else { //exception duration still in progress
-            return TRUE;
-        }
+        return $user_exception === null ? FALSE : TRUE;
     }
 
     /**
@@ -484,7 +431,6 @@ class WeekController extends Controller
         $user_exception->status = $new_status;
         if ($user_exception->save()) {
             if ($new_status == 'finished') {
-                $user = User::findOrFail($user_exception->user_id);
                 $message = 'لقد انتهت الفترة الخاصة ب ';
                 $exceptionTitle = $user_exception->type->type;
                 if (Str::contains($user_exception->type->type, 'تجميد')) {
@@ -505,7 +451,6 @@ class WeekController extends Controller
      * get the exception record of the user of type exams
      * check if the exception duration finished, update the status of the exception if it finished     
      * @author Asmaa
-     * @param Int $new_week_id
      * @param Int $user_id
      * @uses update_exception_status()
      * @return True if the user going to have exams exception
@@ -513,10 +458,10 @@ class WeekController extends Controller
      *               or he/she has not an exception, 
      *               or he/she does not satisfy the rules
      */
-    private function check_exams_exception_for_user($new_week_id, $user_id)
+    private function check_exams_exception_for_user($user_id)
     {
         //get the user exams exception 
-        $user_exception = UserException::where('user_id', Auth::id())
+        $user_exception = UserException::where('user_id', $user_id)
             ->where('status', config('constants.ACCEPTED_STATUS'))
             ->with('type', function ($query) {
                 $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
@@ -547,84 +492,45 @@ class WeekController extends Controller
      * @param $marks
      * @return bool
      */
-    private function checkExcludedUserFromMarks($marks)
+    private function checkExcludedUserFromMarks($marks, $user_id)
     {
-        $mark_last_week = $marks[0]->reading_mark;
-        $last_week_freezed =  $marks[0]->is_freezed;
-        $mark_second_last_week = count($marks) > 1 ? ($marks[1]->reading_mark) : null;
-        $second_last_week_freezed = $marks[1]->is_freezed;
-        $mark_third_last_week = count($marks) > 2 ? ($marks[2]->reading_mark) : null;
-        $mark_third_last_week_freezed = count($marks) > 2 ? $marks[2]->is_freezed : null;
+        $marksWeekIds = $marks->pluck('week_id')->toArray();
+        $markIndex_1 = count($this->lastWeekIds) > 0 ? array_search($this->lastWeekIds[0], $marksWeekIds) : null;
+        $mark_last_week = !is_null($markIndex_1) ? $markIndex_1 !== FALSE && $marks[$markIndex_1]->reading_mark > 0 : null;
+        $last_week_freezed = count($this->lastWeekIds) > 0 ? $this->checkFreezedInWeek($this->lastWeekIds[0], $user_id) : null;
 
+        $markIndex_2 = count($this->lastWeekIds) > 1 ? array_search($this->lastWeekIds[1], $marksWeekIds) : null;
+        $mark_second_last_week = !is_null($markIndex_2) ? $markIndex_2 !== FALSE && $marks[$markIndex_2]->reading_mark > 0 : null;
+        $second_last_week_freezed = count($this->lastWeekIds) > 1 ? $this->checkFreezedInWeek($this->lastWeekIds[1], $user_id) : null;
+
+        $markIndex_3 = count($this->lastWeekIds) > 2 ? array_search($this->lastWeekIds[2], $marksWeekIds) : null;
+        $mark_third_last_week = !is_null($markIndex_3) ? $markIndex_3 !== FALSE && $marks[$markIndex_3]->reading_mark > 0 : null;
+        $mark_third_last_week_freezed = count($this->lastWeekIds) > 2 ? $this->checkFreezedInWeek($this->lastWeekIds[2], $user_id) : null;
 
         $is_excluded = false;
 
         //2 consecutive zeros of last 2 weeks or zero - freezed - zero => excluded
-        if ($mark_last_week === 0 && !is_null($mark_second_last_week) && $mark_second_last_week === 0) {
+        if ($mark_last_week === FALSE && $mark_second_last_week === FALSE) {
             // dd('2 consecutive zeros of last 2 weeks');
             //check if freezed or not
-            if (!$last_week_freezed && !$second_last_week_freezed) {
+            if (
+                $last_week_freezed === FALSE && $second_last_week_freezed === FALSE
+            ) {
                 // dd('excluded');
                 $is_excluded = true;
             }
         } else if (
-            $mark_last_week === 0 &&
+            $mark_last_week === FALSE &&
             $mark_second_last_week && $second_last_week_freezed &&
-            $mark_third_last_week && $mark_third_last_week === 0
+            $mark_third_last_week === FALSE
         ) {
             //check if freezed or not
-            if (!$last_week_freezed && (!is_null($mark_third_last_week) && !$mark_third_last_week_freezed)) {
+            if ($last_week_freezed === FALSE && $mark_third_last_week_freezed === FALSE) {
                 $is_excluded = true;
             }
         }
 
         return $is_excluded;
-    }
-
-    /**
-     * insert new row to user_stats in database when the new week is starting.
-     * @author Sara     
-     * @param Int $new_week_id (integer id of the current week id), 
-     * @return Int $user_statistic (integer id of the new row in user_statistic table)
-     * @throws Exception error if anything wrong happens
-     */
-    private function add_users_statistics($new_week_id)
-    {
-        $user_stats = new UserStatistic();
-        $user_stats->week_id = $new_week_id;
-        $user_stats->total_new_users = 0;
-        $user_stats->total_hold_users = 0;
-        $user_stats->total_excluded_users = 0;
-        if ($user_stats->save()) {
-            return $user_stats->id;
-        } else {
-            // return $this->jsonResponseWithoutMessage('Something went wrong, could not add users statistics', 'data', 500);
-            throw new \Exception('Something went wrong, could not add users statistics');
-        }
-    }
-
-    /**
-     * insert new row to mark_stats in database when the new week is starting.
-     * @author Sara     
-     * @param Int $new_week_id (integer id of the current week id),
-     * @return Int $mark_statistic_id (integer id of the new row in mark_statistic table)     
-     * @throws \Exception if anything wrong happens   
-     */
-    private function add_marks_statistics($new_week_id)
-    {
-        $mark_stats = new MarkStatistic();
-        $mark_stats->week_id = $new_week_id;
-        $mark_stats->total_marks_users = 0;
-        $mark_stats->general_average_reading = 0;
-        $mark_stats->total_users_have_100 = 0;
-        $mark_stats->total_pages = 0;
-        $mark_stats->total_thesises = 0;
-        if ($mark_stats->save()) {
-            return $mark_stats->id;
-        } else {
-            // return $this->jsonResponseWithoutMessage('Something went wrong, could not add mark', 'data', 500);
-            throw new \Exception('Something went wrong, could not add mark');
-        }
     }
 
     /**
@@ -755,6 +661,8 @@ class WeekController extends Controller
             foreach ($users as $user) {
                 $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
                 $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
+                $user->parent_id = null;
+                $user->save();
                 // $user->notify(
                 //     (new \App\Notifications\MailExcludeAmbassador())
                 //         ->delay(now()->addMinutes(5))
@@ -770,8 +678,7 @@ class WeekController extends Controller
 
     /**
      * set_modify_timer
-     * @author Sara         
-     * @return Int new_week_id in case of SUCCESS, 
+     * @author Sara              
      * @throws Exception error if anything wrong happens
      */
     public function set_modify_timer()

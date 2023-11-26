@@ -421,19 +421,6 @@ class AuthController extends Controller
                 $userGroup->termination_reason = null;
                 $userGroup->save();
 
-
-                $current_week_id = Week::latest()->pluck('id')->first();
-                Mark::updateOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'week_id' => $current_week_id
-                    ],
-                    [
-                        'user_id' => $user->id,
-                        'week_id' => $current_week_id
-                    ],
-                );
-
                 $notification = new NotificationController();
                 $msg = 'قام السفير ' . $user->name . ' بالعودة إلى الفريق';
                 $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
