@@ -74,11 +74,14 @@ class UserExceptionController extends Controller
 
         $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->first()->group;
         $leader_id = Auth::user()->parent_id;
-        $authID =Auth::id();
+        $authID = Auth::id();
 
         if ($request->type_id == $freezCurrentWeek->id || $request->type_id == $freezNextWeek->id) { // تجميد عادي - الاسبوع الحالي أو القادم 
             if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
 
+                /**
+                 * @todo: update the checking for freezing in the last 4 weeks
+                 */
                 $last4WeeksFreeze = Mark::where('user_id', Auth::id())
                     ->where('created_at', '<', $current_week->created_at)
                     ->limit(4)
@@ -453,6 +456,10 @@ class UserExceptionController extends Controller
                 $userException->status = 'cancelled';
                 $userException->save();
                 $current_week = Week::latest()->first();
+
+                /**
+                 * @todo remove the update mark since it will no longer be there
+                 */
                 Mark::where('week_id', $current_week->id)
                     ->where('user_id', Auth::id())
                     ->update(['is_freezed' => 0]);
@@ -689,6 +696,9 @@ class UserExceptionController extends Controller
 
     private function updateUserMarksToFreez($weekId, $userId)
     {
+        /**
+         * @todo remove the update for the mark
+         */
         Mark::where('week_id', $weekId)
             ->where('user_id', $userId)
             ->update([
