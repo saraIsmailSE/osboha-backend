@@ -30,6 +30,7 @@ use App\Rules\base64OrImageMaxSize;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -406,7 +407,8 @@ class PostController extends Controller
      */
     public function getSupportPosts()
     {
-        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        // return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        Log::channel('laravel')->info('Start getSupportPosts');
 
         $user = Auth::user();
 
@@ -436,6 +438,8 @@ class PostController extends Controller
             ->paginate(25);
 
         if ($posts->isNotEmpty()) {
+            Log::channel('laravel')->info('End getSupportPosts');
+
             return $this->jsonResponseWithoutMessage([
                 'posts' => PostResource::collection($posts),
                 'total' => $posts->total(),
