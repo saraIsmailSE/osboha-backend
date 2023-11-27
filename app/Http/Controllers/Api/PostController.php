@@ -438,6 +438,7 @@ class PostController extends Controller
             ->paginate(25);
 
         if ($posts->isNotEmpty()) {
+            $test= PostResource::collection($posts);
             Log::channel('newWeek')->info('End getSupportPosts' . Auth::id());
 
             return $this->jsonResponseWithoutMessage([
