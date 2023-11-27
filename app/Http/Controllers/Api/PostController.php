@@ -408,7 +408,7 @@ class PostController extends Controller
     public function getSupportPosts()
     {
         // return $this->jsonResponseWithoutMessage(null, 'data', 200);
-        Log::channel('laravel')->info('Start getSupportPosts');
+        Log::channel('newWeek')->info('Start getSupportPosts' . Auth::id());
 
         $user = Auth::user();
 
@@ -438,7 +438,7 @@ class PostController extends Controller
             ->paginate(25);
 
         if ($posts->isNotEmpty()) {
-            Log::channel('laravel')->info('End getSupportPosts');
+            Log::channel('newWeek')->info('End getSupportPosts' . Auth::id());
 
             return $this->jsonResponseWithoutMessage([
                 'posts' => PostResource::collection($posts),
