@@ -437,11 +437,11 @@ class GroupController extends Controller
         //     $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
         // }
         $marks['week'] = Week::find($week_id);
-        $marks['group'] = Group::with('allUserAmbassador')->where('id', $group_id)->first();
-        $marks['group_users'] = $marks['group']->allUserAmbassador->count() + 1;
+        $marks['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
+        $marks['group_users'] = $marks['group']->userAmbassador->count() + 1;
         //asmaa
         $marks['ambassadors_achievement'] =
-            User::whereIn('id', $marks['group']->allUserAmbassador->pluck('id'))
+            User::whereIn('id', $marks['group']->userAmbassador->pluck('id'))
             ->with(['mark' => function ($query) use ($marks) {
                 $query->where('week_id', $marks['week']->id);
             }])->get();
