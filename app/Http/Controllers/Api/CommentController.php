@@ -441,14 +441,14 @@ class CommentController extends Controller
     }
     /**
      * Delete an existing comment using its id (“delete comment” permission is required).     
-     * @todo 1- Check if the comment exists.
-     * @todo 2- Check if the logged in user has the “delete comment” permission or the logged in user_id has to match the user_id in the request.
-     * @todo 3- Delete the comment replies.
-     * @todo 4- If comment type is “thesis” delete the thesis screenshots.
-     * @todo 5- Delete the comment screenshots.
-     * @todo 6- Delete the thesis.
-     * @todo 7- Delete the comment media.
-     * @todo 8- Delete the comment.     
+     * 1- Check if the comment exists.
+     * 2- Check if the logged in user has the “delete comment” permission or the logged in user_id has to match the user_id in the request.
+     * 3- Delete the comment replies.
+     * 4- If comment type is “thesis” delete the thesis screenshots.
+     * 5- Delete the comment screenshots.
+     * 6- Delete the thesis.
+     * 7- Delete the comment media.
+     * 8- Delete the comment.     
      * @param  Int $comment_id
      * @return jsonResponse;
      */

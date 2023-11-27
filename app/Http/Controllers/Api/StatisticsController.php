@@ -32,7 +32,7 @@ class StatisticsController extends Controller
 
     /**
      * Get Statistics By Week ID.
-     * 
+     * @todo update zeros and freezed retrieval
      * @return statistics;
      */
 
@@ -207,8 +207,8 @@ class StatisticsController extends Controller
         $leadersReading = Mark::where('week_id', $previous_week->id)
             ->whereIn('user_id', $supervisorGroup->userAmbassador->pluck('id'))
             ->get();
-            $response['leaders_reading'] = $leadersReading;
-            $response['supervisor_group'] = $supervisorGroup;
+        $response['leaders_reading'] = $leadersReading;
+        $response['supervisor_group'] = $supervisorGroup;
 
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
