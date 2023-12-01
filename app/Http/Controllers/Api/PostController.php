@@ -406,7 +406,7 @@ class PostController extends Controller
      */
     public function getSupportPosts()
     {
-        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        //return $this->jsonResponseWithoutMessage(null, 'data', 200);
 
         $user = Auth::user();
 
@@ -883,8 +883,8 @@ class PostController extends Controller
             ['user_id', $user_id]
         ])->pluck('user_type')->toArray();
         $allowed_types = ['advisor', 'supervisor', 'leader', 'admin'];
-        $pending_msg ='';
-        $pending_userId=null;
+        $pending_msg = '';
+        $pending_userId = null;
         $pending_type = null;
 
         if (!array_intersect($allowed_types, $user_types)) {
@@ -1131,6 +1131,6 @@ class PostController extends Controller
                     ->with(['profile.user', 'group.groupAdministrators', 'type']);
             }])
             ->latest()
-            ->paginate(25);
+            ->paginate(8);
     }
 }
