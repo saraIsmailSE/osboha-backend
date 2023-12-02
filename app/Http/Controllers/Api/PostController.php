@@ -406,7 +406,7 @@ class PostController extends Controller
      */
     public function getSupportPosts()
     {
-        //return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
 
         $user = Auth::user();
 

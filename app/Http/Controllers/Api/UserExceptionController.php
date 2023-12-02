@@ -699,9 +699,9 @@ class UserExceptionController extends Controller
         /**
          * @todo remove the update for the mark
          */
-        Mark::where('week_id', $weekId)
-            ->where('user_id', $userId)
-            ->update([
+        Mark::updateOrCreate(
+            ['week_id', $weekId, 'user_id', $userId],
+            [
                 'reading_mark' => 0,
                 'writing_mark' => 0,
                 'total_pages' => 0,
@@ -709,7 +709,8 @@ class UserExceptionController extends Controller
                 'total_thesis' => 0,
                 'total_screenshot' => 0,
                 'is_freezed' => 1
-            ]);
+            ]
+        );
     }
 
 
@@ -717,16 +718,17 @@ class UserExceptionController extends Controller
     {
         $thisWeekMark = Mark::where('week_id', $current_week->id)
             ->where('user_id', $owner_of_exception->id)->first();
+        if ($thisWeekMark) {
+            $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
+                ->select(
+                    DB::raw('sum(max_length) as max_length'),
+                )->first()->max_length;
 
-        $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
-            ->select(
-                DB::raw('sum(max_length) as max_length'),
-            )->first()->max_length;
-
-        if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshots >= 2)) {
-            $thisWeekMark->reading_mark = config('constants.FULL_READING_MARK');
-            $thisWeekMark->writing_mark = config('constants.FULL_WRITING_MARK');
-            $thisWeekMark->save();
+            if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshots >= 2)) {
+                $thisWeekMark->reading_mark = config('constants.FULL_READING_MARK');
+                $thisWeekMark->writing_mark = config('constants.FULL_WRITING_MARK');
+                $thisWeekMark->save();
+            }
         }
     }
 
