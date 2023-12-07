@@ -27,7 +27,7 @@ class PostResource extends JsonResource
             'comments' =>  CommentResource::collection($this->whenLoaded('comments')),
             'media' => MediaResource::collection($this->media),
             'pollOptions' => PollOptionResource::collection($this->pollOptions),
-            'taggedUsers' => TaggedUserResource::collection($this->taggedUsers),
+            'taggedUsers' => TaggedUserResource::collection($this->whenLoaded('taggedUsers')),
             'votes_count' => $this->poll_votes_count ?? 0,
             "comments_count" => $this->comments_count ?? 0,
             'reactions_count' => $this->reactions_count ?? 0,

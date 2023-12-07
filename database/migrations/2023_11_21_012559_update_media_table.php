@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::table('media', function (Blueprint $table) {
             $table->index(['comment_id']);
             $table->index(['post_id']);
-            
+            $table->index(['book_id']);
         });
     }
 
@@ -30,6 +30,7 @@ return new class extends Migration
         Schema::table('media', function (Blueprint $table) {
             $table->dropIndex('comment_id');
             $table->dropIndex('post_id');
+            $table->dropIndex('book_id');
         });
     }
 };

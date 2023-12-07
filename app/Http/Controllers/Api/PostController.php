@@ -406,8 +406,6 @@ class PostController extends Controller
      */
     public function getSupportPosts()
     {
-        return $this->jsonResponseWithoutMessage(null, 'data', 200);
-
         $user = Auth::user();
 
         $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
@@ -422,18 +420,18 @@ class PostController extends Controller
             ->where('timeline_id', $mainTimelineId)
             ->whereNotNull('is_approved')
             ->withCount('comments')
-            ->with('pollOptions.votes', function ($query) {
-                $query->where('user_id', Auth::id());
+            ->with('pollOptions.votes', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
             })
             ->withCount('pollVotes')
             ->with('user')
-            ->with('taggedUsers.user')
+            // ->with('taggedUsers.user')
             ->withCount('reactions')
             ->with('reactions', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
             ->latest()
-            ->paginate(25);
+            ->paginate(5);
 
         if ($posts->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
@@ -451,13 +449,11 @@ class PostController extends Controller
      */
     public function getCurrentWeekSupportPost()
     {
-        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        //return $this->jsonResponseWithoutMessage(null, 'data', 200);
 
-        // $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
-        //     return Week::latest()->first();
-        // });
-
-        $current_week =  Week::latest()->first();
+        $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
+            return Week::latest()->first();
+        });
 
         // Cache the PostType ID for 'support' for a certain amount of time. 
         $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {

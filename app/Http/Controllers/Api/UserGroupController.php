@@ -170,6 +170,14 @@ class UserGroupController extends Controller
                     return $this->jsonResponseWithoutMessage('ال' . $arabicRole .  ' موجود في المجموعة', 'data', 202);
                 }
 
+                //CHECK IF USER ID AMBASSADOR IN ANOTHER GROUP
+                if ($role->name == 'ambassador') {
+
+                    if (UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->exists()) {
+                        return $this->jsonResponseWithoutMessage("العضو موجود كـسفير في مجموعة أخرى", 'data', 200);
+                    }
+                }
+
                 if ($user->hasRole($role->name)) {
                     //check if the role is leader and above then check if this role found in the group
                     if ($role->name !== 'ambassador') {
@@ -188,9 +196,9 @@ class UserGroupController extends Controller
                     }
                     if ($group->type->type == 'followup') {
                         if ($role->name == 'ambassador') {
-                            if ($group->groupLeader->isEmpty())
+                            if ($group->groupLeader->isEmpty()) {
                                 return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة, لا يمكنك إضافة أعضاء", 'data', 200);
-                            else {
+                            } else {
                                 $user->parent_id = $group->groupLeader[0]->id;
                                 $user->save();
                                 $user->notify(new MailAmbassadorDistribution($request->group_id));

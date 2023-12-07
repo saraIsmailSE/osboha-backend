@@ -696,11 +696,8 @@ class UserExceptionController extends Controller
 
     private function updateUserMarksToFreez($weekId, $userId)
     {
-        /**
-         * @todo remove the update for the mark
-         */
         Mark::updateOrCreate(
-            ['week_id', $weekId, 'user_id', $userId],
+            ['week_id' => $weekId, 'user_id' => $userId],
             [
                 'reading_mark' => 0,
                 'writing_mark' => 0,
@@ -709,6 +706,7 @@ class UserExceptionController extends Controller
                 'total_thesis' => 0,
                 'total_screenshot' => 0,
                 'is_freezed' => 1
+
             ]
         );
     }
