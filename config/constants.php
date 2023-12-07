@@ -74,6 +74,7 @@ return [
     'EXAMS_MONTHLY_TYPE' => 'نظام امتحانات - شهري',
     'EXAMS_SEASONAL_TYPE' => 'نظام امتحانات - فصلي',
     'ARABIC_ROLES' => [
+        'support_leader' => 'قائد دعم',
         'ambassador' => "سفير",
         'leader' => "قائد",
         'supervisor' => "مراقب",
@@ -82,4 +83,5 @@ return [
         'admin' => 'ادارة'
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
+    'ALL_SUPPER_ROLES' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader'],
 ];
