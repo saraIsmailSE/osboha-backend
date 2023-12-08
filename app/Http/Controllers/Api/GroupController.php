@@ -861,6 +861,17 @@ class GroupController extends Controller
                     $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
 
                     if ($group) {
+                        //add user to selected advising group
+                        UserGroup::updateOrCreate(
+                            [
+                                'user_type' => $request->user_type,
+                                'group_id' => $group->id
+                            ],
+                            [
+                                'user_id' => $user->id
+                            ]
+                        );
+
                         // get groups for each supervisor and add advisor
                         foreach ($group->userAmbassador as $supervisor) {
                             // get groups for each supervisor 
