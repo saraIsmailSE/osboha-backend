@@ -191,7 +191,18 @@ class UserGroupController extends Controller
 
                         $roleInGroup = UserGroup::where('group_id', $group->id)->where('user_type', $role->name)->first();
                         if ($roleInGroup) {
-                            return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . $arabicRole . ", يوجد " . $arabicRole . " في المجموعة", 'data', 200);
+                            if ($group->type->type == 'Administration' || $group->type->type == 'consultation') {
+
+                                UserGroup::updateOrCreate(
+                                    [
+                                        'user_id' => $user->id,
+                                        'group_id' => $group->id
+                                    ],
+                                    ['user_type' => $role->name]
+                                );
+                            } else {
+                                return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . $arabicRole . ", يوجد " . $arabicRole . " في المجموعة", 'data', 200);
+                            }
                         }
                     }
                     if ($group->type->type == 'followup') {
