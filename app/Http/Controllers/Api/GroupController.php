@@ -64,7 +64,7 @@ class GroupController extends Controller
                 /**
                  * @todo: slow query - asmaa         
                  */
-                $groups = Group::withCount('users')->paginate(30);
+                $groups = Group::with('groupAdministrators')->withCount('users')->paginate(30);
             }
 
 

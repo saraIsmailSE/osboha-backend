@@ -457,4 +457,33 @@ class UserGroupController extends Controller
             throw new NotAuthorized;
         }
     }
+
+
+    public function withdrawnMember(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'user_group_id' => 'required',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
+            $userGroup = UserGroup::find($request->user_group_id);
+
+            if ($userGroup) {
+                $userGroup->termination_reason = 'withdrawn';
+                $userGroup->save();
+                return $this->jsonResponseWithoutMessage('User withdrawn', 'data', 200);
+            } else {
+                throw new NotFound;
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
 }

@@ -153,7 +153,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
-
         });
 
         ########Start Roles########
@@ -372,7 +371,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
-
         });
         ############End Group############
 
@@ -489,7 +487,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
             Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
             Route::get('/supervising-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
-
         });
         ######## End Statisticx########
 
@@ -519,6 +516,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
             Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
             Route::delete('/delete/{user_group_id}', [UserGroupController::class, 'delete']);
+            Route::post('/withdrawn', [UserGroupController::class, 'withdrawnMember']);
         });
         ######## End UserGroup ########
         ####### Start Thesis ########
