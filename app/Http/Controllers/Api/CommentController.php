@@ -464,16 +464,20 @@ class CommentController extends Controller
                     if ($comment->type == "thesis" || $comment->type == "screenshot") {
 
                         $currentWeek = Week::latest()->first();
-                        $thesis = Thesis::where('comment_id', $comment->id)->first();
+
+                        $commentId = $comment->type === 'thesis' ? $comment->id : $comment->comment_id;
+                        $thesis = Thesis::where('comment_id', $commentId)->first();
+
+
 
                         if ($thesis->mark->week_id < $currentWeek->id) {
                             return $this->jsonResponseWithoutMessage('لقد انتهى الوقت, لا يمكنك حذف الأطروحة', 'data', 500);
                         }
 
-                        $thesis['comment_id'] = $comment->id;
+                        $thesis['comment_id'] = $commentId;
                         /**asmaa */
                         //delete the screenshots
-                        $screenshots_comments = Comment::where('comment_id', $comment->id)->orWhere('id', $comment->id)->where('type', 'screenshot')->get();
+                        $screenshots_comments = Comment::where('comment_id', $commentId)->orWhere('id', $commentId)->where('type', 'screenshot')->get();
                         $media = Media::whereIn('comment_id', $screenshots_comments->pluck('id'))->get();
 
                         foreach ($media as $media_item) {
