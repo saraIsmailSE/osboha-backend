@@ -422,7 +422,8 @@ class RolesAdministrationController extends Controller
 
                                         //get current supervisor Supervising group [where he is a supervisor]
 
-                                        $currentSupervisor_supervisingGroup = Group::whereHas('type', function ($q) {
+
+                                        $currentSupervisor_supervisingGroup = UserGroup::whereHas('group.type', function ($q) {
                                             $q->where('type', '=', 'supervising');
                                         })
                                             ->where('user_groups.user_id', $currentSupervisor->id)
@@ -430,13 +431,21 @@ class RolesAdministrationController extends Controller
                                             ->whereNull('user_groups.termination_reason')
                                             ->first();
 
+                                        // $currentSupervisor_supervisingGroup = Group::whereHas('type', function ($q) {
+                                        //     $q->where('type', '=', 'supervising');
+                                        // })
+                                        //     ->where('user_groups.user_id', $currentSupervisor->id)
+                                        //     ->where('user_groups.user_type', 'supervisor')
+                                        //     ->whereNull('user_groups.termination_reason')
+                                        //     ->first();
+
                                         UserGroup::updateOrCreate(
                                             [
                                                 'user_id' => $newLeader->id,
                                                 'user_type' => "ambassador"
                                             ],
                                             [
-                                                'group_id' => $currentSupervisor_supervisingGroup->id
+                                                'group_id' => $currentSupervisor_supervisingGroup->group_id
                                             ]
                                         );
 

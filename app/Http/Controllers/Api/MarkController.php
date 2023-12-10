@@ -336,7 +336,8 @@ class MarkController extends Controller
 
                     /*support -- asmaa*/
                     $main_timer = $currentWeek->main_timer;
-                    $support_post = Post::where('type_id', PostType::where('type', 'support')->first()->id)
+                    $PostTypeSupport = PostType::where('type', 'support')->first()->id;
+                    $support_post = Post::where('type_id', $PostTypeSupport)
                         ->where('created_at', '>', $currentWeek->created_at)
                         ->where('created_at', '<', $main_timer)
                         ->latest()
@@ -390,6 +391,7 @@ class MarkController extends Controller
      * @return String;
      * @return NotFound;
      * @return NotAuthorized;
+     * @todo check achievement from thesis
      */
     public function acceptSupport($user_id, $week_id)
     {
@@ -421,6 +423,7 @@ class MarkController extends Controller
      * reject support vote for ambassador
      * @param  $user_id
      * @return String;
+     * @todo check achievment from thesis
      */
     public function rejectSupport($user_id, $week_id)
     {
@@ -458,7 +461,7 @@ class MarkController extends Controller
     /**
      * set support mark for all active users
      * @param Request $request -> reason 
-     * @return String;
+     * @return String;     
      */
 
     public function setSupportMarkForAll(Request $request)
@@ -525,21 +528,21 @@ class MarkController extends Controller
 
         $response['max_total_pages'] = Cache::remember('max_total_pages_in_month', now()->addHours(24), function () use ($startOfMonth, $endOfMonth) {
             return Mark::with('user')
-            ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
-            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->groupBy('user_id')
-            ->orderBy('max_total_pages', 'desc')
-            ->limit(53)->get();
+                ->where('is_freezed', 0)
+                ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
+                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                ->groupBy('user_id')
+                ->orderBy('max_total_pages', 'desc')
+                ->limit(53)->get();
         });
         $response['max_total_thesis'] = Cache::remember('max_total_thesis_in_month', now()->addHours(24), function () use ($startOfMonth, $endOfMonth) {
             return Mark::with('user')
-            ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
-            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->groupBy('user_id')
-            ->orderBy('max_total_thesis', 'desc')
-            ->limit(53)->get();
+                ->where('is_freezed', 0)
+                ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
+                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                ->groupBy('user_id')
+                ->orderBy('max_total_thesis', 'desc')
+                ->limit(53)->get();
         });
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
@@ -570,26 +573,26 @@ class MarkController extends Controller
     {
         $response['previous_week'] = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
 
-        
-        
-        $response['max_total_pages'] =Cache::remember('max_total_pages_in_week', now()->addHours(24), function () use ($response) {
+
+
+        $response['max_total_pages'] = Cache::remember('max_total_pages_in_week', now()->addHours(24), function () use ($response) {
             return Mark::with('user')
-            ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
-            ->where('week_id', $response['previous_week']->id)
-            ->groupBy('user_id')
-            ->orderBy('max_total_pages', 'desc')
-            ->limit(53)->get();
+                ->where('is_freezed', 0)
+                ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
+                ->where('week_id', $response['previous_week']->id)
+                ->groupBy('user_id')
+                ->orderBy('max_total_pages', 'desc')
+                ->limit(53)->get();
         });
 
-        $response['max_total_thesis'] =Cache::remember('max_total_thesis_in_week', now()->addHours(24), function () use ($response) {
+        $response['max_total_thesis'] = Cache::remember('max_total_thesis_in_week', now()->addHours(24), function () use ($response) {
             return Mark::with('user')
-            ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
-            ->where('week_id', $response['previous_week']->id)
-            ->groupBy('user_id')
-            ->orderBy('max_total_thesis', 'desc')
-            ->limit(53)->get();
+                ->where('is_freezed', 0)
+                ->select('user_id', DB::raw('max(total_thesis) as max_total_thesis'))
+                ->where('week_id', $response['previous_week']->id)
+                ->groupBy('user_id')
+                ->orderBy('max_total_thesis', 'desc')
+                ->limit(53)->get();
         });
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);

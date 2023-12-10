@@ -21,8 +21,8 @@ class Post extends Model
         'book_id',
     ];
 
-    protected $with = array('media');
-    protected $appends = ['comments_count', 'reactions_count', 'reacted_by_user'];
+    protected $with = array('media' , 'type');
+    protected $appends = [/*'comments_count', 'reactions_count',*/ 'reacted_by_user'];
 
     public function comments()
     {
@@ -91,15 +91,17 @@ class Post extends Model
     }
 
     //attributes
-    public function getCommentsCountAttribute()
-    {
-        return $this->comments()->count();
-    }
+    // public function getCommentsCountAttribute()
+    // {
+    //     return Comment::where('post_id', $this->id)->count();
+    //     return $this->comments()->count();
+    // }
 
-    public function getReactionsCountAttribute()
-    {
-        return $this->reactions()->count();
-    }
+    // public function getReactionsCountAttribute()
+    // {
+    //     return Reaction::where('post_id', $this->id)->count();
+    //     return $this->reactions()->count();
+    // }
 
     public function getReactedByUserAttribute()
     {

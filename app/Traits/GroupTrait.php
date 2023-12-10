@@ -19,9 +19,13 @@ trait GroupTrait
                 ->whereIn('user_id', $users_in_group)
                 ->where('is_freezed', 0)
                 ->select(
-                    DB::raw('avg(reading_mark + writing_mark + support) as out_of_100')
-                )->first()->out_of_100;
-            return $avg;
+                    DB::raw('SUM(reading_mark + writing_mark + support) as out_of_100')
+                )->first();
+
+            if ($avg)
+                return $avg->out_of_100 / count($users_in_group);
+
+            return 0;
         } catch (\Error $e) {
             report($e);
             return false;

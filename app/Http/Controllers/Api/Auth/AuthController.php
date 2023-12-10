@@ -409,39 +409,39 @@ class AuthController extends Controller
     {
         //update is_excluded to 0
         $user = User::Find(Auth::id());
-        $user->is_excluded = 0;
 
         $userGroup = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->first();
+        if ($userGroup) {
+            DB::beginTransaction();
+            try {
+                $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->first();
+                if ($leader) {
+                    $user->parent_id = $leader->user_id;
+                    $user->is_excluded = 0;
+                    $user->save();
 
-        $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->first();
-        $user->parent_id = $leader->user_id;
-        $user->save();
-        /**
-         * @todo: slow query - asmaa         
-         */
-        // update termination_reason to null
-        $userGroup->termination_reason = null;
-        $userGroup->save();
+                    $userGroup->termination_reason = null;
+                    $userGroup->save();
+                    DB::commit();
 
+                    $notification = new NotificationController();
+                    $msg = 'قام السفير ' . $user->name . ' بالعودة إلى الفريق';
+                    $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
 
-        $current_week_id = Week::latest()->pluck('id')->first();
-        Mark::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'week_id' => $current_week_id
-            ],
-            [
-                'user_id' => $user->id,
-                'week_id' => $current_week_id
-            ],
-        );
-
-        $notification = new NotificationController();
-        $msg = 'قام السفير ' . $user->name . ' بالعودة إلى الفريق';
-        $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
-
-        return $this->jsonResponseWithoutMessage('تم التعديل بنجاح', 'data', 200);
+                    return $this->jsonResponseWithoutMessage('تم التعديل بنجاح', 'data', 200);
+                } else {
+                    return $this->jsonResponseWithoutMessage('لا يوجد قائد حالي لمجموعتك، يرجى مراسلة فريق الدعم', 'data', 201);
+                }
+            } catch (\Exception $e) {
+                Log::channel('newUser')->info($e);
+                DB::rollBack();
+                return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
+            }
+        } else {
+            return $this->jsonResponseWithoutMessage('لست سفيراً في اي مجموعة، يرجى مراسلة قائدك السابقك', 'data', 201);
+        }
     }
+
     /**
      *reset auth email.
      * 
