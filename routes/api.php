@@ -57,6 +57,7 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
+    EmptyingTeamController,
 };
 use App\Http\Controllers\QuestionFollowupController;
 use App\Http\Resources\RoomResource;
@@ -693,6 +694,14 @@ Route::group(['prefix' => 'v1'], function () {
         ######## StatisticsSupervisor ########
         Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
         ######## END StatisticsSupervisor ########
+
+        ######## Emptying ########
+        Route::group(['prefix' => 'emptying'], function () {
+            Route::post('/all/ambassadors', [EmptyingTeamController::class, 'allAmbassadorForEmptying']);
+            Route::post('/followup/team', [EmptyingTeamController::class, 'EmptyingFollowupTeam']);
+            Route::post('/move/ambassadors', [EmptyingTeamController::class, 'moveAmbassadorsForEmptying']);
+        });
+         ######## Emptying ########
 
 
     });
