@@ -410,11 +410,11 @@ class AuthController extends Controller
         //update is_excluded to 0
         $user = User::Find(Auth::id());
 
-        $userGroup = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->first();
+        $userGroup = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->latest()->first();
         if ($userGroup) {
             DB::beginTransaction();
             try {
-                $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->first();
+                $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->whereNull('termination_reason')->first();
                 if ($leader) {
                     $user->parent_id = $leader->user_id;
                     $user->is_excluded = 0;
