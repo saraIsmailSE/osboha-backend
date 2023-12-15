@@ -357,7 +357,9 @@ class UserExceptionController extends Controller
         if ($userException) {
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
                 $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
-                $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
+                $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)
+                    ->latest() //asmaa
+                    ->first();
                 $response['user_exception'] = $userException;
                 //weeks [current - last]
                 $response['weeks'] = Week::orderBy('created_at', 'desc')->take(2)->get();
@@ -696,11 +698,8 @@ class UserExceptionController extends Controller
 
     private function updateUserMarksToFreez($weekId, $userId)
     {
-        /**
-         * @todo remove the update for the mark
-         */
         Mark::updateOrCreate(
-            ['week_id', $weekId, 'user_id', $userId],
+            ['week_id' => $weekId, 'user_id' => $userId],
             [
                 'reading_mark' => 0,
                 'writing_mark' => 0,
@@ -709,6 +708,7 @@ class UserExceptionController extends Controller
                 'total_thesis' => 0,
                 'total_screenshot' => 0,
                 'is_freezed' => 1
+
             ]
         );
     }

@@ -64,7 +64,7 @@ class GroupController extends Controller
                 /**
                  * @todo: slow query - asmaa         
                  */
-                $groups = Group::withCount('users')->paginate(30);
+                $groups = Group::with('groupAdministrators')->withCount('users')->paginate(30);
             }
 
 
@@ -178,9 +178,12 @@ class GroupController extends Controller
     public function show($group_id)
     {
 
-        $response['info'] = Group::with('users', 'groupAdministrators', 'leaderAndAmbassadors')->withCount('userAmbassador')->where('id', $group_id)->first();
+        $response['info'] = Group::with('users', 'groupAdministrators', 'leaderAndAmbassadors', 'groupSupportLeader')->withCount('userAmbassador')->where('id', $group_id)->first();
         if ($response['info']) {
-            $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
+            $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)
+                ->latest() //admaa
+                ->first();
+
             if ($response['authInGroup'] || Auth::user()->hasRole('admin')) {
 
                 //group posts
@@ -193,6 +196,9 @@ class GroupController extends Controller
                 $response['week'] = Week::latest('id')->first();
 
                 $response['week_avg'] = $this->groupAvg($group_id,  $response['week']->id, $response['info']->leaderAndAmbassadors->pluck('id'));
+
+                $response['has_support_leader'] = $response['info']->groupSupportLeader->isNotEmpty();
+
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
@@ -319,11 +325,15 @@ class GroupController extends Controller
     public function groupExceptions($group_id)
     {
 
+        //editted by asmaa
         $userInGroup = UserGroup::where('group_id', $group_id)
-            ->where('user_id', Auth::id())->pluck('user_type')
+            ->where('user_id', Auth::id())
+            ->where('user_type', '!=', 'ambassador')
+            ->pluck('user_type')
             ->first();
 
-        if ($userInGroup != 'ambassador') {
+        //if no records, then the user is only an ambassador
+        if ($userInGroup) {
             $response['week'] = Week::latest()->first();
             $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
             $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->latest()->get();
@@ -417,14 +427,23 @@ class GroupController extends Controller
         // ->inRandomOrder()->limit(3)->get();
         $marks['most_read'] = Mark::where('week_id', $week_id)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
 
-
+        //support leader achievement
+        $groupSupportLeader = $marks['group']->groupSupportLeader;
+        if ($groupSupportLeader->isNotEmpty()) {
+            $marks['support_leader'] = [
+                'isAmbassadorInGroup' => $marks['group']->leaderAndAmbassadors->where('id', $groupSupportLeader[0]->id)->isNotEmpty(),
+                'mark' => Mark::where('week_id', $week_id)
+                    ->where('user_id', $groupSupportLeader[0]->id)
+                    ->first()
+            ];
+        }
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
 
     /**
      * all ambassadors achievments.
-     * 
-     * @param  group _id , week filter [current - previous ]
+     * @param  group_id 
+     * @param  week_id - filter [current - previous ]
      * @return ambassadors achievments
      */
 
@@ -861,6 +880,17 @@ class GroupController extends Controller
                     $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
 
                     if ($group) {
+                        //add user to selected advising group
+                        UserGroup::updateOrCreate(
+                            [
+                                'user_type' => $request->user_type,
+                                'group_id' => $group->id
+                            ],
+                            [
+                                'user_id' => $user->id
+                            ]
+                        );
+
                         // get groups for each supervisor and add advisor
                         foreach ($group->userAmbassador as $supervisor) {
                             // get groups for each supervisor 

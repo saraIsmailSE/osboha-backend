@@ -57,6 +57,7 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
+    EmptyingTeamController,
 };
 use App\Http\Controllers\QuestionFollowupController;
 use App\Http\Resources\RoomResource;
@@ -153,7 +154,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
-
         });
 
         ########Start Roles########
@@ -372,7 +372,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
-
         });
         ############End Group############
 
@@ -489,7 +488,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
             Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
             Route::get('/supervising-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
-
+            Route::get('/advisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
+            Route::get('/consultant-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantStatistics']);
         });
         ######## End Statisticx########
 
@@ -519,6 +519,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
             Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
             Route::delete('/delete/{user_group_id}', [UserGroupController::class, 'delete']);
+            Route::post('/withdrawn', [UserGroupController::class, 'withdrawnMember']);
         });
         ######## End UserGroup ########
         ####### Start Thesis ########
@@ -695,6 +696,14 @@ Route::group(['prefix' => 'v1'], function () {
         ######## StatisticsSupervisor ########
         Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
         ######## END StatisticsSupervisor ########
+
+        ######## Emptying ########
+        Route::group(['prefix' => 'emptying'], function () {
+            Route::post('/all/ambassadors', [EmptyingTeamController::class, 'allAmbassadorForEmptying']);
+            Route::post('/followup/team', [EmptyingTeamController::class, 'EmptyingFollowupTeam']);
+            Route::post('/move/ambassadors', [EmptyingTeamController::class, 'moveAmbassadorsForEmptying']);
+        });
+        ######## Emptying ########
 
 
     });

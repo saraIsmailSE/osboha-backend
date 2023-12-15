@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('media', function (Blueprint $table) {
-            $table->index(['comment_id']);
-            $table->index(['post_id']);
-            $table->index(['book_id']);
+        Schema::table('groups', function (Blueprint $table) {
+            $table->softDeletes();
         });
     }
 
@@ -27,10 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('media', function (Blueprint $table) {
-            $table->dropIndex('comment_id');
-            $table->dropIndex('post_id');
-            $table->dropIndex('book_id');
+        Schema::table('groups', function (Blueprint $table) {
+            //
         });
     }
 };

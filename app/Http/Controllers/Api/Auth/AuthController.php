@@ -412,27 +412,36 @@ class AuthController extends Controller
 
         $userGroup = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->first();
         if ($userGroup) {
-            $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->first();
-            if ($leader) {
-                $user->parent_id = $leader->user_id;
-                $user->is_excluded = 0;
-                $user->save();
+            DB::beginTransaction();
+            try {
+                $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->first();
+                if ($leader) {
+                    $user->parent_id = $leader->user_id;
+                    $user->is_excluded = 0;
+                    $user->save();
 
-                $userGroup->termination_reason = null;
-                $userGroup->save();
+                    $userGroup->termination_reason = null;
+                    $userGroup->save();
+                    DB::commit();
 
-                $notification = new NotificationController();
-                $msg = 'قام السفير ' . $user->name . ' بالعودة إلى الفريق';
-                $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
+                    $notification = new NotificationController();
+                    $msg = 'قام السفير ' . $user->name . ' بالعودة إلى الفريق';
+                    $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
 
-                return $this->jsonResponseWithoutMessage('تم التعديل بنجاح', 'data', 200);
-            } else {
-                return $this->jsonResponseWithoutMessage('لا يوجد قائد حالي لمجموعتك، يرجى مراسلة فريق الدعم', 'data', 201);
+                    return $this->jsonResponseWithoutMessage('تم التعديل بنجاح', 'data', 200);
+                } else {
+                    return $this->jsonResponseWithoutMessage('لا يوجد قائد حالي لمجموعتك، يرجى مراسلة فريق الدعم', 'data', 201);
+                }
+            } catch (\Exception $e) {
+                Log::channel('newUser')->info($e);
+                DB::rollBack();
+                return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
             }
         } else {
             return $this->jsonResponseWithoutMessage('لست سفيراً في اي مجموعة، يرجى مراسلة قائدك السابقك', 'data', 201);
         }
     }
+
     /**
      *reset auth email.
      * 

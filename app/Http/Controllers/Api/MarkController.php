@@ -327,12 +327,31 @@ class MarkController extends Controller
             if ($user_group) {
                 $response['group'] = Group::where('id', $user_group->group_id)->with('groupAdministrators')->first();
 
-                if ((in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) || Auth::user()->hasRole('admin')) {
+                //check if the user is support leader
+                $isSupportLeader = UserGroup::where('user_id', $user->id)->where('user_type', 'support_leader')->first();
+                $supportLeaderGroupAdmins = $isSupportLeader ? $isSupportLeader->group->groupAdministrators->pluck('id')->toArray() : [];
+                $isAuthAdminInGroup = in_array(Auth::id(), $supportLeaderGroupAdmins);
+
+                if (
+                    (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) ||
+                    Auth::user()->hasRole('admin') || $isAuthAdminInGroup
+                ) {
 
                     $currentWeek = Week::find($week_id);
                     $response['currentWeek'] = $currentWeek;
                     $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
                     $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
+
+                    //check if the auth user can take action if the user is support leader
+                    if ($isSupportLeader) {
+                        $supportLeaderParent = $isSupportLeader->user->parent;
+                        $parentGroup = UserGroup::where('user_id', $supportLeaderParent->id)->where('user_type', 'leader')->first();
+                        $parentGroupAdmins = $parentGroup ? $parentGroup->group->groupAdministrators->pluck('id')->toArray() : [];
+                        $isAuthAdminInGroups = in_array(Auth::id(), $parentGroupAdmins);
+                        $response['can_edit'] = $isAuthAdminInGroups;
+                    } else {
+                        $response['can_edit'] = true;
+                    }
 
                     /*support -- asmaa*/
                     $main_timer = $currentWeek->main_timer;
@@ -596,5 +615,58 @@ class MarkController extends Controller
         });
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    /**
+     * Accept support for all the users who have supported but whose leader has not yet accepted the support after the modify timer has passed.
+     */
+    public function acceptSupportForAll()
+    {
+        //get the week before the current week
+        $week = Week::latest()->skip(1)->first();
+
+
+        //get the support post
+        $supportPostTypeId = PostType::where('type', 'support')->first()->id;
+        $supportPost = Post::where('type_id', $supportPostTypeId)->latest()->first();
+
+        //get all the users who commented on the support post or reacted to it or voted on the poll
+        $reactedUsers = $supportPost->reactions->pluck('user_id')->toArray();
+        $votedUsers = $supportPost->pollVotes->pluck('user_id')->toArray();
+        $commentedUsers = $supportPost->comments->pluck('user_id')->toArray();
+
+        $users = array_unique(array_merge($reactedUsers, $votedUsers, $commentedUsers));
+
+        //get marks for all the users that didn't have support mark, and update them
+        $marksWithoutSupport = Mark::where('support', 0)
+            ->where('reading_mark', '!=', 0)
+            ->where('week_id', $week->id)
+            ->whereIn('user_id', $users)
+            ->with('user')
+            ->get();
+
+        try {
+            DB::beginTransaction();
+
+            //update marks for all the users that didn't have support mark
+            Mark::whereIn('id', $marksWithoutSupport->pluck('id'))
+                ->update(['support' => 10]);
+
+            DB::commit();
+
+            //notify supervisors that the leader didn't accept the support for some users            
+            $notification = new NotificationController();
+            foreach ($marksWithoutSupport as $mark) {
+                $user = $mark->user;
+                $leaderRole = $user->parent->roles->first()->name;
+                $message = "لم يقبل ال" . config('constants.ARABIC_ROLES')[$leaderRole] . ": " . $user->parent->name . " الدعم للمستخدم: " . $user->name . " في الأسبوع: " . $week->title . ", لذلك تم اعتماد الدعم له تلقائيا";
+                $notification->sendNotification($user->parent->parent->id, $message, SUPPORT_MARK);
+            }
+
+            return $this->jsonResponseWithoutMessage("تم اعتماد الدعم للجميع", 'data', 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
     }
 }
