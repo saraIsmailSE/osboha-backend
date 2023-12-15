@@ -430,12 +430,10 @@ class GroupController extends Controller
         //support leader achievement
         $groupSupportLeader = $marks['group']->groupSupportLeader;
         if ($groupSupportLeader->isNotEmpty()) {
-            $marks['support_leader'] = [
-                'isAmbassadorInGroup' => $marks['group']->leaderAndAmbassadors->where('id', $groupSupportLeader[0]->id)->isNotEmpty(),
-                'mark' => Mark::where('week_id', $week_id)
-                    ->where('user_id', $groupSupportLeader[0]->id)
-                    ->first()
-            ];
+            $marks['support_leader_mark'] =  Auth::user()->hasAnyRole(config('constants.SUPERVISORANDABOVE_ROLES')) ?
+                Mark::where('week_id', $week_id)
+                ->where('user_id', $groupSupportLeader[0]->id)
+                ->first() : null;
         }
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }

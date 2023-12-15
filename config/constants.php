@@ -84,4 +84,5 @@ return [
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
     'ALL_SUPPER_ROLES' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader'],
+    'SUPERVISORANDABOVE_ROLES' => ['supervisor', 'advisor', 'consultant', 'admin'],
 ];
