@@ -225,9 +225,7 @@ class BookController extends Controller
             $last_thesis = Auth::user()
                 ->theses()
                 ->where('book_id', $book_id)
-
-                ->orderBy('end_page', 'desc')
-                ->orderBy('updated_at', 'desc')->first();
+                ->orderBy('created_at', 'desc')->first();
 
             return $this->jsonResponseWithoutMessage(
                 [
@@ -326,22 +324,18 @@ class BookController extends Controller
      */
     public function delete($book_id)
     {
-        if (Auth::user()->can('delete book')) {
-            $book = Book::find($book_id);
-            if ($book) {
-                //check Media
-                $currentMedia = Media::where('book_id', $book->id)->first();
-                // if exist, delete
-                if ($currentMedia) {
-                    $this->deleteMedia($currentMedia->id);
-                }
-                $book->delete();
-                return $this->jsonResponseWithoutMessage("Book Deleted Successfully", 'data', 200);
-            } else {
-                throw new NotFound;
+        $book = Book::find($book_id);
+        if ($book) {
+            //check Media
+            $currentMedia = Media::where('book_id', $book->id)->first();
+            // if exist, delete
+            if ($currentMedia) {
+                $this->deleteMedia($currentMedia->id);
             }
+            $book->delete();
+            return $this->jsonResponseWithoutMessage("Book Deleted Successfully", 'data', 200);
         } else {
-            throw new NotAuthorized;
+            throw new NotFound;
         }
     }
 

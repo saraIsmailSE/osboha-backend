@@ -1,709 +1,500 @@
 <?php
 
-use App\Events\NotificationsEvent;
-use Illuminate\Support\Facades\Route;
-use App\Models\User;
+namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Api\{
-    ActivityController,
-    ArticleController,
-    Auth\AuthController,
-    Auth\EmailVerificationController,
-    BookController,
-    BookStatisticsController,
-    PostController,
-    PollVoteController,
-    RateController,
-    ReactionController,
-    LeaderRequestController,
-    HighPriorityRequestController,
-    SystemIssueController,
-    TransactionController,
-    CommentController,
-    MarkController,
-    AuditMarkController,
-    RejectedMarkController,
-    UserExceptionController,
-    GroupController,
-    InfographicController,
-    InfographicSeriesController,
-    SocialMediaController,
-    TimelineController,
-    FriendController,
-    UserProfileController,
-    ProfileSettingController,
-    NotificationController,
-    ThesisController,
-    UserGroupController,
-    RoomController,
-    SectionController,
-    StatisticsController,
-    StatisticsSupervisorController,
-    BookTypeController,
-    BookLevelController,
-    LanguageController,
-    ExceptionTypeController,
-    GeneralConversationController,
-    GroupTypeController,
-    MediaController,
-    PostTypeController,
-    ThesisTypeController,
-    TimelineTypeController,
-    RejectedThesesController,
-    WeekController,
-    MessagesController,
-    ModificationReasonController,
-    ModifiedThesesController,
-    UserBookController,
-    UserController,
-    RolesAdministrationController,
-};
-use App\Http\Controllers\QuestionFollowupController;
-use App\Http\Resources\RoomResource;
-use App\Models\Room;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\Events\NotificationSent;
+use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Validator;
+use App\Exceptions\NotAuthorized;
+use App\Exceptions\NotFound;
+use App\Models\Group;
+use App\Models\Mark;
+use App\Models\User;
+use App\Models\UserGroup;
+use App\Models\Week;
+use Illuminate\Support\Facades\DB;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+/**
+ * Description: StatisticsController for Osboha general statistics.
+ *
+ * Methods: 
+ * - byWeek
+ */
 
-Route::group(['prefix' => 'v1'], function () {
-   
+class StatisticsController extends Controller
+{
 
+    use ResponseJson;
 
-    ########Start Media########
-    Route::group(['prefix' => 'media'], function () {
-        Route::get('/show/{id}', [MediaController::class, 'show']);
-        Route::post('/upload', [MediaController::class, 'upload']);
-        Route::delete('/old', [MediaController::class, 'removeOldMedia']);
-    });
-    ########End Media route########
+    /**
+     * Get Statistics By Week ID.
+     * 
+     * @return statistics;
+     */
 
+    public function byWeek($week_id = 0)
+    {
+        // not specified => get previous week
+        if ($week_id == 0) {
+            $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        } else {
+            $week = Week::latest()->pluck('id')->first();
+        }
+        $response['week'] = $week;
 
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'signUp']);
+        //Total Pages, Theses, Screenshotes
+        $response['total_statistics'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
+            ->where('is_freezed', 0)
+            ->select(
+                DB::raw('avg(reading_mark + writing_mark + support) as total_avg'),
+                DB::raw('sum(total_pages) as total_pages'),
+                DB::raw('sum(total_thesis) as total_thesis'),
+                DB::raw('sum(total_screenshot) as total_screenshot'),
+            )->first();
 
-    Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
-    Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
-    Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
-    Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
+        //Total 100
+        $total_100 = Mark::without('user', 'week')->where('week_id', $response['week']->id)
+            ->where('is_freezed', 0)
+            ->select(
+                DB::raw('sum(reading_mark + writing_mark + support) as total_100'),
+            )->groupBy('user_id')->get();
 
-    Route::get('/return-to-team', [AuthController::class, 'returnToTeam'])->middleware('auth:sanctum', 'verified');
+        $response['total_100'] = $total_100->where('total_100', 100)->count();
+        //Total 0
+        $total_0 = Mark::without('user', 'week')->where('week_id', $response['week']->id)
+            ->where('is_freezed', 0)
+            ->select(
+                DB::raw('sum(reading_mark + writing_mark + support) as total_0'),
+            )->groupBy('user_id')->get();
 
-    Route::middleware('auth:sanctum')->group(function () {
+        $response['total_0'] = $total_0->where('total_0', 0)->count();
 
-        Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
-        Route::post('email/reset', [AuthController::class, 'resetEmail']);
-    });
+        //Most Read
+        $response['most_read'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
+            ->where('is_freezed', 0)
+            ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
+            ->groupBy('user_id')
+            ->orderBy('max_total_pages', 'desc')
+            ->first();
+        //Freezed
+        $response['freezed'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
+            ->where('is_freezed', 1)
+            ->count();
+        // Total Users
+        $response['total_users'] = User::where('is_excluded', 0)->count();
+        //Total Excluded
+        $response['is_excluded'] = User::where('is_excluded', 1)
+            ->whereBetween('updated_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->count();
+        //Total New
+        $response['is_new'] = User::whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
 
-    Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
 
-        Route::post("/test-room", function (Request $request) {
-            $room = Room::where('type', 'private')
-                ->whereHas("users", function ($q) use ($request) {
-                    $q->where('user_id', Auth::id());
-                })
-                ->whereHas("users", function ($q) use ($request) {
-                    $q->where('user_id', $request->receiver_id);
-                })
-                // ->where(function ($q) use ($request) {
-                //     $q->where('creator_id', Auth::id())
-                //         ->whereHas('users', function ($user) use ($request) {
-                //             $user->where('user_id', $request->receiver_id);
-                //         });
-                // })
-                // ->orWhere(function ($q) use ($request) {
-                //     $q->where('creator_id', $request->receiver_id)
-                //         ->whereHas('users', function ($user) use ($request) {
-                //             $user->where('user_id', Auth::id());
-                //         });
-                // })
-                ->first();
+    public function lastWeek()
+    {
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        return $this->jsonResponseWithoutMessage($previous_week, 'data', 200);
+    }
 
-            return response()->json([
-                'room' => $room
-            ]);
-        });
-
-        Route::get('/myTEST', function () {
-            // $user = User::find(1);
-            // $msg = "لديك طلب صداقة ";
-            // (new NotificationController)->sendNotification($user->id, $msg, 'friends');
-            $userToNotify = User::where('email', 'saraismailse@gmail.com')->first();
-            event(new NotificationsEvent('hello world'));
-        });
-
-        Route::post('/refresh', [AuthController::class, 'refresh']);
-
-        Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
-        Route::get('/logout', [AuthController::class, 'logout']);
-        Route::get('/session-data', [AuthController::class, 'sessionData']);
-
-        ########Users########
-        Route::group(["prefix" => "users"], function () {
-            Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
-            Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
-            Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
-            Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
-
-        });
-
-        ########Start Roles########
-        Route::group(["prefix" => "roles"], function () {
-            Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
-            Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
-            Route::post('/supervisor-swap', [RolesAdministrationController::class, 'supervisorsSwap']);
-            Route::post('/new-supervisor-current-to-ambassador', [RolesAdministrationController::class, 'newSupervisor_currentToAmbassador']);
-            Route::post('/new-supervisor-current-to-leader', [RolesAdministrationController::class, 'newSupervisor_currentToLeader']);
-            Route::post('/new-leader-current-to-ambassador', [RolesAdministrationController::class, 'newLeader_currentToAmbassador']);
-            Route::post('/transfer-ambassador', [RolesAdministrationController::class, 'transferAmbassador']);
-            Route::post('/transfer-leader', [RolesAdministrationController::class, 'transferLeader']);
-        });
-        ########End Roles########
-
-
-        ########Book########
-        Route::group(['prefix' => 'books'], function () {
-            Route::get('/', [BookController::class, 'index']);
-            Route::post('/', [BookController::class, 'create']);
-            Route::get('/{id}', [BookController::class, 'show'])->where('id', '[0-9]+');
-            Route::post('/update', [BookController::class, 'update']);
-            Route::delete('/{id}', [BookController::class, 'delete']);
-            Route::get('/type/{type_id}', [BookController::class, 'bookByType'])->where('type_id', '[0-9]+');
-            Route::get('/level/{level}', [BookController::class, 'bookByLevel']);
-            Route::get('/section/{section_id}', [BookController::class, 'bookBySection'])->where('section_id', '[0-9]+');
-            Route::get('/name', [BookController::class, 'bookByName']);
-            Route::get('/language/{language}', [BookController::class, 'bookByLanguage']);
-            Route::get('/recent-added-books', [BookController::class, 'getRecentAddedBooks']);
-            Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
-            Route::get('/random-book', [BookController::class, 'getRandomBook']);
-            Route::get('/latest', [BookController::class, 'latest']);
-        });
-        ########End Book########
-        ########User Book########
-        Route::group(['prefix' => 'user-books'], function () {
-            Route::get('/show/{user_id}', [UserBookController::class, 'show']);
-            Route::get('/later-books/{user_id}', [UserBookController::class, 'later']);
-            Route::get('/free-books/{user_id}/{page}', [UserBookController::class, 'free']);
-            Route::get('/delete-for-later-book/{id}', [UserBookController::class, 'deleteForLater']);
-            Route::post('/update', [UserBookController::class, 'update']);
-            Route::delete('/{id}', [UserBookController::class, 'delete']);
-            Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
-            Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
-        });
-        ########End User Book########
-        ########Start Rate########
-        Route::group(['prefix' => 'rate'], function () {
-            Route::get('/', [RateController::class, 'index']);
-            Route::post('/create', [RateController::class, 'create']);
-            Route::post('/show', [RateController::class, 'show']);
-            Route::post('/update', [RateController::class, 'update']);
-            Route::post('/delete', [RateController::class, 'delete']);
-        });
-        ########End Rate########
-        ########Reaction########
-        Route::group(['prefix' => 'reactions'], function () {
-            Route::get('/', [ReactionController::class, 'index']);
-            Route::post('/create', [ReactionController::class, 'create']);
-            Route::post('/show', [ReactionController::class, 'show']);
-            Route::post('/update', [ReactionController::class, 'update']);
-            Route::post('/delete', [ReactionController::class, 'delete']);
-            Route::get('/types', [ReactionController::class, 'getReactionTypes']);
-            Route::get('/posts/{post_id}/types/{type_id}', [ReactionController::class, 'reactOnPost'])->where('post_id', '[0-9]+')->where('type_id', '[0-9]+');
-            Route::get('/comments/{comment_id}/types/{type_id}', [ReactionController::class, 'reactOnComment'])->where('comment_id', '[0-9]+')->where('type_id', '[0-9]+');
-            Route::get('/posts/{post_id}/users/{user_id?}', [ReactionController::class, 'getPostReactionsUsers'])->where('post_id', '[0-9]+')->where('user_id', '[0-9]+');
-        });
-        ########End Reaction########
-        ########LeaderRequest########
-        Route::group(['prefix' => 'leader-request'], function () {
-            Route::get('/', [LeaderRequestController::class, 'index']);
-            Route::post('/create', [LeaderRequestController::class, 'create']);
-            Route::post('/show', [LeaderRequestController::class, 'show']);
-            Route::post('/update', [LeaderRequestController::class, 'update']);
-        });
-        ########End LeaderRequest########
-        ########HighPriorityRequest########
-        Route::group(['prefix' => 'high-priority-request'], function () {
-            Route::get('/', [HighPriorityRequestController::class, 'index']);
-            Route::post('/create', [HighPriorityRequestController::class, 'create']);
-            Route::post('/show', [HighPriorityRequestController::class, 'show']);
-        });
-        ########End HighPriorityRequest########
-        ########SystemIssue########
-        Route::group(['prefix' => 'system-issue'], function () {
-            Route::get('/', [SystemIssueController::class, 'index']);
-            Route::post('/create', [SystemIssueController::class, 'create']);
-            Route::post('/show', [SystemIssueController::class, 'show']);
-            Route::post('/update', [SystemIssueController::class, 'update']);
-        });
-        ########End SystemIssue########
-
-        ########Start Comment########
-        Route::group(['prefix' => 'comments'], function () {
-            Route::post('/', [CommentController::class, 'create']);
-            Route::get('/post/{post_id}/{user_id?}', [CommentController::class, 'getPostComments'])->where('post_id', '[0-9]+')->where('user_id', '[0-9]+');
-            Route::post('/update', [CommentController::class, 'update']); //for testing
-            Route::put('/', [CommentController::class, 'update']); //gives errors from axios
-            Route::delete('/{id}', [CommentController::class, 'delete']);
-            Route::get('/post/{post_id}/users', [CommentController::class, 'getPostCommentsUsers'])->where('post_id', '[0-9]+');
-        });
-        ########End Comment########
-        // ########Start Media########
-        // Route::group(['prefix' => 'media'], function () {
-        //     Route::get('/show/{id}', [MediaController::class, 'show']);
-        // });
-        // ########End Media route########
-        ########Start Friend route########
-        Route::group(['prefix' => 'friends'], function () {
-            Route::get('/user/{user_id}', [FriendController::class, 'listByUserId'])->where('user_id', '[0-9]+');
-            Route::get('/accepted/{user_id}', [FriendController::class, 'listByUserId']);
-            Route::get('/un-accepted', [FriendController::class, 'listUnAccepted']);
-            Route::post('/create', [FriendController::class, 'create']);
-            Route::get('/{friendship-id}', [FriendController::class, 'show'])->where('friendship-id', '[0-9]+');
-            Route::patch('/accept-friend-request/{friendship-id}', [FriendController::class, 'accept']);
-            Route::delete('/{friendship-id}', [FriendController::class, 'delete']);
-            Route::get('/accept/{friendship_id}', [FriendController::class, 'accept']);
-            Route::get('/accept-all', [FriendController::class, 'acceptAll']);
-            Route::get('/delete-all-unaccepted', [FriendController::class, 'deleteAllUnAccepted']);
-            Route::post('/delete', [FriendController::class, 'delete']);
-            Route::get('/show/{friendship_id}', [FriendController::class, 'show']);
-        });
-        ########End Friend route########
-        ########Mark########
-        Route::group(['prefix' => 'marks'], function () {
-            Route::get('/', [MarkController::class, 'index']);
-            Route::post('/update', [MarkController::class, 'update']);
-            Route::post('/list', [MarkController::class, 'list_user_mark']);
-            Route::get('/audit/leaders', [MarkController::class, 'leadersAuditmarks']);
-            Route::post('/audit/show', [MarkController::class, 'showAuditmarks']);
-            Route::post('/audit/update', [MarkController::class, 'updateAuditMark']);
-            //Route::get('/statsmark', [MarkController::class, 'statsMark']);
-            Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
-            Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
-            Route::get('/ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'ambassadorMark']);
-            Route::put('/accept-support/user/{user_id}/{week_id}', [MarkController::class, 'acceptSupport']);
-            Route::put('/reject-support/user/{user_id}/{week_id}', [MarkController::class, 'rejectSupport']);
-            Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
-            Route::get('/top-users-by-month', [MarkController::class, 'topUsersByMonth']);
-            Route::get('/top-users-by-week', [MarkController::class, 'topUsersByWeek']);
-        });
-        ########End Mark########
-
-        ######## Start Audit Mark ########
-        Route::group(['prefix' => 'audit-marks'], function () {
-            Route::get('/generate', [AuditMarkController::class, 'generateAuditMarks']);
-            Route::get('/mark-for-audit/{mark_for_audit_id}', [AuditMarkController::class, 'markForAudit']);
-            Route::get('/group-audit-marks/{group_id}', [AuditMarkController::class, 'groupAuditMarks']);
-            Route::patch('/update-mark-for-audit-status/{id}', [AuditMarkController::class, 'updateMarkForAuditStatus']);
-            Route::get('/groups-audit/{supervisor_id}', [AuditMarkController::class, 'groupsAudit']);
-            Route::get('/supervisors-audit/{advisor_id}', [AuditMarkController::class, 'allSupervisorsForAdvisor']);
-            Route::get('/advisor-main-audit/{advisor_id}', [AuditMarkController::class, 'advisorMainAudit']);
-            Route::post('/add-note', [AuditMarkController::class, 'addNote']);
-            Route::get('/get-notes/{mark_for_audit_id}', [AuditMarkController::class, 'getNotes']);
-            Route::get('/pending-theses/{supervisor_id}/{week_id?}', [AuditMarkController::class, 'pendingTheses']);
-        });
-        ######## End Audit Mark ########
-        ########Modified Theses########
-        Route::group(['prefix' => 'modified-theses'], function () {
-            Route::get('/', [ModifiedThesesController::class, 'index']);
-            Route::post('/', [ModifiedThesesController::class, 'create']);
-            Route::get('/{id}', [ModifiedThesesController::class, 'show'])->where('id', '[0-9]+');
-            Route::put('/', [ModifiedThesesController::class, 'update']);
-            Route::get('/user/{user_id}', [ModifiedThesesController::class, 'listUserModifiedtheses'])->where('user_id', '[0-9]+');
-            Route::get('/week/{week_id}', [ModifiedThesesController::class, 'listModifiedthesesByWeek'])->where('week_id', '[0-9]+');
-            Route::get('/user/{user_id}/week/{week_id}', [ModifiedThesesController::class, 'listUserModifiedthesesByWeek'])->where('user_id', '[0-9]+')->where('week_id', '[0-9]+');
-        });
-        ########End Modified Theses ########
-
-        ########Start ModificationReasons ########
-        Route::group(['prefix' => 'modification-reasons'], function () {
-            Route::get('/leader', [ModificationReasonController::class, 'getReasonsForLeader']);
-        });
-        ########End ModificationReasons ########
-
-        #########UserException########
-        Route::group(['prefix' => 'userexception'], function () {
-            Route::post('/create', [UserExceptionController::class, 'create']);
-            Route::get('/show/{exception_id}', [UserExceptionController::class, 'show']);
-            Route::post('/update', [UserExceptionController::class, 'update']);
-            Route::get('/cancel/{exception_id}', [UserExceptionController::class, 'cancelException']);
-            Route::patch('/update-status/{exception_id}', [UserExceptionController::class, 'updateStatus']);
-            Route::get('/listPindigExceptions', [UserExceptionController::class, 'listPindigExceptions']);
-            Route::post('/addExceptions', [UserExceptionController::class, 'addExceptions']);
-            Route::get('/finishedException', [UserExceptionController::class, 'finishedException']);
-            Route::get('/user-exceptions/{user_id}', [UserExceptionController::class, 'userExceptions']);
-            Route::get('/exceptions-filter/{filter}/{user_id}', [UserExceptionController::class, 'exceptionsFilter']);
-            Route::post('/set-exceptional-freez', [UserExceptionController::class, 'setExceptionalFreez']);
-            Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
-        });
-        ############End UserException########
-
-        ############ Start Group ############
-        Route::group(['prefix' => 'group'], function () {
-            Route::get('/', [GroupController::class, 'index']);
-            Route::get('/search-group-by-name/{name}', [GroupController::class, 'searchGroupByName']);
-            Route::post('/create', [GroupController::class, 'create']);
-            Route::get('/show/{group_id}', [GroupController::class, 'show']);
-            Route::get('/show-basic-info/{group_id}', [GroupController::class, 'showBasicInfo']);
-            Route::get('/group-by-type/{type}', [GroupController::class, 'GroupByType']);
-            Route::post('/update', [GroupController::class, 'update']);
-            Route::delete('/delete/{group_id}', [GroupController::class, 'delete']);
-            Route::get('/books/{group_id}', [GroupController::class, 'books']);
-            Route::get('/group-exceptions/{group_id}', [GroupController::class, 'groupExceptions']);
-            Route::get('/exceptions-filter/{filter}/{group_id}', [GroupController::class, 'exceptionsFilter']);
-            Route::get('/basic-mark-view/{group_id}/{week_id}', [GroupController::class, 'BasicMarksView']);
-            Route::get('/all-achievements/{group_id}/{week_id}', [GroupController::class, 'allAchievements']);
-            Route::get('/search-for-ambassador-achievement/{ambassador_name}/{group_id}/{week_filter?}', [GroupController::class, 'searchForAmbassadorAchievement']);
-            Route::get('/search-for-ambassador/{ambassador_name}/{group_id}', [GroupController::class, 'searchForAmbassador']);
-            Route::get('/achievement-as-pages/{group_id}/{week_id}', [GroupController::class, 'achievementAsPages']);
-            Route::post('/create-leader-request', [GroupController::class, 'createLeaderRequest']);
-            Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
-            Route::get('/audit-marks/{group_id}', [GroupController::class, 'auditMarks']);
-            Route::get('/user-groups', [GroupController::class, 'userGroups']);
-            Route::get('/statistics/{group_id}/{week_filter?}', [GroupController::class, 'statistics']);
-            Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
-            Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
-            Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
-
-
-           
-        });
-        ############End Group############
-
-        ########Start Activity########
-        Route::group(['prefix' => 'activity'], function () {
-            Route::get('/', [ActivityController::class, 'index']);
-            Route::post('/create', [ActivityController::class, 'create']);
-            Route::post('/show', [ActivityController::class, 'show']);
-            Route::post('/update', [ActivityController::class, 'update']);
-            Route::post('/delete', [ActivityController::class, 'delete']);
-        });
-        ########End Activity########
-
-        ########Start Article########
-        Route::group(['prefix' => 'article'], function () {
-            Route::get('/', [ArticleController::class, 'index']);
-            Route::post('/create', [ArticleController::class, 'create']);
-            Route::post('/show', [ArticleController::class, 'show']);
-            Route::post('/update', [ArticleController::class, 'update']);
-            Route::post('/delete', [ArticleController::class, 'delete']);
-            Route::post('/articles-by-user', [ArticleController::class, 'listAllArticlesByUser']);
-        });
-        ########End Article########
-        ########Start SocialMedia########
-        Route::group(['prefix' => 'socialMedia'], function () {
-            Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
-            Route::get('/show/{user_id}', [SocialMediaController::class, 'show']);
-        });
-        ########End SocialMedia########
-
-        ########Start Timeline ########
-        Route::group(['prefix' => 'timeline'], function () {
-            Route::get('/', [TimelineController::class, 'index']);
-            Route::post('/create', [TimelineController::class, 'create']);
-            Route::post('/show', [TimelineController::class, 'show']);
-            Route::post('/update', [TimelineController::class, 'update']);
-            Route::post('/delete', [TimelineController::class, 'delete']);
-        });
-        ########End Timeline ########
-
-        ########Start Infographic########
-        Route::group(['prefix' => 'infographic'], function () {
-            Route::get('/', [InfographicController::class, 'index']);
-            Route::post('/create', [InfographicController::class, 'create']);
-            Route::post('/show', [InfographicController::class, 'show']);
-            Route::post('/update', [InfographicController::class, 'update']);
-            Route::post('/delete', [InfographicController::class, 'delete']);
-            Route::post('/infographicBySection', [InfographicController::class, 'InfographicBySection']);
-        });
-        ########End Infographic ########
-
-        ########Start InfographicSeries########
-        Route::group(['prefix' => 'infographicSeries'], function () {
-            Route::get('/', [InfographicSeriesController::class, 'index']);
-            Route::post('/create', [InfographicSeriesController::class, 'create']);
-            Route::post('/show', [InfographicSeriesController::class, 'show']);
-            Route::post('/update', [InfographicSeriesController::class, 'update']);
-            Route::post('/delete', [InfographicSeriesController::class, 'delete']);
-            Route::post('/seriesBySection', [InfographicSeriesController::class, 'SeriesBySection']);
-        });
-        ########End InfographicSeries########    
-        ########Post########
-        #updated RESTful routes by asmaa#
-        Route::group(['prefix' => 'posts'], function () {
-            Route::get('/', [PostController::class, 'index']);
-            Route::post('/', [PostController::class, 'create']);
-            Route::get('/{id}', [PostController::class, 'show'])->where('id', '[0-9]+');
-            Route::put('/{id}', [PostController::class, 'update']);
-            Route::delete('/{id}', [PostController::class, 'delete']);
-            Route::get('/timeline/{timeline_id}', [PostController::class, 'postsByTimelineId'])->where('timeline_id', '[0-9]+');
-            Route::get('/users/{user_id}', [PostController::class, 'postByUserId'])->where('user_id', '[0-9]+');
-            Route::get('/pending/timelines/{timeline_id}', [PostController::class, 'listPostsToAccept'])->where('timeline_id', '[0-9]+');
-            Route::patch('/accept/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
-            Route::patch('/decline/{id}', [PostController::class, 'declinePost'])->where('id', '[0-9]+');
-            Route::patch('/{id}/control-comments', [PostController::class, 'controlComments']);
-            Route::patch('/pin/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
-            Route::get('/home', [PostController::class, 'getPostsForMainPage']);
-            Route::get('/announcements', [PostController::class, 'getAnnouncements']);
-            Route::get('/support', [PostController::class, 'getSupportPosts']);
-            Route::get('/support/latest', [PostController::class, 'getLastSupportPost']);
-            Route::get('/pending/timeline/{timeline_id}/{post_id?}', [PostController::class, 'getPendingPosts']);
-            Route::get('/current-week-support', [PostController::class, 'getCurrentWeekSupportPost']);
-        });
-        ########End Post########
-
-        ########Poll-Vote########
-        Route::group(['prefix' => 'poll-votes'], function () {
-            Route::get('/', [PollVoteController::class, 'index']);
-            Route::post('/', [PollVoteController::class, 'create']);
-            Route::post('/show', [PollVoteController::class, 'show']);
-            Route::post('/votesByPostId', [PollVoteController::class, 'votesByPostId']);
-            Route::post('/votesByUserId', [PollVoteController::class, 'votesByUserId']);
-            Route::post('/update', [PollVoteController::class, 'update']);
-            Route::post('/delete', [PollVoteController::class, 'delete']);
-            Route::get('/posts/{post_id}/users/{user_id?}', [PollVoteController::class, 'getPostVotesUsers'])->where('post_id', '[0-9]+')->where('user_id', '[0-9]+');
-        });
-        ########End Poll-Vote########
-        ########User-Profile########
-        Route::group(['prefix' => 'user-profile'], function () {
-            Route::get('/show/{user_id}', [UserProfileController::class, 'show']);
-            Route::get('/show-to-update', [UserProfileController::class, 'showToUpdate']);
-            Route::get('/statistics/{user_id}', [UserProfileController::class, 'profileStatistics']);
-            Route::post('/update', [UserProfileController::class, 'update']);
-            Route::post('/update-profile-pic', [UserProfileController::class, 'updateProfilePic']);
-            Route::post('/update-profile-cover', [UserProfileController::class, 'updateProfileCover']);
-            // Route::get('/profile-image/{fileName}/{profileID}', [UserProfileController::class, 'getImages']);
-
-
-        });
-        ########End User-Profile########
+    /**
+     * Get Statistics
+     * 
+     * @return statistics;
+     */
+    public function supervisingStatistics($superviser_id,$week_filter = "current")
+    {
         
-        ######## Statistics ########
-        Route::group(['prefix' => 'statistics'], function () {
-            Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
-            Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
-            Route::get('/supervising-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
-            Route::get('/advisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
-            Route::get('/consultant-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantStatistics']);
+        $supervisingGroup = UserGroup::where('user_id', $superviser_id)->where('user_type', 'supervisor')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'supervising');
+            })->first();
+          
 
-        });
-        ######## End Statisticx########
+        $group = Group::with('userAmbassador')->find($supervisingGroup->group_id);
+        if (!$group) {
+            throw new NotFound;
+        }
+       
+        $response['all_leaders_in_group'] = $group->userAmbassador;
+      
+       
 
-        ########Profile-Setting########
-        Route::group(['prefix' => 'profile-setting'], function () {
-            Route::post('/show', [ProfileSettingController::class, 'show']);
-            Route::post('/update', [ProfileSettingController::class, 'update']);
-        });
-        ########End Profile-Setting########
-        ####### Notification ########
-        Route::group(['prefix' => 'notifications'], function () {
-            Route::get('/list-all', [NotificationController::class, 'listAllNotification']);
-            Route::get('/un-read', [NotificationController::class, 'listUnreadNotification']);
-            Route::get('/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
-            Route::get('/mark-as-read/{notification_id}', [NotificationController::class, 'markAsRead']);
-        });
-        ######## End Notification ########
-        ####### Start UserGroup ########
-        Route::group(['prefix' => 'user-group'], function () {
+        $response['week'] = Week::latest()->first();
 
-            Route::get('/', [UserGroupController::class, 'index']);
-            Route::get('/users/{group_id}', [UserGroupController::class, 'usersByGroupID']);
-            Route::post('/', [UserGroupController::class, 'create']);
-            Route::post('/show', [UserGroupController::class, 'show']);
-            Route::post('/add-member', [UserGroupController::class, 'addMember']);
-            Route::post('/assignRole', [UserGroupController::class, 'assign_role']);
-            Route::post('/updateRole', [UserGroupController::class, 'update_role']);
-            Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
-            Route::delete('/delete/{user_group_id}', [UserGroupController::class, 'delete']);
-        });
-        ######## End UserGroup ########
-        ####### Start Thesis ########
-        Route::group(['prefix' => 'theses'], function () {
-            Route::get('/{thesis_id}', [ThesisController::class, 'show'])->where('thesis_id', '[0-9]+');
-            Route::get('/book/{book_id}/user/{user_id?}', [ThesisController::class, 'listBookThesis'])->where('book_id', '[0-9]+')->where('user_id', '[0-9]+');
-            Route::get('/book/{book_id}/thesis/{thesis_id}', [ThesisController::class, 'getBookThesis'])->where('book_id', '[0-9]+')->where('thesis_id', '[0-9]+');
-            Route::get('/user/{user_id}', [ThesisController::class, 'listUserThesis'])->where('user_id', '[0-9]+');
-            Route::get('/week/{week_id}', [ThesisController::class, 'listWeekThesis'])->where('week_id', '[0-9]+');
-        });
-        ######## End Thesis ########
+        //افرقة المتابعة الخاصة بالقادة
+        $response['group_followups'] = UserGroup::with('group')->whereIn('user_id', $response['all_leaders_in_group']->pluck('pivot.user_id'))
+            ->where('user_type', 'leader')
+            ->get();
+            
+        $responseOfSara = [];
+        foreach ($response['group_followups'] as $key =>  $group) { //for each audit of advisor 
+            $is_freezed['group_name'] = $group->group->name;
+            $is_freezed['is_freezed'] = Mark::where('week_id', $response['week']->id)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group->id)
+                ->where('is_freezed', 1)
+                ->count();
+            $responseOfSara[$key] = $is_freezed;
+        }
+        // السفراء بكل فريق متابعة  
+        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
+            $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
+                ->where('user_type', 'ambassador')
+                ->get();
+            $response['is_zero'][$group_id] = Mark::whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(-7)])
+                ->wherein('user_id',$response['ambassadors_in_group'][$group_id]->pluck('user_id'))
+                ->count();
+        }
+    
+        $response['week'] = Week::latest()->first();
 
-        ######## Week ########
-        Route::group(['prefix' => 'weeks'], function () {
-            Route::post('/', [WeekController::class, 'create']);
-            Route::post('/update', [WeekController::class, 'update']);
-            Route::get('/', [WeekController::class, 'get_last_weeks_ids']); //for testing - to be deleted
-            Route::get('/title', [WeekController::class, 'getDateWeekTitle']);
-            Route::post('/insert_week', [WeekController::class, 'insert_week']);
-            Route::get('/close-comments', [WeekController::class, 'closeBooksAndSupportComments']);
-            Route::get('/open-comments', [WeekController::class, 'openBooksComments']);
-            Route::get('/check-date', [WeekController::class, 'testDate']);
-            Route::patch('/update-exception/{exp_id}/{status}', [WeekController::class, 'update_exception_status']);
-            Route::get('/notify-users', [WeekController::class, 'notifyUsersNewWeek']);
-        });
-        ######## Week ########
+        //عدد القادة في كل فريق رقابي   
+        $response['number_leaders_in_group'] = $response['all_leaders_in_group']->count();
+        //القادةالمنسحبين في الفريق الرقابي
+        $response['all_leadersWithdrawn_in_group'] = Group::with('ambassadorsWithdrawn')
+            ->where('id', $superviser_id)
+            ->first();
+        //عدد القادةالمنسحبين في كل فريق رقابي   
+        $response['number_leadersWithdrawn_in_group'] = $response['all_leadersWithdrawn_in_group']->ambassadorsWithdrawn->count();
 
-        ######## Section ########
-        Route::group(['prefix' => 'section'], function () {
-            Route::get('/', [SectionController::class, 'index']);
-            Route::post('/create', [SectionController::class, 'create']);
-            Route::post('/show', [SectionController::class, 'show']);
-            Route::post('/update', [SectionController::class, 'update']);
-            Route::post('/delete', [SectionController::class, 'delete']);
-        });
-        ######## Section ########
+        //افرقة المتابعة الخاصة بالقادة
+        $response['group_followups'] = UserGroup::where('user_type', 'leader')
+            ->whereIn('user_id', $response['all_leaders_in_group']->pluck('pivot.user_id'))
+            ->get();
 
-        ######## Book-Type ########
-        Route::group(['prefix' => 'book-type'], function () {
-            Route::get('/', [BookTypeController::class, 'index']);
-            Route::post('/create', [BookTypeController::class, 'create']);
-            Route::post('/show', [BookTypeController::class, 'show']);
-            Route::post('/update', [BookTypeController::class, 'update']);
-            Route::post('/delete', [BookTypeController::class, 'delete']);
-        });
-        ######## Book-Type ########
+        //تجميد كل فريق على حدا                      
+        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
+            $response['is_freezed'][$group_id] = Mark::where('week_id', $response['week']->id)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group_id)
+                ->where('is_freezed', 1)
+                ->count();
+        }
 
-        ######## Book-Level ########
-        Route::group(['prefix' => 'book-level'], function () {
-            Route::get('/', [BookLevelController::class, 'index']);
-            Route::post('/create', [BookLevelController::class, 'create']);
-            Route::post('/show', [BookLevelController::class, 'show']);
-            Route::post('/update', [BookLevelController::class, 'update']);
-            Route::post('/delete', [BookLevelController::class, 'delete']);
-        });
-        ######## Book-Type ########
+        //اصفار كل فريق على حدا                      
+        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
+            $response['marks_zero'][$group_id] = Mark::where('week_id', $response['week']->id)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group_id)
+                ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+                ->having('out_of_100', 0)
+                ->count();
+        }
+        //احصائيات العلامات والتجميد لكل فريق على حدا
+        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
+            $response['total_statistics'][$group_id] = Mark::without('user,week')->where('week_id', 1)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group_id)
+                ->where('is_freezed', 0)
+                ->select(
+                    DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
+                    DB::raw('avg(reading_mark) as team_reading_mark'),
+                    DB::raw('avg(writing_mark) as team_writing_mark'),
+                    DB::raw('avg(support) as team_support_mark'),
+                    DB::raw('sum(total_pages) as total_pages'),
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                    DB::raw('sum(total_screenshot) as total_screenshot'),
+                )->get();
+        }
 
-        ######## Book-Level ########
-        Route::group(['prefix' => 'language'], function () {
-            Route::get('/', [LanguageController::class, 'index']);
-            Route::post('/create', [LanguageController::class, 'create']);
-            Route::post('/show', [LanguageController::class, 'show']);
-            Route::post('/update', [LanguageController::class, 'update']);
-            Route::post('/delete', [BookLevelController::class, 'delete']);
-        });
-        ######## Book-Type ########
-
-        ######## Exception-Type ########
-        Route::group(['prefix' => 'exception-type'], function () {
-            Route::get('/', [ExceptionTypeController::class, 'index']);
-            Route::post('/create', [ExceptionTypeController::class, 'create']);
-            Route::post('/show', [ExceptionTypeController::class, 'show']);
-            Route::post('/update', [ExceptionTypeController::class, 'update']);
-            Route::post('/delete', [ExceptionTypeController::class, 'delete']);
-        });
-        ######## Exception-Type ########
-
-        ######## Group-Type ########
-        Route::group(['prefix' => 'group-type'], function () {
-            Route::get('/', [GroupTypeController::class, 'index']);
-            Route::post('/create', [GroupTypeController::class, 'create']);
-            Route::post('/show', [GroupTypeController::class, 'show']);
-            Route::post('/update', [GroupTypeController::class, 'update']);
-            Route::post('/delete', [GroupTypeController::class, 'delete']);
-        });
-        ######## Group-Type ########
-
-        ######## Post-Type ########
-        Route::group(['prefix' => 'post-type'], function () {
-            Route::get('/', [PostTypeController::class, 'index']);
-            Route::post('/create', [PostTypeController::class, 'create']);
-            Route::post('/show', [PostTypeController::class, 'show']);
-            Route::post('/update', [PostTypeController::class, 'update']);
-            Route::post('/delete', [PostTypeController::class, 'delete']);
-        });
-        ######## Post-Type ########
-
-        ######## Thesis-Type ########
-        Route::group(['prefix' => 'thesis-type'], function () {
-            Route::get('/', [ThesisTypeController::class, 'index']);
-            Route::post('/create', [ThesisTypeController::class, 'create']);
-            Route::post('/show', [ThesisTypeController::class, 'show']);
-            Route::post('/update', [ThesisTypeController::class, 'update']);
-            Route::post('/delete', [ThesisTypeController::class, 'delete']);
-        });
-        ######## Thesis-Type ########
-
-        ######## Timeline-Type ########
-        Route::group(['prefix' => 'timeline-type'], function () {
-            Route::get('/', [TimelineTypeController::class, 'index']);
-            Route::post('/create', [TimelineTypeController::class, 'create']);
-            Route::post('/show', [TimelineTypeController::class, 'show']);
-            Route::post('/update', [TimelineTypeController::class, 'update']);
-            Route::post('/delete', [TimelineTypeController::class, 'delete']);
-        });
-        ######## Timeline-Type ########
-
-        ######## Room ########
-        Route::group(['prefix' => 'rooms'], function () {
-            Route::post('/create', [RoomController::class, 'create']);
-            Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
-            Route::get("/", [RoomController::class, "listRooms"]);
-        });
-        ######## Room ########
-
-        ######## Messages ########
-        Route::prefix('messages')->group(function () {
-            Route::post('/', [MessagesController::class, 'create']);
-            Route::post("/room/{room_id}", [MessagesController::class, "setMessagesAsRead"]);
-            Route::get('/room/{room_id}', [MessagesController::class, 'listRoomMessages']);
-            Route::delete("/{message_id}", [MessagesController::class, "deleteMessage"]);
-            Route::get("/unread-messages", [MessagesController::class, "unreadMessages"]);
-        });
-        ######## Messages ########
-        ######## BookStatistics ########
-        Route::group(['prefix' => 'book-stat'], function () {
-            Route::get('/', [BookStatisticsController::class, 'index']);
-        });
-        ######## BookStatistics ########
-
-        ######## GeneralConversation ########
-        Route::group(['prefix' => 'general-conversations'], function () {
-            Route::group(['prefix' => 'questions'], function () {
-                Route::post('/', [GeneralConversationController::class, 'addQuestion']);
-                Route::get('/', [GeneralConversationController::class, 'getQuestions']);
-                Route::get('/{question_id}', [GeneralConversationController::class, 'getQuestionById']);
-                Route::put('/close-overdue', [GeneralConversationController::class, 'closeOverdueQuestions']);
-                Route::put('/{question_id}/close', [GeneralConversationController::class, 'closeQuestion']);
-                Route::put('/{question_id}/solve', [GeneralConversationController::class, 'solveQuestion']);
-                Route::put('/{question_id}/assign-to-parent', [GeneralConversationController::class, 'AssignQuestionToParent']);
-                Route::get('/assigned-to-me', [GeneralConversationController::class, 'getAssignedToMeQuestions']);
-                Route::get('/my-questions', [GeneralConversationController::class, 'getMyQuestions']);
-                Route::get('/statistics', [GeneralConversationController::class, 'getQuestionsStatistics']);
-            });
-
-            Route::group(['prefix' => 'answers'], function () {
-                Route::post('/', [GeneralConversationController::class, 'answerQuestion']);
-            });
-
-            Route::group(['prefix' => 'working-hours'], function () {
-                Route::post('/', [GeneralConversationController::class, 'addWorkingHours']);
-                Route::get('/', [GeneralConversationController::class, 'getWorkingHours']);
-                Route::get('/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
-            });
-
-            Route::prefix('followup')->group(function () {
-                Route::post('/', [QuestionFollowupController::class, 'addFollowup']);
-                Route::get('/statistics', [QuestionFollowupController::class, 'getFollowupStatistics']);
-            });
-        });
-        ######## BookStatistics ########
+        //عدد الصفحات والدعم و الاطروحات  لكل قائد
+        foreach ($response['all_leaders_in_group']->pluck('id') as $user_id) {
+            $response['total_statistics_leader'][$user_id] = Mark::without('week')->where('week_id', 1)
+                ->where('user_id', $user_id)
+                ->where('is_freezed', 0)
+                ->select(
+                    DB::raw('avg(support) as team_support_mark'),
+                    DB::raw('sum(total_pages) as total_pages'),
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                )->get();
+        }
 
 
-        ######## StatisticsSupervisor ########
-        Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
-        ######## END StatisticsSupervisor ########
+        //الاعضاء الجدد في فرق المتابعة
+        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
+            $response['is_new_fllowup'][$group_id] = UserGroup::where('group_id', $group_id)
+                ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
+        }
+        //الاعضاء الجدد في فريق الرقابة
+        $response['is_new_supervising'] = UserGroup::where('group_id', $superviser_id)
+            ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
 
+        //عدد السفراءالمنسحبين بكل فريق متابعة
+        foreach ($response['group_followups']->pluck('group_id') as $group_id) {
+            $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
+                ->where('user_type', 'leader')
+                ->whereNotNull('termination_reason')
+                ->count();
+        }
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
 
-    });
+    public function advisorsStatistics( $advisor_id,$week_filter = "current")
+    {
+        
+       
+        $advisingGroup = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'advising');
+            })->first();
+            
+        $group = Group::with('userAmbassador')->find($advisingGroup->group_id);
+        if (!$group) {
+            throw new NotFound;
+        }
+       
+        //المراقبين(سفراء) في فريق التوجيه 
 
-    Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
-});
+        $response['all_supervisors_in_group'] = $group->userAmbassador;
+       
+        $response['week'] = Week::latest()->first();
+
+        //افرقة المتابعة الخاصة بالمراقبين
+        $response['group_followups'] = UserGroup::with('group')->whereIn('user_id', $response['all_supervisors_in_group']->pluck('pivot.user_id'))
+            ->where('user_type', 'supervisor')
+            ->get();
+            
+        $responseOfSara = [];
+        foreach ($response['group_followups'] as $key =>  $group) { //for each audit of advisor 
+            $is_freezed['group_name'] = $group->group->name;
+            $is_freezed['is_freezed'] = Mark::where('week_id', $response['week']->id)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group->id)
+                ->where('is_freezed', 1)
+                ->count();
+            $responseOfSara[$key] = $is_freezed;
+        }
+
+        $response['week'] = Week::latest()->first();
+
+        
+        //عدد المراقبين في كل فريق التوجيه   
+        $response['number_supervisors_in_group'] = $response['all_supervisors_in_group']->count();
+       
+
+        //المراقبين المنسحبين في الفريق التوجيه
+        $response['all_supervisorsleadersWithdrawn_in_group'] = Group::with('ambassadorsWithdrawn')
+            ->where('id', $advisor_id)
+            ->first();
+            
+        //عدد المراقبين المنسحبين في كل فريق التوجيه   
+        if( $response['all_supervisorsleadersWithdrawn_in_group'])
+        $response['number_leadersWithdrawn_in_group'] = $response['all_supervisorsleadersWithdrawn_in_group']->ambassadorsWithdrawn->count();
+
+        //افرقة المتابعة الخاصة بالموجه
+        $response['group_supervisors'] = UserGroup::where('user_type', 'supervisor')
+            ->whereIn('user_id', $response['all_supervisors_in_group']->pluck('pivot.user_id'))
+            ->get();
+   
+        // السفراء بكل فريق مراقبة  
+        foreach ($response['group_supervisors']->pluck('group_id') as $group_id) {
+            $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
+                ->where('user_type', 'ambassador')
+                ->get();
+            $response['is_zero'][$group_id] = Mark::whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(-7)])
+                ->wherein('user_id',$response['ambassadors_in_group'][$group_id]->pluck('user_id'))
+                ->count();    
+        }
+
+        //تجميد كل فريق على حدا                      
+        foreach ($response['group_supervisors']->pluck('group_id') as $group_id) {
+            $response['is_freezed'][$group_id] = Mark::where('week_id', $response['week']->id)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group_id)
+                ->where('is_freezed', 1)
+                ->count();
+        }
+
+        //اصفار كل فريق على حدا                      
+        foreach ($response['group_supervisors']->pluck('group_id') as $group_id) {
+            $response['marks_zero'][$group_id] = Mark::where('week_id', $response['week']->id)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group_id)
+                ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+                ->having('out_of_100', 0)
+                ->count();
+        }
+        //احصائيات العلامات والتجميد لكل فريق على حدا
+        foreach ($response['group_supervisors']->pluck('group_id') as $group_id) {
+            $response['total_statistics'][$group_id] = Mark::without('user,week')->where('week_id', 1)
+                ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                ->where('user_groups.group_id', '=', $group_id)
+                ->where('is_freezed', 0)
+                ->select(
+                    DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
+                    DB::raw('avg(reading_mark) as team_reading_mark'),
+                    DB::raw('avg(writing_mark) as team_writing_mark'),
+                    DB::raw('avg(support) as team_support_mark'),
+                    DB::raw('sum(total_pages) as total_pages'),
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                    DB::raw('sum(total_screenshot) as total_screenshot'),
+                )->get();
+        }
+
+        //عدد الصفحات والدعم و الاطروحات  لكل مراقب
+        foreach ($response['all_supervisors_in_group']->pluck('id') as $user_id) {
+            $response['total_statistics_leader'][$user_id] = Mark::without('week')->where('week_id', 1)
+                ->where('user_id', $user_id)
+                ->where('is_freezed', 0)
+                ->select(
+                    DB::raw('avg(support) as team_support_mark'),
+                    DB::raw('sum(total_pages) as total_pages'),
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                )->get();
+        }
+
+        //الاعضاء الجدد في فرق الرقابة
+        foreach ($response['group_supervisors']->pluck('group_id') as $group_id) {
+            $response['is_new_supervisor'][$group_id] = UserGroup::where('group_id', $group_id)
+                ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
+        }
+        //الاعضاء الجدد في فريق التوجيه
+        $response['is_new_advising'] = UserGroup::where('group_id', $advisor_id)
+            ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
+         
+
+        //عدد السفراءالمنسحبين بكل فريق توجيه
+        foreach ($response['group_supervisors']->pluck('group_id') as $group_id) {
+            $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
+                ->where('user_type', 'ambassador')
+                ->whereNotNull('termination_reason')
+                ->count();
+        }
+        
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+    public function consultantStatistics($consultant_id,$week_filter = "current")
+    {
+        
+            
+            $consultantGroup = UserGroup::where('user_id', $consultant_id)->where('user_type', 'consultant')
+                ->whereHas('group.type', function ($q) {
+                    $q->where('type', '=', 'consultation');
+                })->first();
+             
+            $group = Group::with('userAmbassador')->find($consultantGroup->group_id);
+            if (!$group) {
+                throw new NotFound;
+            }
+        
+           
+            $response['all_advisors_in_group'] = $group->userAmbassador;
+            
+            $response['week'] = Week::latest()->first();
+        
+            //افرقة المتابعة الخاصة بالمراقبين
+               $response['group_followups'] = UserGroup::with('group')->whereIn('user_id', $response['all_advisors_in_group']->pluck('pivot.user_id'))
+               ->where('user_type', 'advisor')
+               ->get();
+            $responseOfSara = [];
+            foreach ($response['group_followups'] as $key =>  $group) { //for each audit of advisor 
+                $is_freezed['group_name'] = $group->group->name;
+                $is_freezed['is_freezed'] = Mark::where('week_id', $response['week']->id)
+                    ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                    ->where('user_groups.group_id', '=', $group->id)
+                    ->where('is_freezed', 1)
+                    ->count();
+                $responseOfSara[$key] = $is_freezed;
+            }
+        
+            $response['week'] = Week::latest()->first();
+        
+            //عدد المراقبين في كل فريق استشارة   
+            $response['number_supervisors_in_group'] = $response['all_advisors_in_group']->count();
+        
+            //المراقبين المنسحبين في الفريق استشارة
+            $response['all_supervisorsleadersWithdrawn_in_group'] = Group::with('ambassadorsWithdrawn')
+                ->where('id', $consultant_id)
+                ->first();
+        
+            //عدد المراقبين المنسحبين في كل فريق استشارة   
+            if( $response['all_supervisorsleadersWithdrawn_in_group'])
+            $response['number_leadersWithdrawn_in_group'] = $response['all_supervisorsleadersWithdrawn_in_group']->ambassadorsWithdrawn->count();
+          
+        
+            //افرقة المتابعة الخاصة بالمستشار
+            $response['group_consultation'] = UserGroup::where('user_type', 'advisor')
+                ->whereIn('user_id', $response['all_advisors_in_group']->pluck('pivot.user_id'))
+                ->get();
+               
+            // السفراء بكل فريق استشارة  
+            foreach ($response['group_consultation']->pluck('group_id') as $group_id) {
+                $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
+                    ->where('user_type', 'ambassador')
+                    ->get();
+                $response['is_zero'][$group_id] = Mark::whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(-7)])
+                    ->wherein('user_id',$response['ambassadors_in_group'][$group_id]->pluck('user_id'))
+                    ->count();
+            }
+        
+            //تجميد كل فريق على حدا                      
+            foreach ($response['group_consultation']->pluck('group_id') as $group_id) {
+                $response['is_freezed'][$group_id] = Mark::where('week_id', $response['week']->id)
+                    ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                    ->where('user_groups.group_id', '=', $group_id)
+                    ->where('is_freezed', 1)
+                    ->count();
+            }
+        
+            //اصفار كل فريق على حدا                      
+            foreach ($response['group_consultation']->pluck('group_id') as $group_id) {
+                $response['marks_zero'][$group_id] = Mark::where('week_id', $response['week']->id)
+                    ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                    ->where('user_groups.group_id', '=', $group_id)
+                    ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+                    ->having('out_of_100', 0)
+                    ->count();
+            }
+            //احصائيات العلامات والتجميد لكل فريق على حدا
+            foreach ($response['group_consultation']->pluck('group_id') as $group_id) {
+                $response['total_statistics'][$group_id] = Mark::without('user,week')->where('week_id', 1)
+                    ->join('user_groups', 'marks.user_id', '=', 'user_groups.user_id')
+                    ->where('user_groups.group_id', '=', $group_id)
+                    ->where('is_freezed', 0)
+                    ->select(
+                        DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
+                        DB::raw('avg(reading_mark) as team_reading_mark'),
+                        DB::raw('avg(writing_mark) as team_writing_mark'),
+                        DB::raw('avg(support) as team_support_mark'),
+                        DB::raw('sum(total_pages) as total_pages'),
+                        DB::raw('sum(total_thesis) as total_thesis'),
+                        DB::raw('sum(total_screenshot) as total_screenshot'),
+                    )->get();
+            }
+            //عدد الصفحات والدعم و الاطروحات  لكل موجه
+            foreach ($response['all_advisors_in_group']->pluck('id') as $user_id) {
+                $response['total_statistics_leader'][$user_id] = Mark::without('week')->where('week_id', 1)
+                    ->where('user_id', $user_id)
+                    ->where('is_freezed', 0)
+                    ->select(
+                        DB::raw('avg(support) as team_support_mark'),
+                        DB::raw('sum(total_pages) as total_pages'),
+                        DB::raw('sum(total_thesis) as total_thesis'),
+                    )->get();
+            }
+        
+            //الاعضاء الجدد في فرق الاستشارة
+            foreach ($response['group_consultation']->pluck('group_id') as $group_id) {
+                $response['is_new_supervisor'][$group_id] = UserGroup::where('group_id', $group_id)
+                    ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
+            }
+            //الاعضاء الجدد في فريق الاستشارة
+            $response['is_new_consultant'] = UserGroup::where('group_id', $consultant_id)
+                ->whereBetween('created_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->get()->count();
+        
+            //عدد السفراءالمنسحبين بكل فريق استشارة
+            foreach ($response['group_consultation']->pluck('group_id') as $group_id) {
+                $response['ambassadors_in_group'][$group_id] = UserGroup::where('group_id', $group_id)
+                    ->where('user_type', 'ambassador')
+                    ->whereNotNull('termination_reason')
+                    ->count();
+            }
+            
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        }
+    
+  
+}

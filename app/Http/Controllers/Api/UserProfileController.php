@@ -198,7 +198,7 @@ class UserProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         try {
             $profile = UserProfile::where('user_id', Auth::id())->first();
@@ -244,7 +244,7 @@ class UserProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError($validator->errors());
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
         try {

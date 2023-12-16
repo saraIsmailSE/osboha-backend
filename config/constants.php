@@ -67,12 +67,14 @@ return [
     'ACCEPTED_STATUS' => 'accepted',
     'REJECTED_STATUS' => 'rejected',
     'PENDING_STATUS' => 'pending',
+    'FINISHED_STATUS' => 'finished',
     'FREEZ_THIS_WEEK_TYPE' => 'تجميد الأسبوع الحالي',
     'FREEZ_NEXT_WEEK_TYPE' => 'تجميد الأسبوع القادم',
     'EXCEPTIONAL_FREEZING_TYPE' => 'تجميد استثنائي',
     'EXAMS_MONTHLY_TYPE' => 'نظام امتحانات - شهري',
     'EXAMS_SEASONAL_TYPE' => 'نظام امتحانات - فصلي',
     'ARABIC_ROLES' => [
+        'support_leader' => 'قائد دعم',
         'ambassador' => "سفير",
         'leader' => "قائد",
         'supervisor' => "مراقب",
@@ -81,4 +83,6 @@ return [
         'admin' => 'ادارة'
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
+    'ALL_SUPPER_ROLES' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader'],
+    'SUPERVISORANDABOVE_ROLES' => ['supervisor', 'advisor', 'consultant', 'admin'],
 ];

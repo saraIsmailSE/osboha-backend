@@ -420,18 +420,18 @@ class PostController extends Controller
             ->where('timeline_id', $mainTimelineId)
             ->whereNotNull('is_approved')
             ->withCount('comments')
-            ->with('pollOptions.votes', function ($query) {
-                $query->where('user_id', Auth::id());
+            ->with('pollOptions.votes', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
             })
             ->withCount('pollVotes')
             ->with('user')
-            ->with('taggedUsers.user')
+            // ->with('taggedUsers.user')
             ->withCount('reactions')
             ->with('reactions', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
             ->latest()
-            ->paginate(25);
+            ->paginate(5);
 
         if ($posts->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
@@ -449,11 +449,11 @@ class PostController extends Controller
      */
     public function getCurrentWeekSupportPost()
     {
-        // $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
-        //     return Week::latest()->first();
-        // });
+        //return $this->jsonResponseWithoutMessage(null, 'data', 200);
 
-        $current_week =  Week::latest()->first();
+        $current_week = Cache::remember('current_week_id', 60 * 60 * 2, function () {
+            return Week::latest()->first();
+        });
 
         // Cache the PostType ID for 'support' for a certain amount of time. 
         $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
@@ -666,6 +666,8 @@ class PostController extends Controller
 
     public function getLastSupportPost()
     {
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+
         $current_week = Week::latest()->first();
         // $createdAt = $current_week->created_at;
         // $mainTimer = $current_week->main_timer;
@@ -715,7 +717,7 @@ class PostController extends Controller
                 throw new NotAuthorized;
             }
         } else {
-            if (!Auth::user()->hasAnyRole(['leader', 'admin', 'supervisor', 'advisor', 'consultant'])) {
+            if (!Auth::user()->hasAnyRole(['leader', 'admin', 'supervisor', 'advisor', 'consultant', 'support_leader'])) {
                 throw new NotAuthorized;
             }
         }
@@ -877,6 +879,10 @@ class PostController extends Controller
             ['user_id', $user_id]
         ])->pluck('user_type')->toArray();
         $allowed_types = ['advisor', 'supervisor', 'leader', 'admin'];
+        $pending_msg = '';
+        $pending_userId = null;
+        $pending_type = null;
+
         if (!array_intersect($allowed_types, $user_types)) {
             $input['is_approved'] = null;
 
@@ -1121,6 +1127,6 @@ class PostController extends Controller
                     ->with(['profile.user', 'group.groupAdministrators', 'type']);
             }])
             ->latest()
-            ->paginate(25);
+            ->paginate(8);
     }
 }

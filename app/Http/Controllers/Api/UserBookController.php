@@ -71,7 +71,7 @@ class UserBookController extends Controller
 
         $userFreeBooks = UserBook::with('book')->where('user_id', $user_id)->whereHas('book.type', function ($q) {
             $q->where('type', '=', 'free');
-        })->paginate(9);
+        })->paginate(200);
 
         if ($userFreeBooks->isNotEmpty()) {
             $books = collect();
