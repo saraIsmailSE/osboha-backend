@@ -717,7 +717,7 @@ class PostController extends Controller
                 throw new NotAuthorized;
             }
         } else {
-            if (!Auth::user()->hasAnyRole(['leader', 'admin', 'supervisor', 'advisor', 'consultant'])) {
+            if (!Auth::user()->hasAnyRole(['leader', 'admin', 'supervisor', 'advisor', 'consultant', 'support_leader'])) {
                 throw new NotAuthorized;
             }
         }

@@ -225,9 +225,7 @@ class BookController extends Controller
             $last_thesis = Auth::user()
                 ->theses()
                 ->where('book_id', $book_id)
-
-                ->orderBy('end_page', 'desc')
-                ->orderBy('updated_at', 'desc')->first();
+                ->orderBy('created_at', 'desc')->first();
 
             return $this->jsonResponseWithoutMessage(
                 [

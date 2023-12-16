@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +44,12 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'leader')->latest()->take(1);
     }
+
+    public function groupSupportLeader()
+    {
+        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'support_leader')->latest()->take(1);
+    }
+
     public function groupSupervisor()
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')
@@ -55,7 +62,7 @@ class Group extends Model
     public function groupAdministrators()
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')
-            ->wherePivotIn('user_type', ['admin', 'consultant', 'advisor', 'supervisor', 'leader']);
+            ->wherePivotIn('user_type', ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'support_leader']);
     }
     public function leaderAndAmbassadors()
     {
@@ -64,7 +71,7 @@ class Group extends Model
 
     public function ambassadorsWithdrawn()
     {
-        return $this->belongsToMany(User::class, 'user_groups')->where('user_groups.termination_reason','withdran')->withPivot('user_type')->wherePivot('user_type', 'ambassador');
+        return $this->belongsToMany(User::class, 'user_groups')->where('user_groups.termination_reason', 'withdran')->withPivot('user_type')->wherePivot('user_type', 'ambassador');
     }
 
     public function admin()

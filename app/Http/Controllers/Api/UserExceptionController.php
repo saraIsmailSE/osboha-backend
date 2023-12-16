@@ -357,7 +357,9 @@ class UserExceptionController extends Controller
         if ($userException) {
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
                 $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
-                $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
+                $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)
+                    ->latest() //asmaa
+                    ->first();
                 $response['user_exception'] = $userException;
                 //weeks [current - last]
                 $response['weeks'] = Week::orderBy('created_at', 'desc')->take(2)->get();

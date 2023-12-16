@@ -490,8 +490,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/supervising-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
             Route::get('/advisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
             Route::get('/consultant-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantStatistics']);
-
-
         });
         ######## End Statisticx########
 
@@ -705,7 +703,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/followup/team', [EmptyingTeamController::class, 'EmptyingFollowupTeam']);
             Route::post('/move/ambassadors', [EmptyingTeamController::class, 'moveAmbassadorsForEmptying']);
         });
-         ######## Emptying ########
+        ######## Emptying ########
 
 
     });
