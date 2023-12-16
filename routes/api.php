@@ -78,6 +78,8 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Route::group(['prefix' => 'v1'], function () {
+   
+
 
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
@@ -373,6 +375,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
 
+
+           
         });
         ############End Group############
 
@@ -483,7 +487,7 @@ Route::group(['prefix' => 'v1'], function () {
 
         });
         ########End User-Profile########
-
+        
         ######## Statistics ########
         Route::group(['prefix' => 'statistics'], function () {
             Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
