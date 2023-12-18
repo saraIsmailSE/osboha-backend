@@ -392,8 +392,9 @@ class AuthController extends Controller
         */
         $authRoles = Auth::user()->load('roles:id,name');
         $authLastrole = $authRoles->roles->first();
-
-        $roles = Role::where('id', '>=', $authLastrole->id)->orderBy('id', 'desc')->get();
+        $rolesToRetrieve=config('constants.rolesToRetrieve');
+        
+        $roles = Role::whereIn('name',$rolesToRetrieve[$authLastrole->name])->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
 
