@@ -42,13 +42,8 @@ return [
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
-<<<<<<< Updated upstream
             'auth_mode'  => null,
             'verify_peer'  => false,
-=======
-             'auth_mode'  => null,
-             'verify_peer'  => false,
->>>>>>> Stashed changes
         ],
 
         'ses' => [
