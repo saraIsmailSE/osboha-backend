@@ -489,7 +489,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
             Route::get('/leaders-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
             Route::get('/supervisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
-            Route::get('/consultant-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantStatistics']);
+            Route::get('/advisors-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantsStatistics']);
+            Route::get('/consultant-statistics/{admin_id}/{week_filter?}', [StatisticsController::class, 'administratorStatistics']);
         });
         ######## End Statisticx########
 

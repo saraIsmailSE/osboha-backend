@@ -17,6 +17,8 @@ use App\Models\Week;
 use Illuminate\Support\Facades\DB;
 use App\Traits\GroupTrait;
 
+use function PHPUnit\Framework\returnSelf;
+
 /**
  * Description: StatisticsController for Osboha general statistics.
  *
@@ -242,6 +244,159 @@ class StatisticsController extends Controller
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
+
+    public function consultantsStatistics($consultant_id, $week_filter = "current")
+    {
+
+        $consultantingGroup = UserGroup::where('user_id', $consultant_id)->where('user_type', 'consultant')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'consultation');
+            })->first();
+
+        if (!$consultantingGroup) {
+            throw new NotFound;
+        }
+
+        //previous_week
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        //last_previous_week
+        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+
+        $response = [];
+
+        $advisors = User::without('userProfile')->where('parent_id', $consultant_id)->get();
+
+        //جرد أفرقة المتابعة التي يشرف عليها الموجهين
+        $i = 0;
+        foreach ($advisors as $advisor) {
+            $advisingGroup = UserGroup::where('user_id', $advisor->id)->where('user_type', 'advisor')
+                ->whereHas('group.type', function ($q) {
+                    $q->where('type', '=', 'advising');
+                })->first();
+
+
+            $supervisors = User::without('userProfile')->where('parent_id', $advisor->id)->role('supervisor')->get();
+            $week_avg = 0;
+            $advisor_statistics = [];
+            $advisor_statistics['number_of_leaders'] = 0;
+
+            $advisor_statistics['is_freezed'] = 0;
+
+
+            $advisor_statistics['ambassadors_excluded_in_group'] = 0;
+
+
+            $advisor_statistics['ambassadors_withdraw_in_group'] = 0;
+
+            $advisor_statistics['new_ambassadors'] = 0;
+            $advisor_statistics['number_zero_varible'] = 0;
+
+            foreach ($supervisors as $key => $superviser) {
+
+                $supervisorStatistics['supervisor_followup_teams'][$key] = $this->totalFollowupTeamStatistics($superviser, $previous_week, $last_previous_week);
+
+                if (!is_null($supervisorStatistics['supervisor_followup_teams'][$key]['team'])) {
+                    $advisor_statistics['number_of_leaders'] += $supervisorStatistics['supervisor_followup_teams'][$key]['number_of_leaders'];
+
+                    $week_avg += $supervisorStatistics['supervisor_followup_teams'][$key]['week_avg'];
+
+                    $advisor_statistics['is_freezed'] += $supervisorStatistics['supervisor_followup_teams'][$key]['is_freezed'];
+
+
+                    $advisor_statistics['ambassadors_excluded_in_group'] += $supervisorStatistics['supervisor_followup_teams'][$key]['ambassadors_excluded_in_group'];
+
+
+                    $advisor_statistics['ambassadors_withdraw_in_group'] += $supervisorStatistics['supervisor_followup_teams'][$key]['ambassadors_withdraw_in_group'];
+
+                    $advisor_statistics['new_ambassadors']  += $supervisorStatistics['supervisor_followup_teams'][$key]['new_ambassadors'];
+                    $advisor_statistics['number_zero_varible']  += $supervisorStatistics['supervisor_followup_teams'][$key]['number_zero_varible'];
+                }
+            }
+
+
+            $advisor_statistics['advisor_name'] = $advisor->name;
+            $advisor_statistics['advisor_id'] = $advisor->id;
+            $advisor_statistics['team'] = $advisingGroup->group->name;
+
+            $advisor_statistics['number_of_supervisors'] = $supervisors->count();
+            $advisor_statistics['week_avg'] = $week_avg / $advisor_statistics['number_of_supervisors'];
+
+            $response['advisor_statistics'][$i] = $advisor_statistics;
+            $i++;
+        }
+
+        // Supervisors reading
+        $response['advisors_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
+            ->whereIn('user_id', $advisors->pluck('id'))
+            ->get();
+
+        $response['consultant_group'] = $consultantingGroup->group;
+
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    public function administratorStatistics($administrator_id, $week_filter = "current")
+    {
+
+        $administrationGroup = UserGroup::where('user_id', $administrator_id)->where('user_type', 'admin')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'Administration');
+            })->first();
+
+        if (!$administrationGroup) {
+            throw new NotFound;
+        }
+
+        //previous_week
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        //last_previous_week
+        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+
+        $response = [];
+
+        $consultants = User::without('userProfile')->where('parent_id', $administrator_id)->get();
+
+        //جرد أفرقة المتابعة التي يشرف عليها الموجهين
+        $i = 0;
+
+        foreach ($consultants as $consultant) {
+            $consultationGroup = UserGroup::where('user_id', $consultant->id)->where('user_type', 'consultant')
+                ->whereHas('group.type', function ($q) {
+                    $q->where('type', '=', 'consultation');
+                })->first();
+
+            $week_avg = 0;
+            $number_ambassadors=0;
+            $consultant_statistics = [];
+
+            $consultant_statistics['consultant_name'] = $consultant->name;
+            $consultant_statistics['consultant_id'] = $consultant->id;
+            if(!is_null($consultationGroup)){
+                $consultant_statistics['team'] = $consultationGroup->group->name;
+            }
+            else{
+                $consultant_statistics['team'] = "لا يوجد";
+            }
+
+            $consultant_statistics['number_of_advisors'] = User::where('parent_id', $consultant->id)->role('advisor')->count();
+            
+            $response['consultant_statistics'][$i] = $consultant_statistics;
+            $i++;
+        }
+
+        // Supervisors reading
+        $response['consultants_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
+            ->whereIn('user_id', $consultants->pluck('id'))
+            ->get();
+
+        $response['administrator_group'] = $administrationGroup->group;
+
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+
     private function followupTeamStatistics($group, $previous_week, $last_previous_week)
     {
         $teamStatistics['leader_name'] = $group->user->name;
@@ -289,11 +444,19 @@ class StatisticsController extends Controller
     private function totalFollowupTeamStatistics($superviser, $previous_week, $last_previous_week)
     {
 
+        $teamStatistics['superviser_name'] = $superviser->name;
+        $teamStatistics['supervisor_id'] = $superviser->id;
+
         $supervisingGroup = UserGroup::where('user_id', $superviser->id)->where('user_type', 'supervisor')
             ->whereHas('group.type', function ($q) {
                 $q->where('type', '=', 'supervising');
             })->first();
 
+        if (!$supervisingGroup) {
+            $teamStatistics['team'] = null;
+
+            return $teamStatistics;
+        }
         $supervisorGroup = Group::without('type', 'Timeline')->with('userAmbassador')->find($supervisingGroup->group_id);
 
         // Number of Leaders
@@ -302,22 +465,18 @@ class StatisticsController extends Controller
         $leadersIDs = $supervisorGroup->userAmbassador->pluck('id');
 
         //افرقة المتابعة الخاصة بالقادة
-        $group_followups = UserGroup::with('user')->where('user_type', 'leader')
+        $group_followups = UserGroup::where('user_type', 'leader')
             ->whereIn('user_id', $leadersIDs)
             ->whereNull('termination_reason')
             ->get();
 
-
-
-        $allLeadersAndAmbassadors = UserGroup::with('user')->whereIn('user_type', ['ambassador', 'leader'])
+        $allLeadersAndAmbassadors = UserGroup::whereIn('user_type', ['ambassador', 'leader'])
             ->whereIn('group_id', $group_followups->pluck('group_id'))
             ->whereNull('termination_reason')
             ->get();
 
         $allLeadersAndAmbassadorsIDS = $allLeadersAndAmbassadors->pluck('user_id');
 
-        $teamStatistics['superviser_name'] = $superviser->name;
-        $teamStatistics['supervisor_id'] = $superviser->id;
         $teamStatistics['team'] = $supervisorGroup->name;
 
 
@@ -334,7 +493,7 @@ class StatisticsController extends Controller
             ->where('is_freezed', 1)
             ->count();
 
-        $memberCounts = UserGroup::whereIN('group_id', $allLeadersAndAmbassadors->pluck('group_id'))
+        $memberCounts = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))
             ->where('user_type', 'ambassador')->select(
                 DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
                 DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
@@ -347,7 +506,7 @@ class StatisticsController extends Controller
         // number of withdraw users
         $teamStatistics['ambassadors_withdraw_in_group'] = $memberCounts->withdraw_members;
 
-        $teamStatistics['new_ambassadors'] = UserGroup::without('user')->whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))
+        $teamStatistics['new_ambassadors'] = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))
             ->whereBetween('created_at', [$previous_week->created_at, $previous_week->created_at->addDays(7)])->get()->count();
 
         $markChanges = $this->markChanges($last_previous_week, $previous_week, $allLeadersAndAmbassadorsIDS);
