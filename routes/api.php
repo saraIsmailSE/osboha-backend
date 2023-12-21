@@ -57,8 +57,19 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
+    EligibleMoveDBController,
     EmptyingTeamController,
 };
+
+use App\Http\Controllers\Api\Eligible\{
+    EligibleUserBookController,
+    EligibleThesisController,
+    EligibleQuestionController,
+    EligibleCertificatesController,
+    EligibleGeneralInformationsController,
+    EligiblePDFController,
+};
+
 use App\Http\Controllers\QuestionFollowupController;
 use App\Http\Resources\RoomResource;
 use App\Models\Room;
@@ -69,14 +80,12 @@ use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Osboha Main API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
 */
+
+Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
 
 Route::group(['prefix' => 'v1'], function () {
 
@@ -93,6 +102,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/register', [AuthController::class, 'signUp']);
 
     Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
+    Route::get('/official_document/{user_id}', [UserProfileController::class, 'getOfficialDocument'])->where('file_name', '.*');
     Route::get('verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
     Route::post('password/forgot-password', [AuthController::class, 'sendResetLinkResponse'])->name('passwords.sent');
     Route::post('password/reset', [AuthController::class, 'sendResetResponse'])->name('passwords.reset');
@@ -104,6 +114,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         Route::post('email/reset', [AuthController::class, 'resetEmail']);
     });
+
+
+    // generate eligible-certificates
+    Route::get('eligible-certificates/generate-pdf/{user_book_id}', [EligiblePDFController::class, 'generatePDF']);
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
 
@@ -153,6 +167,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
+            Route::get('/info/{id}', [UserController::class, 'getInfo']);
+            Route::get('/list-un-allowed-to-eligible', [UserController::class, 'listUnAllowedToEligible']);
+            Route::patch('/allow-to-eligible/{id}', [UserController::class, 'acceptEligibleUser']);
+            Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
         });
 
@@ -186,6 +204,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/most-readable-books', [BookController::class, 'getMostReadableBooks']);
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
             Route::get('/latest', [BookController::class, 'latest']);
+            Route::get('/eligible', [BookController::class, 'getAllForEligible']);
+            Route::get('/eligible/name', [BookController::class, 'getBooksByNameForEligible']);
         });
         ########End Book########
         ########User Book########
@@ -477,9 +497,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [UserProfileController::class, 'update']);
             Route::post('/update-profile-pic', [UserProfileController::class, 'updateProfilePic']);
             Route::post('/update-profile-cover', [UserProfileController::class, 'updateProfileCover']);
-            // Route::get('/profile-image/{fileName}/{profileID}', [UserProfileController::class, 'getImages']);
-
-
+            Route::post('/update-official-document', [UserProfileController::class, 'updateOfficialDocument']);
         });
         ########End User-Profile########
 
@@ -579,13 +597,13 @@ Route::group(['prefix' => 'v1'], function () {
         ######## Book-Type ########
 
         ######## Book-Level ########
-        Route::group(['prefix' => 'language'], function () {
-            Route::get('/', [LanguageController::class, 'index']);
-            Route::post('/create', [LanguageController::class, 'create']);
-            Route::post('/show', [LanguageController::class, 'show']);
-            Route::post('/update', [LanguageController::class, 'update']);
-            Route::post('/delete', [BookLevelController::class, 'delete']);
-        });
+        // Route::group(['prefix' => 'language'], function () {
+        //     Route::get('/', [LanguageController::class, 'index']);
+        //     Route::post('/create', [LanguageController::class, 'create']);
+        //     Route::post('/show', [LanguageController::class, 'show']);
+        //     Route::post('/update', [LanguageController::class, 'update']);
+        //     Route::post('/delete', [BookLevelController::class, 'delete']);
+        // });
         ######## Book-Type ########
 
         ######## Exception-Type ########
@@ -694,6 +712,104 @@ Route::group(['prefix' => 'v1'], function () {
         ######## BookStatistics ########
 
 
+
+
+        /*
+|--------------------------------------------------------------------------|
+|                       Eligible API Routes                                |
+|--------------------------------------------------------------------------|
+*/
+        //user book routes
+        Route::group(['prefix' => 'eligible-userbook'], function () {
+            Route::get('/', [EligibleUserBookController::class, 'index']);
+            Route::post('/', [EligibleUserBookController::class, 'store']);
+            Route::get('/status/{status}', [EligibleUserBookController::class, 'getUserBookByStatus']);
+            Route::patch('/status/{id}', [EligibleUserBookController::class, 'changeStatus']);
+            Route::get('/last-achievement', [EligibleUserBookController::class, "lastAchievement"]);
+            Route::get('/finished-achievement', [EligibleUserBookController::class, "finishedAchievement"]);
+            Route::get('/count', [EligibleUserBookController::class, "checkOpenBook"]);
+            Route::get('/certificate/{id}', [EligibleUserBookController::class, "checkCertificate"]);
+            Route::get('/statistics/{id}', [EligibleUserBookController::class, "getStatistics"]);
+            Route::get('/general-statistics/', [EligibleUserBookController::class, "getGeneralstatistics"]);
+            Route::get('/by-book-id/{bookId}', [EligibleUserBookController::class, "getByBookID"]);
+            Route::get('/stage-status/{id}', [EligibleUserBookController::class, "getStageStatus"]);
+            Route::get('/{id}', [EligibleUserBookController::class, 'show']);
+            Route::patch('/{id}', [EligibleUserBookController::class, 'update']);
+            Route::delete('/{id}', [EligibleUserBookController::class, 'destroy']);
+            Route::post('/review', [EligibleUserBookController::class, "review"]);
+            Route::get('/ready/to', [EligibleUserBookController::class, "readyToAudit"]);
+            Route::get('/check-achievement/{id}', [EligibleUserBookController::class, 'checkAchievement']);
+        });
+
+        //thesis routes
+        Route::group(['prefix' => 'eligible-theses'], function () {
+            Route::get('/image', [EligibleThesisController::class, 'image']);
+            Route::get('/', [EligibleThesisController::class, 'index']);
+            Route::post('/', [EligibleThesisController::class, 'store']);
+            Route::get('final-degree/{id}', [EligibleThesisController::class, "finalDegree"]);
+            Route::get('by-status/{status}', [EligibleThesisController::class, "getByStatus"]);
+            Route::get('/photo-count/{id}', [EligibleThesisController::class, 'getThesisPhotosCount']);
+            Route::get('/{id}', [EligibleThesisController::class, 'show']);
+            Route::patch('update-photo/{id}', [EligibleThesisController::class, "updatePhoto"]);
+            Route::patch('review-thesis/{id}', [EligibleThesisController::class, "reviewThesis"]);
+            Route::patch('/{id}', [EligibleThesisController::class, 'update']);
+            Route::delete('/photo/{id}', [EligibleThesisController::class, 'deletePhoto']);
+            Route::delete('/{id}', [EligibleThesisController::class, 'destroy']);
+            Route::patch('add-degree/{id}', [EligibleThesisController::class, "addDegree"]);
+
+            Route::post('update-photo', [EligibleThesisController::class, "updatePicture"]);
+            Route::post('upload/{id}', [EligibleThesisController::class, "uploadPhoto"]);
+            Route::get('eligible_user_books_id/{user_book_id}&{status?}', [EligibleThesisController::class, "getByUserBook"]);
+            Route::get('book/{book_id}', [EligibleThesisController::class, "getByBook"]);
+            Route::post('/review', [EligibleThesisController::class, "review"]);
+        });
+
+        //questions routes
+        Route::group(['prefix' => 'eligible-questions'], function () {
+            Route::get('/', [EligibleQuestionController::class, 'index']);
+            Route::post('/', [EligibleQuestionController::class, 'store']);
+            Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"]);
+            Route::get('user-book/{id}', [EligibleQuestionController::class, "getUserBookQuestions"]);
+            Route::get('/{id}', [EligibleQuestionController::class, 'show']);
+            Route::patch('/{id}', [EligibleQuestionController::class, 'update']);
+            Route::delete('/{id}', [EligibleQuestionController::class, 'destroy']);
+            Route::patch('add-degree/{id}', [EligibleQuestionController::class, "addDegree"]);
+            Route::get('book/{book_id}', [EligibleQuestionController::class, "getByBook"]);
+            Route::get('final-degree/{id}', [EligibleQuestionController::class, "finalDegree"]);
+            Route::get('user_book_id/{user_book_id}', [EligibleQuestionController::class, "getByUserBook"]);
+            Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"]);
+            Route::post('/review', [EligibleQuestionController::class, "review"]);
+            Route::patch('review-question/{id}', [EligibleQuestionController::class, "reviewQuestion"]);
+        });
+
+        //certificates routes
+        Route::group(['prefix' => 'eligible-certificates'], function () {
+            Route::get('/', [EligibleCertificatesController::class, 'index']);
+            Route::post('/', [EligibleCertificatesController::class, 'store']);
+            Route::get('/user', [EligibleCertificatesController::class, 'getUserCertificates']);
+            Route::get('/{id}', [EligibleCertificatesController::class, 'show']);
+            Route::get('/full-certificate/{user_book_id}', [EligibleCertificatesController::class, 'fullCertificate']);
+            Route::patch('/{id}', [EligibleCertificatesController::class, 'update']);
+            Route::delete('/{id}', [EligibleCertificatesController::class, 'destroy']);
+        });
+
+
+        //general informations routes
+        Route::group(['prefix' => 'eligible-general-informations'], function () {
+            Route::get('/', [EligibleGeneralInformationsController::class, 'index']);
+            Route::post('/', [EligibleGeneralInformationsController::class, 'store']);
+            Route::get('/user_book_id/{user_book_id}', [EligibleGeneralInformationsController::class, 'getByUserBookId']);
+            Route::get('/{id}', [EligibleGeneralInformationsController::class, 'show']);
+            Route::patch('/{id}', [EligibleGeneralInformationsController::class, 'update']);
+            Route::delete('/{id}', [EligibleGeneralInformationsController::class, 'destroy']);
+            Route::patch('add-degree/{id}', [EligibleGeneralInformationsController::class, "addDegree"]);
+            Route::get('book/{book_id}', [EligibleGeneralInformationsController::class, "getByBook"]);
+            Route::get('final-degree/{id}', [EligibleGeneralInformationsController::class, "finalDegree"]);
+            Route::get('user_book_id/{user_book_id}', [EligibleGeneralInformationsController::class, "getByUserBook"]);
+            Route::get('status/{status}', [EligibleGeneralInformationsController::class, "getByStatus"]);
+            Route::post('/review', [EligibleGeneralInformationsController::class, "review"]);
+            Route::patch('review-general-informations/{id}', [EligibleGeneralInformationsController::class, "reviewGeneralInformations"]);
+        });
         ######## StatisticsSupervisor ########
         Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
         ######## END StatisticsSupervisor ########
@@ -708,6 +824,8 @@ Route::group(['prefix' => 'v1'], function () {
 
 
     });
+    //move Eligible DB routes
+    Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
 
     Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
 });

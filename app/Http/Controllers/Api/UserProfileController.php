@@ -154,15 +154,15 @@ class UserProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name_ar' => 'required',
-            'last_name_ar' => 'required',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'first_name_ar' => 'required',
+        //     'last_name_ar' => 'required',
+        // ]);
 
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        $profile = UserProfile::where('user_id', Auth::id());
+        // if ($validator->fails()) {
+        //     return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        // }
+        $profile = UserProfile::where('user_id', Auth::id())->first();
         if ($profile) {
             $profile->update(
                 $request->only(
@@ -179,7 +179,8 @@ class UserProfileController extends Controller
                     'fav_section'
                 )
             );
-            return $this->jsonResponseWithoutMessage("تم التحديث بنجاح", 'data', 200);
+            $profile->refresh();
+            return $this->jsonResponseWithoutMessage($profile, 'data', 200);
         } else {
             throw new NotFound;
         }
@@ -266,6 +267,50 @@ class UserProfileController extends Controller
         }
     }
 
+    /**
+     * update official document.
+     * 
+     *  @param  $request contains official_document
+     * @return jsonResponseWithoutMessage
+     */
+    public function updateOfficialDocument(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "official_document" => "required|image|mimes:png,jpg,jpeg,gif,svg",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors());
+        }
+
+        try {
+            $media = $request->file('official_document');
+            $imageName = "osboha_official_document_" . Auth::id() . '.' . $media->extension();
+            //remove any old ones
+
+            $pathToRemove = '/assets/images/Official_Document/' . 'osboha_official_document_' . Auth::id();
+
+            //get all files with same name no matter what extension is
+            $filesToRemove = glob(public_path($pathToRemove . '.*'));
+
+            foreach ($filesToRemove as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+
+            $media->move(public_path('assets/images/Official_Document/'), $imageName);
+            $imagePath = 'assets/images/Official_Document/' . $imageName;
+            $this->createOfficialDocument($imagePath, $imageName);
+            $user = Auth::user();
+            $user->allowed_to_eligible = 0;
+            $user->save();
+            return $this->jsonResponseWithoutMessage(true, 'data', 200);
+        } catch (\Exception $e) {
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
     public function getImages($profile_id, $file_name)
     {
         $folderName = "profile_" . $profile_id;
@@ -278,6 +323,23 @@ class UserProfileController extends Controller
         return response()->download($path, $file_name);
     }
 
+
+    public function getOfficialDocument($user_id)
+    {
+
+        $file_name = 'osboha_official_document_' . $user_id;
+        $path = '/assets/images/Official_Document/' . $file_name;
+
+        //get all files with same name no matter what extension is
+        $filesToDownload = glob(public_path($path . '.*'));
+        $fileNames = array_map('basename', $filesToDownload);
+        if (count($fileNames) > 0) {
+            //return fisrt match
+            $path = public_path() . '/assets/images/Official_Document/' . $fileNames[0];
+            return response()->download($path, $fileNames[0]);
+        }
+        return "image not found";
+    }
 
 
     /**

@@ -28,7 +28,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_blocked',
         'is_hold',
         'is_excluded',
-        'parent_id'
+        'parent_id',
+        'allowed_to_eligible'
     ];
 
     /**
@@ -196,6 +197,17 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserBook::class);
     }
+
+
+    public function eligibleReviewes()
+    {
+        return $this->hasMany(Thesis::class, 'reviewer_id');
+    }
+    public function eligibleAudites()
+    {
+        return $this->hasMany(Thesis::class, 'auditor_id');
+    }
+
 
     public function sendPasswordResetNotification($token)
     {

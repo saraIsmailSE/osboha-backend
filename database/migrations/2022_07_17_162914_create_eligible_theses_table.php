@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('eligible_general_thesis', function (Blueprint $table) {
+        Schema::create('eligible_thesis', function (Blueprint $table) {
             $table->bigIncrements('id')->unsigned()->index();
             $table->text('thesis_text');
             $table->text('starting_page');
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('eligible_general_thesis');
+        Schema::dropIfExists('eligible_thesis');
     }
 };

@@ -63,6 +63,10 @@ class Book extends Model
     {
         return $this->hasMany(UserBook::class);
     }
+    public function eligibleUserBook()
+    {
+        return $this->hasMany(EligibleUserBook::class);
+    }
 
     public function level()
     {

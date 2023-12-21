@@ -92,4 +92,79 @@ class UserController extends Controller
             return $this->jsonResponseWithoutMessage($error, 'data', 500);
         }
     }
+
+    public function getInfo($id)
+    {
+        try {
+            //get user info
+            $user = User::findOrFail($id);
+            return $this->jsonResponseWithoutMessage($user, 'data', 200);
+        } catch (\Illuminate\Database\QueryException $error) {
+            return $this->jsonResponseWithoutMessage($error, 'data', 500);
+        }
+    }
+    public function listUnAllowedToEligible()
+    {
+        try {
+            $users = User::where('allowed_to_eligible', 0)->get();
+            return $this->jsonResponseWithoutMessage($users, 'data', 200);
+        } catch (\Error $e) {
+            return $this->jsonResponseWithoutMessage('Error Happend', $e, 200);
+        }
+    }
+
+    public function acceptEligibleUser($id)
+    {
+        $user = User::find($id);
+        try {
+            $user->update(['allowed_to_eligible' => 1]);
+            $user->save();
+            $this->deleteOfficialDoc($user->id);
+
+            $msg = "تمت الموافقة، يمكنك توثيق الكتب بنجاح";
+            (new NotificationController)->sendNotification($user->id, $msg, ROLES,);
+
+            return $this->jsonResponseWithoutMessage($user->refresh(), 'data', 200);
+        } catch (\Error $e) {
+            return $this->jsonResponseWithoutMessage('User does not exist', $e, 200);
+        }
+    }
+
+    public function deActiveUser(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            "id" => "required|int",
+            "rejectNote" => "required|string",
+
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $user = User::where('id', $request->id)->update(['allowed_to_eligible' => 2]);
+        $userToNotify = User::find($request->id);
+        $userToNotify->notify(new \App\Notifications\RejectUserEmail($request->rejectNote));
+        $this->deleteOfficialDoc($request->id);
+
+        $result = $user;
+
+        if ($result == 0) {
+            return $this->jsonResponseWithoutMessage('User does not exist', 'data', 404);
+        }
+        return $this->jsonResponseWithoutMessage($result, 'data',200);
+    }
+
+    public function deleteOfficialDoc($userID)
+    {
+        $pathToRemove = '/assets/images/Official_Document/' . 'osboha_official_document_' . $userID;
+
+        //get all files with same name no matter what extension is
+        $filesToRemove = glob(public_path($pathToRemove . '.*'));
+
+        foreach ($filesToRemove as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+    }
 }
