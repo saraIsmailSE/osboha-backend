@@ -28,7 +28,7 @@ class EligibleMoveDBController extends Controller
     {
         DB::beginTransaction();
         try {
-            Log::channel('laravel')->info('start');
+            Log::channel('newWeek')->info('Start');
 
             $users_certificate = DB::connection('mysql_second')->table("users")->get();
             foreach ($users_certificate as $key => $user_certificate) {
@@ -118,7 +118,7 @@ class EligibleMoveDBController extends Controller
                             if ($user_book_eligible->link) {
                                 $book->link = $user_book_eligible->link;
                             } else {
-                                $book->link = 'https://www.platform.osboha180.com/';
+                                $book->link = 'https://platform.osboha180.com/';
                             }
 
                             //brief
@@ -299,8 +299,9 @@ class EligibleMoveDBController extends Controller
         } catch (\Exception $e) {
 
             DB::rollBack();
-            Log::channel('laravel')->info($e);
-            // return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
+            Log::channel('newWeek')->info('fail');
+            Log::channel('newWeek')->info($e->getMessage() . ' at line ' . $e->getLine());
+            return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
     }
 }
