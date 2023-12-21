@@ -82,13 +82,13 @@ trait ThesisTraits
     /**
      * create new thesis
      * @author Asmaa
-     * @todo check if the week exists and it is the current week
-     * @todo check if the week is vacation or not and create mark record if it is vacation
-     * @todo get thesis type
-     * @todo calculate reading mark and writing mark for normal thesis or ramadan/tafseer thesis
-     * @todo check if the marks exceed the maximum marks or not
-     * @todo create new thesis
-     * @todo update mark record
+     * check if the week exists and it is the current week
+     * check if the week is vacation or not and create mark record if it is vacation
+     * get thesis type
+     * calculate reading mark and writing mark for normal thesis or ramadan/tafseer thesis
+     * check if the marks exceed the maximum marks or not
+     * create new thesis
+     * update mark record
      * @param Array $thesis
      * @return jsonResponse
      */
@@ -104,18 +104,6 @@ trait ThesisTraits
                 throw new \Exception('Cannot add thesis');
             }
 
-            $week_id = $week->id;
-            // $mark_record = Mark::where('user_id', Auth::id())
-            //     ->where('week_id', $week_id)
-            //     ->first();
-
-            // //asmaa - check if the week is vacation or not and create mark record if it is vacation
-            // if ($week->is_vacation == 1 && !$mark_record) {
-            //     $mark_record = Mark::create([
-            //         'user_id' => Auth::id(),
-            //         'week_id' => $week_id,
-            //     ]);
-            // }
             $mark_record = Mark::firstOrCreate(
                 ['week_id' =>  $week->id, 'user_id' => Auth::id()],
                 ['week_id' =>  $week->id, 'user_id' => Auth::id()]
@@ -124,114 +112,110 @@ trait ThesisTraits
 
             $mark_record = Mark::find($thesis['mark_id']);
         }
-        
-        if ($mark_record) {
-            //check if thesis is added before (same book and same pages)
-            $addedBefore = Thesis::where('book_id', $thesis['book_id'])
-                ->where('start_page', $thesis['start_page'])
-                ->where('end_page', $thesis['end_page'])
-                ->where('mark_id', $mark_record->id)
-                ->first();
 
-            if ($addedBefore) {
-                throw new \Exception('Thesis is added before');
-            }
+        //check if thesis is added before (same book and same pages)
+        $addedBefore = Thesis::where('book_id', $thesis['book_id'])
+            ->where('start_page', $thesis['start_page'])
+            ->where('end_page', $thesis['end_page'])
+            ->where('mark_id', $mark_record->id)
+            ->first();
 
-            //get thesis type
-            $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
+        if ($addedBefore) {
+            throw new \Exception('Thesis is added before');
+        }
 
-            $max_length = (array_key_exists('max_length', $thesis) ? $thesis['max_length'] : 0);
-            $total_thesis = (array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
-            $total_screenshots = (array_key_exists('total_screenshots', $thesis) ? $thesis['total_screenshots'] : 0);
-            $thesis_mark = 0;
+        //get thesis type
+        $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
 
-            $thesis_data_to_insert = array(
-                'comment_id'        => $thesis['comment_id'],
-                'book_id'           => $thesis['book_id'],
-                'mark_id'           => $mark_record->id,
-                'user_id'           => $seeder ? $thesis['user_id'] : Auth::id(),
-                'type_id'           => $thesis['type_id'],
-                'start_page'        => $thesis['start_page'],
-                'end_page'          => $thesis['end_page'],
-                'max_length'        => $max_length,
-                'total_screenshots' => $total_screenshots,
-                'status'            => $week->is_vacation == 1 ? config('constants.ACCEPTED_STATUS') : config('constants.PENDING_STATUS'),
+        $max_length = (array_key_exists('max_length', $thesis) ? $thesis['max_length'] : 0);
+        $total_thesis = (array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
+        $total_screenshots = (array_key_exists('total_screenshots', $thesis) ? $thesis['total_screenshots'] : 0);
+        $thesis_mark = 0;
+
+        $thesis_data_to_insert = array(
+            'comment_id'        => $thesis['comment_id'],
+            'book_id'           => $thesis['book_id'],
+            'mark_id'           => $mark_record->id,
+            'user_id'           => $seeder ? $thesis['user_id'] : Auth::id(),
+            'type_id'           => $thesis['type_id'],
+            'start_page'        => $thesis['start_page'],
+            'end_page'          => $thesis['end_page'],
+            'max_length'        => $max_length,
+            'total_screenshots' => $total_screenshots,
+            'status'            => $week->is_vacation == 1 ? config('constants.ACCEPTED_STATUS') : config('constants.PENDING_STATUS'),
+        );
+
+        $thesisTotalPages = $thesis['end_page'] - $thesis['start_page'] > 0 ? $thesis['end_page'] - $thesis['start_page'] + 1 : 0;
+        $mark_data_to_update = array(
+            'total_pages'      => $mark_record->total_pages + $thesisTotalPages,
+            'total_thesis'     => $mark_record->total_thesis + $total_thesis,
+            'total_screenshot' => $mark_record->total_screenshot + $total_screenshots,
+            'is_freezed'       => 0,
+        );
+
+        $reading_mark = $mark_record->reading_mark;
+        $writing_mark = $mark_record->writing_mark;
+
+        if (strtolower($thesis_type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis or not completed ramadan/tafseer thesis                    
+            $thesis_mark = $this->calculate_mark_for_normal_thesis(
+                $thesisTotalPages,
+                $max_length,
+                $total_screenshots,
+
             );
+        } else if (
+            strtolower($thesis_type) === RAMADAN_THESIS_TYPE ||
+            strtolower($thesis_type) === TAFSEER_THESIS_TYPE
+        ) { ///calculate mark for ramadan or tafseer thesis             
 
-            $thesisTotalPages = $thesis['end_page'] - $thesis['start_page'] > 0 ? $thesis['end_page'] - $thesis['start_page'] + 1 : 0;
-            $mark_data_to_update = array(
-                'total_pages'      => $mark_record->total_pages + $thesisTotalPages,
-                'total_thesis'     => $mark_record->total_thesis + $total_thesis,
-                'total_screenshot' => $mark_record->total_screenshot + $total_screenshots,
-                'is_freezed'       => 0,
+            $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
+                $thesisTotalPages,
+                $max_length,
+                $total_screenshots,
+                (strtolower($thesis_type) === RAMADAN_THESIS_TYPE ? RAMADAN_THESIS_TYPE : TAFSEER_THESIS_TYPE),
+
             );
+        }
+        $reading_mark += $thesis_mark['reading_mark'];
+        $writing_mark += $thesis_mark['writing_mark'];
 
-            $reading_mark = $mark_record->reading_mark;
-            $writing_mark = $mark_record->writing_mark;
+        if ($reading_mark > config('constants.FULL_READING_MARK')) {
+            $reading_mark = config('constants.FULL_READING_MARK');
+        }
 
-            if (strtolower($thesis_type) === NORMAL_THESIS_TYPE) { //calculate mark for normal thesis or not completed ramadan/tafseer thesis                    
-                $thesis_mark = $this->calculate_mark_for_normal_thesis(
-                    $thesisTotalPages,
-                    $max_length,
-                    $total_screenshots,
+        if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
+            $writing_mark = config('constants.FULL_WRITING_MARK');
+        }
 
-                );
-            } else if (
-                strtolower($thesis_type) === RAMADAN_THESIS_TYPE ||
-                strtolower($thesis_type) === TAFSEER_THESIS_TYPE
-            ) { ///calculate mark for ramadan or tafseer thesis             
+        $mark_data_to_update['reading_mark'] = $reading_mark;
+        $mark_data_to_update['writing_mark'] = $writing_mark;
 
-                $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
-                    $thesisTotalPages,
-                    $max_length,
-                    $total_screenshots,
-                    (strtolower($thesis_type) === RAMADAN_THESIS_TYPE ? RAMADAN_THESIS_TYPE : TAFSEER_THESIS_TYPE),
+        //update status to accepted if the thesis is read only
+        if ($thesisTotalPages > 0 && $max_length == 0 && $total_screenshots == 0) {
+            $thesis_data_to_insert['status'] = config('constants.ACCEPTED_STATUS');
+        }
 
-                );
-            }
-            $reading_mark += $thesis_mark['reading_mark'];
-            $writing_mark += $thesis_mark['writing_mark'];
+        $thesis = Thesis::create($thesis_data_to_insert);
 
-            if ($reading_mark > config('constants.FULL_READING_MARK')) {
-                $reading_mark = config('constants.FULL_READING_MARK');
-            }
-
-            if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
-                $writing_mark = config('constants.FULL_WRITING_MARK');
-            }
-
-            $mark_data_to_update['reading_mark'] = $reading_mark;
-            $mark_data_to_update['writing_mark'] = $writing_mark;
-
-            //update status to accepted if the thesis is read only
-            if ($thesisTotalPages > 0 && $max_length == 0 && $total_screenshots == 0) {
-                $thesis_data_to_insert['status'] = config('constants.ACCEPTED_STATUS');
-            }
-
-            $thesis = Thesis::create($thesis_data_to_insert);
-
-            if ($thesis) {
-                $this->createOrUpdateUserBook($thesis);
-                $mark_record->update($mark_data_to_update);
-                return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
-            } else {
-                // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
-                throw new \Exception('Cannot add thesis');
-            }
+        if ($thesis) {
+            $this->createOrUpdateUserBook($thesis);
+            $mark_record->update($mark_data_to_update);
+            return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
         } else {
-            throw new NotFound;
+            // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
+            throw new \Exception('Cannot add thesis');
         }
     }
 
     /**
      * update thesis
      * @author Asmaa
-     * @todo get thesis based on comment id
-     * @todo check if the week exists and it is the current week
-     * @todo calculate reading and writing marks from the old thesis and the new thesis
-     * @todo check if the marks exceed the full marks or not
-     * @todo update mark record
-     * @todo update thesis record
+     * get thesis based on comment id
+     * check if the week exists and it is the current week
+     * calculate reading and writing marks from the old thesis and the new thesis
+     * check if the marks exceed the full marks or not
+     * update mark record
+     * update thesis record
      * @param Array $thesisToUpdate
      * @return jsonResponse
      */
@@ -349,14 +333,14 @@ trait ThesisTraits
     /**
      * delete thesis
      * @author Asmaa
-     * @todo 
-     * @todo get thesis based on comment id
-     * @todo get comment related to the thesis
-     * @todo check if the week exists and it is the current week
-     * @todo delete thesis
-     * @todo delete comment
-     * @todo calculate marks for the rest of the thesis in the same week
-     * @todo update mark record
+     * 
+     * get thesis based on comment id
+     * get comment related to the thesis
+     * check if the week exists and it is the current week
+     * delete thesis
+     * delete comment
+     * calculate marks for the rest of the thesis in the same week
+     * update mark record
      * @param Array $thesisToDelete
      * @return jsonResponse
      */
@@ -373,34 +357,8 @@ trait ThesisTraits
                 throw new \Exception('Cannot delete thesis');
             }
 
-            // $mark_record = Mark::findOrFail($thesis->mark_id);
-
-
             $thesis->delete();
-            // $comment->delete();
 
-            // $thesis_mark = $this->calculate_mark_for_all_thesis($thesis->mark_id);
-
-            // $reading_mark = $thesis_mark['reading_mark'];
-            // $writing_mark = $thesis_mark['writing_mark'];
-
-            // if ($reading_mark > config('constants.FULL_READING_MARK')) {
-            //     $reading_mark = config('constants.FULL_READING_MARK');
-            // }
-
-            // if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
-            //     $writing_mark = config('constants.FULL_WRITING_MARK');
-            // }
-
-            // $mark_data_to_update = array(
-            //     'total_pages'      => $mark_record->total_pages - ($thesis->end_page - $thesis->start_page + 1),
-            //     'total_thesis'     => $mark_record->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0),
-            //     'total_screenshot' => $mark_record->total_screenshot - $thesis->total_screenshots,
-            //     'reading_mark' => $reading_mark,
-            //     'writing_mark' => $writing_mark,
-            // );
-
-            // $mark_record->update($mark_data_to_update);
             $this->updateMark($thesis);
             $this->createOrUpdateUserBook($thesis, true);
 
@@ -450,9 +408,9 @@ trait ThesisTraits
     /**
      * calculate mark for all week theses
      * @author
-     * @todo get all theses in the same week
-     * @todo calculate mark for each thesis based on its type
-     * @todo calculate total mark for the week
+     * get all theses in the same week
+     * calculate mark for each thesis based on its type
+     * calculate total mark for the week
      * @param int $mark_id          
      * @return array ['reading_mark', 'writing_mark']
      */
@@ -475,7 +433,6 @@ trait ThesisTraits
                     $totalPages,
                     $thesis->max_length,
                     $thesis->total_screenshots,
-
                 );
             } else if ($thesis->type->type === RAMADAN_THESIS_TYPE || $thesis->type->type === TAFSEER_THESIS_TYPE) {
                 $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
@@ -483,7 +440,6 @@ trait ThesisTraits
                     $thesis->max_length,
                     $thesis->total_screenshots,
                     $thesis->type->type,
-
                 );
             }
             $mark['reading_mark'] += $thesis_mark['reading_mark'];
@@ -501,11 +457,11 @@ trait ThesisTraits
     /**
      * calculate mark for normal thesis
      * @author Asmaa
-     * @todo check if the thesis is within a duration of exams exception and if it satisfies the conditions of the exception
-     * @todo calculate the number of parts
-     * @todo calculate the number of remaining pages out of part
-     * @todo calculate the reading mark based on the number of parts and total pages
-     * @todo calculate the writing mark based on the number of parts and max length or total screenshots
+     * check if the thesis is within a duration of exams exception and if it satisfies the conditions of the exception
+     * calculate the number of parts
+     * calculate the number of remaining pages out of part
+     * calculate the reading mark based on the number of parts and total pages
+     * calculate the writing mark based on the number of parts and max length or total screenshots
      * @param int $total_pages
      * @param int $max_length
      * @param int $total_screenshots

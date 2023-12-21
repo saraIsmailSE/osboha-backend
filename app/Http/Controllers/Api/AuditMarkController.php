@@ -90,7 +90,7 @@ class AuditMarkController extends Controller
                             ->where('week_id', $previous_week->id)
                             ->count();
                         // 10% of Full Mark
-                        $ratioFullMarkToAudit = round($fullMark * 0.10);
+                        $ratioFullMarkToAudit = round($fullMark * 0.10) + 1;
                         $fullMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
                             ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
                             ->having('out_of_100', 100)
@@ -106,7 +106,7 @@ class AuditMarkController extends Controller
                             ->where('week_id', $previous_week->id)
                             ->count();
                         //Get 10% of NOT Full Mark                
-                        $ratioVariantMarkToAudit = $lowMark * 10 / 100;
+                        $ratioVariantMarkToAudit = ($lowMark * 0.10) + 1;
                         $variantMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
                             ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
                             ->having('out_of_100', '<', 100)
@@ -164,7 +164,7 @@ class AuditMarkController extends Controller
                     $advisorAuditMarks->save();
 
                     // get all groups 
-                    $groupsID = UserGroup::where('user_id', $advisor)->pluck('group_id');
+                    $groupsID = UserGroup::where('user_id', $advisor)->where('user_type', 'advisor')->pluck('group_id');
                     // get supervisors of $advisor
                     $supervisors = UserGroup::where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->distinct()->get(['user_id']);
 
@@ -176,7 +176,7 @@ class AuditMarkController extends Controller
                         $supervisorAudit = MarksForAudit::whereIn('audit_marks_id', $auditMarks)->get()->pluck('mark_id');
 
                         // 10% supervisorAuditCount
-                        $ratioToAudit = round(count($supervisorAudit) * 0.10);
+                        $ratioToAudit = round(count($supervisorAudit) * 0.10) + 1;
                         $marksOfSupervisorAudit = Mark::whereIn('id', $supervisorAudit)
                             ->inRandomOrder()
                             ->limit($ratioToAudit)
@@ -190,7 +190,7 @@ class AuditMarkController extends Controller
                         $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
                         $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
                         // get 5% of ther marks that NOT in supervisorAudit
-                        $ratioToAudit = round(count($ambassadors) * 0.05);
+                        $ratioToAudit = round(count($ambassadors) * 0.05) + 1;
                         $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
                             ->where('week_id', $previous_week->id)
                             ->inRandomOrder()
@@ -444,8 +444,15 @@ class AuditMarkController extends Controller
             ]);
             $mark = Mark::find($request->mark_for_audit_id);
 
+            $userGroup = UserGroup::where('user_id', $mark->user->id)->where('user_type', 'ambassador')->first();
+            $supportLeaderInGroup = UserGroup::where('group_id', $userGroup->group_id)
+                ->where('user_type', 'support_leader')
+                ->first();
+
+            $parentId = $supportLeaderInGroup ? $supportLeaderInGroup->user_id : $mark->user->parent_id;
+
             $msg = "لقد أرسل إليك " . Auth::user()->name . " ملاحظة حول علامة";
-            (new NotificationController)->sendNotification($mark->user->parent_id, $msg, AUDIT_MARKS, $this->getAuditMarkPath($request->mark_for_audit_id));
+            (new NotificationController)->sendNotification($parentId, $msg, AUDIT_MARKS, $this->getAuditMarkPath($request->mark_for_audit_id));
 
             return $this->jsonResponseWithoutMessage($note, 'data', 200);
         } catch (Throwable $e) {

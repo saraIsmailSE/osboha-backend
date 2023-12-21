@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Book;
 use App\Models\TimelineType;
 use App\Traits\GroupTrait;
+use Carbon\Carbon;
 
 /**
  * Description: GroupController for Osboha group.
@@ -63,7 +64,7 @@ class GroupController extends Controller
                 /**
                  * @todo: slow query - asmaa         
                  */
-                $groups = Group::withCount('users')->paginate(30);
+                $groups = Group::with('groupAdministrators')->withCount('users')->paginate(30);
             }
 
 
@@ -177,9 +178,12 @@ class GroupController extends Controller
     public function show($group_id)
     {
 
-        $response['info'] = Group::with('users', 'groupAdministrators', 'leaderAndAmbassadors')->withCount('userAmbassador')->where('id', $group_id)->first();
+        $response['info'] = Group::with('users', 'groupAdministrators', 'leaderAndAmbassadors', 'groupSupportLeader')->withCount('userAmbassador')->where('id', $group_id)->first();
         if ($response['info']) {
-            $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
+            $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)
+                ->latest() //admaa
+                ->first();
+
             if ($response['authInGroup'] || Auth::user()->hasRole('admin')) {
 
                 //group posts
@@ -192,6 +196,9 @@ class GroupController extends Controller
                 $response['week'] = Week::latest('id')->first();
 
                 $response['week_avg'] = $this->groupAvg($group_id,  $response['week']->id, $response['info']->leaderAndAmbassadors->pluck('id'));
+
+                $response['has_support_leader'] = $response['info']->groupSupportLeader->isNotEmpty();
+
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 throw new NotAuthorized;
@@ -318,11 +325,15 @@ class GroupController extends Controller
     public function groupExceptions($group_id)
     {
 
+        //editted by asmaa
         $userInGroup = UserGroup::where('group_id', $group_id)
-            ->where('user_id', Auth::id())->pluck('user_type')
+            ->where('user_id', Auth::id())
+            ->where('user_type', '!=', 'ambassador')
+            ->pluck('user_type')
             ->first();
 
-        if ($userInGroup != 'ambassador') {
+        //if no records, then the user is only an ambassador
+        if ($userInGroup) {
             $response['week'] = Week::latest()->first();
             $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
             $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->latest()->get();
@@ -397,22 +408,40 @@ class GroupController extends Controller
             ->having('out_of_100', '>', 0)
             ->count();
 
-        $marks['zero'] = Mark::where('week_id', $week_id)
-            ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
-            ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
-            ->having('out_of_100', 0)
-            ->count();
-        $marks['random_achievement'] = Mark::where('week_id', $week_id)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->inRandomOrder()->limit(3)->get();
+        //asmaa
+        $marks['zero'] = $marks['group_users'] - $marks['full'] - $marks['incomplete'];
+        // Mark::where('week_id', $week_id)
+        //     ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+        //     ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
+        //     ->having('out_of_100', 0)
+        //     ->count();
+        $marks['random_achievement'] =
+            User::whereIn('id', $marks['group']->leaderAndAmbassadors->pluck('id'))
+            ->with(['mark' => function ($query) use ($week_id) {
+                $query->where('week_id', $week_id);
+            }])
+            ->inRandomOrder()->limit(3)->get();
+
+        // Mark::where('week_id', $week_id)
+        // ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+        // ->inRandomOrder()->limit(3)->get();
         $marks['most_read'] = Mark::where('week_id', $week_id)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
 
-
+        //support leader achievement
+        $groupSupportLeader = $marks['group']->groupSupportLeader;
+        if ($groupSupportLeader->isNotEmpty()) {
+            $marks['support_leader_mark'] =  Auth::user()->hasAnyRole(config('constants.SUPERVISORANDABOVE_ROLES')) ?
+                Mark::where('week_id', $week_id)
+                ->where('user_id', $groupSupportLeader[0]->id)
+                ->first() : null;
+        }
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
 
     /**
      * all ambassadors achievments.
-     * 
-     * @param  group _id , week filter [current - previous ]
+     * @param  group_id 
+     * @param  week_id - filter [current - previous ]
      * @return ambassadors achievments
      */
 
@@ -425,9 +454,15 @@ class GroupController extends Controller
         //     $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
         // }
         $marks['week'] = Week::find($week_id);
-        $marks['group'] = Group::with('allUserAmbassador')->where('id', $group_id)->first();
-        $marks['group_users'] = $marks['group']->allUserAmbassador->count() + 1;
-        $marks['ambassadors_achievement'] = Mark::where('week_id', $marks['week']->id)->whereIn('user_id', $marks['group']->allUserAmbassador->pluck('id'))->get();
+        $marks['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
+        $marks['group_users'] = $marks['group']->userAmbassador->count() + 1;
+        //asmaa
+        $marks['ambassadors_achievement'] =
+            User::whereIn('id', $marks['group']->userAmbassador->pluck('id'))
+            ->with(['mark' => function ($query) use ($marks) {
+                $query->where('week_id', $marks['week']->id);
+            }])->get();
+        // Mark::where('week_id', $marks['week']->id)->whereIn('user_id', $marks['group']->allUserAmbassador->pluck('id'))->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
@@ -445,7 +480,15 @@ class GroupController extends Controller
         $week = Week::find($week_id);
         $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
         $response['group_users'] = $response['group']->userAmbassador->count() + 1;
-        $response['ambassadors_achievement'] = Mark::where('week_id', $week->id)->whereIn('user_id',  $response['group']->userAmbassador->pluck('id'))->orderBy('total_pages', 'desc')->get();
+        $response['ambassadors_achievement'] =
+            User::whereIn('id', $response['group']->userAmbassador->pluck('id'))
+            ->with(['mark' => function ($query) use ($week) {
+                $query->where('week_id', $week->id)->orderBy('total_pages', 'desc');
+            }])
+            ->get();
+
+        // Mark::where('week_id', $week->id)->whereIn('user_id',  $response['group']->userAmbassador->pluck('id'))
+        //->orderBy('total_pages', 'desc')->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
@@ -638,8 +681,10 @@ class GroupController extends Controller
         }
 
         $response['week'] = Week::latest()->first();
-        $users_in_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
-        $response['users_in_group'] = $users_in_group->count();
+        $users_in_group = Group::where('id', $group_id)
+            ->with('leaderAndAmbassadors')
+            ->first();
+        $response['users_in_group'] = $users_in_group->leaderAndAmbassadors->count();
 
         $response['total_statistics'] = Mark::without('user,week')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
@@ -662,17 +707,23 @@ class GroupController extends Controller
             ->orderBy('max_total_pages', 'desc')
             ->first();
 
-        $response['total']['freezed'] = Mark::without('user')->where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
-            ->where('is_freezed', 1)
+        //asmaa
+        $response['total']['freezed'] =
+            UserException::whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->whereIn('status', [config('constants.ACCEPTED_STATUS'), config('constants.FINISHED_STATUS')])
+            ->whereHas('type', function ($query) {
+                $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
+                    ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'))
+                    ->orWhere('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
+            })
+            ->whereDate('start_at', '>=', Carbon::parse($response['week']->created_at)->format('Y-m-d'))
+            ->whereDate('end_at', '<=', Carbon::parse($response['week']->main_timer)->format('Y-m-d'))
             ->count();
-        $response['total']['zero'] = Mark::without('user')->where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
-            ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
-            ->groupBy('user_id')
-            ->having('out_of_100', '=', 0)
-            ->count();
+        // Mark::without('user')->where('week_id', $response['week']->id)
+        //     ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+        //     ->where('is_freezed', 1)
+        //     ->count();
+
         $response['total']['out_of_90'] = Mark::without('user')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
             ->where('is_freezed', 0)
@@ -695,6 +746,16 @@ class GroupController extends Controller
             ->groupBy('user_id')
             ->havingBetween('out_of_100', [10, 90])
             ->count();
+
+        //asmaa
+        $response['total']['zero'] = $response['users_in_group'] - ($response['total']['freezed'] + $response['total']['out_of_90'] + $response['total']['out_of_100'] + $response['total']['others']);
+        // Mark::without('user')->where('week_id', $response['week']->id)
+        // ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+        // ->where('is_freezed', 0)
+        // ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
+        // ->groupBy('user_id')
+        // ->having('out_of_100', '=', 0)
+        // ->count();
 
         $currentMonth = date('m', strtotime($response['week']->created_at));
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
@@ -817,6 +878,17 @@ class GroupController extends Controller
                     $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
 
                     if ($group) {
+                        //add user to selected advising group
+                        UserGroup::updateOrCreate(
+                            [
+                                'user_type' => $request->user_type,
+                                'group_id' => $group->id
+                            ],
+                            [
+                                'user_id' => $user->id
+                            ]
+                        );
+
                         // get groups for each supervisor and add advisor
                         foreach ($group->userAmbassador as $supervisor) {
                             // get groups for each supervisor 

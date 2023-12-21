@@ -20,9 +20,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
-        $schedule->command('weekly:marks')->weekly()->sundays()->at('06:00'); //main part
+        $schedule->command('weekly:marks')->weekly()->mondays()->at('00:003'); //main part
         //auditMark
-        $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
+        $schedule->command('generate:auditMark')->weekly()->mondays()->at('01:00');
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('00:00');
         //finishedException 
 
@@ -33,6 +33,11 @@ class Kernel extends ConsoleKernel
 
         //moveEligibleDB
         $schedule->command('eligible:moveEligibleDB')->weekly()->mondays()->at('20:43');
+        //test part
+        // $schedule->command('media:deleteOld')->everyMinute();
+
+        //accept support for all
+        $schedule->command('support:accept')->weekly()->fridays()->at('00:00');
     }
 
     /**

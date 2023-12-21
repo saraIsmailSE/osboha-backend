@@ -36,7 +36,7 @@ class RolesAdministrationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user' => 'required|email',
-            'head_user' => 'required|email',
+            'head_user' => 'required_unless:role_id,8|email|nullable',
             'role_id' => 'required',
         ]);
 
@@ -47,12 +47,32 @@ class RolesAdministrationController extends Controller
         //check role exists
         $role = Role::find($request->role_id);
         if (!$role) {
-            return $this->jsonResponseWithoutMessage("هذه الرتبة غير موجودة", 'data', 200);
+            return $this->jsonResponseWithoutMessage("هذه الرتبة غير موجودة", 'data', 500);
         }
 
         //check user exists
         $user = User::where('email', $request->user)->first();
         if ($user) {
+            //check if role is support leader, just assign role
+
+            if ($role->name === 'support_leader') {
+                if (Auth::user()->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
+
+                    if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
+                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية المستخدم ل " . config('constants.ARABIC_ROLES')[$role->name] . " لأنه يملك صلاحيات قيادية", 'data', 500);
+                    }
+
+                    if ($user->hasRole($role->name)) {
+                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 500);
+                    }
+
+                    $user->assignRole($role->name);
+                    return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
+                } else {
+                    return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 500);
+                }
+            }
+
             //check head_user exists
             $head_user = User::where('email', $request->head_user)->first();
             if ($head_user) {
@@ -68,15 +88,15 @@ class RolesAdministrationController extends Controller
                         ($user_current_role->name === 'advisor' && $role->name === 'supervisor') ||
                         ($user_current_role->name === 'consultant' && $role->name === 'supervisor')
                     ) {
-                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية العضو لمراقب مباشرة, يجب أن يكون قائد أولاً", 'data', 200);
+                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية العضو لمراقب مباشرة, يجب أن يكون قائد أولاً", 'data', 500);
                     }
 
                     //check if user has the role
                     if ($user->hasRole($role->name) && $user_current_role->id >= $role->id) {
-                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
+                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 500);
                     }
 
-                    //if last role less than the new role => assign ew role
+                    //if the last role of the user is greater than the new role (last role is less than new role) => downgrade
                     if ($user_current_role->id > $role->id) {
 
                         //remove last role if not ambassador or leader and new role is supervisor                                    
@@ -84,9 +104,8 @@ class RolesAdministrationController extends Controller
                             $user->removeRole($user_current_role->name);
                         }
 
-                        //else remove other roles
+                        //else remove all roles except the ambassador (upgrade)
                     } else {
-                        //remove all roles except the ambassador                        
                         $userRoles = $user->roles()->where('name', '!=', 'ambassador')->pluck('name');
                         foreach ($userRoles as $userRole) {
                             $user->removeRole($userRole);
@@ -125,15 +144,15 @@ class RolesAdministrationController extends Controller
                     }
                     // notify user
                     (new NotificationController)->sendNotification($user->id, $msg, ROLES);
-                    return $this->jsonResponseWithoutMessage($successMessage, 'data', 202);
+                    return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
                 } else {
-                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى من الرتبة المراد الترقية لها", 'data', 200);
+                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى من الرتبة المراد الترقية لها", 'data', 500);
                 }
             } else {
-                return $this->jsonResponseWithoutMessage("المسؤول غير موجود", 'data', 200);
+                return $this->jsonResponseWithoutMessage("المسؤول غير موجود", 'data', 500);
             }
         } else {
-            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
+            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 500);
         }
     }
 
@@ -422,7 +441,8 @@ class RolesAdministrationController extends Controller
 
                                         //get current supervisor Supervising group [where he is a supervisor]
 
-                                        $currentSupervisor_supervisingGroup = Group::whereHas('type', function ($q) {
+
+                                        $currentSupervisor_supervisingGroup = UserGroup::whereHas('group.type', function ($q) {
                                             $q->where('type', '=', 'supervising');
                                         })
                                             ->where('user_groups.user_id', $currentSupervisor->id)
@@ -430,13 +450,21 @@ class RolesAdministrationController extends Controller
                                             ->whereNull('user_groups.termination_reason')
                                             ->first();
 
+                                        // $currentSupervisor_supervisingGroup = Group::whereHas('type', function ($q) {
+                                        //     $q->where('type', '=', 'supervising');
+                                        // })
+                                        //     ->where('user_groups.user_id', $currentSupervisor->id)
+                                        //     ->where('user_groups.user_type', 'supervisor')
+                                        //     ->whereNull('user_groups.termination_reason')
+                                        //     ->first();
+
                                         UserGroup::updateOrCreate(
                                             [
                                                 'user_id' => $newLeader->id,
                                                 'user_type' => "ambassador"
                                             ],
                                             [
-                                                'group_id' => $currentSupervisor_supervisingGroup->id
+                                                'group_id' => $currentSupervisor_supervisingGroup->group_id
                                             ]
                                         );
 

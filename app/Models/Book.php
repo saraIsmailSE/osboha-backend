@@ -72,4 +72,20 @@ class Book extends Model
     {
         return $this->belongsTo(BookLevel::class);
     }
+
+    public static function boot()
+    {
+        parent::boot();
+        self::deleting(function ($book) {
+            $book->userBooks()->each(function ($userBooks) {
+                $userBooks->delete();
+            });
+            $book->posts()->each(function ($posts) {
+                $posts->delete();
+            });
+            $book->theses()->each(function ($theses) {
+                $theses->delete();
+            });
+        });
+    }
 }

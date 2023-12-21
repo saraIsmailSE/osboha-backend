@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\{
     RoomController,
     SectionController,
     StatisticsController,
+    StatisticsSupervisorController,
     BookTypeController,
     BookLevelController,
     LanguageController,
@@ -56,7 +57,8 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    EligibleMoveDBController
+    EligibleMoveDBController,
+    EmptyingTeamController,
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -165,6 +167,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/list-un-allowed-to-eligible', [UserController::class, 'listUnAllowedToEligible']);
             Route::patch('/allow-to-eligible/{id}', [UserController::class, 'acceptEligibleUser']);
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
+            Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
         });
 
         ########Start Roles########
@@ -498,6 +501,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'statistics'], function () {
             Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
             Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
+            Route::get('/leaders-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
+            Route::get('/supervisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
+            Route::get('/advisors-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantsStatistics']);
+            Route::get('/consultant-statistics/{admin_id}/{week_filter?}', [StatisticsController::class, 'administratorStatistics']);
         });
         ######## End Statisticx########
 
@@ -527,6 +534,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/updateRole', [UserGroupController::class, 'update_role']);
             Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
             Route::delete('/delete/{user_group_id}', [UserGroupController::class, 'delete']);
+            Route::post('/withdrawn', [UserGroupController::class, 'withdrawnMember']);
         });
         ######## End UserGroup ########
         ####### Start Thesis ########
@@ -801,6 +809,19 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/review', [EligibleGeneralInformationsController::class, "review"]);
             Route::patch('review-general-informations/{id}', [EligibleGeneralInformationsController::class, "reviewGeneralInformations"]);
         });
+        ######## StatisticsSupervisor ########
+        Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
+        ######## END StatisticsSupervisor ########
+
+        ######## Emptying ########
+        Route::group(['prefix' => 'emptying'], function () {
+            Route::post('/all/ambassadors', [EmptyingTeamController::class, 'allAmbassadorForEmptying']);
+            Route::post('/followup/team', [EmptyingTeamController::class, 'EmptyingFollowupTeam']);
+            Route::post('/move/ambassadors', [EmptyingTeamController::class, 'moveAmbassadorsForEmptying']);
+        });
+        ######## Emptying ########
+
+
     });
     //move Eligible DB routes
     Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);

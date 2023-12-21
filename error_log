@@ -1,0 +1,2 @@
+[18-Dec-2023 00:07:34 Asia/Riyadh] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes) in /home/osbohaco/platform.osboha180.com/backend/vendor/laravel/framework/src/Illuminate/Database/Connection.php on line 421
+[18-Dec-2023 00:07:34 Asia/Riyadh] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 65536 bytes) in /home/osbohaco/platform.osboha180.com/backend/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php on line 256

@@ -74,11 +74,14 @@ class UserExceptionController extends Controller
 
         $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->first()->group;
         $leader_id = Auth::user()->parent_id;
-        $authID =Auth::id();
+        $authID = Auth::id();
 
         if ($request->type_id == $freezCurrentWeek->id || $request->type_id == $freezNextWeek->id) { // تجميد عادي - الاسبوع الحالي أو القادم 
             if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
 
+                /**
+                 * @todo: update the checking for freezing in the last 4 weeks
+                 */
                 $last4WeeksFreeze = Mark::where('user_id', Auth::id())
                     ->where('created_at', '<', $current_week->created_at)
                     ->limit(4)
@@ -354,7 +357,9 @@ class UserExceptionController extends Controller
         if ($userException) {
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
                 $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
-                $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)->first();
+                $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)
+                    ->latest() //asmaa
+                    ->first();
                 $response['user_exception'] = $userException;
                 //weeks [current - last]
                 $response['weeks'] = Week::orderBy('created_at', 'desc')->take(2)->get();
@@ -453,6 +458,10 @@ class UserExceptionController extends Controller
                 $userException->status = 'cancelled';
                 $userException->save();
                 $current_week = Week::latest()->first();
+
+                /**
+                 * @todo remove the update mark since it will no longer be there
+                 */
                 Mark::where('week_id', $current_week->id)
                     ->where('user_id', Auth::id())
                     ->update(['is_freezed' => 0]);
@@ -689,9 +698,9 @@ class UserExceptionController extends Controller
 
     private function updateUserMarksToFreez($weekId, $userId)
     {
-        Mark::where('week_id', $weekId)
-            ->where('user_id', $userId)
-            ->update([
+        Mark::updateOrCreate(
+            ['week_id' => $weekId, 'user_id' => $userId],
+            [
                 'reading_mark' => 0,
                 'writing_mark' => 0,
                 'total_pages' => 0,
@@ -699,7 +708,9 @@ class UserExceptionController extends Controller
                 'total_thesis' => 0,
                 'total_screenshot' => 0,
                 'is_freezed' => 1
-            ]);
+
+            ]
+        );
     }
 
 
@@ -707,16 +718,17 @@ class UserExceptionController extends Controller
     {
         $thisWeekMark = Mark::where('week_id', $current_week->id)
             ->where('user_id', $owner_of_exception->id)->first();
+        if ($thisWeekMark) {
+            $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
+                ->select(
+                    DB::raw('sum(max_length) as max_length'),
+                )->first()->max_length;
 
-        $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
-            ->select(
-                DB::raw('sum(max_length) as max_length'),
-            )->first()->max_length;
-
-        if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshots >= 2)) {
-            $thisWeekMark->reading_mark = config('constants.FULL_READING_MARK');
-            $thisWeekMark->writing_mark = config('constants.FULL_WRITING_MARK');
-            $thisWeekMark->save();
+            if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshots >= 2)) {
+                $thisWeekMark->reading_mark = config('constants.FULL_READING_MARK');
+                $thisWeekMark->writing_mark = config('constants.FULL_WRITING_MARK');
+                $thisWeekMark->save();
+            }
         }
     }
 
