@@ -115,6 +115,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('email/reset', [AuthController::class, 'resetEmail']);
     });
 
+
+    // generate eligible-certificates
+    Route::get('eligible-certificates/generate-pdf/{user_book_id}', [EligiblePDFController::class, 'generatePDF']);
+
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
 
         Route::post("/test-room", function (Request $request) {
@@ -787,9 +791,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/full-certificate/{user_book_id}', [EligibleCertificatesController::class, 'fullCertificate']);
             Route::patch('/{id}', [EligibleCertificatesController::class, 'update']);
             Route::delete('/{id}', [EligibleCertificatesController::class, 'destroy']);
-
-            // generate PDF
-            Route::get('/generate-pdf/{user_book_id}', [EligiblePDFController::class, 'generatePDF']);
         });
 
 

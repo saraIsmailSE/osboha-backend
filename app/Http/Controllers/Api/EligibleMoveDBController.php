@@ -32,6 +32,7 @@ class EligibleMoveDBController extends Controller
 
             $users_certificate = DB::connection('mysql_second')->table("users")->get();
             foreach ($users_certificate as $key => $user_certificate) {
+
                 if (!User::where('email', $user_certificate->email)->exists()) {
                     $user = new User();
                     $user->name = $user_certificate->name;
@@ -294,6 +295,8 @@ class EligibleMoveDBController extends Controller
                     }
                 }
             }
+            Log::channel('newWeek')->info('تم النقل بنجاح');
+
             DB::commit();
             return $this->jsonResponseWithoutMessage('تم النقل بنجاح', 'data', 200);
         } catch (\Exception $e) {

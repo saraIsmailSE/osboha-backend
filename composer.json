@@ -8,6 +8,7 @@
         "php": "^8.0",
         "andreaselia/laravel-api-to-postman": "^1.15",
         "doctrine/dbal": "^3.6",
+        "elibyy/tcpdf-laravel": "^10.0",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "inspector-apm/inspector-laravel": "^4.7",

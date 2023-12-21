@@ -27,17 +27,18 @@ class EligiblePDFController extends Controller
             $query->where('status', '=', 'audited');
         })->get();
 
-        $all_avareges = EligibleUserBook::join('general_informations', 'user_book.id', '=', 'general_informations.user_book_id')
-            ->join('questions', 'user_book.id', '=', 'questions.user_book_id')
-            ->join('thesis', 'user_book.id', '=', 'thesis.user_book_id')
-            ->select(DB::raw('avg(general_informations.degree) as general_informations_degree,avg(questions.degree) as questions_degree,avg(thesis.degree) as thesises_degree'))
-            ->where('user_book.id', $user_book_id)
+        $all_avareges = EligibleUserBook::join('eligible_general_informations', 'eligible_user_books.id', '=', 'eligible_general_informations.eligible_user_books_id')
+            ->join('eligible_questions', 'eligible_user_books.id', '=', 'eligible_questions.eligible_user_books_id')
+            ->join('eligible_thesis', 'eligible_user_books.id', '=', 'eligible_thesis.eligible_user_books_id')
+            ->select
+            (DB::raw('avg(eligible_general_informations.degree) as general_informations_degree,avg(eligible_questions.degree) as questions_degree,avg(eligible_thesis.degree) as thesises_degree'))
+            ->where('eligible_user_books.id', $user_book_id)
             ->get();
         $thesisDegree = $all_avareges[0]['thesises_degree'];
         $generalInformationsDegree = $all_avareges[0]['general_informations_degree'];
         $questionsDegree = $all_avareges[0]['questions_degree'];
         $finalDegree = ($questionsDegree + $generalInformationsDegree + $thesisDegree) / 3;
-        $certificateDegrees = new Certificates();
+        $certificateDegrees = new EligibleCertificates();
 
         $certificateDegrees->thesis_grade = $thesisDegree;
         $certificateDegrees->questions_grade = $questionsDegree;
@@ -102,7 +103,7 @@ class EligiblePDFController extends Controller
         PDF::SetAutoPageBreak(false, 0);
 
         // set bacground image
-        $img_file = 'https://www.eligible.osboha180.com/api/asset/images/certTempWthiSign.jpg';
+        $img_file = 'https://upload.wikimedia.org/wikipedia/commons/8/8a/A_size_illustration.svg';
         // Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false)
         PDF::Image($img_file, 0, 0, 210, 297, '', '', '', false, 300, '', false, false, 0);
 
@@ -188,7 +189,7 @@ class EligiblePDFController extends Controller
         $auto_page_break = PDF::getAutoPageBreak();
         PDF::SetAutoPageBreak(false, 0);
 
-        $img_file = 'https://www.eligible.osboha180.com/api/asset/images/certTemp.jpg';
+        $img_file = 'https://upload.wikimedia.org/wikipedia/commons/8/8a/A_size_illustration.svg';
 
         PDF::Image($img_file, 0, 0, 210, 297, '', '', '', false, 300, '', false, false, 0);
 
