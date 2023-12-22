@@ -61,7 +61,7 @@ class EligibleMoveDBController extends Controller
                     ]);
 
                     //notify user with email
-                    //$user->notify((new MoveToPlatform()));
+                    $user->notify((new MoveToPlatform()));
                 }
 
                 //user platform account
