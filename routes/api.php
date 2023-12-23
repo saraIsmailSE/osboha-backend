@@ -596,15 +596,14 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## Book-Type ########
 
-        ######## Book-Level ########
-        // Route::group(['prefix' => 'language'], function () {
-        //     Route::get('/', [LanguageController::class, 'index']);
-        //     Route::post('/create', [LanguageController::class, 'create']);
-        //     Route::post('/show', [LanguageController::class, 'show']);
-        //     Route::post('/update', [LanguageController::class, 'update']);
-        //     Route::post('/delete', [BookLevelController::class, 'delete']);
-        // });
-        ######## Book-Type ########
+        ######## Book-Language ########
+        Route::group(['prefix' => 'language'], function () {
+            Route::get('/', [LanguageController::class, 'index']);
+            Route::post('/create', [LanguageController::class, 'create']);
+            Route::post('/show', [LanguageController::class, 'show']);
+            Route::post('/update', [LanguageController::class, 'update']);
+        });
+        ######## Book-Language ########
 
         ######## Exception-Type ########
         Route::group(['prefix' => 'exception-type'], function () {
