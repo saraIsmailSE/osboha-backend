@@ -79,27 +79,15 @@ class UserExceptionController extends Controller
         if ($request->type_id == $freezCurrentWeek->id || $request->type_id == $freezNextWeek->id) { // تجميد عادي - الاسبوع الحالي أو القادم 
             if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
 
-                /**
-                 * @todo: update the checking for freezing in the last 4 weeks
-                 */
-                $last4WeeksFreeze = Mark::where('user_id', Auth::id())
-                    ->where('created_at', '<', $current_week->created_at)
-                    ->limit(4)
-                    ->pluck('is_freezed')
-                    ->toArray();
 
-                //for new users
-                if (count($last4WeeksFreeze) < 4) {
+                // check if user is within his first month 
+                if (Auth::user()->created_at >=  Carbon::now()->subMonth()) {
                     return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا بعد 4 أسابيع من انضمامك للمشروع", 'data', 200);
                 }
 
-                //check if user freezed in last 4 weeks
-                if (in_array(1, $last4WeeksFreeze)) {
-                    return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا مرة كل 4 أسابيع", 'data', 200);
-                }
-
                 $currentDate = Carbon::now()->format('Y-m-d');
-                $laseFreezing = UserException::where('user_id', Auth::id())
+
+                $laseFreezing = UserException::where('user_id', $authID)
                     ->where('status', config('constants.ACCEPTED_STATUS'))
                     ->whereHas('type', function ($query) {
                         $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
@@ -108,42 +96,40 @@ class UserExceptionController extends Controller
 
                 $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
 
-                // if (!$laseFreezing || $laseFreezing + 4 < $current_week->id) {
-                if (!$laseFreezing ||  $dateAfter4Weeks < $currentDate) {
-                    // يوجد تجميد وتعدى 4 اسابيع
-
-                    $exception['status'] = 'accepted';
-                    $exception['desired_duration'] =  'أسبوع واحد';
-
-                    if ($request->type_id == $freezCurrentWeek->id) {
-                        /**
-                         * @todo: slow query - asmaa         
-                         */
-                        $this->updateUserMarksToFreez($current_week->id, $authID);
-
-                        $exception['week_id'] =  $current_week->id;
-                        $exception['start_at'] = $current_week->created_at;
-                        $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
-                    } else {
-                        $exception['week_id'] =  $current_week->id;
-                        $exception['start_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
-                        $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
-                    }
-
-                    $userException = UserException::create($exception);
-
-                    //Notify User
-                    $userToNotify = User::find(Auth::id());
-                    $userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
-
-                    //Notify Leader                    
-                    $msg = "قام السفير " . Auth::user()->name . " باستخدام نظام التجميد";
-                    (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
-
-                    return $this->jsonResponseWithoutMessage("تم رفع طلب التجميد", 'data', 200);
-                } else {
+                //check if user freezed in last 4 weeks
+                if ($laseFreezing && ($dateAfter4Weeks < $currentDate)) {
                     return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا مرة كل 4 أسابيع", 'data', 200);
                 }
+
+                $exception['status'] = 'accepted';
+                $exception['desired_duration'] =  'أسبوع واحد';
+
+                if ($request->type_id == $freezCurrentWeek->id) {
+                    /**
+                     * @todo: slow query - asmaa         
+                     */
+                    $this->updateUserMarksToFreez($current_week->id, $authID);
+
+                    $exception['week_id'] =  $current_week->id;
+                    $exception['start_at'] = $current_week->created_at;
+                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
+                } else {
+                    $exception['week_id'] =  $current_week->id;
+                    $exception['start_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
+                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
+                }
+
+                $userException = UserException::create($exception);
+
+                //Notify User
+                $userToNotify = User::find($authID);
+                $userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
+
+                //Notify Leader                    
+                $msg = "قام السفير " . Auth::user()->name . " باستخدام نظام التجميد";
+                (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+
+                return $this->jsonResponseWithoutMessage("تم رفع طلب التجميد", 'data', 200);
             } else {
                 return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد", 'data', 200);
             }
@@ -154,7 +140,7 @@ class UserExceptionController extends Controller
             //if there is Media
             if ($request->hasFile('exam_media')) {
                 //exam_media/user_id/
-                $folder_path = 'exam_media/' . Auth::id();
+                $folder_path = 'exam_media/' . $authID;
 
                 // //check if exam_media folder exists
                 // if (!file_exists(public_path('assets/images/' . $folder_path))) {
