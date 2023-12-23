@@ -19,6 +19,7 @@ use App\Models\BookType;
 use App\Models\Language;
 use App\Models\PostType;
 use App\Models\Section;
+use App\Models\Thesis;
 use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\UserBook;
@@ -36,7 +37,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::whereHas('type', function ($q) {
+        $books = Book::with('posts')->with('media')->whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
