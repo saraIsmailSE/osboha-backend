@@ -518,13 +518,9 @@ class AuditMarkController extends Controller
 
                                 if (($pendingThesis->isNotEmpty())) {
                                     $response[$leader->name]['pendingThesis'][$ambassador->name]  = $pendingThesis;
-                                    // $c  += count($response[$leader->name]['pendingThesis'][$ambassador->name]);
                                 }
                             }
                         }
-                        // if ($c > 0) {
-                        //     $response[$leader->name]['totalPendingThesis']  = $c;
-                        // }
                     }
                 }
 

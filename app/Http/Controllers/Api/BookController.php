@@ -63,9 +63,17 @@ class BookController extends Controller
 
     public function getAllForEligible()
     {
-        $books['books'] = Book::whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal');
-        })->paginate(9);
+        if (isset($_GET['name'])  && $_GET['name'] != '') {
+            $books['books']  = Book::where('name', 'like', '%' . $_GET['name'] . '%')
+                ->whereHas('type', function ($q) {
+                    $q->where('type', '=', 'normal');
+                })->paginate(9);
+        } else {
+            $books['books']  = Book::whereHas('type', function ($q) {
+                $q->where('type', '=', 'normal');
+            })->paginate(9);
+        }
+
         if ($books['books']->isNotEmpty()) {
 
             // SELECT * FROM `user_book` WHERE user_id =1 and (status != 'finished' || status is null )

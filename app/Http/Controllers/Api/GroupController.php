@@ -481,14 +481,15 @@ class GroupController extends Controller
         $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
         $response['group_users'] = $response['group']->userAmbassador->count() + 1;
         $response['ambassadors_achievement'] =
-            User::whereIn('id', $response['group']->userAmbassador->pluck('id'))
-            ->with(['mark' => function ($query) use ($week) {
-                $query->where('week_id', $week->id)->orderBy('total_pages', 'desc');
-            }])
-            ->get();
+            User::whereIn('users.id', $response['group']->userAmbassador->pluck('id'))->leftJoin('marks', function ($join) use ($week) {
+                $join->on('users.id', '=', 'marks.user_id')
+                    ->where('marks.week_id', '=', $week->id);
+            })
+            ->get([
+                'users.*', // Select all columns from users
+                'marks.total_pages', // Select the total_pages column from marks
+            ]);
 
-        // Mark::where('week_id', $week->id)->whereIn('user_id',  $response['group']->userAmbassador->pluck('id'))
-        //->orderBy('total_pages', 'desc')->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 

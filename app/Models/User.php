@@ -152,7 +152,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function mark()
     {
-        return $this->hasMany(Mark::class);
+        return $this->hasMany(Mark::class,'user_id');
     }
     public function friends()
     {

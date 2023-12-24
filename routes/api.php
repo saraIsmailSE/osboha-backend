@@ -205,7 +205,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
             Route::get('/latest', [BookController::class, 'latest']);
             Route::get('/eligible', [BookController::class, 'getAllForEligible']);
-            Route::get('/eligible/name', [BookController::class, 'getBooksByNameForEligible']);
         });
         ########End Book########
         ########User Book########
