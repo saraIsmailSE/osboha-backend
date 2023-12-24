@@ -22,19 +22,14 @@ class Kernel extends ConsoleKernel
         //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
        // $schedule->command('weekly:marks')->weekly()->sundays()->at('12:48'); //main part
         //auditMark
-        //$schedule->command('generate:auditMark')->weekly()->mondays()->at('01:00');
-        //$schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('00:00');
+        $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
+        $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('00:00');
         //finishedException 
 
         // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
 
         //delete old media every week on sunday at 5:00 am
-        //$schedule->command('media:deleteOld')->weekly()->sundays()->at('05:00');
-
-        //moveEligibleDB
-        //$schedule->command('eligible:moveEligibleDB')->weekly()->thursdays()->at('21:01');
-        //test part
-        // $schedule->command('media:deleteOld')->everyMinute();
+        $schedule->command('media:deleteOld')->weekly()->sundays()->at('05:00');
 
         //accept support for all
        // $schedule->command('support:accept')->weekly()->fridays()->at('00:00');
