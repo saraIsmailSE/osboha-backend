@@ -74,23 +74,18 @@ class BookController extends Controller
             })->paginate(9);
         }
 
-        if ($books['books']->isNotEmpty()) {
+        // SELECT * FROM `user_book` WHERE user_id =1 and (status != 'finished' || status is null )
 
-            // SELECT * FROM `user_book` WHERE user_id =1 and (status != 'finished' || status is null )
+        $books['open_book'] = Book::whereHas('eligibleUserBook', function ($q) {
+            $q->where('user_id', Auth::id())
+                ->where(function ($query) {
+                    $query->where('status', '!=', 'finished')
+                        ->where('status', '!=', 'rejected')
+                        ->orWhereNull('status');
+                });
+        })->get();
 
-            $books['open_book'] = Book::whereHas('eligibleUserBook', function ($q) {
-                $q->where('user_id', Auth::id())
-                    ->where(function ($query) {
-                        $query->where('status', '!=', 'finished')
-                            ->where('status', '!=', 'rejected')
-                            ->orWhereNull('status');
-                    });
-            })->get();
-
-            return $this->jsonResponseWithoutMessage($books, "data", '200');
-        } else {
-            throw new NotFound;
-        }
+        return $this->jsonResponseWithoutMessage($books, "data", '201');
     }
 
 

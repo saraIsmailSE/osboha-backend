@@ -384,12 +384,6 @@ class AuthController extends Controller
 
     public function getRoles($id)
     {
-        /*
-        **** Need to discuss ****
-        $role = Role::find($id);
-        $roles = Role::where('level', '>', $role->level)->get();
-        return $this->jsonResponse($roles, 'data', 200, 'Roles');
-        */
         $authRoles = Auth::user()->load('roles:id,name');
         $authLastrole = $authRoles->roles->first();
         $rolesToRetrieve=config('constants.rolesToRetrieve');

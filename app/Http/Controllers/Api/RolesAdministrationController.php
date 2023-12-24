@@ -26,6 +26,57 @@ class RolesAdministrationController extends Controller
     use ResponseJson;
 
 
+    public function getEligibleRoles()
+    {
+        $rolesToRetrieve = [
+            '  eligible_admin',
+            'reviewer',
+            'auditor',
+            'super_auditer',
+            'super_reviewer',
+            'user_accept',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
+
+
+    public function assignRoleV2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user' => 'required|email',
+            'role_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        //check role exists
+        $role = Role::find($request->role_id);
+        if (!$role) {
+            return $this->jsonResponseWithoutMessage("هذه الترقية غير موجودة", 'data', 500);
+        }
+
+        //check user exists
+        $user = User::where('email', $request->user)->first();
+        if ($user) {
+            //check if user has the role
+
+            if ($user->hasRole($role->name)) {
+                return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 500);
+            } else {
+                $user->assignRole($role->name);
+                $msg = "قام " . Auth::user()->name . " بـ تعيينك : " . config('constants.ARABIC_ROLES')[$role->name];
+                (new NotificationController)->sendNotification($user->id, $msg, ROLES);
+
+                return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
+            }
+        } else {
+            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 500);
+        }
+    }
+
     /**
      * assign role and assign head user to a user .
      * 

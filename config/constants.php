@@ -80,17 +80,23 @@ return [
         'supervisor' => "مراقب",
         'advisor' => 'موجه',
         'consultant' => 'مستشار',
-        'admin' => 'ادارة'
+        'admin' => 'ادارة',
+        'eligible_admin' => "مسؤول توثيق الكتب",
+        'reviewer' => "مراجع توثيق",
+        'auditor' => "مُقيم توثيق",
+        'super_auditer' => "مسؤول تقييم التوثيقات",
+        'super_reviewer' => "مسؤول مراجعة التوثيقات",
+        'user_accept' => "مسؤول الوثائق",
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
     'ALL_SUPPER_ROLES' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader'],
     'SUPERVISORANDABOVE_ROLES' => ['supervisor', 'advisor', 'consultant', 'admin'],
     'rolesToRetrieve' => array(
         'leader' => ['ambassador'],
-        'supervisor' => ['ambassador','leader'],
-        'advisor' => ['supervisor','leader','ambassador'],
-        'consultant' => ['advisor','supervisor','leader','support_leader','ambassador'],
-        'admin' => ['admin','consultant','advisor','supervisor','leader','support_leader','ambassador','book_quality_team'],
+        'supervisor' => ['ambassador', 'leader'],
+        'advisor' => ['supervisor', 'leader', 'ambassador'],
+        'consultant' => ['advisor', 'supervisor', 'leader', 'support_leader', 'ambassador'],
+        'admin' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'support_leader', 'ambassador', 'book_quality_team'],
 
     )
 ];
