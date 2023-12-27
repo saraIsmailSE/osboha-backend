@@ -23,7 +23,7 @@ class Kernel extends ConsoleKernel
        // $schedule->command('weekly:marks')->weekly()->sundays()->at('12:48'); //main part
         //auditMark
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
-        $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('00:00');
+        $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
         //finishedException 
 
         // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
