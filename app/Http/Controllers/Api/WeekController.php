@@ -660,9 +660,12 @@ class WeekController extends Controller
 
             foreach ($users as $user) {
                 $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
-                $notification->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
+                $parent_id = $user->parent_id;
+
                 $user->parent_id = null;
                 $user->save();
+
+                $notification->sendNotification($parent_id, $msg, EXCLUDED_USER);
                 // $user->notify(
                 //     (new \App\Notifications\MailExcludeAmbassador())
                 //         ->delay(now()->addMinutes(5))
