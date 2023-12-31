@@ -157,7 +157,7 @@ class StatisticsController extends Controller
                 ->where('is_freezed', 1)
                 ->count();
 
-            $memberCounts = UserGroup::where('group_id', $group->group_id)
+            $memberCounts = UserGroup::where('group_id', $group->group_id)->where('updated_at','>=', $previous_week->created_at)
                 ->where('user_type', 'ambassador')->select(
                     DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
                     DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
@@ -416,7 +416,7 @@ class StatisticsController extends Controller
             ->where('is_freezed', 1)
             ->count();
 
-        $memberCounts = UserGroup::where('group_id', $group->group_id)
+        $memberCounts = UserGroup::where('group_id', $group->group_id)->where('updated_at','>=', $previous_week->created_at)
             ->where('user_type', 'ambassador')->select(
                 DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
                 DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
@@ -493,7 +493,7 @@ class StatisticsController extends Controller
             ->where('is_freezed', 1)
             ->count();
 
-        $memberCounts = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))
+        $memberCounts = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))->where('updated_at','>=', $previous_week->created_at)
             ->where('user_type', 'ambassador')->select(
                 DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
                 DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
