@@ -157,12 +157,7 @@ class StatisticsController extends Controller
                 ->where('is_freezed', 1)
                 ->count();
 
-            $memberCounts = UserGroup::where('group_id', $group->group_id)->where('updated_at','>=', $previous_week->created_at)
-                ->where('user_type', 'ambassador')->select(
-                    DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
-                    DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
-                )
-                ->first();
+            $memberCounts = $this->excluded_and_withdraw($previous_week, $group->group_id);
 
             // number of excluded users
             $leaderInfo['ambassadors_excluded_in_group'] = $memberCounts->excluded_members;
@@ -367,20 +362,19 @@ class StatisticsController extends Controller
                 })->first();
 
             $week_avg = 0;
-            $number_ambassadors=0;
+            $number_ambassadors = 0;
             $consultant_statistics = [];
 
             $consultant_statistics['consultant_name'] = $consultant->name;
             $consultant_statistics['consultant_id'] = $consultant->id;
-            if(!is_null($consultationGroup)){
+            if (!is_null($consultationGroup)) {
                 $consultant_statistics['team'] = $consultationGroup->group->name;
-            }
-            else{
+            } else {
                 $consultant_statistics['team'] = "لا يوجد";
             }
 
             $consultant_statistics['number_of_advisors'] = User::where('parent_id', $consultant->id)->role('advisor')->count();
-            
+
             $response['consultant_statistics'][$i] = $consultant_statistics;
             $i++;
         }
@@ -416,12 +410,7 @@ class StatisticsController extends Controller
             ->where('is_freezed', 1)
             ->count();
 
-        $memberCounts = UserGroup::where('group_id', $group->group_id)->where('updated_at','>=', $previous_week->created_at)
-            ->where('user_type', 'ambassador')->select(
-                DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
-                DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
-            )
-            ->first();
+        $memberCounts = $this->excluded_and_withdraw($previous_week, $group->group_id);
 
         // number of excluded users
         $teamStatistics['ambassadors_excluded_in_group'] = $memberCounts->excluded_members;
@@ -493,12 +482,15 @@ class StatisticsController extends Controller
             ->where('is_freezed', 1)
             ->count();
 
-        $memberCounts = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))->where('updated_at','>=', $previous_week->created_at)
-            ->where('user_type', 'ambassador')->select(
-                DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
-                DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
-            )
-            ->first();
+        // $memberCounts = $this->excluded_and_withdraw($previous_week, $allLeadersAndAmbassadors->pluck('group_id'));
+
+        $memberCounts= UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))->where('updated_at','>=', $previous_week->created_at)
+        ->where('user_type', 'ambassador')->select(
+            DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
+            DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
+        )
+        ->first();
+
 
         // number of excluded users
         $teamStatistics['ambassadors_excluded_in_group'] = $memberCounts->excluded_members;
@@ -544,5 +536,19 @@ class StatisticsController extends Controller
     {
         return UserGroup::without('user')->where('group_id', $group_id)
             ->whereBetween('created_at', [$previous_week->created_at, $previous_week->created_at->addDays(7)])->get()->count();
+    }
+
+
+
+    private function excluded_and_withdraw($previous_week, $group_id)
+    {
+        return UserGroup::where('group_id', $group_id)
+            ->where('updated_at', '>=', $previous_week->created_at)
+            ->where('user_type', 'ambassador')
+            ->select(
+                DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END), 0) as excluded_members"),
+                DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END), 0) as withdraw_members")
+            )
+            ->first();
     }
 }
