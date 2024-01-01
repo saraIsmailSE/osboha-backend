@@ -120,42 +120,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('eligible-certificates/generate-pdf/{user_book_id}', [EligiblePDFController::class, 'generatePDF']);
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
-
-        Route::post("/test-room", function (Request $request) {
-            $room = Room::where('type', 'private')
-                ->whereHas("users", function ($q) use ($request) {
-                    $q->where('user_id', Auth::id());
-                })
-                ->whereHas("users", function ($q) use ($request) {
-                    $q->where('user_id', $request->receiver_id);
-                })
-                // ->where(function ($q) use ($request) {
-                //     $q->where('creator_id', Auth::id())
-                //         ->whereHas('users', function ($user) use ($request) {
-                //             $user->where('user_id', $request->receiver_id);
-                //         });
-                // })
-                // ->orWhere(function ($q) use ($request) {
-                //     $q->where('creator_id', $request->receiver_id)
-                //         ->whereHas('users', function ($user) use ($request) {
-                //             $user->where('user_id', Auth::id());
-                //         });
-                // })
-                ->first();
-
-            return response()->json([
-                'room' => $room
-            ]);
-        });
-
-        Route::get('/myTEST', function () {
-            // $user = User::find(1);
-            // $msg = "لديك طلب صداقة ";
-            // (new NotificationController)->sendNotification($user->id, $msg, 'friends');
-            $userToNotify = User::where('email', 'saraismailse@gmail.com')->first();
-            event(new NotificationsEvent('hello world'));
-        });
-
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
         Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
