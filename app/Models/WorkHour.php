@@ -16,6 +16,8 @@ class WorkHour extends Model
         "created_at",
     ];
 
+    protected $appends = ['date'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -24,5 +26,10 @@ class WorkHour extends Model
     public function week()
     {
         return $this->belongsTo(Week::class);
+    }
+
+    public function getDateAttribute()
+    {
+        return $this->created_at->format('Y-m-d');
     }
 }
