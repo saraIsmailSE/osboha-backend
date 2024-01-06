@@ -164,7 +164,10 @@ class AuditMarkController extends Controller
                     $advisorAuditMarks->save();
 
                     // get all groups 
-                    $groupsID = UserGroup::where('user_id', $advisor)->where('user_type', 'advisor')->whereNull('termination_reason')->pluck('group_id');
+                    $groupsID = UserGroup::where('user_id', $advisor)->where('user_type', 'advisor')->whereNull('termination_reason')
+                        ->whereHas('group.type', function ($q) {
+                            $q->where('type', '=', 'followup');
+                        })->pluck('group_id');
                     // get supervisors of $advisor
                     $supervisors = UserGroup::where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->distinct()->get(['user_id']);
 
