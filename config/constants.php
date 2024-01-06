@@ -2,11 +2,16 @@
 
 use Carbon\Carbon;
 
-$date = Carbon::createFromDate(2023, 1, 29)->format('Y-m-d');
+$date = Carbon::createFromDate(2024, 1, 29)->format('Y-m-d');
 $part_reading_mark = 10;
 $part_writing_mark = 8;
 return [
     'YEAR_WEEKS' => array(
+        array('title' => 'الاول من يناير', 'date' => $date, 'is_vacation' => 0),
+        array('title' => 'الثاني من يناير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d'), 'is_vacation' => 0),
+        array('title' => 'الثالث من يناير', 'date' => Carbon::parse($date)->addWeeks(2)->format('Y-m-d'), 'is_vacation' => 0),
+        array('title' => 'الرابع من يناير', 'date' => Carbon::parse($date)->addWeeks(3)->format('Y-m-d'), 'is_vacation' => 0),
+        array('title' => 'الخامس من يناير', 'date' => Carbon::parse($date)->addWeeks(3)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من فبراير', 'date' => $date, 'is_vacation' => 0),
         array('title' => 'الثاني من فبراير', 'date' => Carbon::parse($date)->addWeeks()->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من فبراير', 'date' => Carbon::parse($date)->addWeeks(2)->format('Y-m-d'), 'is_vacation' => 0),
@@ -15,11 +20,11 @@ return [
         array('title' => 'الثاني من مارس', 'date' => Carbon::parse($date)->addWeeks(5)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من مارس', 'date' => Carbon::parse($date)->addWeeks(6)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الرابع من مارس', 'date' => Carbon::parse($date)->addWeeks(7)->format('Y-m-d'), 'is_vacation' => 0),
+        array('title' => 'الخامس من مارس', 'date' => Carbon::parse($date)->addWeeks(7)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من ابريل', 'date' => Carbon::parse($date)->addWeeks(8)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثاني من ابريل', 'date' => Carbon::parse($date)->addWeeks(9)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(10)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الرابع من ابريل', 'date' => Carbon::parse($date)->addWeeks(11)->format('Y-m-d'), 'is_vacation' => 0),
-        array('title' => 'الخامس من ابريل', 'date' => Carbon::parse($date)->addWeeks(12)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من مايو', 'date' => Carbon::parse($date)->addWeeks(13)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثاني من مايو', 'date' => Carbon::parse($date)->addWeeks(14)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من مايو', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d'), 'is_vacation' => 0),
@@ -33,7 +38,6 @@ return [
         array('title' => 'الثاني من يوليو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من يوليو', 'date' => Carbon::parse($date)->addWeeks(24)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الرابع من يوليو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d'), 'is_vacation' => 0),
-        array('title' => 'الخامس من يوليو', 'date' => Carbon::parse($date)->addWeeks(26)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من اغسطس', 'date' => Carbon::parse($date)->addWeeks(27)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثاني من اغسطس', 'date' => Carbon::parse($date)->addWeeks(28)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من اغسطس', 'date' => Carbon::parse($date)->addWeeks(29)->format('Y-m-d'), 'is_vacation' => 0),
@@ -47,7 +51,6 @@ return [
         array('title' => 'الثاني من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(37)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(38)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الرابع من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(39)->format('Y-m-d'), 'is_vacation' => 0),
-        array('title' => 'الخامس من اكتوبر', 'date' => Carbon::parse($date)->addWeeks(40)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(41)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثاني من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(42)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من نوفمبر', 'date' => Carbon::parse($date)->addWeeks(43)->format('Y-m-d'), 'is_vacation' => 0),
@@ -94,7 +97,7 @@ return [
     'rolesToRetrieve' => array(
         'leader' => ['ambassador'],
         'supervisor' => ['ambassador', 'leader'],
-        'advisor' => ['supervisor', 'support_leader','leader', 'ambassador'],
+        'advisor' => ['supervisor', 'support_leader', 'leader', 'ambassador'],
         'consultant' => ['advisor', 'supervisor', 'leader', 'support_leader', 'ambassador'],
         'admin' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'support_leader', 'ambassador', 'book_quality_team'],
 
