@@ -47,11 +47,14 @@ class StatisticsController extends Controller
         }
         $response['week'] = $week;
 
+        // Total Users
+        $response['total_users'] = User::where('is_excluded', 0)->count();
+
         //Total Pages, Theses, Screenshotes
         $response['total_statistics'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 0)
             ->select(
-                DB::raw('avg(reading_mark + writing_mark + support) as total_avg'),
+                DB::raw('sum(reading_mark + writing_mark + support) as total_sum'),
                 DB::raw('sum(total_pages) as total_pages'),
                 DB::raw('sum(total_thesis) as total_thesis'),
                 DB::raw('sum(total_screenshot) as total_screenshot'),
@@ -65,14 +68,7 @@ class StatisticsController extends Controller
             )->groupBy('user_id')->get();
 
         $response['total_100'] = $total_100->where('total_100', 100)->count();
-        //Total 0
-        $total_0 = Mark::without('user', 'week')->where('week_id', $response['week']->id)
-            ->where('is_freezed', 0)
-            ->select(
-                DB::raw('sum(reading_mark + writing_mark + support) as total_0'),
-            )->groupBy('user_id')->get();
-
-        $response['total_0'] = $total_0->where('total_0', 0)->count();
+        $response['total_incompleat'] = $total_100->where('total_100', '!=', 100)->count();
 
         //Most Read
         $response['most_read'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
@@ -85,8 +81,10 @@ class StatisticsController extends Controller
         $response['freezed'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 1)
             ->count();
-        // Total Users
-        $response['total_users'] = User::where('is_excluded', 0)->count();
+
+        //Total 0
+        $response['total_0'] = $response['total_users'] - ($response['total_100'] +   $response['total_incompleat'] + $response['freezed']);
+
         //Total Excluded
         $response['is_excluded'] = User::where('is_excluded', 1)
             ->whereBetween('updated_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->count();
@@ -484,12 +482,12 @@ class StatisticsController extends Controller
 
         // $memberCounts = $this->excluded_and_withdraw($previous_week, $allLeadersAndAmbassadors->pluck('group_id'));
 
-        $memberCounts= UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))->where('updated_at','>=', $previous_week->created_at)
-        ->where('user_type', 'ambassador')->select(
-            DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
-            DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
-        )
-        ->first();
+        $memberCounts = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))->where('updated_at', '>=', $previous_week->created_at)
+            ->where('user_type', 'ambassador')->select(
+                DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
+                DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
+            )
+            ->first();
 
 
         // number of excluded users

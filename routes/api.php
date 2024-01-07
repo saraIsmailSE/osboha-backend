@@ -353,7 +353,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/last-leader-request/{group_id}', [GroupController::class, 'lastLeaderRequest']);
             Route::get('/audit-marks/{group_id}', [GroupController::class, 'auditMarks']);
             Route::get('/user-groups', [GroupController::class, 'userGroups']);
-            Route::get('/statistics/{group_id}/{week_filter?}', [GroupController::class, 'statistics']);
+            Route::get('/statistics/{group_id}/{week_id}', [GroupController::class, 'statistics']);
             Route::get('/theses-and-screens-by-week/{group_id}/{filter}', [GroupController::class, 'thesesAndScreensByWeek']);
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);

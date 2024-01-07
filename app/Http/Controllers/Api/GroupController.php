@@ -395,6 +395,10 @@ class GroupController extends Controller
         $marks['group'] = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $marks['group_users'] =  $marks['group']->leaderAndAmbassadors->count();
 
+        $marks['freezed'] = Mark::where('week_id', $week_id)
+            ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 1)
+            ->count();
         $marks['full'] = Mark::where('week_id', $week_id)
             ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
             ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
@@ -408,13 +412,7 @@ class GroupController extends Controller
             ->having('out_of_100', '>', 0)
             ->count();
 
-        //asmaa
-        $marks['zero'] = $marks['group_users'] - $marks['full'] - $marks['incomplete'];
-        // Mark::where('week_id', $week_id)
-        //     ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
-        //     ->select(DB::raw('(reading_mark + writing_mark + support) as out_of_100'))
-        //     ->having('out_of_100', 0)
-        //     ->count();
+        $marks['zero'] = $marks['group_users'] - ($marks['full'] + $marks['incomplete'] + $marks['freezed']);
         $marks['random_achievement'] =
             User::whereIn('id', $marks['group']->leaderAndAmbassadors->pluck('id'))
             ->with(['mark' => function ($query) use ($week_id) {
@@ -422,9 +420,6 @@ class GroupController extends Controller
             }])
             ->inRandomOrder()->limit(3)->get();
 
-        // Mark::where('week_id', $week_id)
-        // ->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))
-        // ->inRandomOrder()->limit(3)->get();
         $marks['most_read'] = Mark::where('week_id', $week_id)->whereIn('user_id',  $marks['group']->leaderAndAmbassadors->pluck('id'))->orderBy('total_pages', 'desc')->limit(5)->get();
 
         //support leader achievement
@@ -674,27 +669,43 @@ class GroupController extends Controller
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 
-    public function statistics($group_id, $week_filter = "current")
+    public function statistics($group_id, $week_id)
     {
-        $group = Group::find($group_id);
-        if (!$group) {
+        $response['group'] = Group::find($group_id);
+        if (!$response['group']) {
             throw new NotFound;
         }
 
-        $response['week'] = Week::latest()->first();
+        $response['week'] = Week::find($week_id);
+
         $users_in_group = Group::where('id', $group_id)
             ->with('leaderAndAmbassadors')
             ->first();
         $response['users_in_group'] = $users_in_group->leaderAndAmbassadors->count();
 
+        $response['ambassadors_reading'] = User::without('userProfile')->with('roles')->select('users.*')
+            ->whereIn('users.id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->selectRaw('COALESCE(marks.reading_mark, 0) as reading_mark')
+            ->selectRaw('COALESCE(marks.writing_mark, 0) as writing_mark')
+            ->selectRaw('COALESCE(marks.total_pages, 0) as total_pages')
+            ->selectRaw('COALESCE(marks.total_thesis, 0) as total_thesis')
+            ->selectRaw('COALESCE(marks.total_screenshot, 0) as total_screenshot')
+            ->selectRaw('COALESCE(marks.support, 0) as support')
+            ->selectRaw('COALESCE(marks.is_freezed, 0) as is_freezed')
+            ->leftJoin('marks', function ($join) use ($week_id) {
+                $join->on('users.id', '=', 'marks.user_id')
+                    ->where('marks.week_id', $week_id);
+            })
+            ->get();
+
         $response['total_statistics'] = Mark::without('user,week')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
             ->where('is_freezed', 0)
             ->select(
-                DB::raw('avg(reading_mark + writing_mark + support) as team_out_of_100'),
-                DB::raw('avg(reading_mark) as team_reading_mark'),
-                DB::raw('avg(writing_mark) as team_writing_mark'),
-                DB::raw('avg(support) as team_support_mark'),
+                DB::raw('sum(reading_mark + writing_mark + support) as team_out_of_100'),
+                DB::raw('sum(reading_mark) as team_reading_mark'),
+                DB::raw('sum(writing_mark) as team_writing_mark'),
+                DB::raw('sum(support) as team_support_mark'),
                 DB::raw('sum(total_pages) as total_pages'),
                 DB::raw('sum(total_thesis) as total_thesis'),
                 DB::raw('sum(total_screenshot) as total_screenshot'),
@@ -708,22 +719,11 @@ class GroupController extends Controller
             ->orderBy('max_total_pages', 'desc')
             ->first();
 
-        //asmaa
         $response['total']['freezed'] =
-            UserException::whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
-            ->whereIn('status', [config('constants.ACCEPTED_STATUS'), config('constants.FINISHED_STATUS')])
-            ->whereHas('type', function ($query) {
-                $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
-                    ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'))
-                    ->orWhere('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
-            })
-            ->whereDate('start_at', '>=', Carbon::parse($response['week']->created_at)->format('Y-m-d'))
-            ->whereDate('end_at', '<=', Carbon::parse($response['week']->main_timer)->format('Y-m-d'))
+            Mark::without('user,week')->where('week_id', $response['week']->id)
+            ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
+            ->where('is_freezed', 1)
             ->count();
-        // Mark::without('user')->where('week_id', $response['week']->id)
-        //     ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
-        //     ->where('is_freezed', 1)
-        //     ->count();
 
         $response['total']['out_of_90'] = Mark::without('user')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
@@ -748,15 +748,7 @@ class GroupController extends Controller
             ->havingBetween('out_of_100', [10, 90])
             ->count();
 
-        //asmaa
         $response['total']['zero'] = $response['users_in_group'] - ($response['total']['freezed'] + $response['total']['out_of_90'] + $response['total']['out_of_100'] + $response['total']['others']);
-        // Mark::without('user')->where('week_id', $response['week']->id)
-        // ->whereIn('user_id', $users_in_group->leaderAndAmbassadors->pluck('id'))
-        // ->where('is_freezed', 0)
-        // ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
-        // ->groupBy('user_id')
-        // ->having('out_of_100', '=', 0)
-        // ->count();
 
         $currentMonth = date('m', strtotime($response['week']->created_at));
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
