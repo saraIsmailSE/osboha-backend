@@ -971,23 +971,23 @@ class GroupController extends Controller
                             //* اضافة المراقب الجديد إلى مجموعة المتابعة 
                             UserGroup::updateOrCreate(
                                 [
-                                    'group_id' => $followupGroup->id,
+                                    'group_id' => $followupGroup->group_id,
                                     'user_type' => "supervisor"
                                 ],
                                 [
                                     'user_id' => $newSupervisor->id,
                                 ]
                             );
-                            //* اضافة الموجه الجديد إلى مجموعة المتابعة 
-                            UserGroup::updateOrCreate(
-                                [
-                                    'group_id' => $followupGroup->id,
-                                    'user_type' => "advisor"
-                                ],
-                                [
-                                    'user_id' => $newSupervisor->parent_id,
-                                ]
-                            );
+                            // //* اضافة الموجه الجديد إلى مجموعة المتابعة 
+                            // UserGroup::updateOrCreate(
+                            //     [
+                            //         'group_id' => $followupGroup->id,
+                            //         'user_type' => "advisor"
+                            //     ],
+                            //     [
+                            //         'user_id' => $newSupervisor->parent_id,
+                            //     ]
+                            // );
                         }
                         return $this->jsonResponseWithoutMessage('تمت الاضافة', 'data', 200);
                     } else {
