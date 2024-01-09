@@ -964,14 +964,14 @@ class GroupController extends Controller
                         foreach ($group->userAmbassador as $leader) {
                             User::where("parent_id", $leader->id)->update(["parent_id" => $newSupervisor->id]);
 
-                            $followupGroupID = UserGroup::where('user_id',  $leader->id)->where('user_type', 'leader')->whereNull('termination_reason')
+                            $followupGroup = UserGroup::where('user_id',  $leader->id)->where('user_type', 'leader')->whereNull('termination_reason')
                                 ->whereHas('group.type', function ($q) {
                                     $q->where('type', '=', 'followup');
-                                })->pluck('group_id');
+                                })->first();
                             //* اضافة المراقب الجديد إلى مجموعة المتابعة 
                             UserGroup::updateOrCreate(
                                 [
-                                    'group_id' => $followupGroupID,
+                                    'group_id' => $followupGroup->id,
                                     'user_type' => "supervisor"
                                 ],
                                 [
