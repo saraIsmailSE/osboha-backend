@@ -978,6 +978,16 @@ class GroupController extends Controller
                                     'user_id' => $newSupervisor->id,
                                 ]
                             );
+                            //* اضافة الموجه الجديد إلى مجموعة المتابعة 
+                            UserGroup::updateOrCreate(
+                                [
+                                    'group_id' => $followupGroup->id,
+                                    'user_type' => "advisor"
+                                ],
+                                [
+                                    'user_id' => $newSupervisor->parent_id,
+                                ]
+                            );
                         }
                         return $this->jsonResponseWithoutMessage('تمت الاضافة', 'data', 200);
                     } else {

@@ -192,8 +192,8 @@ class AuditMarkController extends Controller
                    */
                         $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
                         $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
-                        // get 5% of ther marks that NOT in supervisorAudit
-                        $ratioToAudit = round(count($ambassadors) * 0.05) + 1;
+                        // get 2% of ther marks that NOT in supervisorAudit
+                        $ratioToAudit = round(count($ambassadors) * 0.02) + 1;
                         $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
                             ->where('week_id', $previous_week->id)
                             ->inRandomOrder()
