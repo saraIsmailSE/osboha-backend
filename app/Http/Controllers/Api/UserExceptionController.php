@@ -37,12 +37,47 @@ class UserExceptionController extends Controller
 {
     use ResponseJson, PathTrait, MediaTraits;
 
-    /**
-     * Add a new user exception to the system.
-     * 
-     * @param  Request  $request contain exception reason and exception type
-     * @return jsonResponseWithoutMessage
-     */
+    /*
+        # Create Exception Request Endpoint Documentation
+
+        This endpoint allows users to submit various types of exception requests, including freezing weeks, exam schedules, and other exceptional circumstances. It supports multiple exception types and handles each scenario with specific logic.
+
+        ## Endpoint
+
+        `POST /exceptions/create`
+
+        ## Request Body
+
+        The request body should include the following parameters:
+
+        - `reason` (string, required): The reason for requesting the exception.
+        - `type_id` (integer, required): The ID representing the type of exception being requested.
+        - `end_at` (date, optional): The proposed end date for the exception, applicable for certain types of exceptions.
+        - `desired_duration` (string, optional): Desired duration for the exception, if applicable.
+        - `exam_media` (file, optional): Media file related to the exam exception request.
+
+        ## Functionality
+
+        - Validates the input to ensure required fields are present and properly formatted.
+        - Processes the request based on the type of exception:
+            - Freezing weeks (current or next week) with specific eligibility checks.
+            - Exam-related exceptions with an option to upload exam media.
+            - Exceptional freezing requests with additional logic for admins.
+        - Automatically accepts or sets to pending based on user roles and request types.
+        - Notifies the user and relevant authorities (like leaders or admins) about the request status.
+        - Handles media uploads for exam-related requests.
+
+        ## Response
+
+        - Returns a success message indicating the status of the exception request (e.g., submitted, accepted, pending approval).
+
+        ## Errors
+
+        - `500 Internal Server Error`: If validation fails or if an unexpected error occurs during processing. 
+        - `NotFound`: If an invalid exception type is requested.
+        - The error message will include details of the exception encountered.
+    */
+
     public function create(Request $request)
     {
         $input = $request->all();
@@ -142,11 +177,6 @@ class UserExceptionController extends Controller
                 //exam_media/user_id/
                 $folder_path = 'exam_media/' . $authID;
 
-                // //check if exam_media folder exists
-                // if (!file_exists(public_path('assets/images/' . $folder_path))) {
-                //     mkdir(public_path('assets/images/' . $folder_path), 0777, true);
-                // }
-
                 $this->createMedia($request->exam_media, $userException->id, 'user_exception', $folder_path);
             }
 
@@ -194,10 +224,6 @@ class UserExceptionController extends Controller
                     $admin_id = $group->admin()->first()->id;
                     (new NotificationController)->sendNotification($admin_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
                 } else {
-                    //notify advisor & leader                    
-                    // $advisor_id = $group->groupAdvisor[0]->id;
-                    // (new NotificationController)->sendNotification($advisor_id, $msg, ADVISOR_EXCEPTIONS, $this->getExceptionPath($userException->id));
-                    //Notify Leader
                     (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
                 }
             }
@@ -207,6 +233,41 @@ class UserExceptionController extends Controller
         }
     }
 
+
+    /*
+        # Set Exceptional Freezing Request Endpoint Documentation
+
+        This endpoint allows administrators or authorized users to set an exceptional freezing request for a user. This type of request typically applies to an exceptional circumstance that requires halting a user's active participation for a specified week.
+
+        ## Endpoint
+
+        `POST /exceptions/exceptional-freezing`
+
+        ## Request Body
+
+        The request body should include the following parameters:
+
+        - `reason` (string, required): The reason for the exceptional freezing request.
+        - `user_id` (integer, required): The ID of the user for whom the exceptional freeze is being requested.
+        - `week_id` (integer, required): The ID of the week during which the freeze is to be applied.
+
+        ## Functionality
+
+        - Validates the input to ensure required fields are present and correctly formatted.
+        - Begins a database transaction to ensure data integrity.
+        - Retrieves the exceptional freezing type ID from the `ExceptionType` model.
+        - Creates or updates a `UserException` record with the specified user ID, week ID, reason, and sets the status to 'pending'.
+        - Sends a notification to the parent or leader of the authenticated user, informing them of the exceptional freeze request.
+        - Commits the transaction upon successful creation or update of the freeze request.
+
+        ## Response
+
+        - Returns a success message indicating that the exceptional freeze request has been submitted and is pending approval.
+
+        ## Errors
+
+        - `500 Internal Server Error`: If validation fails, if there are issues with the database transaction, or if an unexpected error occurs during processing. The error message will include details of the exception encountered.
+    */
 
     public function setExceptionalFreez(Request $request)
     {
@@ -265,6 +326,41 @@ class UserExceptionController extends Controller
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
         }
     }
+
+    /*
+        # Set New User Exception Endpoint Documentation
+
+        This endpoint allows administrators or authorized users to set an exception for a new user, typically exempting them from specific requirements or considerations for a designated week.
+
+        ## Endpoint
+
+        `POST /exceptions/new-user`
+
+        ## Request Body
+
+        The request body should include the following parameters:
+
+        - `reason` (string, required): The reason for setting the user as a new user.
+        - `user_id` (integer, required): The ID of the user who is being set as a new user.
+        - `week_id` (integer, required): The ID of the week during which the user is being considered new.
+
+        ## Functionality
+
+        - Validates the input to ensure required fields are present and correctly formatted.
+        - Begins a database transaction to ensure data integrity.
+        - Retrieves the exceptional freezing type ID from the `ExceptionType` model, specific to new user exceptions.
+        - Creates or updates a `UserException` record with the specified user ID, week ID, and reason, setting the status to 'accepted'.
+        - Sends notifications to both the specified user and the parent or leader of the authenticated user, informing them of the new user status.
+        - Commits the transaction upon successful creation or update of the new user exception.
+
+        ## Response
+
+        - Returns a success message indicating that the new user exception has been successfully set.
+
+        ## Errors
+
+        - `500 Internal Server Error`: If validation fails, if there are issues with the database transaction, or if an unexpected error occurs during processing. The error message will include details of the exception encountered.
+    */
 
     public function setNewUser(Request $request)
     {

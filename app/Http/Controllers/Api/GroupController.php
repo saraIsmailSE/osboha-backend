@@ -86,7 +86,8 @@ class GroupController extends Controller
 
         $groups = Group::whereHas('type', function ($q) use ($type) {
             $q->where('type', '=', $type);
-        })->get();
+        })->orderBy('created_at', 'asc')
+            ->get();
         if ($groups->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage($groups, 'data', 200);
         } else {
@@ -920,6 +921,74 @@ class GroupController extends Controller
             }
         } catch (\Exception $e) {
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
+
+    public function assignSupervisor(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'newSupervisor' => 'required|email',
+            'group_id'  => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
+
+            $newSupervisor = User::where('email', $request->newSupervisor)->first();
+            if ($newSupervisor) {
+
+                $currentSupervising = UserGroup::where('user_id',  $newSupervisor->id)->where('user_type', 'supervisor')->whereNull('termination_reason')
+                    ->whereHas('group.type', function ($q) {
+                        $q->where('type', '=', 'supervising');
+                    })->first();
+
+                // if not supervisor in any group 
+                if (!$currentSupervising) {
+                    $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
+                    if ($group) {
+                        //* اضافة المراقب الجديد إلى مجموعة الرقابة 
+
+                        UserGroup::updateOrCreate(
+                            [
+                                'group_id' => $group->id,
+                                'user_type' => "supervisor"
+                            ],
+                            [
+                                'user_id' => $newSupervisor->id,
+                            ]
+                        );
+                        foreach ($group->userAmbassador as $leader) {
+                            $followupGroupID = UserGroup::where('user_id',  $leader->id)->where('user_type', 'leader')->whereNull('termination_reason')
+                                ->whereHas('group.type', function ($q) {
+                                    $q->where('type', '=', 'followup');
+                                })->pluck('group_id');
+                            //* اضافة المراقب الجديد إلى مجموعة المتابعة 
+                            UserGroup::updateOrCreate(
+                                [
+                                    'group_id' => $followupGroupID,
+                                    'user_type' => "supervisor"
+                                ],
+                                [
+                                    'user_id' => $newSupervisor->id,
+                                ]
+                            );
+                        }
+                        return $this->jsonResponseWithoutMessage('تمت الاضافة', 'data', 200);
+                    } else {
+                        return $this->jsonResponseWithoutMessage('الفريق الرقابي غير موجود', 'data', 200);
+                    }
+                } else {
+                    return $this->jsonResponseWithoutMessage('المراقب موجود كمراقب في مجموعة أخرى', 'data', 200);
+                }
+            } else {
+                return $this->jsonResponseWithoutMessage("المراقب  غير موجود", 'data', 200);
+            }
+        } else {
+            throw new NotAuthorized;
         }
     }
 }
