@@ -935,4 +935,16 @@ class UserExceptionController extends Controller
 
         return $this->jsonResponseWithoutMessage($exceptions, 'data', 200);
     }
+
+    public function searchByEmail($email)
+    {
+        $response['user'] = User::where('email', $email)->first();
+        if ($response['user']) {
+            $response['exceptions'] = UserException::where('user_id', $response['user']->id)->latest()->limit(10)->get();
+            $response['followup_team'] = UserGroup::with('group')->where('user_id', $response['user']->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
+            return $this->jsonResponseWithoutMessage($response, "data", 200);
+        } else {
+            return $this->jsonResponseWithoutMessage(null, "data", 200);
+        }
+    }
 }
