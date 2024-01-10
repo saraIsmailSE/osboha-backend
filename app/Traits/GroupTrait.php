@@ -21,9 +21,15 @@ trait GroupTrait
                 ->select(
                     DB::raw('SUM(reading_mark + writing_mark + support) as out_of_100')
                 )->first();
-
+                
+                $total_freezed =
+                Mark::without('user,week')->where('week_id', $week_id)
+                ->whereIn('user_id', $users_in_group)
+                ->where('is_freezed', 1)
+                ->count();
+    
             if ($avg)
-                return $avg->out_of_100 / count($users_in_group);
+                return $avg->out_of_100 / (count($users_in_group) - $total_freezed);
 
             return 0;
         } catch (\Error $e) {
