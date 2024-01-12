@@ -47,14 +47,11 @@ class StatisticsController extends Controller
         }
         $response['week'] = $week;
 
-        // Total Users
-        $response['total_users'] = User::where('is_excluded', 0)->count();
-
         //Total Pages, Theses, Screenshotes
         $response['total_statistics'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 0)
             ->select(
-                DB::raw('sum(reading_mark + writing_mark + support) as total_sum'),
+                DB::raw('avg(reading_mark + writing_mark + support) as total_avg'),
                 DB::raw('sum(total_pages) as total_pages'),
                 DB::raw('sum(total_thesis) as total_thesis'),
                 DB::raw('sum(total_screenshot) as total_screenshot'),
@@ -68,7 +65,14 @@ class StatisticsController extends Controller
             )->groupBy('user_id')->get();
 
         $response['total_100'] = $total_100->where('total_100', 100)->count();
-        $response['total_incompleat'] = $total_100->where('total_100', '!=', 100)->count();
+        //Total 0
+        $total_0 = Mark::without('user', 'week')->where('week_id', $response['week']->id)
+            ->where('is_freezed', 0)
+            ->select(
+                DB::raw('sum(reading_mark + writing_mark + support) as total_0'),
+            )->groupBy('user_id')->get();
+
+        $response['total_0'] = $total_0->where('total_0', 0)->count();
 
         //Most Read
         $response['most_read'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
@@ -81,10 +85,8 @@ class StatisticsController extends Controller
         $response['freezed'] = Mark::without('user', 'week')->where('week_id', $response['week']->id)
             ->where('is_freezed', 1)
             ->count();
-
-        //Total 0
-        $response['total_0'] = $response['total_users'] - ($response['total_100'] +   $response['total_incompleat'] + $response['freezed']);
-
+        // Total Users
+        $response['total_users'] = User::where('is_excluded', 0)->count();
         //Total Excluded
         $response['is_excluded'] = User::where('is_excluded', 1)
             ->whereBetween('updated_at', [$response['week']->created_at, $response['week']->created_at->addDays(7)])->count();
@@ -123,7 +125,8 @@ class StatisticsController extends Controller
         //previous_week
         $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
         //last_previous_week
-        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+         $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+         $last_last_previous_week = Week::orderBy('created_at', 'desc')->skip(3)->take(2)->first();
 
         $response = [];
 
@@ -155,7 +158,12 @@ class StatisticsController extends Controller
                 ->where('is_freezed', 1)
                 ->count();
 
-            $memberCounts = $this->excluded_and_withdraw($previous_week, $group->group_id);
+            $memberCounts = UserGroup::where('group_id', $group->group_id)->where('updated_at','>=', $previous_week->created_at)
+                ->where('user_type', 'ambassador')->select(
+                    DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
+                    DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
+                )
+                ->first();
 
             // number of excluded users
             $leaderInfo['ambassadors_excluded_in_group'] = $memberCounts->excluded_members;
@@ -167,10 +175,11 @@ class StatisticsController extends Controller
 
             $followupLeaderAndAmbassadors = $followup->leaderAndAmbassadors->pluck('id');
 
-            $markChanges = $this->markChanges($last_previous_week, $previous_week, $followupLeaderAndAmbassadors);
+            $markChanges = $this->markChanges($last_last_previous_week,$last_previous_week, $previous_week, $followupLeaderAndAmbassadors);
+
 
             // Count the number of users with mark changes
-            $leaderInfo['number_zero_varible'] = $markChanges->count();
+            $leaderInfo['number_zero_varible'] = $markChanges;
 
             $response['statistics_data'][$key] = $leaderInfo;
         }
@@ -178,7 +187,7 @@ class StatisticsController extends Controller
         $response['leaders_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
             ->whereIn('user_id', $leadersIDs)
             ->get();
-
+            return  $response['statistics_data'];
         $response['supervisor_group'] = $supervisorGroup;
 
 
@@ -360,19 +369,20 @@ class StatisticsController extends Controller
                 })->first();
 
             $week_avg = 0;
-            $number_ambassadors = 0;
+            $number_ambassadors=0;
             $consultant_statistics = [];
 
             $consultant_statistics['consultant_name'] = $consultant->name;
             $consultant_statistics['consultant_id'] = $consultant->id;
-            if (!is_null($consultationGroup)) {
+            if(!is_null($consultationGroup)){
                 $consultant_statistics['team'] = $consultationGroup->group->name;
-            } else {
+            }
+            else{
                 $consultant_statistics['team'] = "لا يوجد";
             }
 
             $consultant_statistics['number_of_advisors'] = User::where('parent_id', $consultant->id)->role('advisor')->count();
-
+            
             $response['consultant_statistics'][$i] = $consultant_statistics;
             $i++;
         }
@@ -408,7 +418,12 @@ class StatisticsController extends Controller
             ->where('is_freezed', 1)
             ->count();
 
-        $memberCounts = $this->excluded_and_withdraw($previous_week, $group->group_id);
+        $memberCounts = UserGroup::where('group_id', $group->group_id)->where('updated_at','>=', $previous_week->created_at)
+            ->where('user_type', 'ambassador')->select(
+                DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
+                DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
+            )
+            ->first();
 
         // number of excluded users
         $teamStatistics['ambassadors_excluded_in_group'] = $memberCounts->excluded_members;
@@ -420,10 +435,11 @@ class StatisticsController extends Controller
 
         $followupLeaderAndAmbassadors = $followup->leaderAndAmbassadors->pluck('id');
 
-        $markChanges = $this->markChanges($last_previous_week, $previous_week, $followupLeaderAndAmbassadors);
+        $markChanges = $this->markChanges($last_last_previous_week,$last_previous_week, $previous_week, $followupLeaderAndAmbassadors);
+        
 
         // Count the number of users with mark changes
-        $teamStatistics['number_zero_varible'] = $markChanges->count();
+        $teamStatistics['number_zero_varible'] = $markChanges;
 
         return $teamStatistics;
     }
@@ -480,15 +496,12 @@ class StatisticsController extends Controller
             ->where('is_freezed', 1)
             ->count();
 
-        // $memberCounts = $this->excluded_and_withdraw($previous_week, $allLeadersAndAmbassadors->pluck('group_id'));
-
-        $memberCounts = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))->where('updated_at', '>=', $previous_week->created_at)
+        $memberCounts = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))->where('updated_at','>=', $previous_week->created_at)
             ->where('user_type', 'ambassador')->select(
                 DB::raw("SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END) as excluded_members"),
                 DB::raw("SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END) as withdraw_members")
             )
             ->first();
-
 
         // number of excluded users
         $teamStatistics['ambassadors_excluded_in_group'] = $memberCounts->excluded_members;
@@ -499,22 +512,43 @@ class StatisticsController extends Controller
         $teamStatistics['new_ambassadors'] = UserGroup::whereIn('group_id', $allLeadersAndAmbassadors->pluck('group_id'))
             ->whereBetween('created_at', [$previous_week->created_at, $previous_week->created_at->addDays(7)])->get()->count();
 
-        $markChanges = $this->markChanges($last_previous_week, $previous_week, $allLeadersAndAmbassadorsIDS);
+        $markChanges = $this->markChanges($last_last_previous_week,$last_previous_week, $previous_week, $allLeadersAndAmbassadorsIDS);
 
         // Count the number of users with mark changes
-        $teamStatistics['number_zero_varible'] = $markChanges->count();
+        $teamStatistics['number_zero_varible'] = $markChanges;
 
         return $teamStatistics;
     }
 
-    private function markChanges($last_previous_week, $previous_week, $followupLeaderAndAmbassadors)
+    private function markChanges($last_last_previous_week,$last_previous_week, $previous_week, $followupLeaderAndAmbassadors)
     {
+
+
+        $secondLastWeekMarks = Mark::without('user')->select('user_id', DB::raw('COALESCE(SUM(reading_mark + writing_mark), 0) as previous_week_mark'))
+            ->where('week_id', $last_last_previous_week->id)
+            ->whereIn('user_id', $followupLeaderAndAmbassadors)
+            ->groupBy('user_id');
+
+        $markChanges['last_last_previous_week'] = Mark::without('user')->select(
+            'marks.user_id',
+            DB::raw('COALESCE(SUM(reading_mark + writing_mark), 0) as last_week_mark'),
+            DB::raw('previous_week_mark')
+        )
+            ->leftJoinSub($secondLastWeekMarks, 'previous_marks', function ($join) {
+                $join->on('marks.user_id', '=', 'previous_marks.user_id');
+            })
+            ->where('marks.week_id', $last_previous_week->id)
+            ->groupBy('marks.user_id')
+            ->havingRaw('previous_week_mark = 0 AND last_week_mark > 0')
+            ->count();
+
+
         $secondLastWeekMarks = Mark::without('user')->select('user_id', DB::raw('COALESCE(SUM(reading_mark + writing_mark), 0) as previous_week_mark'))
             ->where('week_id', $last_previous_week->id)
             ->whereIn('user_id', $followupLeaderAndAmbassadors)
             ->groupBy('user_id');
 
-        $markChanges = Mark::without('user')->select(
+        $markChanges['last_previous_week'] = Mark::without('user')->select(
             'marks.user_id',
             DB::raw('COALESCE(SUM(reading_mark + writing_mark), 0) as last_week_mark'),
             DB::raw('previous_week_mark')
@@ -525,7 +559,7 @@ class StatisticsController extends Controller
             ->where('marks.week_id', $previous_week->id)
             ->groupBy('marks.user_id')
             ->havingRaw('previous_week_mark = 0 AND last_week_mark > 0')
-            ->get();
+            ->count();    
 
         return $markChanges;
     }
@@ -534,19 +568,5 @@ class StatisticsController extends Controller
     {
         return UserGroup::without('user')->where('group_id', $group_id)
             ->whereBetween('created_at', [$previous_week->created_at, $previous_week->created_at->addDays(7)])->get()->count();
-    }
-
-
-
-    private function excluded_and_withdraw($previous_week, $group_id)
-    {
-        return UserGroup::where('group_id', $group_id)
-            ->where('updated_at', '>=', $previous_week->created_at)
-            ->where('user_type', 'ambassador')
-            ->select(
-                DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END), 0) as excluded_members"),
-                DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END), 0) as withdraw_members")
-            )
-            ->first();
     }
 }
