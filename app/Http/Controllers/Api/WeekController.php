@@ -247,7 +247,7 @@ class WeekController extends Controller
 
     private function check_all_users()
     {
-
+        // dd('herte');
         //get all the users and update their records if they are excluded (just ambassdors0)
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
             ->where('parent_id', '!=', null)
@@ -319,10 +319,10 @@ class WeekController extends Controller
             }
 
             //execlude the user
-            $user->is_excluded = 1;
+            // $user->is_excluded = 1; //moved to the notifyExcludedUser function
             // $user->parent_id = null; //moved to the notifyExcludedUser function
             array_push($this->excludedUsers, $user->id);
-            $user->save();
+            // $user->save();
 
             // event(new UpdateUserStats($user, $old_user));
             return $user;
@@ -644,13 +644,21 @@ class WeekController extends Controller
 
         try {
             $users = User::whereIn('id', $this->excludedUsers)->get();
-            $groups = UserGroup::whereIn('user_id', $this->excludedUsers)->where('user_type', 'ambassador')->whereNull('termination_reason')->get();
+            $userGroups = UserGroup::whereIn('user_id', $this->excludedUsers)->where('user_type', 'ambassador')->get();
 
             try {
                 DB::beginTransaction();
-                foreach ($groups as $group) {
-                    $group->termination_reason = 'excluded';
-                    $group->save();
+                foreach ($userGroups as $userGroup) {
+                    $userGroup->termination_reason = 'excluded';
+                    $userGroup->save();
+
+                    $msg = 'لقد تم استبعاد السفير ' . $userGroup->user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
+                    $notification->sendNotification($userGroup->user->parent_id, $msg, EXCLUDED_USER);
+
+                    //update the user parent_id to null and exclude the user
+                    $userGroup->user->parent_id = null;
+                    $userGroup->user->is_excluded = 1;
+                    $userGroup->user->save();
                 }
                 DB::commit();
             } catch (\Exception $e) {
@@ -658,20 +666,20 @@ class WeekController extends Controller
                 throw $e;
             }
 
-            foreach ($users as $user) {
-                $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
-                $parent_id = $user->parent_id;
+            // foreach ($users as $user) {
+            //     $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
+            //     $parent_id = $user->parent_id;
 
-                $user->parent_id = null;
-                $user->save();
+            //     $user->parent_id = null;
+            //     $user->save();
 
-                $notification->sendNotification($parent_id, $msg, EXCLUDED_USER);
-                // $user->notify(
-                //     (new \App\Notifications\MailExcludeAmbassador())
-                //         ->delay(now()->addMinutes(5))
-                // );
+            //     $notification->sendNotification($parent_id, $msg, EXCLUDED_USER);
+            //     // $user->notify(
+            //     //     (new \App\Notifications\MailExcludeAmbassador())
+            //     //         ->delay(now()->addMinutes(5))
+            //     // );
 
-            }
+            // }
         } catch (\Exception $e) {
             throw $e;
         }
