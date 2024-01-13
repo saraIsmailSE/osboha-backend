@@ -476,8 +476,11 @@ class GeneralConversationController extends Controller
     public function addWorkingHours(Request $request)
     {
         $validator = Validator::make(request()->all(), [
-            'minutes' => 'required|numeric',
-            "date" => "required|date",
+            // 'minutes' => 'required|numeric',
+            // "date" => "required|date",
+            'working_hours' => 'required|array',
+            'working_hours.*.minutes' => 'required|numeric',
+            'working_hours.*.date' => 'required|date',
         ]);
 
         if ($validator->fails()) {
@@ -487,33 +490,38 @@ class GeneralConversationController extends Controller
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
-
         $user = Auth::user();
-        $date = Carbon::parse($request->date);
         $week = Week::latest()->first();
 
-        //find working hours for date part of created_at
-        $workingHours = WorkHour::where("user_id", $user->id)
-            ->where("week_id", $week->id)
-            ->whereDate('created_at', $date)
-            ->first();
+        //loop through working hours
+        foreach ($request->working_hours as $working_hour) {
+            $date = Carbon::parse($working_hour['date']);
 
-        // dd($workingHours);
+            //find working hours for date part of created_at
+            $workingHours = WorkHour::where("user_id", $user->id)
+                ->where("week_id", $week->id)
+                ->whereDate('created_at', $date)
+                ->first();
 
-        if (!$workingHours) {
-            $workingHours = WorkHour::create([
-                "user_id" => $user->id,
-                "minutes" => $request->minutes,
-                "week_id" => Week::latest()->first()->id,
-                "created_at" => $date,
-            ]);
-        } else {
-            $workingHours->minutes = $request->minutes;
-            $workingHours->save();
+            if (!$workingHours) {
+                //if minutes is 0, don't create a record
+                if ($working_hour['minutes'] == 0) {
+                    continue;
+                }
+                $workingHours = WorkHour::create([
+                    "user_id" => $user->id,
+                    "minutes" => $working_hour['minutes'],
+                    "week_id" => Week::latest()->first()->id,
+                    "created_at" => $date,
+                ]);
+            } else {
+                $workingHours->minutes = $working_hour['minutes'];
+                $workingHours->save();
+            }
         }
 
         return $this->jsonResponseWithoutMessage(
-            $workingHours,
+            'تم إضافة ساعات العمل بنجاح',
             'data',
             Response::HTTP_OK
         );
@@ -532,6 +540,7 @@ class GeneralConversationController extends Controller
         //get all working hours grouped by created_at date
         $workingHours = WorkHour::where("user_id", $user->id)
             ->where("week_id", $currentWeek->id)
+            ->orderBy('created_at', 'asc')
             ->get();
 
 
