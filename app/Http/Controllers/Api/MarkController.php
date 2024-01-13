@@ -323,7 +323,7 @@ class MarkController extends Controller
     {
         $user = User::find($user_id);
         if ($user) {
-            $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+            $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             if ($user_group) {
                 $response['group'] = Group::where('id', $user_group->group_id)->with('groupAdministrators')->first();
 
