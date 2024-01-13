@@ -415,7 +415,7 @@ class MarkController extends Controller
     public function acceptSupport($user_id, $week_id)
     {
         //get user group and its administrators 
-        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
         //check if auth user is an administrator in the group
         if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
             $week = Week::find($week_id);
@@ -446,7 +446,7 @@ class MarkController extends Controller
      */
     public function rejectSupport($user_id, $week_id)
     {
-        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
         //check if auth user is an administrator in group
         if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
             $week = Week::find($week_id);
