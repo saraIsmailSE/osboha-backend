@@ -737,34 +737,44 @@ class GeneralConversationController extends Controller
 
         $response['minutesOfSelectedMonth'] = $type === "week" ? null : $workingHours->sum('minutes');
 
-        //get working hours for each user sorted by total minutes
+        //get working hours grouped by week then by user. each user has his/her working hours grouped by day
+        //in each week, users are sorted by total minutes
         $groupedData = $workingHours
-            ->groupBy(function ($item) {
-                return $item->user->id;
+            //group by week title
+            ->groupBy(function ($week) {
+                return $week->week->title;
             })
-            ->map(function ($userGroup) {
-                //group by day
-                $days = $userGroup->groupBy(function ($item) {
-                    //get day of week of created_at (start from 1 for sunday to 7 for saturday)
-                    return Carbon::parse($item->created_at)->dayOfWeek + 1;
-                })->map(function ($dayGroup) {
-                    //sum minutes of each day
-                    return $dayGroup->sum('minutes');
-                });
 
-                //return user info with days and total minutes
-                $user = $userGroup->first()->user;
-                return [
-                    "user" => UserInfoResource::make($user),
-                    "days" => $days,
-                    "minutes" => $days->sum(),
-                ];
+            ->map(function ($group) {
+                //group by user id
+                return $group->groupBy(function ($item) {
+                    return $item->user->id;
+                })->map(function ($userGroup) {
+                    //group by day
+                    $days = $userGroup->groupBy(function ($item) {
+                        //get day of week of created_at (start from 1 for sunday to 7 for saturday)
+                        return Carbon::parse($item->created_at)->dayOfWeek + 1;
+                    })->map(function ($dayGroup) {
+                        //sum minutes of each day
+                        return $dayGroup->sum('minutes');
+                    });
+
+                    //return user info with days and total minutes
+                    $user = $userGroup->first()->user;
+                    return [
+                        "user" => UserInfoResource::make($user),
+                        "days" => $days,
+                        "minutes" => $days->sum(),
+                    ];
+                })
+                    //sort by minutes
+                    ->sortByDesc('minutes')
+                    //return values only without keys
+                    ->values()
+                    ->toArray();
             })
-            //sort by minutes
-            ->sortByDesc('minutes')
-            //return values only without keys
-            ->values()
             ->toArray();
+
 
 
         $response['workingHours'] = $groupedData;
