@@ -738,7 +738,6 @@ class UserExceptionController extends Controller
                     $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
-                    $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
 
                     break;
                     //اعفاء الأسبوع القادم
@@ -752,9 +751,10 @@ class UserExceptionController extends Controller
                     $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
-                    $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
                     break;
             }
+            $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
+
             //notify leader                        
             $msg = "السفير:  " . $owner_of_exception->name . " تحت نظام الامتحانات لغاية:  " . $userException->end_at;
             (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
@@ -946,5 +946,29 @@ class UserExceptionController extends Controller
         } else {
             return $this->jsonResponseWithoutMessage(null, "data", 200);
         }
+    }
+
+    public function listForAdvisor($advisor_id)
+    {
+        $advisingGroup = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'advising');
+            })->first();
+        $response['advisingGroup'] = $advisingGroup->group->name;
+
+        $advisorGroups = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->whereNull('termination_reason')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'followup');
+            })->pluck('group_id');
+
+        $ambassadorsInGroups = UserGroup::whereIn('group_id', $advisorGroups)->where('user_type', 'ambassador')->whereNull('termination_reason')
+            ->pluck('user_id');
+        $response['exceptions'] = UserException::whereIn('user_id', $ambassadorsInGroups)
+            ->whereHas('type', function ($q) {
+                $q->where('type', '=', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
+            })
+            ->where('status','pending')
+            ->latest()->get();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }

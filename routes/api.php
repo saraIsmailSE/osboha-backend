@@ -329,6 +329,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-exceptional-freez', [UserExceptionController::class, 'setExceptionalFreez']);
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
+            Route::get('/list-by-advisor/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
+            
 
         });
         ############End UserException########

@@ -260,12 +260,10 @@ class MarkController extends Controller
         $week = Week::latest()->first();
 
         if ($filter == 'current') {
-            // $currentMonth = date('m');
-            $currentMonth = date('m', strtotime($week->created_at));
+            $currentMonth = \Carbon\Carbon::now()->format('m');
         } else
         if ($filter == 'previous') {
-            // $currentMonth = date('m') - 1;
-            $currentMonth = date('m', strtotime($week->created_at)) - 1;
+            $currentMonth = \Carbon\Carbon::parse($week->created_at)->subMonth()->format('m');
         }
 
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->get();
