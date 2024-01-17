@@ -963,7 +963,7 @@ class UserExceptionController extends Controller
 
         $ambassadorsInGroups = UserGroup::whereIn('group_id', $advisorGroups)->where('user_type', 'ambassador')->whereNull('termination_reason')
             ->pluck('user_id');
-        $response['exceptions'] = UserException::whereIn('user_id', $ambassadorsInGroups)
+        $response['exceptions'] = UserException::with('user.followupTeam.group')->whereIn('user_id', $ambassadorsInGroups)
             ->whereHas('type', function ($q) {
                 $q->where('type', '=', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
             })
