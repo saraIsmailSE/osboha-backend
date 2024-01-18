@@ -183,7 +183,7 @@ class UserGroupController extends Controller
                     if ($role->name !== 'ambassador') {
                         //check if role is leader and if the leader is a leader on other group
                         if ($role->name === 'leader' || $role->name === 'support_leader') {
-                            $leaderInGroups = UserGroup::where('user_id', $user->id)->where('user_type', $role->name)->where('group_id', '!=', $group->id)->first();
+                            $leaderInGroups = UserGroup::where('user_id', $user->id)->where('user_type', $role->name)->where('group_id', '!=', $group->id)->whereNull('termination_reason')->first();
                             if ($leaderInGroups) {
                                 return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . config('constants.ARABIC_ROLES')[$role->name] . ", لأنه موجود ك" . config('constants.ARABIC_ROLES')[$role->name] . " في فريق آخر ", 'data', 500);
                             }
