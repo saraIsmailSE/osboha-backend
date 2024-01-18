@@ -135,49 +135,21 @@ class StatisticsController extends Controller
             ->whereNull('termination_reason')
             ->get();
 
-
         foreach ($group_followups as $key => $group) {
-
-            $leaderInfo['leader_name'] = $group->user->name;
-            $leaderInfo['team'] = $group->group->name;
-
-            //for each leader get follow up group with its ambassador 
-            $followup = Group::without('type', 'Timeline')->with('leaderAndAmbassadors')->where('id', $group->group_id)->first();
-            // Number of Ambassadors
-            $leaderInfo['number_ambassadors'] = $followup->leaderAndAmbassadors->count();
-            // last week Avg.
-            $leaderInfo['week_avg'] = $this->groupAvg($group->group_id,  $previous_week->id, $followup->leaderAndAmbassadors->pluck('id'));
-
-
-            // Number of freezed users in last week
-            $leaderInfo['is_freezed'] = Mark::without('user')->where('week_id', $previous_week->id)
-                ->whereIn('user_id', $followup->leaderAndAmbassadors->pluck('id'))
-                ->where('is_freezed', 1)
-                ->count();
-
-            $memberCounts = $this->excluded_and_withdraw($previous_week, $group->group_id);
-
-            // number of excluded users
-            $leaderInfo['ambassadors_excluded_in_group'] = $memberCounts->excluded_members;
-
-            // number of withdraw users
-            $leaderInfo['ambassadors_withdraw_in_group'] = $memberCounts->withdraw_members;
-
-            $leaderInfo['new_ambassadors'] = $this->newMembers($previous_week, $group->group_id);
-
-            $followupLeaderAndAmbassadors = $followup->leaderAndAmbassadors->pluck('id');
-
-            $markChanges = $this->markChanges($last_previous_week, $previous_week, $followupLeaderAndAmbassadors);
-
-            // Count the number of users with mark changes
-            $leaderInfo['number_zero_varible'] = $markChanges->count();
-
-            $response['statistics_data'][$key] = $leaderInfo;
+            $response['leaders_followup_team'][$key] = $this->followupTeamStatistics($group, $previous_week, $last_previous_week);
         }
         // leaders reading
         $response['leaders_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
             ->whereIn('user_id', $leadersIDs)
             ->get();
+
+
+        $supervisor_followup_team = UserGroup::with('user')->where('user_type', 'leader')
+            ->where('user_id', $superviser_id)
+            ->whereNull('termination_reason')
+            ->first();
+        $response['supervisor_own_followup_team'] = $this->followupTeamStatistics($supervisor_followup_team, $previous_week, $last_previous_week);
+
 
         $response['supervisor_group'] = $supervisorGroup;
 
@@ -309,10 +281,10 @@ class StatisticsController extends Controller
 
             $advisor_statistics['advisor_name'] = $advisor->name;
             $advisor_statistics['advisor_id'] = $advisor->id;
-            $advisor_statistics['team'] = $advisingGroup->group->name;
+            $advisor_statistics['team'] = $advisingGroup ? $advisingGroup->group->name : 'لا يوجد فريق توجيه';
 
             $advisor_statistics['number_of_supervisors'] = $supervisors->count();
-            $advisor_statistics['week_avg'] = $week_avg / $advisor_statistics['number_of_supervisors'];
+            $advisor_statistics['week_avg'] = $advisor_statistics['number_of_supervisors'] ? $week_avg / $advisor_statistics['number_of_supervisors'] : 0;
 
             $response['advisor_statistics'][$i] = $advisor_statistics;
             $i++;
@@ -365,12 +337,7 @@ class StatisticsController extends Controller
 
             $consultant_statistics['consultant_name'] = $consultant->name;
             $consultant_statistics['consultant_id'] = $consultant->id;
-            if (!is_null($consultationGroup)) {
-                $consultant_statistics['team'] = $consultationGroup->group->name;
-            } else {
-                $consultant_statistics['team'] = "لا يوجد";
-            }
-
+            $consultant_statistics['team'] = $consultationGroup ? $consultationGroup->group->name : 'لا يوجد فريق';
             $consultant_statistics['number_of_advisors'] = User::where('parent_id', $consultant->id)->role('advisor')->count();
 
             $response['consultant_statistics'][$i] = $consultant_statistics;
