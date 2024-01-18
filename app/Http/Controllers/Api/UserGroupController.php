@@ -189,7 +189,7 @@ class UserGroupController extends Controller
                             }
                         }
 
-                        $roleInGroup = UserGroup::where('group_id', $group->id)->where('user_type', $role->name)->first();
+                        $roleInGroup = UserGroup::where('group_id', $group->id)->where('user_type', $role->name)->whereNull('termination_reason')->first();
                         if ($roleInGroup) {
                             if ($group->type->type == 'Administration' || $group->type->type == 'consultation') {
 
