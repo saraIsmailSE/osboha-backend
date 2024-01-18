@@ -164,7 +164,7 @@ class UserGroupController extends Controller
             if ($group) {
                 $arabicRole = config('constants.ARABIC_ROLES')[$role->name];
 
-                $checkMember = UserGroup::where('user_id', $user->id)->where('group_id', $group->id)->where('user_type', $role->name)->first();
+                $checkMember = UserGroup::where('user_id', $user->id)->where('group_id', $group->id)->where('user_type', $role->name)->whereNull('termination_reason')->first();
                 //by asmaa
                 if ($checkMember) {
                     return $this->jsonResponseWithoutMessage('ال' . $arabicRole .  ' موجود في المجموعة', 'data', 500);
