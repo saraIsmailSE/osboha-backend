@@ -101,8 +101,8 @@ class UserExceptionController extends Controller
 
 
         //get types of exceptions
-        $freezCurrentWeek = ExceptionType::where('type', config("constants.FREEZ_THIS_WEEK_TYPE"))->first();
-        $freezNextWeek = ExceptionType::where('type', config("constants.FREEZ_NEXT_WEEK_TYPE"))->first();
+        $freezCurrentWeek = ExceptionType::where('type', config("constants.FREEZE_THIS_WEEK_TYPE"))->first();
+        $freezNextWeek = ExceptionType::where('type', config("constants.FREEZE_NEXT_WEEK_TYPE"))->first();
         $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
         $monthlyExam = ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
         $FinalExam = ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
@@ -125,8 +125,8 @@ class UserExceptionController extends Controller
                 $laseFreezing = UserException::where('user_id', $authID)
                     ->where('status', config('constants.ACCEPTED_STATUS'))
                     ->whereHas('type', function ($query) {
-                        $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
-                            ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'));
+                        $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
+                            ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));
                     })->pluck('end_at')->first();
 
                 $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
@@ -452,8 +452,8 @@ class UserExceptionController extends Controller
                         ->orWhere('status', 'finished');
                 })
                     ->whereHas('type', function ($query) {
-                        $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
-                            ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'));
+                        $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
+                            ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));
                     })
                     ->first();
 
@@ -967,7 +967,7 @@ class UserExceptionController extends Controller
             ->whereHas('type', function ($q) {
                 $q->where('type', '=', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
             })
-            ->where('status','pending')
+            ->where('status', 'pending')
             ->latest()->get();
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
