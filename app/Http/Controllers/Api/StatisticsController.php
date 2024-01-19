@@ -417,12 +417,14 @@ class StatisticsController extends Controller
         $teamStatistics['number_of_leaders'] = $supervisorGroup->userAmbassador->count();
 
         $leadersIDs = $supervisorGroup->userAmbassador->pluck('id');
+        //$leadersIDs->push($superviser->id);
 
         //افرقة المتابعة الخاصة بالقادة
         $group_followups = UserGroup::where('user_type', 'leader')
             ->whereIn('user_id', $leadersIDs)
             ->whereNull('termination_reason')
             ->get();
+        $teamStatistics['group_followups'] = $group_followups;
 
         $allLeadersAndAmbassadors = UserGroup::whereIn('user_type', ['ambassador', 'leader'])
             ->whereIn('group_id', $group_followups->pluck('group_id'))
@@ -430,7 +432,6 @@ class StatisticsController extends Controller
             ->get();
 
         $allLeadersAndAmbassadorsIDS = $allLeadersAndAmbassadors->pluck('user_id');
-
         $teamStatistics['team'] = $supervisorGroup->name;
 
 
@@ -470,6 +471,13 @@ class StatisticsController extends Controller
 
         // Count the number of users with mark changes
         $teamStatistics['number_zero_varible'] = $markChanges->count();
+
+
+        $supervisor_followup_team = UserGroup::with('user')->where('user_type', 'leader')
+            ->where('user_id', $superviser->id)
+            ->whereNull('termination_reason')
+            ->first();
+        $teamStatistics['supervisor_own_followup_team'] = $this->followupTeamStatistics($supervisor_followup_team, $previous_week, $last_previous_week);
 
         return $teamStatistics;
     }

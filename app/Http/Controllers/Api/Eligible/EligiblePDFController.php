@@ -30,8 +30,7 @@ class EligiblePDFController extends Controller
         $all_avareges = EligibleUserBook::join('eligible_general_informations', 'eligible_user_books.id', '=', 'eligible_general_informations.eligible_user_books_id')
             ->join('eligible_questions', 'eligible_user_books.id', '=', 'eligible_questions.eligible_user_books_id')
             ->join('eligible_thesis', 'eligible_user_books.id', '=', 'eligible_thesis.eligible_user_books_id')
-            ->select
-            (DB::raw('avg(eligible_general_informations.degree) as general_informations_degree,avg(eligible_questions.degree) as questions_degree,avg(eligible_thesis.degree) as thesises_degree'))
+            ->select(DB::raw('avg(eligible_general_informations.degree) as general_informations_degree,avg(eligible_questions.degree) as questions_degree,avg(eligible_thesis.degree) as thesises_degree'))
             ->where('eligible_user_books.id', $user_book_id)
             ->get();
         $thesisDegree = $all_avareges[0]['thesises_degree'];
@@ -104,6 +103,7 @@ class EligiblePDFController extends Controller
 
         // set bacground image
         $img_file = "https://platform.osboha180.com/backend/public/asset/images/certTempWthiSign.jpg";
+        $img_file = "https://i.pinimg.com/564x/f3/54/e8/f354e831787334b482139545eb94a3b8.jpg";
         // Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false)
         PDF::Image($img_file, 210, 0, 210, 297, '', '', '', false, 300, '', false, false, 0);
 
@@ -155,11 +155,29 @@ class EligiblePDFController extends Controller
         foreach ($fullCertificate as $key => $part) {
             foreach ($part['thesises'] as $key => $thesis) {
 
-                $this->addPage();
-                PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأطروحات', 'subTitle' => 'أطروحة', 'index' => $key + 1, 'achevmentText' => $thesis->thesis_text, 'textDegree' => $this->textDegree($thesis->degree)])->render(), true, false, true, false, '');
+
+                if (strlen($thesis) > 1700) {
+                    $thesisWords = explode(' ', $thesis->thesis_text);
+                    $pages = floor(count($thesisWords) / 300);
+                    $thesisText = implode(" ", array_slice($thesisWords, 0, 350));
+                    $this->addPage();
+                    PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأطروحات', 'subTitle' => 'أطروحة', 'index' => $key + 1, 'achevmentText' => $thesisText, 'textDegree' => $this->textDegree($thesis->degree)])->render(), true, false, true, false, '');
+
+                    $start = 350;
+                    $length = 350;
+
+                    for ($i = 2; $i <= $pages + 1; $i++) {
+                        $thesisText = implode(" ", array_slice($thesisWords, $start, $length));
+
+                        $this->addPage();
+                        PDF::writeHTML(view('certificate.theses', ['thesis' => $thesisText])->render(), true, false, true, false, '');
+                        $start = $start + 400;
+                    }
+                    // $this->addPage();
+                    // PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأطروحات', 'subTitle' => 'أطروحة', 'index' => $key + 1, 'achevmentText' => $thesis->thesis_text, 'textDegree' => $this->textDegree($thesis->degree)])->render(), true, false, true, false, '');
+                }
             }
         }
-
         ###################### END THESIS ###################### 
 
         ###################### START THESIS ###################### 
@@ -189,7 +207,7 @@ class EligiblePDFController extends Controller
         $auto_page_break = PDF::getAutoPageBreak();
         PDF::SetAutoPageBreak(false, 0);
 
-        $img_file = 'https://platform.osboha180.com/backend/public/asset/images/certTemp.jpg';
+        $img_file = 'https://i.pinimg.com/564x/f3/54/e8/f354e831787334b482139545eb94a3b8.jpg';
 
         PDF::Image($img_file, 210, 0, 210, 297, '', '', '', false, 300, '', false, false, 0);
 
