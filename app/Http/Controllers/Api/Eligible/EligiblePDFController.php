@@ -155,7 +155,7 @@ class EligiblePDFController extends Controller
             foreach ($part['thesises'] as $key => $thesis) {
 
 
-                if (strlen($thesis) > 1750) {
+                if (strlen($thesis) > 1800) {
                     $thesisWords = explode(' ', $thesis->thesis_text);
                     $pages = floor(count($thesisWords) / 300);
                     $thesisText = implode(" ", array_slice($thesisWords, 0, 350));
