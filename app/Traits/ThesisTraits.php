@@ -472,11 +472,9 @@ trait ThesisTraits
         //if the thesis is within a duration of exams exception, the mark will be full if the user satisfies the conditions
         $is_exams_exception = $this->check_exam_exception();
         if ($is_exams_exception) {
-            if ($total_pages >= 10 && ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= 2)) {
-                return [
-                    'reading_mark' => config('constants.FULL_READING_MARK'),
-                    'writing_mark' => config('constants.FULL_WRITING_MARK'),
-                ];
+            $mark = $this->calculate_mark_for_exam_exception($total_pages, $max_length, $total_screenshots);
+            if ($mark) {
+                return $mark;
             }
         }
 
@@ -491,6 +489,7 @@ trait ThesisTraits
         ) {
             $number_of_parts += INCREMENT_VALUE;
         }
+
         //reading mark    
         $reading_mark = $number_of_parts * config('constants.PART_READING_MARK');
         $thesis_mark = 0;
@@ -628,7 +627,7 @@ trait ThesisTraits
         $date = Carbon::now()->format('Y-m-d');
         $user_exception = UserException::where('user_id', Auth::id())
             ->where('status', config('constants.ACCEPTED_STATUS'))
-            ->whereDate('end_at', '>', $date)
+            ->whereDate('end_at', '>=', $date)
             ->whereDate('start_at', '<=', $date)
             ->with('type', function ($query) {
                 $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
@@ -758,5 +757,56 @@ trait ThesisTraits
         //     $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'] + config('constants.PART_WRITING_MARK');
         // }
         // $markRecord->save();
+    }
+
+    /**
+     * Calculate mark for exam exception
+     * @param int $total_pages
+     * @param int $max_length
+     * @param int $total_screenshots
+     * @return array ['reading_mark', 'writing_mark']    
+     */
+    private function calculate_mark_for_exam_exception($total_pages, $max_length, $total_screenshots)
+    {
+        $mark = null;
+
+        if ($total_pages < 10) {
+            //get current week
+            $week = Week::latest('id')->first();
+
+            //get user mark
+            $userMark = Mark::where('user_id', Auth::id())->where('week_id', $week->id)->first();
+
+            //if there is a mark, check if the user has a thesis in the current week
+            if ($userMark) {
+                //get totals from the user mark
+                $markPages = $userMark->total_pages;
+                $markTheses = $userMark->total_thesis;
+                $markScreenshots = $userMark->total_screenshot;
+
+                //add the current thesis to the totals
+                $totalPages = $markPages + $total_pages;
+                $totalTheses = $markTheses + ($max_length > 0 ? INCREMENT_VALUE : 0);
+                $totalScreenshots = $markScreenshots + $total_screenshots;
+
+                //check if the user satisfies the conditions of the exception
+                if ($totalPages >= 10 && ($totalTheses >= 2 || $totalScreenshots >= 2 ||
+                    (($totalTheses + $totalScreenshots) >= 2))) {
+                    $mark = [
+                        'reading_mark' => config('constants.FULL_READING_MARK'),
+                        'writing_mark' => config('constants.FULL_WRITING_MARK'),
+                    ];
+                }
+            }
+        } else {
+            if ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= 2) {
+                $mark = [
+                    'reading_mark' => config('constants.FULL_READING_MARK'),
+                    'writing_mark' => config('constants.FULL_WRITING_MARK'),
+                ];
+            }
+        }
+
+        return $mark;
     }
 }
