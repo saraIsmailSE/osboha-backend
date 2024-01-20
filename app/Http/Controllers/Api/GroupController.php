@@ -334,7 +334,7 @@ class GroupController extends Controller
             ->first();
 
         //if no records, then the user is only an ambassador
-        if ($userInGroup) {
+        if ($userInGroup || Auth::user()->hasRole(['admin']) ) {
             $response['week'] = Week::latest()->first();
             $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
             $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->latest()->get();

@@ -157,7 +157,7 @@ class EligiblePDFController extends Controller
 
                 if (strlen($thesis) > 1800) {
                     $thesisWords = explode(' ', $thesis->thesis_text);
-                    $pages = floor(count($thesisWords) / 300);
+                    $pages = floor(count($thesisWords) / 350);
                     $thesisText = implode(" ", array_slice($thesisWords, 0, 350));
                     $this->addPage();
                     PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأطروحات', 'subTitle' => 'أطروحة', 'index' => $key + 1, 'achevmentText' => $thesisText, 'textDegree' => $this->textDegree($thesis->degree)])->render(), true, false, true, false, '');
