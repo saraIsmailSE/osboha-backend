@@ -210,6 +210,13 @@ class UserGroupController extends Controller
                             if ($group->groupLeader->isEmpty()) {
                                 return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة, لا يمكنك إضافة أعضاء", 'data', 500);
                             } else {
+                                UserGroup::Create(
+                                    [
+                                        'user_id' => $user->id,
+                                        'group_id' => $group->id,
+                                        'user_type' => $role->name
+                                    ]
+                                );
                                 $user->parent_id = $group->groupLeader[0]->id;
                                 $user->save();
                                 $user->notify(new MailAmbassadorDistribution($request->group_id));
