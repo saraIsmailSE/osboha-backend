@@ -350,7 +350,10 @@ class AuditMarkController extends Controller
         if (Auth::user()->hasanyrole('admin|advisor')) {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get all groups ID for this advisor
-            $groupsID = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->pluck('group_id');
+            $groupsID = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->whereNull('termination_reason')
+                ->whereHas('group.type', function ($q) {
+                    $q->where('type', '=', 'followup');
+                })->pluck('group_id');
             // all supervisors of advisor (unique)
             $supervisors = UserGroup::with('group')->where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->get()->unique('user_id');
             $response = [];
