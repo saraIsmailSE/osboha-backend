@@ -365,18 +365,14 @@ class AuditMarkController extends Controller
                 // num of leaders
                 $supervisorinfo['num_of_leaders'] = $groups->count();
                 // marks week_avg for each group
-                $total_marks_week = 0;
+                $total_avg = 0;
                 foreach ($groups as $group) {
-                    $week_avg = Mark::where('week_id', $previous_week)
-                        ->whereIn('user_id', $group->group->leaderAndAmbassadors->pluck('id'))
-                        //avg from (reading_mark + writing_mark + support)
-                        ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-                        ->first()
-                        ->out_of_100;
-                    $total_marks_week += $week_avg;
+                    $week_avg = $this->groupAvg(1,  $previous_week, $group->group->leaderAndAmbassadors->pluck('id'));
+
+                    $total_avg += $week_avg;
                 }
                 // marks week avg for all $supervisor groups
-                $supervisorinfo['groups_avg'] = $total_marks_week / $supervisorinfo['num_of_leaders'];
+                $supervisorinfo['groups_avg'] = $total_avg / $supervisorinfo['num_of_leaders'];
                 $auditMarksRecoreds = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id', $previous_week)->pluck('id');
                 if ($auditMarksRecoreds) {
                     $supervisorinfo['audit_count'] = MarksForAudit::whereIn('audit_marks_id', $auditMarksRecoreds)->count();
