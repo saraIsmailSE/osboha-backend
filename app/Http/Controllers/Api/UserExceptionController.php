@@ -132,7 +132,7 @@ class UserExceptionController extends Controller
                 $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
 
                 //check if user freezed in last 4 weeks
-                if ($laseFreezing && ($dateAfter4Weeks < $currentDate)) {
+                if ($laseFreezing && ($dateAfter4Weeks > $currentDate)) {
                     return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا مرة كل 4 أسابيع", 'data', 200);
                 }
 
