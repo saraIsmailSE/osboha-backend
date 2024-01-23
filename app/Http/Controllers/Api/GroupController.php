@@ -443,22 +443,14 @@ class GroupController extends Controller
 
     public function allAchievements($group_id, $week_id)
     {
-        // if ($week_filter == 'current') {
-        //     $week = Week::latest()->pluck('id')->toArray();
-        // }
-        // if ($week_filter == 'previous') {
-        //     $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
-        // }
         $marks['week'] = Week::find($week_id);
         $marks['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
         $marks['group_users'] = $marks['group']->userAmbassador->count() + 1;
-        //asmaa
         $marks['ambassadors_achievement'] =
             User::whereIn('id', $marks['group']->userAmbassador->pluck('id'))
             ->with(['mark' => function ($query) use ($marks) {
                 $query->where('week_id', $marks['week']->id);
             }])->get();
-        // Mark::where('week_id', $marks['week']->id)->whereIn('user_id', $marks['group']->allUserAmbassador->pluck('id'))->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
