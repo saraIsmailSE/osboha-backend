@@ -164,7 +164,7 @@ class UserExceptionController extends Controller
                 $msg = "قام السفير " . Auth::user()->name . " باستخدام نظام التجميد";
                 (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
 
-                return $this->jsonResponseWithoutMessage("تم رفع طلب التجميد", 'data', 200);
+                return $this->jsonResponseWithoutMessage("تم قبول طلب التجميد", 'data', 200);
             } else {
                 return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد", 'data', 200);
             }
