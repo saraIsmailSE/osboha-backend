@@ -55,10 +55,10 @@ class AuthController extends Controller
             $success['token'] = $authUser->createToken('sanctumAuth')->plainTextToken;
             $success['user'] = $authUser->load('userProfile', 'roles:id,name', 'roles.permissions:id,name');
 
-            return $this->jsonResponseWithoutMessage($success, 'data', 200, 'تم تسجيل الدخول بنجاح');
+            return $this->jsonResponseWithoutMessage($success, 'data', 200);
         } else {
 
-            return $this->jsonResponseWithoutMessage('البريد الالكتروني او كلمة المرور غير صحيحة', 'data', 404);
+            return $this->jsonResponseWithoutMessage('البريد الالكتروني او كلمة المرور غير صحيحة', 'data', 201);
         }
     }
 

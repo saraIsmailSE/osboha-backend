@@ -123,7 +123,7 @@ class UserExceptionController extends Controller
                 $currentDate = Carbon::now()->format('Y-m-d');
 
                 $laseFreezing = UserException::where('user_id', $authID)
-                    ->where('status', 'finished')
+                    ->whereIn('status', ['finished', 'accepted'])
                     ->whereHas('type', function ($query) {
                         $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
                             ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));

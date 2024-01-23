@@ -178,8 +178,8 @@ class AuditMarkController extends Controller
                         // get count of marks of supervisor audit 
                         $supervisorAudit = MarksForAudit::whereIn('audit_marks_id', $auditMarks)->get()->pluck('mark_id');
 
-                        // 10% supervisorAuditCount
-                        $ratioToAudit = round(count($supervisorAudit) * 0.10) + 1;
+                        // 5% supervisorAuditCount[updated 01-23-2024]
+                        $ratioToAudit = round(count($supervisorAudit) * 0.05) + 1;
                         $marksOfSupervisorAudit = Mark::whereIn('id', $supervisorAudit)
                             ->inRandomOrder()
                             ->limit($ratioToAudit)
@@ -192,8 +192,8 @@ class AuditMarkController extends Controller
                    */
                         $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
                         $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
-                        // get 2% of ther marks that NOT in supervisorAudit
-                        $ratioToAudit = round(count($ambassadors) * 0.02) + 1;
+                        // get 1% of ther marks that NOT in supervisorAudit [updated 01-23-2024]
+                        $ratioToAudit = round(count($ambassadors) * 0.01) + 1;
                         $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
                             ->where('week_id', $previous_week->id)
                             ->inRandomOrder()
