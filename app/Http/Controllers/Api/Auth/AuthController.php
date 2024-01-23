@@ -58,7 +58,7 @@ class AuthController extends Controller
             return $this->jsonResponseWithoutMessage($success, 'data', 200);
         } else {
 
-            return $this->jsonResponseWithoutMessage('البريد الالكتروني او كلمة المرور غير صحيحة', 'data', 201);
+            return $this->jsonResponseWithoutMessage('البريد الالكتروني او كلمة المرور غير صحيحة', 'data', 404);
         }
     }
 
