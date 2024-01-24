@@ -44,13 +44,16 @@ class EligiblePDFController extends Controller
         $certificateDegrees->general_summary_grade = $generalInformationsDegree;
         $certificateDegrees->final_grade = $finalDegree;
 
+
+        $userName = $fullCertificate[0]->user->userProfile->first_name_ar . ' ' . $fullCertificate[0]->user->userProfile->middle_name_ar
+            . ' ' . $fullCertificate[0]->user->userProfile->last_name_ar;
         ######### END GET USER ACHEVMENTS #########
 
         ######### START GENERATING PDF #########
 
         // set document information
         PDF::SetAuthor('OSBOHA 180');
-        $title = $fullCertificate[0]->user->name  . ' || ' . $fullCertificate[0]->book->name;
+        $title = $userName   . ' || ' . $fullCertificate[0]->book->name;
         PDF::SetTitle($title);
         PDF::SetSubject('توثيق انجاز كتاب');
         PDF::SetKeywords('Osboha, PDF, توثيق, كتاب, كتب, أصبوحة , اصبوحة, 180');
@@ -110,7 +113,7 @@ class EligiblePDFController extends Controller
         PDF::SetAutoPageBreak($auto_page_break, $bMargin);
         // set the starting point for the page content
         PDF::setPageMark();
-        PDF::writeHTML(view('certificate.page1', ['name' => $fullCertificate[0]->user->name, 'book' => $fullCertificate[0]->book->name, 'level' => $fullCertificate[0]->book->level->name, 'date' => \Carbon\Carbon::parse($fullCertificate[0]->updated_at)->format('d/m/Y')])->render(), true, false, true, false, '');
+        PDF::writeHTML(view('certificate.page1', ['name' => $userName, 'book' => $fullCertificate[0]->book->name, 'level' => $fullCertificate[0]->book->level->name, 'date' => \Carbon\Carbon::parse($fullCertificate[0]->updated_at)->format('d/m/Y')])->render(), true, false, true, false, '');
 
         // ###################### END PAGE 1 ###################### //
 
