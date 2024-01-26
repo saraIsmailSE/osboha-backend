@@ -515,7 +515,7 @@ class WeekController extends Controller
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
             if ($previous_week && !$previous_week->is_vacation) {
                 $dateToAdd = new Carbon($previous_week->modify_timer);
-                $previous_week->modify_timer = $dateToAdd->addDays(4)->addHours(2);
+                $previous_week->modify_timer = $dateToAdd->addDays(4)->addHours(1);
                 $previous_week->save();
                 Log::channel('newWeek')->info("modify_timer updated Successfully");
             }
