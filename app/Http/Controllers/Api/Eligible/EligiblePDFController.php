@@ -113,7 +113,7 @@ class EligiblePDFController extends Controller
         PDF::SetAutoPageBreak($auto_page_break, $bMargin);
         // set the starting point for the page content
         PDF::setPageMark();
-        PDF::writeHTML(view('certificate.page1', ['name' => $userName, 'book' => $fullCertificate[0]->book->name, 'level' => $fullCertificate[0]->book->level->name, 'date' => \Carbon\Carbon::parse($fullCertificate[0]->updated_at)->format('d/m/Y')])->render(), true, false, true, false, '');
+        PDF::writeHTML(view('certificate.page1', ['name' => $userName, 'book' => $fullCertificate[0]->book->name, 'level' => $fullCertificate[0]->book->level->level, 'date' => \Carbon\Carbon::parse($fullCertificate[0]->updated_at)->format('d/m/Y')])->render(), true, false, true, false, '');
 
         // ###################### END PAGE 1 ###################### //
 
