@@ -197,9 +197,12 @@ trait ThesisTraits
 
         $thesis = Thesis::create($thesis_data_to_insert);
 
+
         if ($thesis) {
             $this->createOrUpdateUserBook($thesis);
             $mark_record->update($mark_data_to_update);
+
+            $this->checkIfUserHasException();
             return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
         } else {
             // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
@@ -808,5 +811,24 @@ trait ThesisTraits
         }
 
         return $mark;
+    }
+
+    private function checkIfUserHasException()
+    {
+        //check if the user has an exception and cancel the exception if the thesis is added
+        $userException = UserException::where('user_id', Auth::id())
+            ->where('status', config('constants.ACCEPTED_STATUS'))
+            ->with('type', function ($query) {
+                $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
+                    ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'))
+                    ->orWhere('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
+            })
+            ->latest('id')
+            ->first();
+
+        if ($userException) {
+            $userException->status = config('constants.CANCELED_STATUS');
+            $userException->save();
+        }
     }
 }
