@@ -89,6 +89,11 @@ return [
         'super_auditer' => "مسؤول تقييم التوثيقات",
         'super_reviewer' => "مسؤول مراجعة التوثيقات",
         'user_accept' => "مسؤول الوثائق",
+        'marathon_coordinator' => "مسؤول عام في مارثون أصبوحة",
+        'marathon_verification_supervisor' => "مسؤول تدقيق مارثون أصبوحة",
+        'marathon_supervisor' => "مسؤول في مارثون أصبوحة",
+        'marathon_ambassador' => "سفير مشارك في مارثون أصبوحة"
+
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
     'ALL_SUPPER_ROLES' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader'],
