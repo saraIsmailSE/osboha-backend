@@ -54,14 +54,16 @@ class ModifiedThesesController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'week_id' => 'required_if:status,rejected,one_thesis|numeric',
-            'modifier_reason_id' => 'required_if:status,rejected,one_thesis|numeric',
+            'week_id' => 'required_if:status,rejected,rejected_parts|numeric',
+            'modifier_reason_id' => 'required_if:status,rejected,rejected_parts|numeric',
             'thesis_id' => 'required|numeric',
-            'status' => 'required|string|in:accepted,rejected,one_thesis',
+            'status' => 'required|string|in:accepted,rejected,rejected_parts',
+            "rejected_parts" => "required_if:status,rejected_parts|numeric|in:1,2,3,4,5",
+            "modified_thesis_id" => "exists:modified_theses,id|nullable"
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
         if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader', "consultant", "admin", 'support_leader'])) {
             //get lastest week
@@ -75,6 +77,7 @@ class ModifiedThesesController extends Controller
 
             $thesis = Thesis::find($request->thesis_id);
             $thesis->status = $request->status;
+            $thesis->rejected_parts = $request->rejected_parts;
             $thesis->save();
 
             if ($request->status !== 'accepted') {
@@ -84,28 +87,41 @@ class ModifiedThesesController extends Controller
                 $input['user_id'] = $thesis->user_id;
                 $input['week_id'] = $thesis->mark->week_id;
 
-                ModifiedTheses::create($input);
+                if ($request->modified_thesis_id) {
+                    $modified_theses = ModifiedTheses::find($request->modified_thesis_id);
+                    $modified_theses->update($input);
+                } else
+                    $modified_theses = ModifiedTheses::create($input);
 
                 $thesis = $thesis->fresh();
-                $this->auditThesis($thesis, $request->status);
+                $this->updateMark($thesis);
 
                 $user = User::findOrFail($thesis->user_id);
                 $reason = ModificationReason::findOrFail($request->modifier_reason_id);
                 $user->notify(new RejectAmbassadorThesis($user->name, $reason->reason, $thesis->book_id, $thesis->id));
+            } else {
+                if ($request->modified_thesis_id) {
+                    $modified_theses = ModifiedTheses::find($request->modified_thesis_id);
+                    $modified_theses->delete();
+
+                    $thesis->status = 'accepted';
+                    $thesis->rejected_parts = null;
+                    $thesis->save();
+
+                    $this->updateMark($thesis);
+                }
             }
 
             //send notification to user
-            $arabicStatus = '';
+            $message = '';
 
             if ($request->status === 'accepted') {
-                $arabicStatus = 'قبول';
+                $message = 'تم قبول أطروحتك من قِبَل ' . Auth::user()->name;
             } else if ($request->status === 'rejected') {
-                $arabicStatus = 'رفض';
-            } else if ($request->status === 'one_thesis') {
-                $arabicStatus = 'قبول علامة واحدة من';
+                $message = 'تم رفض أطروحتك من قِبَل ' . Auth::user()->name;
+            } else if ($request->status === 'rejected_parts') {
+                $message = 'تم رفض أطروحتك من قِبَل ' . $request->rejected_parts . ' ورد من الأطروحة من قِبَل ' . Auth::user()->name;
             }
-
-            $message = 'تم ' . $arabicStatus . ' أطروحتك من قِبَل ' . Auth::user()->name;
 
             (new NotificationController)->sendNotification($thesis->user_id, $message, ACHIEVEMENTS, $this->getThesesPath($thesis->book_id, $thesis->id));
             return $this->jsonResponseWithoutMessage("تم تدقيق الأطروحة بنجاح, وإعلام السفير", 'data', 200);
