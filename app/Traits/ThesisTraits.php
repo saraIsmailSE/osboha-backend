@@ -197,7 +197,6 @@ trait ThesisTraits
 
         $thesis = Thesis::create($thesis_data_to_insert);
 
-
         if ($thesis) {
             $this->createOrUpdateUserBook($thesis);
             $mark_record->update($mark_data_to_update);
@@ -362,7 +361,7 @@ trait ThesisTraits
 
             $thesis->delete();
 
-            $this->updateMark($thesis);
+            $this->updateMark($thesis, true);
             $this->createOrUpdateUserBook($thesis, true);
 
             return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis deleted successfully!');
@@ -376,7 +375,7 @@ trait ThesisTraits
      * @param Thesis $thesis
      * @return void     
      */
-    public function updateMark($thesis)
+    public function updateMark($thesis, $isDeleted = false)
     {
         $mark = Mark::findOrFail($thesis->mark_id);
         $thesis_mark = $this->calculate_mark_for_all_thesis($thesis->mark_id);
@@ -392,10 +391,18 @@ trait ThesisTraits
             $writing_mark = config('constants.FULL_WRITING_MARK');
         }
 
-        $total_pages = $mark->total_pages - ($thesis->end_page - $thesis->start_page + 1);
-        $total_thesis = $mark->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0);
-        $total_screenshots = $mark->total_screenshot - $thesis->total_screenshots;
-
+        $total_pages = 0;
+        $total_thesis = 0;
+        $total_screenshots = 0;
+        if ($isDeleted || $thesis->status === 'rejected') {
+            $total_pages = $mark->total_pages - ($thesis->end_page - $thesis->start_page + 1);
+            $total_thesis = $mark->total_thesis - ($thesis->max_length > 0 ? INCREMENT_VALUE : 0);
+            $total_screenshots = $mark->total_screenshot - $thesis->total_screenshots;
+        } else {
+            $total_pages = $mark->total_pages;
+            $total_thesis = $mark->total_thesis;
+            $total_screenshots = $mark->total_screenshot;
+        }
 
         $mark_data_to_update = array(
             'total_pages'      => $total_pages >= 0 ? $total_pages : 0,
@@ -450,9 +457,13 @@ trait ThesisTraits
             //modify mark if the thesis is audited
             if ($thesis->status === 'accepted' || $thesis->status === 'pending') {
                 $mark['writing_mark'] += $thesis_mark['writing_mark'];
-            } else if ($thesis->status === 'one_thesis') {
-                $mark['writing_mark'] += config('constants.PART_WRITING_MARK');
+            } else if ($thesis->status === 'rejected_parts') {
+                $rejected_parts = $thesis->rejected_parts;
+                $mark['writing_mark'] += ($thesis_mark['writing_mark'] - config('constants.PART_WRITING_MARK') * $rejected_parts);
             }
+        }
+        if ($mark['writing_mark'] < 0) {
+            $mark['writing_mark'] = 0;
         }
         return $mark;
     }
@@ -716,50 +727,6 @@ trait ThesisTraits
         //     $user_book->status = $allThesis > $completeTheses ? 'in progress' : 'finished';
         //     $user_book->save();
         // }
-    }
-
-    /**
-     * Modify thesis mark based on the status
-     * @param int $mark_id
-     * @param string $status
-     * @return void
-     */
-    public function auditThesis($thesis, $status)
-    { //status: rejected or one_thesis
-
-        if ($status != 'rejected' && $status != 'one_thesis') {
-            return;
-        }
-
-        $this->updateMark($thesis);
-
-        // $mark = null;
-        // if ($thesis->type->type === NORMAL_THESIS_TYPE) {
-        //     $mark = $this->calculate_mark_for_normal_thesis(
-        //         $thesis->end_page - $thesis->start_page + 1,
-        //         $thesis->max_length,
-        //         $thesis->total_screenshots
-        //     );
-        // } else if ($thesis->type->type === RAMADAN_THESIS_TYPE || $thesis->type->type === TAFSEER_THESIS_TYPE) {
-        //     $mark = $this->calculate_mark_for_ramadan_thesis(
-        //         $thesis->end_page - $thesis->start_page + 1,
-        //         $thesis->max_length,
-        //         $thesis->total_screenshots,
-        //         $thesis->type->type
-        //     );
-        // }
-
-        // if (!$mark) {
-        //     return;
-        // }
-
-        // $markRecord = Mark::find($thesis->mark_id);
-        // if ($status == 'rejected') {
-        //     $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'];
-        // } else if ($status == 'one_thesis') {
-        //     $markRecord->writing_mark = $markRecord->writing_mark - $mark['writing_mark'] + config('constants.PART_WRITING_MARK');
-        // }
-        // $markRecord->save();
     }
 
     /**

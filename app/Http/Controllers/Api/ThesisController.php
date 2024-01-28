@@ -27,7 +27,7 @@ class ThesisController extends Controller
     public function show($thesis_id)
     {
 
-        $thesis = Thesis::with('comment')->with('mark.week')->find($thesis_id);
+        $thesis = Thesis::with('comment')->with('mark.week')->with('modifiedTheses')->find($thesis_id);
 
         if ($thesis) {
             return $this->jsonResponseWithoutMessage($thesis, 'data', 200);
