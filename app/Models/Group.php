@@ -35,6 +35,11 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'ambassador');
     }
+    public function ambassadorsInMarathon()
+    {
+        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')
+            ->withPivot('user_type')->wherePivot('user_type', 'marathon_ambassador');
+    }
 
     public function allUserAmbassador()
     {
@@ -62,7 +67,12 @@ class Group extends Model
     public function groupAdministrators()
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')
-            ->wherePivotIn('user_type', ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'support_leader']);
+            ->wherePivotIn('user_type', [
+                'admin', 'consultant', 'advisor', 'supervisor', 'leader', 'support_leader', 'marathon_coordinator',
+                'marathon_verification_supervisor',
+                'marathon_supervisor',
+                'marathon_ambassador'
+            ]);
     }
     public function leaderAndAmbassadors()
     {

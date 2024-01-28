@@ -331,8 +331,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
             Route::get('/list-by-advisor/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
-            
-
         });
         ############End UserException########
 
@@ -350,6 +348,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/group-exceptions/{group_id}', [GroupController::class, 'groupExceptions']);
             Route::get('/exceptions-filter/{filter}/{group_id}', [GroupController::class, 'exceptionsFilter']);
             Route::get('/basic-mark-view/{group_id}/{week_id}', [GroupController::class, 'BasicMarksView']);
+            Route::get('/marathon-reading/{group_id}/{week_id}', [GroupController::class, 'MarathonReading']);
             Route::get('/all-achievements/{group_id}/{week_id}', [GroupController::class, 'allAchievements']);
             Route::get('/search-for-ambassador-achievement/{ambassador_name}/{group_id}/{week_filter?}', [GroupController::class, 'searchForAmbassadorAchievement']);
             Route::get('/search-for-ambassador/{ambassador_name}/{group_id}', [GroupController::class, 'searchForAmbassador']);
@@ -363,7 +362,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
             Route::post('/assign-supervisor', [GroupController::class, 'assignSupervisor']);
-        
         });
         ############End Group############
 

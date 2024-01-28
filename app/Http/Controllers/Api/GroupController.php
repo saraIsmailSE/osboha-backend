@@ -334,7 +334,7 @@ class GroupController extends Controller
             ->first();
 
         //if no records, then the user is only an ambassador
-        if ($userInGroup || Auth::user()->hasRole(['admin']) ) {
+        if ($userInGroup || Auth::user()->hasRole(['admin'])) {
             $response['week'] = Week::latest()->first();
             $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
             $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->latest()->get();
@@ -434,6 +434,19 @@ class GroupController extends Controller
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
 
+    public function MarathonReading($group_id, $week_id)
+    {
+        $marks['group'] = Group::with('ambassadorsInMarathon')->where('id', $group_id)->first();
+        $marks['group_users'] =  $marks['group']->ambassadorsInMarathon->count();
+        $marks['ambassadors_achievement'] =
+            User::whereIn('id', $marks['group']->ambassadorsInMarathon->pluck('id'))
+            ->with(['mark' => function ($query) use ($week_id) {
+                $query->where('week_id', $week_id);
+            }])->get();
+
+
+        return $this->jsonResponseWithoutMessage($marks, 'data', 200);
+    }
     /**
      * all ambassadors achievments.
      * @param  group_id 

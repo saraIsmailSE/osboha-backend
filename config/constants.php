@@ -70,7 +70,7 @@ return [
     'REJECTED_STATUS' => 'rejected',
     'PENDING_STATUS' => 'pending',
     'FINISHED_STATUS' => 'finished',
-    'CANCELED_STATUS' => 'canceled',
+    'CANCELED_STATUS' => 'cancelled',
     'FREEZE_THIS_WEEK_TYPE' => 'تجميد الأسبوع الحالي',
     'FREEZE_NEXT_WEEK_TYPE' => 'تجميد الأسبوع القادم',
     'EXCEPTIONAL_FREEZING_TYPE' => 'تجميد استثنائي',
