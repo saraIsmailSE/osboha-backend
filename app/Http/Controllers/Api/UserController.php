@@ -42,7 +42,6 @@ class UserController extends Controller
     {
         $response = User::where('parent_id', Auth::id())->get();
         return $this->jsonResponseWithoutMessage($response, "data", 200);
-
     }
 
     public function assignToParent(Request $request)
@@ -151,7 +150,7 @@ class UserController extends Controller
         if ($result == 0) {
             return $this->jsonResponseWithoutMessage('User does not exist', 'data', 404);
         }
-        return $this->jsonResponseWithoutMessage($result, 'data',200);
+        return $this->jsonResponseWithoutMessage($result, 'data', 200);
     }
 
     public function deleteOfficialDoc($userID)
@@ -166,5 +165,16 @@ class UserController extends Controller
                 unlink($file);
             }
         }
+    }
+    public function getMarathonParticipants()
+    {
+        $users = User::whereHas("roles", function ($q) {
+            $q->whereIn("name", [
+                "marathon_coordinator",
+                'marathon_verification_supervisor',
+                "marathon_supervisor",
+            ]);
+        })->paginate(10);
+        return $this->jsonResponseWithoutMessage($users, 'data', 200);
     }
 }

@@ -48,37 +48,37 @@ class GroupController extends Controller
      * @return groups;
      */
 
-    public function index()
+    public function listGroups($retrieveType, $name = '')
     {
-
-        if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
-            $groups = null;
-            if (isset($_GET['name'])  && $_GET['name'] != '') {
-                /**
-                 * @todo: slow query - asmaa         
-                 */
-                $groups = Group::with('groupAdministrators')->withCount('users')
-                    ->where('name', 'like', '%' . $_GET['name'] . '%')
-                    ->paginate(30);
-            } else {
-                /**
-                 * @todo: slow query - asmaa         
-                 */
-                $groups = Group::with('groupAdministrators')->withCount('users')->paginate(30);
-            }
-
-
-            if ($groups->isNotEmpty()) {
-                return $this->jsonResponseWithoutMessage([
-                    'groups' => $groups,
-                    'total' => $groups->total(),
-                    'last_page' => $groups->lastPage(),
-                ], 'data', 200);
-            }
-            return $this->jsonResponseWithoutMessage(null, 'data', 200);
-        } else {
-            throw new NotAuthorized;
+        switch ($retrieveType) {
+            case 'marathon':
+                $groupType = ['marathon'];
+                break;
+            default:
+                $groupType = [
+                    'followup',
+                    'supervising',
+                    'advising',
+                    'consultation',
+                    'Administration',
+                    'marathon'
+                ];
         }
+        $groups = Group::whereHas('type', function ($q) use ($groupType) {
+            $q->whereIn('type',$groupType);
+        })->with('groupAdministrators')->withCount('users')
+            ->where('name', 'like', '%' . $name . '%')
+            ->paginate(30);
+
+
+        if ($groups->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'groups' => $groups,
+                'total' => $groups->total(),
+                'last_page' => $groups->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 
     public function GroupByType($type)

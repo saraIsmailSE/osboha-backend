@@ -136,6 +136,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/allow-to-eligible/{id}', [UserController::class, 'acceptEligibleUser']);
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
+            Route::get('/list-marathon-participants', [UserController::class, 'getMarathonParticipants']);
         });
 
         ########Start Roles########
@@ -172,6 +173,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
             Route::get('/latest', [BookController::class, 'latest']);
             Route::get('/eligible', [BookController::class, 'getAllForEligible']);
+            Route::get('/ramadan', [BookController::class, 'getAllForRamadan']);
         });
         ########End Book########
         ########User Book########
@@ -337,7 +339,7 @@ Route::group(['prefix' => 'v1'], function () {
 
         ############ Start Group ############
         Route::group(['prefix' => 'group'], function () {
-            Route::get('/', [GroupController::class, 'index']);
+            Route::get('/list-all/{retrieveType}/{name?}', [GroupController::class, 'listGroups']);
             Route::get('/search-group-by-name/{name}', [GroupController::class, 'searchGroupByName']);
             Route::post('/create', [GroupController::class, 'create']);
             Route::get('/show/{group_id}', [GroupController::class, 'show']);

@@ -71,7 +71,6 @@ class Group extends Model
                 'admin', 'consultant', 'advisor', 'supervisor', 'leader', 'support_leader', 'marathon_coordinator',
                 'marathon_verification_supervisor',
                 'marathon_supervisor',
-                'marathon_ambassador'
             ]);
     }
     public function leaderAndAmbassadors()
