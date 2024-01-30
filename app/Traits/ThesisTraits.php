@@ -643,7 +643,7 @@ trait ThesisTraits
             ->where('status', config('constants.ACCEPTED_STATUS'))
             // ->whereDate('end_at', '>=', $date)
             // ->whereDate('start_at', '<=', $date)
-            ->with('type', function ($query) {
+            ->whereHas('type', function ($query) {
                 $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
                     ->orWhere('type', config('constants.EXAMS_SEASONAL_TYPE'));
             })
