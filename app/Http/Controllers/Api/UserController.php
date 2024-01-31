@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserInfoResource;
+use App\Models\GroupType;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Traits\ResponseJson;
@@ -165,16 +166,5 @@ class UserController extends Controller
                 unlink($file);
             }
         }
-    }
-    public function getMarathonParticipants()
-    {
-        $users = User::whereHas("roles", function ($q) {
-            $q->whereIn("name", [
-                "marathon_coordinator",
-                'marathon_verification_supervisor',
-                "marathon_supervisor",
-            ]);
-        })->paginate(10);
-        return $this->jsonResponseWithoutMessage($users, 'data', 200);
     }
 }
