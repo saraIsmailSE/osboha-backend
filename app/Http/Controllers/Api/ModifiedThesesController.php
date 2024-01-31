@@ -58,7 +58,7 @@ class ModifiedThesesController extends Controller
             'modifier_reason_id' => 'required_if:status,rejected,rejected_parts|numeric',
             'thesis_id' => 'required|numeric',
             'status' => 'required|string|in:accepted,rejected,rejected_parts',
-            "rejected_parts" => "required_if:status,rejected_parts|numeric|in:1,2,3,4,5",
+            "rejected_parts" => "required_if:status,rejected_parts|numeric|in:1,2,3,4,5|nullable",
             "modified_thesis_id" => "exists:modified_theses,id|nullable"
         ]);
 
