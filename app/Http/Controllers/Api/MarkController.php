@@ -260,12 +260,10 @@ class MarkController extends Controller
         $week = Week::latest()->first();
 
         if ($filter == 'current') {
-            // $currentMonth = date('m');
-            $currentMonth = date('m', strtotime($week->created_at));
+            $currentMonth = \Carbon\Carbon::now()->format('m');
         } else
         if ($filter == 'previous') {
-            // $currentMonth = date('m') - 1;
-            $currentMonth = date('m', strtotime($week->created_at)) - 1;
+            $currentMonth = \Carbon\Carbon::parse($week->created_at)->subMonth()->format('m');
         }
 
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', [$currentMonth])->get();
@@ -323,7 +321,7 @@ class MarkController extends Controller
     {
         $user = User::find($user_id);
         if ($user) {
-            $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+            $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             if ($user_group) {
                 $response['group'] = Group::where('id', $user_group->group_id)->with('groupAdministrators')->first();
 
@@ -404,6 +402,36 @@ class MarkController extends Controller
         }
     }
 
+    public function marathonAmbassadorMark($user_id, $week_id)
+    {
+        $user = User::find($user_id);
+        if ($user) {
+            $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'marathon_ambassador')->whereNull('termination_reason')->first();
+            if ($user_group) {
+                $response['group'] = Group::where('id', $user_group->group_id)->with('groupAdministrators')->first();
+                if (
+                    (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) ||
+                    Auth::user()->hasRole('admin')
+                ) {
+
+                    $currentWeek = Week::find($week_id);
+                    $response['currentWeek'] = $currentWeek;
+                    $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
+                    $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
+
+
+                    /*end support*/
+                    return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                } else {
+                    throw new NotAuthorized;
+                }
+            } else {
+                return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
+            }
+        } else {
+            throw new NotFound;
+        }
+    }
     /**
      * accept support vote for ambassador
      * @param  $user_id
@@ -415,7 +443,7 @@ class MarkController extends Controller
     public function acceptSupport($user_id, $week_id)
     {
         //get user group and its administrators 
-        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
         //check if auth user is an administrator in the group
         if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
             $week = Week::find($week_id);
@@ -446,7 +474,7 @@ class MarkController extends Controller
      */
     public function rejectSupport($user_id, $week_id)
     {
-        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->first();
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
         //check if auth user is an administrator in group
         if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
             $week = Week::find($week_id);

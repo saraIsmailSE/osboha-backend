@@ -142,6 +142,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########Start Roles########
         Route::group(["prefix" => "roles"], function () {
             Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
+            Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
             Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
@@ -172,6 +173,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/random-book', [BookController::class, 'getRandomBook']);
             Route::get('/latest', [BookController::class, 'latest']);
             Route::get('/eligible', [BookController::class, 'getAllForEligible']);
+            Route::get('/ramadan', [BookController::class, 'getAllForRamadan']);
         });
         ########End Book########
         ########User Book########
@@ -275,6 +277,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/user-month-achievement/{user_id}/{filter}', [MarkController::class, 'userMonthAchievement']);
             Route::get('/user-week-achievement/{user_id}/{filter}', [MarkController::class, 'userWeekAchievement']);
             Route::get('/ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'ambassadorMark']);
+            Route::get('/marathon-ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'marathonAmbassadorMark']);
             Route::put('/accept-support/user/{user_id}/{week_id}', [MarkController::class, 'acceptSupport']);
             Route::put('/reject-support/user/{user_id}/{week_id}', [MarkController::class, 'rejectSupport']);
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
@@ -330,13 +333,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-exceptional-freez', [UserExceptionController::class, 'setExceptionalFreez']);
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
-
+            Route::get('/list-by-advisor/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
         });
         ############End UserException########
 
         ############ Start Group ############
         Route::group(['prefix' => 'group'], function () {
-            Route::get('/', [GroupController::class, 'index']);
+            Route::get('/list-all/{retrieveType}/{name?}', [GroupController::class, 'listGroups']);
             Route::get('/search-group-by-name/{name}', [GroupController::class, 'searchGroupByName']);
             Route::post('/create', [GroupController::class, 'create']);
             Route::get('/show/{group_id}', [GroupController::class, 'show']);
@@ -348,6 +351,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/group-exceptions/{group_id}', [GroupController::class, 'groupExceptions']);
             Route::get('/exceptions-filter/{filter}/{group_id}', [GroupController::class, 'exceptionsFilter']);
             Route::get('/basic-mark-view/{group_id}/{week_id}', [GroupController::class, 'BasicMarksView']);
+            Route::get('/marathon-reading/{group_id}/{week_id}', [GroupController::class, 'MarathonReading']);
             Route::get('/all-achievements/{group_id}/{week_id}', [GroupController::class, 'allAchievements']);
             Route::get('/search-for-ambassador-achievement/{ambassador_name}/{group_id}/{week_filter?}', [GroupController::class, 'searchForAmbassadorAchievement']);
             Route::get('/search-for-ambassador/{ambassador_name}/{group_id}', [GroupController::class, 'searchForAmbassador']);
@@ -361,7 +365,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/month-achievement/{group_id}/{filter}', [GroupController::class, 'monthAchievement']);
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
             Route::post('/assign-supervisor', [GroupController::class, 'assignSupervisor']);
-        
+            Route::get('/list-marathon-participants', [GroupController::class, 'getMarathonParticipants']);
         });
         ############End Group############
 
@@ -422,7 +426,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/delete', [InfographicSeriesController::class, 'delete']);
             Route::post('/seriesBySection', [InfographicSeriesController::class, 'SeriesBySection']);
         });
-        ########End InfographicSeries########    
+        ########End InfographicSeries########
         ########Post########
         #updated RESTful routes by asmaa#
         Route::group(['prefix' => 'posts'], function () {

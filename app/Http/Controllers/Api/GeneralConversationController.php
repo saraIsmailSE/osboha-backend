@@ -476,8 +476,11 @@ class GeneralConversationController extends Controller
     public function addWorkingHours(Request $request)
     {
         $validator = Validator::make(request()->all(), [
-            'minutes' => 'required|numeric',
-            "date" => "required|date",
+            // 'minutes' => 'required|numeric',
+            // "date" => "required|date",
+            'working_hours' => 'required|array',
+            'working_hours.*.minutes' => 'required|numeric',
+            'working_hours.*.date' => 'required|date',
         ]);
 
         if ($validator->fails()) {
@@ -487,33 +490,38 @@ class GeneralConversationController extends Controller
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
-
         $user = Auth::user();
-        $date = Carbon::parse($request->date);
         $week = Week::latest()->first();
 
-        //find working hours for date part of created_at
-        $workingHours = WorkHour::where("user_id", $user->id)
-            ->where("week_id", $week->id)
-            ->whereDate('created_at', $date)
-            ->first();
+        //loop through working hours
+        foreach ($request->working_hours as $working_hour) {
+            $date = Carbon::parse($working_hour['date']);
 
-        // dd($workingHours);
+            //find working hours for date part of created_at
+            $workingHours = WorkHour::where("user_id", $user->id)
+                ->where("week_id", $week->id)
+                ->whereDate('created_at', $date)
+                ->first();
 
-        if (!$workingHours) {
-            $workingHours = WorkHour::create([
-                "user_id" => $user->id,
-                "minutes" => $request->minutes,
-                "week_id" => Week::latest()->first()->id,
-                "created_at" => $date,
-            ]);
-        } else {
-            $workingHours->minutes = $request->minutes;
-            $workingHours->save();
+            if (!$workingHours) {
+                //if minutes is 0, don't create a record
+                if ($working_hour['minutes'] == 0) {
+                    continue;
+                }
+                $workingHours = WorkHour::create([
+                    "user_id" => $user->id,
+                    "minutes" => $working_hour['minutes'],
+                    "week_id" => Week::latest()->first()->id,
+                    "created_at" => $date,
+                ]);
+            } else {
+                $workingHours->minutes = $working_hour['minutes'];
+                $workingHours->save();
+            }
         }
 
         return $this->jsonResponseWithoutMessage(
-            $workingHours,
+            'تم إضافة ساعات العمل بنجاح',
             'data',
             Response::HTTP_OK
         );
@@ -532,6 +540,7 @@ class GeneralConversationController extends Controller
         //get all working hours grouped by created_at date
         $workingHours = WorkHour::where("user_id", $user->id)
             ->where("week_id", $currentWeek->id)
+            ->orderBy('created_at', 'asc')
             ->get();
 
 
@@ -728,34 +737,44 @@ class GeneralConversationController extends Controller
 
         $response['minutesOfSelectedMonth'] = $type === "week" ? null : $workingHours->sum('minutes');
 
-        //get working hours for each user sorted by total minutes
+        //get working hours grouped by week then by user. each user has his/her working hours grouped by day
+        //in each week, users are sorted by total minutes
         $groupedData = $workingHours
-            ->groupBy(function ($item) {
-                return $item->user->id;
+            //group by week title
+            ->groupBy(function ($week) {
+                return $week->week->title;
             })
-            ->map(function ($userGroup) {
-                //group by day
-                $days = $userGroup->groupBy(function ($item) {
-                    //get day of week of created_at (start from 1 for sunday to 7 for saturday)
-                    return Carbon::parse($item->created_at)->dayOfWeek + 1;
-                })->map(function ($dayGroup) {
-                    //sum minutes of each day
-                    return $dayGroup->sum('minutes');
-                });
 
-                //return user info with days and total minutes
-                $user = $userGroup->first()->user;
-                return [
-                    "user" => UserInfoResource::make($user),
-                    "days" => $days,
-                    "minutes" => $days->sum(),
-                ];
+            ->map(function ($group) {
+                //group by user id
+                return $group->groupBy(function ($item) {
+                    return $item->user->id;
+                })->map(function ($userGroup) {
+                    //group by day
+                    $days = $userGroup->groupBy(function ($item) {
+                        //get day of week of created_at (start from 1 for sunday to 7 for saturday)
+                        return Carbon::parse($item->created_at)->dayOfWeek + 1;
+                    })->map(function ($dayGroup) {
+                        //sum minutes of each day
+                        return $dayGroup->sum('minutes');
+                    });
+
+                    //return user info with days and total minutes
+                    $user = $userGroup->first()->user;
+                    return [
+                        "user" => UserInfoResource::make($user),
+                        "days" => $days,
+                        "minutes" => $days->sum(),
+                    ];
+                })
+                    //sort by minutes
+                    ->sortByDesc('minutes')
+                    //return values only without keys
+                    ->values()
+                    ->toArray();
             })
-            //sort by minutes
-            ->sortByDesc('minutes')
-            //return values only without keys
-            ->values()
             ->toArray();
+
 
 
         $response['workingHours'] = $groupedData;

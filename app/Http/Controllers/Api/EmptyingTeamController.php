@@ -62,7 +62,7 @@ class EmptyingTeamController extends Controller
             }
             //  termination_reason تعديل حالة 
             $ambassadors = UserGroup::whereIn('user_id',$request->ambassador_ids)->whereIn('user_type',['ambassador','leader'])
-            ->update(array('termination_reason'=>'emptying group'));
+            ->update(array('termination_reason'=>'emptying the group'));
             // اذا القائد ضمن مجموعة السفراء الحالية الذين سيتم نقلهم 
             if($ambassadors > count($request->ambassador_ids)){
                 $old_leader_id = UserGroup::whereIn('user_id',$request->ambassador_ids)->where('user_type','leader')

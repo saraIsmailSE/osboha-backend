@@ -29,7 +29,7 @@ class RolesAdministrationController extends Controller
     public function getEligibleRoles()
     {
         $rolesToRetrieve = [
-            '  eligible_admin',
+            'eligible_admin',
             'reviewer',
             'auditor',
             'super_auditer',
@@ -40,6 +40,18 @@ class RolesAdministrationController extends Controller
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
 
+
+    public function getMarathonRoles()
+    {
+        $rolesToRetrieve = [
+            'marathon_coordinator',
+            'marathon_verification_supervisor',
+            'marathon_supervisor',
+            'marathon_ambassador',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
 
     public function assignRoleV2(Request $request)
     {
@@ -415,17 +427,16 @@ class RolesAdministrationController extends Controller
                         $currentSupervisor->parent_id =  $supervisors_2_Parent;
                         $currentSupervisor->save();
                         $currentSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $currentSupervisor->id)->pluck('group_id');
-                            //add advisor to groups
+                        //add advisor to groups
                         UserGroup::where('user_type', 'advisor')->whereIn('group_id', $currentSupervisorGroups)->update(['user_id'  => $supervisors_2_Parent]);
-                            //add supervisor as ambassador to advising group
-                        UserGroup::where('user_type', 'ambassador')->where('user_id',$currentSupervisor->id )->update(['group_id'  => $supervisors_2_Parent_advising_group->id]);
+                        //add supervisor as ambassador to advising group
+                        UserGroup::where('user_type', 'ambassador')->where('user_id', $currentSupervisor->id)->update(['group_id'  => $supervisors_2_Parent_advising_group->id]);
 
                         $newSupervisor->parent_id =  $supervisors_1_Parent;
                         $newSupervisor->save();
                         $newSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $newSupervisor->id)->pluck('group_id');
                         UserGroup::where('user_type', 'advisor')->whereIn('group_id', $newSupervisorGroups)->update(['user_id'  => $supervisors_1_Parent]);
-                        UserGroup::where('user_type', 'ambassador')->where('user_id',$newSupervisor->id )->update(['group_id'  => $supervisors_1_Parent_advising_group->id]);
-
+                        UserGroup::where('user_type', 'ambassador')->where('user_id', $newSupervisor->id)->update(['group_id'  => $supervisors_1_Parent_advising_group->id]);
                     }
 
 

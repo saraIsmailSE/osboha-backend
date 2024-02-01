@@ -31,7 +31,7 @@ use Carbon\Carbon;
 /**
  * Description: GroupController for Osboha group.
  *
- * Methods: 
+ * Methods:
  * - CRUD
  * - group posts list
  */
@@ -44,41 +44,41 @@ class GroupController extends Controller
 
     /**
      * Get all groups.
-     * 
+     *
      * @return groups;
      */
 
-    public function index()
+    public function listGroups($retrieveType, $name = '')
     {
-
-        if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
-            $groups = null;
-            if (isset($_GET['name'])  && $_GET['name'] != '') {
-                /**
-                 * @todo: slow query - asmaa         
-                 */
-                $groups = Group::with('groupAdministrators')->withCount('users')
-                    ->where('name', 'like', '%' . $_GET['name'] . '%')
-                    ->paginate(30);
-            } else {
-                /**
-                 * @todo: slow query - asmaa         
-                 */
-                $groups = Group::with('groupAdministrators')->withCount('users')->paginate(30);
-            }
-
-
-            if ($groups->isNotEmpty()) {
-                return $this->jsonResponseWithoutMessage([
-                    'groups' => $groups,
-                    'total' => $groups->total(),
-                    'last_page' => $groups->lastPage(),
-                ], 'data', 200);
-            }
-            return $this->jsonResponseWithoutMessage(null, 'data', 200);
-        } else {
-            throw new NotAuthorized;
+        switch ($retrieveType) {
+            case 'marathon':
+                $groupType = ['marathon'];
+                break;
+            default:
+                $groupType = [
+                    'followup',
+                    'supervising',
+                    'advising',
+                    'consultation',
+                    'Administration',
+                    'marathon'
+                ];
         }
+        $groups = Group::whereHas('type', function ($q) use ($groupType) {
+            $q->whereIn('type', $groupType);
+        })->with('groupAdministrators')->withCount('users')
+            ->where('name', 'like', '%' . $name . '%')
+            ->paginate(30);
+
+
+        if ($groups->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'groups' => $groups,
+                'total' => $groups->total(),
+                'last_page' => $groups->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 
     public function GroupByType($type)
@@ -171,7 +171,7 @@ class GroupController extends Controller
 
     /**
      * Find an existing group by its id and display it.
-     * 
+     *
      * @param  $group_id
      * @return group info [users , administrators] - posts;
      */
@@ -216,7 +216,7 @@ class GroupController extends Controller
 
     /**
      * Find an existing group by its id and display its basic information.
-     * 
+     *
      * @param  $group_id
      * @return group info;
      */
@@ -235,7 +235,7 @@ class GroupController extends Controller
 
     /**
      * update group info.
-     * 
+     *
      * @param  Request $request
      * @return group;
      */
@@ -288,7 +288,7 @@ class GroupController extends Controller
 
     /**
      * Get all books belongs to group users.
-     * 
+     *
      * @param  $group_id
      * @return jsonResponseWithoutMessage;
      */
@@ -334,7 +334,7 @@ class GroupController extends Controller
             ->first();
 
         //if no records, then the user is only an ambassador
-        if ($userInGroup) {
+        if ($userInGroup || Auth::user()->hasRole(['admin'])) {
             $response['week'] = Week::latest()->first();
             $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
             $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->latest()->get();
@@ -346,7 +346,7 @@ class GroupController extends Controller
 
     /**
      * Filter group exceptions.
-     * 
+     *
      * @param  exception filter , group _id
      * @return jsonResponseWithoutMessage
      */
@@ -387,7 +387,7 @@ class GroupController extends Controller
 
     /**
      * Basic group marks.
-     * 
+     *
      * @param  group _id
      * @return group info , week satistics [100 - 0 -incomplete - most read]
      */
@@ -434,31 +434,36 @@ class GroupController extends Controller
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
 
+    public function MarathonReading($group_id, $week_id)
+    {
+        $marks['group'] = Group::with('ambassadorsInMarathon')->where('id', $group_id)->first();
+        $marks['group_users'] =  $marks['group']->ambassadorsInMarathon->count();
+        $marks['ambassadors_achievement'] =
+            User::whereIn('id', $marks['group']->ambassadorsInMarathon->pluck('id'))
+            ->with(['mark' => function ($query) use ($week_id) {
+                $query->where('week_id', $week_id);
+            }])->get();
+
+
+        return $this->jsonResponseWithoutMessage($marks, 'data', 200);
+    }
     /**
      * all ambassadors achievments.
-     * @param  group_id 
+     * @param  group_id
      * @param  week_id - filter [current - previous ]
      * @return ambassadors achievments
      */
 
     public function allAchievements($group_id, $week_id)
     {
-        // if ($week_filter == 'current') {
-        //     $week = Week::latest()->pluck('id')->toArray();
-        // }
-        // if ($week_filter == 'previous') {
-        //     $week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->toArray();
-        // }
         $marks['week'] = Week::find($week_id);
         $marks['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
         $marks['group_users'] = $marks['group']->userAmbassador->count() + 1;
-        //asmaa
         $marks['ambassadors_achievement'] =
             User::whereIn('id', $marks['group']->userAmbassador->pluck('id'))
             ->with(['mark' => function ($query) use ($marks) {
                 $query->where('week_id', $marks['week']->id);
             }])->get();
-        // Mark::where('week_id', $marks['week']->id)->whereIn('user_id', $marks['group']->allUserAmbassador->pluck('id'))->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
@@ -466,7 +471,7 @@ class GroupController extends Controller
 
     /**
      * all ambassadors achievments as pages, order by total pages desc.
-     * 
+     *
      * @param  group _id , week id
      * @return ambassadors achievments as total pages
      */
@@ -491,7 +496,7 @@ class GroupController extends Controller
 
     /**
      * ambassador achievment in a week
-     * 
+     *
      * @param  ambassador_name, group _id , week filter [current - previous ]
      * @return ambassador achievment
      */
@@ -516,8 +521,8 @@ class GroupController extends Controller
 
     /**
      * search for ambassador in group
-     * 
-     * @param  ambassador_name, group _id 
+     *
+     * @param  ambassador_name, group _id
      * @return ambassador achievment
      */
 
@@ -548,7 +553,7 @@ class GroupController extends Controller
     //NEED REVIEW
     /**
      * get group audit for specific week.
-     * 
+     *
      * @param  group _id , week filter [current - previous ]
      * @return group audit marks
      */
@@ -591,7 +596,7 @@ class GroupController extends Controller
 
     /**
      * Add a new leader request (“create RequestAmbassador” permission is required)
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponse;
      */
@@ -621,7 +626,7 @@ class GroupController extends Controller
 
     /**
      * get last leader ambassador request
-     * 
+     *
      * @param  $group id
      * @return last request;
      */
@@ -768,7 +773,7 @@ class GroupController extends Controller
 
     /**
      * get screenshots and screens by week
-     * 
+     *
      * @param  $group_id,$filter
      * @return number of theses and screenshots;
      */
@@ -812,7 +817,7 @@ class GroupController extends Controller
 
     /**
      * get group month achievement
-     * 
+     *
      * @param  $group_id,$filter
      * @return month achievement;
      */
@@ -885,7 +890,7 @@ class GroupController extends Controller
 
                         // get groups for each supervisor and add advisor
                         foreach ($group->userAmbassador as $supervisor) {
-                            // get groups for each supervisor 
+                            // get groups for each supervisor
 
                             $supervisor_groups = UserGroup::where('user_id', $supervisor->id)
                                 ->where(function ($query) {
@@ -946,11 +951,11 @@ class GroupController extends Controller
                         $q->where('type', '=', 'supervising');
                     })->first();
 
-                // if not supervisor in any group 
+                // if not supervisor in any group
                 if (!$currentSupervising) {
                     $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
                     if ($group) {
-                        //* اضافة المراقب الجديد إلى مجموعة الرقابة 
+                        //* اضافة المراقب الجديد إلى مجموعة الرقابة
 
                         UserGroup::updateOrCreate(
                             [
@@ -968,7 +973,7 @@ class GroupController extends Controller
                                 ->whereHas('group.type', function ($q) {
                                     $q->where('type', '=', 'followup');
                                 })->first();
-                            //* اضافة المراقب الجديد إلى مجموعة المتابعة 
+                            //* اضافة المراقب الجديد إلى مجموعة المتابعة
                             UserGroup::updateOrCreate(
                                 [
                                     'group_id' => $followupGroup->group_id,
@@ -978,7 +983,7 @@ class GroupController extends Controller
                                     'user_id' => $newSupervisor->id,
                                 ]
                             );
-                            // //* اضافة الموجه الجديد إلى مجموعة المتابعة 
+                            // //* اضافة الموجه الجديد إلى مجموعة المتابعة
                             // UserGroup::updateOrCreate(
                             //     [
                             //         'group_id' => $followupGroup->id,
@@ -1002,5 +1007,20 @@ class GroupController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
+
+    public function getMarathonParticipants()
+    {
+        $participants = Group::whereHas('type', function ($q) {
+            $q->where('type', 'marathon');
+        })->with('users')->paginate(10);
+        if ($participants->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'participants' => $participants,
+                'total' => $participants->total(),
+                'last_page' => $participants->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 }

@@ -350,7 +350,8 @@ class UserProfileController extends Controller
      */
     public function profileStatistics($user_id)
     {
-        $response['week'] = Week::latest()->first();
+        $response['week']  = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+
         $group_id = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
         $follow_up_group = Group::with('leaderAndAmbassadors')->where('id', $group_id)->first();
         $response['group_week_avg'] = $this->groupAvg($group_id,  $response['week']->id, $follow_up_group->leaderAndAmbassadors->pluck('id'));

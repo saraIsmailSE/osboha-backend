@@ -152,7 +152,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function mark()
     {
-        return $this->hasMany(Mark::class,'user_id');
+        return $this->hasMany(Mark::class, 'user_id');
     }
     public function friends()
     {
@@ -224,4 +224,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->questionsFollowups()
             ->whereDate('date', now()->format('Y-m-d'));
     }
+
+    public function followupTeam()
+    {
+        return $this->hasOne(UserGroup::class, 'user_id', 'id')
+        ->where('user_type', 'ambassador')
+        ->whereNull('termination_reason');
+}
 }

@@ -164,7 +164,7 @@ class UserGroupController extends Controller
             if ($group) {
                 $arabicRole = config('constants.ARABIC_ROLES')[$role->name];
 
-                $checkMember = UserGroup::where('user_id', $user->id)->where('group_id', $group->id)->where('user_type', $role->name)->first();
+                $checkMember = UserGroup::where('user_id', $user->id)->where('group_id', $group->id)->where('user_type', $role->name)->whereNull('termination_reason')->first();
                 //by asmaa
                 if ($checkMember) {
                     return $this->jsonResponseWithoutMessage('ال' . $arabicRole .  ' موجود في المجموعة', 'data', 500);
@@ -183,13 +183,13 @@ class UserGroupController extends Controller
                     if ($role->name !== 'ambassador') {
                         //check if role is leader and if the leader is a leader on other group
                         if ($role->name === 'leader' || $role->name === 'support_leader') {
-                            $leaderInGroups = UserGroup::where('user_id', $user->id)->where('user_type', $role->name)->where('group_id', '!=', $group->id)->first();
+                            $leaderInGroups = UserGroup::where('user_id', $user->id)->where('user_type', $role->name)->where('group_id', '!=', $group->id)->whereNull('termination_reason')->first();
                             if ($leaderInGroups) {
                                 return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . config('constants.ARABIC_ROLES')[$role->name] . ", لأنه موجود ك" . config('constants.ARABIC_ROLES')[$role->name] . " في فريق آخر ", 'data', 500);
                             }
                         }
 
-                        $roleInGroup = UserGroup::where('group_id', $group->id)->where('user_type', $role->name)->first();
+                        $roleInGroup = UserGroup::where('group_id', $group->id)->where('user_type', $role->name)->whereNull('termination_reason')->first();
                         if ($roleInGroup) {
                             if ($group->type->type == 'Administration' || $group->type->type == 'consultation') {
 
@@ -210,6 +210,13 @@ class UserGroupController extends Controller
                             if ($group->groupLeader->isEmpty()) {
                                 return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة, لا يمكنك إضافة أعضاء", 'data', 500);
                             } else {
+                                UserGroup::Create(
+                                    [
+                                        'user_id' => $user->id,
+                                        'group_id' => $group->id,
+                                        'user_type' => $role->name
+                                    ]
+                                );
                                 $user->parent_id = $group->groupLeader[0]->id;
                                 $user->save();
                                 $user->notify(new MailAmbassadorDistribution($request->group_id));

@@ -178,8 +178,8 @@ class AuditMarkController extends Controller
                         // get count of marks of supervisor audit 
                         $supervisorAudit = MarksForAudit::whereIn('audit_marks_id', $auditMarks)->get()->pluck('mark_id');
 
-                        // 10% supervisorAuditCount
-                        $ratioToAudit = round(count($supervisorAudit) * 0.10) + 1;
+                        // 5% supervisorAuditCount[updated 01-23-2024]
+                        $ratioToAudit = round(count($supervisorAudit) * 0.05) + 1;
                         $marksOfSupervisorAudit = Mark::whereIn('id', $supervisorAudit)
                             ->inRandomOrder()
                             ->limit($ratioToAudit)
@@ -192,8 +192,8 @@ class AuditMarkController extends Controller
                    */
                         $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
                         $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
-                        // get 2% of ther marks that NOT in supervisorAudit
-                        $ratioToAudit = round(count($ambassadors) * 0.02) + 1;
+                        // get 1% of ther marks that NOT in supervisorAudit [updated 01-23-2024]
+                        $ratioToAudit = round(count($ambassadors) * 0.01) + 1;
                         $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
                             ->where('week_id', $previous_week->id)
                             ->inRandomOrder()
@@ -350,7 +350,10 @@ class AuditMarkController extends Controller
         if (Auth::user()->hasanyrole('admin|advisor')) {
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get all groups ID for this advisor
-            $groupsID = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->pluck('group_id');
+            $groupsID = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->whereNull('termination_reason')
+                ->whereHas('group.type', function ($q) {
+                    $q->where('type', '=', 'followup');
+                })->pluck('group_id');
             // all supervisors of advisor (unique)
             $supervisors = UserGroup::with('group')->where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->get()->unique('user_id');
             $response = [];
@@ -362,18 +365,14 @@ class AuditMarkController extends Controller
                 // num of leaders
                 $supervisorinfo['num_of_leaders'] = $groups->count();
                 // marks week_avg for each group
-                $total_marks_week = 0;
+                $total_avg = 0;
                 foreach ($groups as $group) {
-                    $week_avg = Mark::where('week_id', $previous_week)
-                        ->whereIn('user_id', $group->group->leaderAndAmbassadors->pluck('id'))
-                        //avg from (reading_mark + writing_mark + support)
-                        ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'))
-                        ->first()
-                        ->out_of_100;
-                    $total_marks_week += $week_avg;
+                    $week_avg = $this->groupAvg(1,  $previous_week, $group->group->leaderAndAmbassadors->pluck('id'));
+
+                    $total_avg += $week_avg;
                 }
                 // marks week avg for all $supervisor groups
-                $supervisorinfo['groups_avg'] = $total_marks_week / $supervisorinfo['num_of_leaders'];
+                $supervisorinfo['groups_avg'] = $total_avg / $supervisorinfo['num_of_leaders'];
                 $auditMarksRecoreds = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id', $previous_week)->pluck('id');
                 if ($auditMarksRecoreds) {
                     $supervisorinfo['audit_count'] = MarksForAudit::whereIn('audit_marks_id', $auditMarksRecoreds)->count();

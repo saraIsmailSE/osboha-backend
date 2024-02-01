@@ -48,4 +48,9 @@ class Thesis extends Model
     {
         return $this->belongsTo(ThesisType::class);
     }
+
+    public function modifiedTheses()
+    {
+        return $this->hasOne(ModifiedTheses::class);
+    }
 }

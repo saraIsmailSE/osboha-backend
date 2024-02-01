@@ -30,8 +30,7 @@ class EligiblePDFController extends Controller
         $all_avareges = EligibleUserBook::join('eligible_general_informations', 'eligible_user_books.id', '=', 'eligible_general_informations.eligible_user_books_id')
             ->join('eligible_questions', 'eligible_user_books.id', '=', 'eligible_questions.eligible_user_books_id')
             ->join('eligible_thesis', 'eligible_user_books.id', '=', 'eligible_thesis.eligible_user_books_id')
-            ->select
-            (DB::raw('avg(eligible_general_informations.degree) as general_informations_degree,avg(eligible_questions.degree) as questions_degree,avg(eligible_thesis.degree) as thesises_degree'))
+            ->select(DB::raw('avg(eligible_general_informations.degree) as general_informations_degree,avg(eligible_questions.degree) as questions_degree,avg(eligible_thesis.degree) as thesises_degree'))
             ->where('eligible_user_books.id', $user_book_id)
             ->get();
         $thesisDegree = $all_avareges[0]['thesises_degree'];
@@ -45,13 +44,16 @@ class EligiblePDFController extends Controller
         $certificateDegrees->general_summary_grade = $generalInformationsDegree;
         $certificateDegrees->final_grade = $finalDegree;
 
+
+        $userName = $fullCertificate[0]->user->userProfile->first_name_ar . ' ' . $fullCertificate[0]->user->userProfile->middle_name_ar
+            . ' ' . $fullCertificate[0]->user->userProfile->last_name_ar;
         ######### END GET USER ACHEVMENTS #########
 
         ######### START GENERATING PDF #########
 
         // set document information
         PDF::SetAuthor('OSBOHA 180');
-        $title = $fullCertificate[0]->user->name  . ' || ' . $fullCertificate[0]->book->name;
+        $title = $userName   . ' || ' . $fullCertificate[0]->book->name;
         PDF::SetTitle($title);
         PDF::SetSubject('توثيق انجاز كتاب');
         PDF::SetKeywords('Osboha, PDF, توثيق, كتاب, كتب, أصبوحة , اصبوحة, 180');
@@ -111,7 +113,7 @@ class EligiblePDFController extends Controller
         PDF::SetAutoPageBreak($auto_page_break, $bMargin);
         // set the starting point for the page content
         PDF::setPageMark();
-        PDF::writeHTML(view('certificate.page1', ['name' => $fullCertificate[0]->user->name, 'book' => $fullCertificate[0]->book->name, 'level' => $fullCertificate[0]->book->level->name, 'date' => \Carbon\Carbon::parse($fullCertificate[0]->updated_at)->format('d/m/Y')])->render(), true, false, true, false, '');
+        PDF::writeHTML(view('certificate.page1', ['name' => $userName, 'book' => $fullCertificate[0]->book->name, 'level' => $fullCertificate[0]->book->level->arabic_level, 'date' => \Carbon\Carbon::parse($fullCertificate[0]->updated_at)->format('d/m/Y')])->render(), true, false, true, false, '');
 
         // ###################### END PAGE 1 ###################### //
 
@@ -155,11 +157,29 @@ class EligiblePDFController extends Controller
         foreach ($fullCertificate as $key => $part) {
             foreach ($part['thesises'] as $key => $thesis) {
 
-                $this->addPage();
-                PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأطروحات', 'subTitle' => 'أطروحة', 'index' => $key + 1, 'achevmentText' => $thesis->thesis_text, 'textDegree' => $this->textDegree($thesis->degree)])->render(), true, false, true, false, '');
+
+                if (strlen($thesis) > 1800) {
+                    $thesisWords = explode(' ', $thesis->thesis_text);
+                    $pages = floor(count($thesisWords) / 350);
+                    $thesisText = implode(" ", array_slice($thesisWords, 0, 350));
+                    $this->addPage();
+                    PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأطروحات', 'subTitle' => 'أطروحة', 'index' => $key + 1, 'achevmentText' => $thesisText, 'textDegree' => $this->textDegree($thesis->degree)])->render(), true, false, true, false, '');
+
+                    $start = 350;
+                    $length = 350;
+
+                    for ($i = 2; $i <= $pages + 1; $i++) {
+                        $thesisText = implode(" ", array_slice($thesisWords, $start, $length));
+
+                        $this->addPage();
+                        PDF::writeHTML(view('certificate.theses', ['thesis' => $thesisText])->render(), true, false, true, false, '');
+                        $start = $start + 400;
+                    }
+                    // $this->addPage();
+                    // PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأطروحات', 'subTitle' => 'أطروحة', 'index' => $key + 1, 'achevmentText' => $thesis->thesis_text, 'textDegree' => $this->textDegree($thesis->degree)])->render(), true, false, true, false, '');
+                }
             }
         }
-
         ###################### END THESIS ###################### 
 
         ###################### START THESIS ###################### 
@@ -189,7 +209,7 @@ class EligiblePDFController extends Controller
         $auto_page_break = PDF::getAutoPageBreak();
         PDF::SetAutoPageBreak(false, 0);
 
-        $img_file = 'https://platform.osboha180.com/backend/public/asset/images/certTemp.jpg';
+        $img_file = "https://platform.osboha180.com/backend/public/asset/images/certTemp.jpg";
 
         PDF::Image($img_file, 210, 0, 210, 297, '', '', '', false, 300, '', false, false, 0);
 

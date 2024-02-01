@@ -19,6 +19,7 @@ use App\Models\Thesis;
 use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\UserBook;
+use App\Models\UserException;
 use App\Models\Week;
 use App\Notifications\MailDowngradeRole;
 use App\Notifications\MailUpgradeRole;
@@ -55,10 +56,10 @@ class AuthController extends Controller
             $success['token'] = $authUser->createToken('sanctumAuth')->plainTextToken;
             $success['user'] = $authUser->load('userProfile', 'roles:id,name', 'roles.permissions:id,name');
 
-            return $this->jsonResponse($success, 'data', 200, 'تم تسجيل الدخول بنجاح');
+            return $this->jsonResponseWithoutMessage($success, 'data', 200);
         } else {
 
-            return $this->jsonResponse('UnAuthorized', 'data', 404, 'البريد الالكتروني او كلمة المرور غير صحيحة');
+            return $this->jsonResponseWithoutMessage('البريد الالكتروني او كلمة المرور غير صحيحة', 'data', 201);
         }
     }
 
@@ -379,6 +380,11 @@ class AuthController extends Controller
         //main timer
         $response['timer'] = Week::latest()->first();
 
+        //Last Exception
+        $response['last_exception'] = UserException::with(['week', 'type'])->without('reviewer')->where('user_id', Auth::id())
+            ->whereIn('status', ['accepted'])
+            ->first();
+
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
@@ -386,9 +392,9 @@ class AuthController extends Controller
     {
         $authRoles = Auth::user()->load('roles:id,name');
         $authLastrole = $authRoles->roles->first();
-        $rolesToRetrieve=config('constants.rolesToRetrieve');
-        
-        $roles = Role::whereIn('name',$rolesToRetrieve[$authLastrole->name])->orderBy('id', 'desc')->get();
+        $rolesToRetrieve = config('constants.rolesToRetrieve');
+
+        $roles = Role::whereIn('name', $rolesToRetrieve[$authLastrole->name])->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
 

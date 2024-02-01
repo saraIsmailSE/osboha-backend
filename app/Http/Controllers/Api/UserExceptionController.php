@@ -101,8 +101,8 @@ class UserExceptionController extends Controller
 
 
         //get types of exceptions
-        $freezCurrentWeek = ExceptionType::where('type', config("constants.FREEZ_THIS_WEEK_TYPE"))->first();
-        $freezNextWeek = ExceptionType::where('type', config("constants.FREEZ_NEXT_WEEK_TYPE"))->first();
+        $freezCurrentWeek = ExceptionType::where('type', config("constants.FREEZE_THIS_WEEK_TYPE"))->first();
+        $freezNextWeek = ExceptionType::where('type', config("constants.FREEZE_NEXT_WEEK_TYPE"))->first();
         $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
         $monthlyExam = ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
         $FinalExam = ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
@@ -123,16 +123,16 @@ class UserExceptionController extends Controller
                 $currentDate = Carbon::now()->format('Y-m-d');
 
                 $laseFreezing = UserException::where('user_id', $authID)
-                    ->where('status', config('constants.ACCEPTED_STATUS'))
+                    ->whereIn('status', ['finished', 'accepted'])
                     ->whereHas('type', function ($query) {
-                        $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
-                            ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'));
-                    })->pluck('end_at')->first();
+                        $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
+                            ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));
+                    })->latest()->pluck('created_at')->first();
 
                 $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
 
                 //check if user freezed in last 4 weeks
-                if ($laseFreezing && ($dateAfter4Weeks < $currentDate)) {
+                if ($laseFreezing && ($dateAfter4Weeks > $currentDate)) {
                     return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا مرة كل 4 أسابيع", 'data', 200);
                 }
 
@@ -164,7 +164,7 @@ class UserExceptionController extends Controller
                 $msg = "قام السفير " . Auth::user()->name . " باستخدام نظام التجميد";
                 (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
 
-                return $this->jsonResponseWithoutMessage("تم رفع طلب التجميد", 'data', 200);
+                return $this->jsonResponseWithoutMessage("تم قبول طلب التجميد", 'data', 200);
             } else {
                 return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد", 'data', 200);
             }
@@ -452,8 +452,8 @@ class UserExceptionController extends Controller
                         ->orWhere('status', 'finished');
                 })
                     ->whereHas('type', function ($query) {
-                        $query->where('type', config('constants.FREEZ_THIS_WEEK_TYPE'))
-                            ->orWhere('type', config('constants.FREEZ_NEXT_WEEK_TYPE'));
+                        $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
+                            ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));
                     })
                     ->first();
 
@@ -738,7 +738,6 @@ class UserExceptionController extends Controller
                     $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
-                    $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
 
                     break;
                     //اعفاء الأسبوع القادم
@@ -752,9 +751,10 @@ class UserExceptionController extends Controller
                     $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
-                    $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
                     break;
             }
+            $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
+
             //notify leader                        
             $msg = "السفير:  " . $owner_of_exception->name . " تحت نظام الامتحانات لغاية:  " . $userException->end_at;
             (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
@@ -946,5 +946,29 @@ class UserExceptionController extends Controller
         } else {
             return $this->jsonResponseWithoutMessage(null, "data", 200);
         }
+    }
+
+    public function listForAdvisor($advisor_id)
+    {
+        $advisingGroup = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'advising');
+            })->first();
+        $response['advisingGroup'] = $advisingGroup->group->name;
+
+        $advisorGroups = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')->whereNull('termination_reason')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'followup');
+            })->pluck('group_id');
+
+        $ambassadorsInGroups = UserGroup::whereIn('group_id', $advisorGroups)->where('user_type', 'ambassador')->whereNull('termination_reason')
+            ->pluck('user_id');
+        $response['exceptions'] = UserException::with('user.followupTeam.group')->whereIn('user_id', $ambassadorsInGroups)
+            ->whereHas('type', function ($q) {
+                $q->where('type', '=', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
+            })
+            ->where('status', 'pending')
+            ->latest()->get();
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }

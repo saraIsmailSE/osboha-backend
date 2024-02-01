@@ -20,7 +20,7 @@ class IsActiveUser
     {
         $user = $request->user('api');
 
-        $group = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->first();
+        $group = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
 
         if ($user->is_excluded == 1) {
             $response  = [

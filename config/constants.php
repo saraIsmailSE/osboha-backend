@@ -70,8 +70,9 @@ return [
     'REJECTED_STATUS' => 'rejected',
     'PENDING_STATUS' => 'pending',
     'FINISHED_STATUS' => 'finished',
-    'FREEZ_THIS_WEEK_TYPE' => 'تجميد الأسبوع الحالي',
-    'FREEZ_NEXT_WEEK_TYPE' => 'تجميد الأسبوع القادم',
+    'CANCELED_STATUS' => 'cancelled',
+    'FREEZE_THIS_WEEK_TYPE' => 'تجميد الأسبوع الحالي',
+    'FREEZE_NEXT_WEEK_TYPE' => 'تجميد الأسبوع القادم',
     'EXCEPTIONAL_FREEZING_TYPE' => 'تجميد استثنائي',
     'EXAMS_MONTHLY_TYPE' => 'نظام امتحانات - شهري',
     'EXAMS_SEASONAL_TYPE' => 'نظام امتحانات - فصلي',
@@ -89,6 +90,11 @@ return [
         'super_auditer' => "مسؤول تقييم التوثيقات",
         'super_reviewer' => "مسؤول مراجعة التوثيقات",
         'user_accept' => "مسؤول الوثائق",
+        'marathon_coordinator' => "مسؤول عام في مارثون أصبوحة",
+        'marathon_verification_supervisor' => "مسؤول تدقيق مارثون أصبوحة",
+        'marathon_supervisor' => "مسؤول في مارثون أصبوحة",
+        'marathon_ambassador' => "سفير مشارك في مارثون أصبوحة"
+
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
     'ALL_SUPPER_ROLES' => ['admin', 'consultant', 'advisor', 'supervisor', 'leader'],

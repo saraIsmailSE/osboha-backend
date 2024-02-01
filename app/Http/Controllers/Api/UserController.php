@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserInfoResource;
+use App\Models\GroupType;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Traits\ResponseJson;
@@ -42,7 +43,6 @@ class UserController extends Controller
     {
         $response = User::where('parent_id', Auth::id())->get();
         return $this->jsonResponseWithoutMessage($response, "data", 200);
-
     }
 
     public function assignToParent(Request $request)
@@ -151,7 +151,7 @@ class UserController extends Controller
         if ($result == 0) {
             return $this->jsonResponseWithoutMessage('User does not exist', 'data', 404);
         }
-        return $this->jsonResponseWithoutMessage($result, 'data',200);
+        return $this->jsonResponseWithoutMessage($result, 'data', 200);
     }
 
     public function deleteOfficialDoc($userID)
