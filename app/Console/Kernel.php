@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
         //auditMark
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
-        //finishedException 
+        //finishedException
 
         // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
 
@@ -32,10 +32,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('media:deleteOld')->weekly()->sundays()->at('05:00');
 
         //accept support for all
-        $schedule->command('support:accept')->weekly()->fridays()->at('00:00');
+        $schedule->command('support:accept')->weekly()->fridays()->at('22:10');
 
         //exclude users
-        $schedule->command('users:exclude')->weekly()->fridays()->at('00:15');
+        $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
     }
 
     /**

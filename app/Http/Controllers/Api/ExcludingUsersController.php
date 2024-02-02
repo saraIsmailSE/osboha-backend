@@ -9,7 +9,6 @@ use App\Models\UserException;
 use App\Models\UserGroup;
 use App\Models\Week;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -49,19 +48,16 @@ class ExcludingUsersController extends Controller
      * get all the users except the excluded and hold users
      * chunk the data to begin checking on those who are excluded
      * update the excluded users
-     * @uses update_excluded_user() 
-     * @return True if the marks and updating exculded members are done correctly, 
+     * @uses update_excluded_user()
+     * @return True if the marks and updating exculded members are done correctly,
      * @throws Exception error if anything wrong happens
      */
 
     private function check_all_users()
     {
-        // dd('herte');
         //get all the users and update their records if they are excluded (just ambassdors0)
         $all_users = User::where('is_excluded', 0)->where('is_hold', 0)
             ->where('parent_id', '!=', null)
-            // ->where('id', '>=', 18)
-            ->whereIn('id', [19, 20, 21, 22, 23]) //for testing - to be deleted
             ->orderBy('id')
             ->chunkByID(100, function ($users) {
                 try {
@@ -86,20 +82,20 @@ class ExcludingUsersController extends Controller
 
     /**
      * update excluded user then add mark
-     * @author Asmaa     
+     * @author Asmaa
      * 1- check exam exception for user and update status if finished
      * 2- if there are less than 2 weeks in the system then insert mark for single user without checking for excluded users
-     * 3- if there are more than 2 weeks in the system 
+     * 3- if there are more than 2 weeks in the system
      * 3.1- get last week marks for the user
      * 3.2- check if the user excluded (two consecutive zeros, zero - freezed - zero)
      * 3.3- if the user is excluded then update the status of the user to excluded
      * 3.4- if the user is not excluded then insert mark for single user
-     * @param Object $user 
+     * @param Object $user
      * @uses check_exams_exception_for_user()
      * @uses UpdateUserStats Event
-     * @return True if the updating excluded member or inserting new mark record is done correctly, 
-     * @return Null if anything wrong happens 
-     * 
+     * @return True if the updating excluded member or inserting new mark record is done correctly,
+     * @return Null if anything wrong happens
+     *
      */
     private function update_excluded_user($user)
     {
@@ -273,7 +269,7 @@ class ExcludingUsersController extends Controller
 
     /**
      * Notify Excluded users and their leaders that they are excluded
-     * @return JsonResponse 
+     * @return JsonResponse
      */
     private function notifyExcludedUsers()
     {
