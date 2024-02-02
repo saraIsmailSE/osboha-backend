@@ -32,6 +32,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class MarkController extends Controller
 {
@@ -39,7 +40,7 @@ class MarkController extends Controller
 
     /**
      * Read all  marks in the current week in the system(“audit mark” permission is required)
-     * 
+     *
      * @return jsonResponseWithoutMessage;
      */
     public function index()
@@ -67,10 +68,10 @@ class MarkController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // 'out_of_90' => 'required', 
+            // 'out_of_90' => 'required',
             'out_of_100' => 'required',
-            // 'total_pages' => 'required',  
-            // 'support' => 'required', 
+            // 'total_pages' => 'required',
+            // 'support' => 'required',
             'total_thesis' => 'required',
             // 'total_screenshot' => 'required',
             'mark_id' => 'required',
@@ -146,7 +147,7 @@ class MarkController extends Controller
 
     /**
      *  Return all leader marks for auth auditor in current week.
-     * 
+     *
      *  @return jsonResponseWithoutMessage;
      */
     public function leadersAuditmarks()
@@ -169,9 +170,9 @@ class MarkController extends Controller
         }
     }
     /**
-     *  Return audit marks & note & status for a specific leader in current week 
+     *  Return audit marks & note & status for a specific leader in current week
      *  by leader_id with “audit mark” permission.
-     *  
+     *
      *  @return jsonResponseWithoutMessage;
      */
     public function showAuditmarks(Request $request)
@@ -218,7 +219,7 @@ class MarkController extends Controller
 
     /**
      * Update note and status for existing audit marks by its id with “audit mark” permission.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
@@ -251,7 +252,7 @@ class MarkController extends Controller
 
     /**
      * get user month achievement
-     * 
+     *
      * @param  $user_id,$filter
      * @return month achievement;
      */
@@ -284,7 +285,7 @@ class MarkController extends Controller
     }
     /**
      * get user week achievement
-     * 
+     *
      * @param  $user_id,$filter
      * @return month achievement;
      */
@@ -313,7 +314,7 @@ class MarkController extends Controller
     /**
      * get user mark with theses => list only for group administrators
      * with support done by the user
-     * 
+     *
      * @param  $user_id
      * @return mark;
      */
@@ -442,7 +443,7 @@ class MarkController extends Controller
      */
     public function acceptSupport($user_id, $week_id)
     {
-        //get user group and its administrators 
+        //get user group and its administrators
         $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
         //check if auth user is an administrator in the group
         if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
@@ -507,8 +508,8 @@ class MarkController extends Controller
 
     /**
      * set support mark for all active users
-     * @param Request $request -> reason 
-     * @return String;     
+     * @param Request $request -> reason
+     * @return String;
      */
 
     public function setSupportMarkForAll(Request $request)
@@ -682,7 +683,7 @@ class MarkController extends Controller
 
             DB::commit();
 
-            //notify supervisors that the leader didn't accept the support for some users            
+            //notify supervisors that the leader didn't accept the support for some users
             $notification = new NotificationController();
             foreach ($marksWithoutSupport as $mark) {
                 $user = $mark->user;
@@ -690,8 +691,8 @@ class MarkController extends Controller
                 $message = "لم يقبل ال" . config('constants.ARABIC_ROLES')[$leaderRole] . ": " . $user->parent->name . " الدعم للمستخدم: " . $user->name . " في الأسبوع: " . $week->title . ", لذلك تم اعتماد الدعم له تلقائيا";
                 $notification->sendNotification($user->parent->parent->id, $message, SUPPORT_MARK);
             }
-
-            return $this->jsonResponseWithoutMessage("تم اعتماد الدعم للجميع", 'data', 200);
+            Log::channel('newWeek')->info("تم اعتماد الدعم للجميع");
+            //return $this->jsonResponseWithoutMessage("تم اعتماد الدعم للجميع", 'data', 200);
         } catch (\Exception $e) {
             DB::rollback();
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
