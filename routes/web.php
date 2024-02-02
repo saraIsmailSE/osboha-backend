@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ExcludingUsersV2Controller;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,4 +17,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
+Route::get('/excludeUsers_v2', [ExcludingUsersV2Controller::class, 'excludeUsers']);
