@@ -651,6 +651,8 @@ class MarkController extends Controller
      */
     public function acceptSupportForAll()
     {
+        Log::channel('newWeek')->info("Start Check Support Marks");
+
         //get the week before the current week
         $week = Week::latest()->skip(1)->first();
 

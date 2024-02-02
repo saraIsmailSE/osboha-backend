@@ -19,6 +19,7 @@ class ExcludingUsersController extends Controller
 
     public function excludeUsers()
     {
+        Log::channel('newWeek')->info("Start Users Excluding");
         $this->excludedUsers = [];
         //get last three weeks ids
         $this->lastWeekIds = $this->get_last_weeks_ids();
