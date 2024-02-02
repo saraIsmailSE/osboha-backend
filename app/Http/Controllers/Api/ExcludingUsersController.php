@@ -11,9 +11,12 @@ use App\Models\Week;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Traits\PathTrait;
 
 class ExcludingUsersController extends Controller
 {
+    use  PathTrait;
+
     protected $lastWeekIds = [];
     protected $excludedUsers = [];
 
