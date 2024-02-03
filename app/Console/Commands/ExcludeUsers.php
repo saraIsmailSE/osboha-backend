@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Api\ExcludingUsersController;
+use App\Http\Controllers\Api\ExcludingUsersV2Controller;
 use Illuminate\Console\Command;
 
 class ExcludeUsers extends Command
@@ -28,7 +28,7 @@ class ExcludeUsers extends Command
      */
     public function handle()
     {
-        $controller = new ExcludingUsersController();
+        $controller = new ExcludingUsersV2Controller();
         $controller->excludeUsers();
 
         return 0;

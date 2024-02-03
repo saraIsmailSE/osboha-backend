@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\PathTrait;
+use Illuminate\Database\Eloquent\Collection;
 
 class ExcludingUsersV2Controller extends Controller
 {
@@ -23,7 +24,6 @@ class ExcludingUsersV2Controller extends Controller
         try {
 
             Log::channel('newWeek')->info("Start Users Excluding");
-            DB::beginTransaction();
             // Previous Week [0], Before the Previous [1] and Before Before the Previous [3]
             $lastWeekIds = $this->get_last_weeks_ids();
             //current Week
@@ -34,11 +34,9 @@ class ExcludingUsersV2Controller extends Controller
 
             //Case 2: zero - freezed - zero
             $this->case2($lastWeekIds, $currentWeek);
-            DB::commit();
             Log::channel('newWeek')->info("Users Excluding Done Successfully");
         } catch (\Exception $e) {
             Log::channel('newWeek')->info($e);
-            DB::rollBack();
         }
     }
 
@@ -55,6 +53,7 @@ class ExcludingUsersV2Controller extends Controller
     public function case1($lastWeekIds, $currentWeek)
     {
         try {
+            Log::channel('newWeek')->info("case 1 start");
             $users = User::leftJoin('marks as m1', function ($join) use ($lastWeekIds) {
                 $join->on('users.id', '=', 'm1.user_id')
                     ->where('m1.week_id', $lastWeekIds[1]->id);
@@ -67,6 +66,7 @@ class ExcludingUsersV2Controller extends Controller
                     $join->on('users.id', '=', 'm3.user_id')
                         ->where('m3.week_id', $currentWeek->id);
                 })
+                ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
                 ->whereRaw('COALESCE(m1.reading_mark, 0) = 0')
                 ->whereRaw('COALESCE(m1.is_freezed, 0) = 0')
                 ->whereRaw('COALESCE(m2.reading_mark, 0) = 0')
@@ -75,27 +75,31 @@ class ExcludingUsersV2Controller extends Controller
                 ->where('users.created_at', '<', $lastWeekIds[2]->created_at)
                 ->whereNotNull('users.email_verified_at')
                 ->where('users.is_excluded', 0)
-                ->get();
+                ->pluck('users.id');
+            User::whereIn('id', $users)
+                ->chunkById(100, function (Collection $users) {
+                    DB::beginTransaction();
 
-            if ($users->isEmpty()) {
-                foreach ($users as $user) {
-                    if ($user->hasAnyRole(['leader', 'supervisor', 'advisor', 'consultant', "admin"])) {
-                        (new NotificationController)->sendNotification(
-                            $user->parent_id,
-                            'لقد حصل '  . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
-                            EXCLUDED_USER,
-                            $this->getProfilePath($user->id)
-                        );
-                    } else {
-                        $this->excludeUser($user);
+                    foreach ($users as $user) {
+                        if ($user->hasanyrole('admin|consultant|advisor|supervisor|leader')) {
+                            if ($user->parent_id) {
+                                (new NotificationController)->sendNotification(
+                                    $user->parent_id,
+                                    'لقد حصل '  . $user->name . ' على صفرين متتالين, يرجى تنبيهه',
+                                    EXCLUDED_USER,
+                                    $this->getProfilePath($user->id)
+                                );
+                            }
+                        } else {
+                            $this->excludeUser($user);
+                        }
                     }
-                }
-            }
+                    DB::commit();
+                });
 
             return true;
         } catch (\Exception $e) {
-            Log::channel('newWeek')->info("CASE1: ".$e);
-            DB::rollBack();
+            Log::channel('newWeek')->info("CASE1: " . $e);
         }
     }
 
@@ -104,7 +108,7 @@ class ExcludingUsersV2Controller extends Controller
     public function case2($lastWeekIds, $currentWeek)
     {
         try {
-            $users = User::leftJoin('marks as m1', function ($join) use ($lastWeekIds) {
+            $users = User::with('roles')->leftJoin('marks as m1', function ($join) use ($lastWeekIds) {
                 $join->on('users.id', '=', 'm1.user_id')
                     ->where('m1.week_id', $lastWeekIds[2]->id);
             })
@@ -137,26 +141,32 @@ class ExcludingUsersV2Controller extends Controller
                         ->where('m5.week_id', $lastWeekIds[1]->id)
                         ->where('m5.is_freezed', 1);
                 })
-                ->get();
-            if ($users->isEmpty()) {
-                foreach ($users as $user) {
-                    if ($user->hasAnyRole(['leader', 'supervisor', 'advisor', 'consultant', "admin"])) {
-                        (new NotificationController)->sendNotification(
-                            $user->parent_id,
-                            'لقد حصل '  . $user->name . ' على صفر - تجميد - صفر , يرجى تنبيهه',
-                            EXCLUDED_USER,
-                            $this->getProfilePath($user->id)
-                        );
-                    } else {
-                        $this->excludeUser($user);
+                ->pluck('users.id');
+            User::whereIn('id', $users)
+                ->chunkById(100, function (Collection $users) {
+                    DB::beginTransaction();
+
+                    foreach ($users as $user) {
+                        foreach ($users as $user) {
+                            if ($user->hasanyrole('admin|consultant|advisor|supervisor|leader')) {
+                                (new NotificationController)->sendNotification(
+                                    $user->parent_id,
+                                    'لقد حصل '  . $user->name . ' على صفر - تجميد - صفر , يرجى تنبيهه',
+                                    EXCLUDED_USER,
+                                    $this->getProfilePath($user->id)
+                                );
+                            } else {
+                                $this->excludeUser($user);
+                            }
+                        }
                     }
-                }
-            }
+                    DB::commit();
+                });
+
 
             return true;
         } catch (\Exception $e) {
-            Log::channel('newWeek')->info("CASE2: ".$e);
-            DB::rollBack();
+            Log::channel('newWeek')->info("CASE2: " . $e);
         }
     }
 
@@ -167,14 +177,12 @@ class ExcludingUsersV2Controller extends Controller
             $userGroup->termination_reason = 'excluded';
             $userGroup->save();
         }
+        if ($user->parent_id) {
+            $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
+            (new NotificationController)->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
+        }
 
-        $msg = 'لقد تم استبعاد السفير ' . $user->name . ' من الفريق بسبب عدم التزامه بالقراءة طيلة الأسابيع الماضية';
-        (new NotificationController)->sendNotification($user->parent_id, $msg, EXCLUDED_USER);
-
-        //update the user parent_id to null and exclude the user
-        $userGroup->user->parent_id = null;
-        $userGroup->user->is_excluded = 1;
-        $userGroup->user->save();
+        User::where('id', $user->id)->update(['parent_id' => null, 'is_excluded' => 1]);
         return true;
     }
 }

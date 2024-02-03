@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
 
         //exclude users
-        $schedule->command('users:exclude')->weekly()->fridays()->at('22:59');
+        $schedule->command('users:exclude')->weekly()->saturdays()->at('21:25');
     }
 
     /**
