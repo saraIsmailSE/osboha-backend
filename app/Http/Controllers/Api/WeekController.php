@@ -209,7 +209,7 @@ class WeekController extends Controller
         $week->updated_at = $dateToAdd;
 
         //add 7 days to the date to get the end of the week
-        $week->main_timer = $dateToAdd->addDays(8)->addHours(12);
+        $week->main_timer = $dateToAdd->addDays(7)->addHours(12);
 
         if ($week->save()) { //insert new week
             return $week->id;

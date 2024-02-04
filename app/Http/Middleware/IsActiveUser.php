@@ -28,13 +28,20 @@ class IsActiveUser
                 'data' => 'excluded ambassador'
             ];
             return response()->json($response, 400);
+        }
+        else if ($user->is_hold == 1) {
+            $response  = [
+                'success' => false,
+                'data' => 'withdrawn ambassador'
+            ];
+            return response()->json($response, 400);
         }else if (is_null($user->parent_id) || (!$group && !$user->hasRole('admin'))) {
             $response  = [
                 'success' => false,
                 'data' => 'ambassador without group'
             ];
             return response()->json($response, 400);
-        } 
+        }
         return $next($request);
     }
 }

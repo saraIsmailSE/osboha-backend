@@ -47,7 +47,7 @@ class UserGroupController extends Controller
     }
     /**
      * Find an existing user group in the system by its id and display it.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
@@ -70,7 +70,7 @@ class UserGroupController extends Controller
     }
     /**
      * Get all users in specific group.
-     * 
+     *
      * @param  $group_id
      * @return jsonResponseWithoutMessage;
      */
@@ -87,7 +87,7 @@ class UserGroupController extends Controller
     /**
      * Assign role to specific user with add him/her to group.
      * after that,this user will receive a new notification about his/her new role and group(“assgin role” permission is required).
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
@@ -131,8 +131,8 @@ class UserGroupController extends Controller
 
 
     /**
-     * Add user to group with specific role 
-     * 
+     * Add user to group with specific role
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
@@ -364,7 +364,7 @@ class UserGroupController extends Controller
     /**
      * remove role to specific user with create group to him/her.
      * after that,this user will receive a new notification about termination reason(update role” permission is required).
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
@@ -419,7 +419,7 @@ class UserGroupController extends Controller
     }
     /**
      * Read all user groups by its id in the system.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
      */
@@ -458,7 +458,7 @@ class UserGroupController extends Controller
                     $user->removeRole('support_leader');
                 }
                 /**
-                 * @todo: slow query - asmaa         
+                 * @todo: slow query - asmaa
                  */
                 $user_group->delete();
 
@@ -492,6 +492,7 @@ class UserGroupController extends Controller
             $userGroup = UserGroup::find($request->user_group_id);
 
             if ($userGroup) {
+                User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id'=>null]);
                 $userGroup->termination_reason = 'withdrawn';
                 $userGroup->save();
                 return $this->jsonResponseWithoutMessage('User withdrawn', 'data', 200);
