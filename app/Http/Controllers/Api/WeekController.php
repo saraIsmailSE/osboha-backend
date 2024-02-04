@@ -35,7 +35,7 @@ class WeekController extends Controller
 
     /**
      * Add new week with mark records for all users in the system
-     * @author Asmaa     
+     * @author Asmaa
      * get last three weeks ids
      * add new week to the system
      * add marks for all users
@@ -96,8 +96,8 @@ class WeekController extends Controller
      * @author Asmaa - Sara
      * @param Request $request (array of data to be updated)
      * @return jsonResponse (if the validation of data failed or the updating failed/if the updating of data succeed)
-     * @throws NotFound Exception if the week to be updated is not found                 
-     * @throws NotAuthorized Exception if the user does not have permission            
+     * @throws NotFound Exception if the week to be updated is not found
+     * @throws NotAuthorized Exception if the user does not have permission
      */
     public function update(Request $request)
     {
@@ -151,8 +151,8 @@ class WeekController extends Controller
 
     /**
      * search for week is vacation based on the date of the week
-     * @author Sara     
-     * @param Date $date (date of biginning week), 
+     * @author Sara
+     * @param Date $date (date of biginning week),
      * @param Array $year_weeks(array of year weeks dates and titles)
      * @return int is_vacation of the passed week date
      * @return Null if not found
@@ -169,7 +169,7 @@ class WeekController extends Controller
 
     /**
      * insert new week into weeks table
-     * @author Asmaa         
+     * @author Asmaa
      * @throws Exception error if anything wrong happens
      */
     private function insert_week()
@@ -209,7 +209,7 @@ class WeekController extends Controller
         $week->updated_at = $dateToAdd;
 
         //add 7 days to the date to get the end of the week
-        $week->main_timer = $dateToAdd->addDays(7);
+        $week->main_timer = $dateToAdd->addDays(8)->addHours(12);
 
         if ($week->save()) { //insert new week
             return $week->id;
@@ -237,7 +237,7 @@ class WeekController extends Controller
      * get all the users except the excluded and hold users
      * chunk the data to begin checking on those who are excluded
      * update the exceptions for each user
-     * @uses update_exceptions() 
+     * @uses update_exceptions()
      * @return void
      * @throws Exception error if anything wrong happens
      */
@@ -273,14 +273,14 @@ class WeekController extends Controller
 
     /**
      * update user's exceptions statuses
-     * @author Asmaa     
+     * @author Asmaa
      * 1- check exam exception for user and update status if finished
      * 2- check freezing exception for user and update status if finished
-     * @param Object $user 
+     * @param Object $user
      * @uses check_exams_exception_for_user()
      * @uses checkFreezingException()
-     * @return void 
-     * 
+     * @return void
+     *
      */
     private function update_exceptions($user)
     {
@@ -335,10 +335,10 @@ class WeekController extends Controller
 
     /**
      * update the status of the exception
-     * @author Asmaa     
+     * @author Asmaa
      * get the exception record of the user
      * update record with the new status
-     * @param Int $user_exception_id 
+     * @param Int $user_exception_id
      * @param string $new_status
      * @return True if the status updated successfully
      * @throws Exception error if anything wrong happens
@@ -350,7 +350,7 @@ class WeekController extends Controller
             ->latest('id')
             ->first();
 
-        //update record with the new status    
+        //update record with the new status
         $user_exception->status = $new_status;
         if ($user_exception->save()) {
             if ($new_status == 'finished') {
@@ -369,21 +369,21 @@ class WeekController extends Controller
         throw new \Exception('could not update user exception');
     }
 
-    /**  
-     * check if the user is having exams exception this current week   
+    /**
+     * check if the user is having exams exception this current week
      * get the exception record of the user of type exams
-     * check if the exception duration finished, update the status of the exception if it finished     
+     * check if the exception duration finished, update the status of the exception if it finished
      * @author Asmaa
      * @param Int $user_id
      * @uses update_exception_status()
      * @return True if the user going to have exams exception
-     * @return False if the user finished his/her exception period, 
-     *               or he/she has not an exception, 
+     * @return False if the user finished his/her exception period,
+     *               or he/she has not an exception,
      *               or he/she does not satisfy the rules
      */
     private function check_exams_exception_for_user($user_id)
     {
-        //get the user exams exception 
+        //get the user exams exception
         $user_exception = UserException::where('user_id', $user_id)
             ->where('status', config('constants.ACCEPTED_STATUS'))
             ->with('type', function ($query) {
@@ -506,7 +506,7 @@ class WeekController extends Controller
 
     /**
      * set_modify_timer
-     * @author Sara              
+     * @author Sara
      * @throws Exception error if anything wrong happens
      */
     public function set_modify_timer()
