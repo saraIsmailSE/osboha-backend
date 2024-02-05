@@ -88,9 +88,17 @@ class WorkingHourController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
+        if (Carbon::now()->dayOfWeek <= 3) {
+            $startDate = Week::latest()->skip(1)->first()->created_at;
+        } else {
+            $startDate = $currentWeek->created_at;
+        }
 
         return $this->jsonResponseWithoutMessage(
-            $workingHours,
+            [
+                "workingHours" => $workingHours,
+                "startDate" => $startDate,
+            ],
             'data',
             Response::HTTP_OK
         );
