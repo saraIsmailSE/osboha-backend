@@ -13,27 +13,39 @@ class Question extends Model
         "question",
         "status",
         "user_id",
-        "assignee_id"
-
+        "current_assignee_id",
+        "closed_at"
     ];
 
     protected $appends = [
         "user_parents"
     ];
 
+    protected $with = ['media'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function assignee()
+    public function currentAssignee()
     {
-        return $this->belongsTo(User::class, "assignee_id");
+        return $this->belongsTo(User::class, "current_assignee_id");
     }
 
     public function answers()
     {
         return $this->hasMany(Answer::class);
+    }
+
+    public function assignees()
+    {
+        return $this->hasMany(QuestionAssignee::class);
+    }
+
+    public function media()
+    {
+        return $this->hasMany(Media::class);
     }
 
     public function getUserParentsAttribute()
@@ -55,7 +67,7 @@ class Question extends Model
                 [
                     "role" => "المستشار",
                     "name" => $this->user->parent->name
-                ]
+                ],
             ];
         }
         //if supervisor, return advisor and consultant

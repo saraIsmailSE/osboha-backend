@@ -90,6 +90,14 @@ trait MediaTraits
                     $media->user_exception_id = $type_id;
                     $media->type = $type;
                     break;
+                case 'question':
+                    $media->question_id = $type_id;
+                    $media->type = $type;
+                    break;
+                case 'answer':
+                    $media->answer_id = $type_id;
+                    $media->type = $type;
+                    break;
                 default:
                     return 'Type Not Found';
             }
