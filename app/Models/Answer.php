@@ -12,7 +12,8 @@ class Answer extends Model
     protected $fillable = [
         "answer",
         "question_id",
-        "user_id"
+        "user_id",
+        "is_discussion",
 
     ];
 

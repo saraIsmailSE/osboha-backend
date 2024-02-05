@@ -16,11 +16,13 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->text("question");
-            $table->enum("status", ["open", "closed", "solved", "discussion"])->default("open");
+            $table->enum("status", ["open", "discussion", "solved"])->default("open");
             $table->bigInteger("user_id")->unsigned();
-            $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
-            $table->bigInteger("assignee_id")->unsigned()->nullable();
-            $table->foreign("assignee_id")->references("id")->on("users")->onDelete("cascade");
+            $table->bigInteger("current_assignee_id")->unsigned()->nullable();
+            $table->dateTime("closed_at")->nullable();
+
+            $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade")->name("questions_user_id_foreign");
+            $table->foreign("current_assignee_id")->references("id")->on("users")->onDelete("cascade")->name("questions_current_assignee_id_foreign");
             $table->timestamps();
         });
     }
@@ -33,8 +35,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table("questions", function (Blueprint $table) {
-            $table->dropForeign(["user_id"]);
-            $table->dropForeign(["assignee_id"]);
+            $table->dropForeign("questions_user_id_foreign");
+            $table->dropForeign("questions_current_assignee_id_foreign");
         });
         Schema::dropIfExists('questions');
     }

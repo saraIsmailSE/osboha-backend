@@ -49,7 +49,6 @@ use App\Http\Controllers\Api\{
     PostTypeController,
     ThesisTypeController,
     TimelineTypeController,
-    RejectedThesesController,
     WeekController,
     MessagesController,
     ModificationReasonController,
@@ -59,6 +58,7 @@ use App\Http\Controllers\Api\{
     RolesAdministrationController,
     EligibleMoveDBController,
     EmptyingTeamController,
+    WorkingHourController,
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -69,14 +69,6 @@ use App\Http\Controllers\Api\Eligible\{
     EligibleGeneralInformationsController,
     EligiblePDFController,
 };
-
-use App\Http\Controllers\QuestionFollowupController;
-use App\Http\Resources\RoomResource;
-use App\Models\Room;
-use Illuminate\Http\Request;
-use Illuminate\Notifications\Events\NotificationSent;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
@@ -651,37 +643,38 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## BookStatistics ########
 
+        ######## WorkingHour ########
+        Route::group(['prefix' => 'working-hours'], function () {
+            Route::post('/', [WorkingHourController::class, 'addWorkingHours']);
+            Route::get('/', [WorkingHourController::class, 'getWorkingHours']);
+            Route::get('/statistics', [WorkingHourController::class, 'getWorkingHoursStatistics']);
+        });
+        ######## End WorkingHour ########
+
         ######## GeneralConversation ########
         Route::group(['prefix' => 'general-conversations'], function () {
             Route::group(['prefix' => 'questions'], function () {
+                Route::get('/index', [GeneralConversationController::class, 'index']);
                 Route::post('/', [GeneralConversationController::class, 'addQuestion']);
-                Route::get('/', [GeneralConversationController::class, 'getQuestions']);
-                Route::get('/{question_id}', [GeneralConversationController::class, 'getQuestionById']);
-                Route::put('/close-overdue', [GeneralConversationController::class, 'closeOverdueQuestions']);
+                Route::get('/', [GeneralConversationController::class, 'getAllQuestions']);
+                Route::get('/{question_id}', [GeneralConversationController::class, 'getQuestionById'])->where('question_id', '[0-9]+');
                 Route::put('/{question_id}/close', [GeneralConversationController::class, 'closeQuestion']);
                 Route::put('/{question_id}/solve', [GeneralConversationController::class, 'solveQuestion']);
                 Route::put('/{question_id}/assign-to-parent', [GeneralConversationController::class, 'AssignQuestionToParent']);
-                Route::get('/assigned-to-me', [GeneralConversationController::class, 'getAssignedToMeQuestions']);
+                Route::put('/{question_id}/move-to-discussion', [GeneralConversationController::class, 'moveQuestionToDiscussion']);
+                Route::put('/{question_id}/move-to-questions', [GeneralConversationController::class, 'moveQuestionToQuestions']);
                 Route::get('/my-questions', [GeneralConversationController::class, 'getMyQuestions']);
+                Route::get('/my-active-questions', [GeneralConversationController::class, 'getMyActiveQuestions']);
+                Route::get('/my-late-questions', [GeneralConversationController::class, 'getMyLateQuestions']);
+                Route::get('/discussion-questions', [GeneralConversationController::class, 'getDiscussionQuestions']);
                 Route::get('/statistics', [GeneralConversationController::class, 'getQuestionsStatistics']);
             });
 
             Route::group(['prefix' => 'answers'], function () {
                 Route::post('/', [GeneralConversationController::class, 'answerQuestion']);
             });
-
-            Route::group(['prefix' => 'working-hours'], function () {
-                Route::post('/', [GeneralConversationController::class, 'addWorkingHours']);
-                Route::get('/', [GeneralConversationController::class, 'getWorkingHours']);
-                Route::get('/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
-            });
-
-            Route::prefix('followup')->group(function () {
-                Route::post('/', [QuestionFollowupController::class, 'addFollowup']);
-                Route::get('/statistics', [QuestionFollowupController::class, 'getFollowupStatistics']);
-            });
         });
-        ######## BookStatistics ########
+        ######## End GeneralConversation ########
 
 
 
