@@ -294,19 +294,6 @@ class UserGroupController extends Controller
                     (new NotificationController)->sendNotification($user->id, $msg, ROLES, $this->getGroupPath($group->id));
                     //event(new NotificationsEvent($msg,$user));
 
-                    $current_week_id = Week::latest()->pluck('id')->first();
-                    Mark::updateOrCreate(
-                        [
-                            'user_id' => $user->id,
-                            'week_id' => $current_week_id
-                        ],
-                        [
-                            'user_id' => $user->id,
-                            'week_id' => $current_week_id
-                        ],
-                    );
-
-
                     $successMessage = 'تمت إضافة العضو ك' . $arabicRole . " للمجموعة";
                     return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
                 } else {
@@ -492,7 +479,7 @@ class UserGroupController extends Controller
             $userGroup = UserGroup::find($request->user_group_id);
 
             if ($userGroup) {
-                User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id'=>null]);
+                User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
                 $userGroup->termination_reason = 'withdrawn';
                 $userGroup->save();
                 return $this->jsonResponseWithoutMessage('User withdrawn', 'data', 200);
