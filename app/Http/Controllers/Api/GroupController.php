@@ -687,13 +687,13 @@ class GroupController extends Controller
         // $users_in_group = Group::where('id', $group_id)
         //     ->with('leaderAndAmbassadors')
         //     ->first();
-        $users_in_group = $this->usersByWeek($group_id, $week_id, ['leader','ambassador']);
+        $users_in_group = $this->usersByWeek($group_id, $week_id, ['leader', 'ambassador']);
 
 
         $response['users_in_group'] = $users_in_group->count();
 
         $response['ambassadors_reading'] = User::without('userProfile')->with('roles')->select('users.*')
-            ->whereIn('users.id', $users_in_group->pluck('id'))
+            ->whereIn('users.id', $users_in_group->pluck('user_id'))
             ->selectRaw('COALESCE(marks.reading_mark, 0) as reading_mark')
             ->selectRaw('COALESCE(marks.writing_mark, 0) as writing_mark')
             ->selectRaw('COALESCE(marks.total_pages, 0) as total_pages')
@@ -708,7 +708,7 @@ class GroupController extends Controller
             ->get();
 
         $response['total_statistics'] = Mark::without('user,week')->where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->pluck('id'))
+            ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select(
                 DB::raw('sum(reading_mark + writing_mark + support) as team_out_of_100'),
@@ -721,7 +721,7 @@ class GroupController extends Controller
             )->first();
 
         $response['most_read'] = Mark::where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->pluck('id'))
+            ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
             ->groupBy('user_id')
@@ -730,19 +730,19 @@ class GroupController extends Controller
 
         $response['total']['freezed'] =
             Mark::without('user,week')->where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->pluck('id'))
+            ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 1)
             ->count();
 
         $response['total']['out_of_90'] = Mark::without('user')->where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->pluck('id'))
+            ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('sum(reading_mark + writing_mark) as out_of_90'))
             ->groupBy('user_id')
             ->having('out_of_90', '=', 90)
             ->count();
         $response['total']['out_of_100'] = Mark::without('user')->where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->pluck('id'))
+            ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('sum(reading_mark + writing_mark) as out_of_100'))
             ->groupBy('user_id')
@@ -750,7 +750,7 @@ class GroupController extends Controller
             ->count();
 
         $response['total']['others'] = Mark::without('user')->where('week_id', $response['week']->id)
-            ->whereIn('user_id', $users_in_group->pluck('id'))
+            ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
             ->groupBy('user_id')
@@ -761,7 +761,7 @@ class GroupController extends Controller
 
         $currentMonth = date('m', strtotime($response['week']->created_at));
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
-        $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->pluck('id'))
+        $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->whereIn('week_id', $weeksInMonth->pluck('id'))
             ->where('is_freezed', 0)
             ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))
