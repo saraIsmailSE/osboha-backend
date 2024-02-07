@@ -110,7 +110,7 @@ class WorkingHourController extends Controller
             throw new NotAuthorized;
         }
 
-        /* Requirements:- 
+        /* Requirements:-
         - number of hours the last week
         - number of hours based on the selected month
         - working hours for each user grouped by week and role
@@ -120,10 +120,10 @@ class WorkingHourController extends Controller
         //get last 2 weeks
         $response['weeks'] = Week::orderBy('created_at', 'desc')->take(2)->get();
 
-        //selected date 
+        //selected date
         $selected_date = $request->date;
 
-        //if no date is selected, get the current date 
+        //if no date is selected, get the current date
         if ($selected_date) {
             $selected_date = Carbon::parse($selected_date)->toDateString();
         } else {
@@ -221,7 +221,7 @@ class WorkingHourController extends Controller
             throw new NotAuthorized;
         }
 
-        /* Requirements:- 
+        /* Requirements:-
       {
         current_week: [input is week id],
         previous_week: [input is week id],

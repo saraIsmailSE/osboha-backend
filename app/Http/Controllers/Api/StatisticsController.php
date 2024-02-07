@@ -22,7 +22,7 @@ use function PHPUnit\Framework\returnSelf;
 /**
  * Description: StatisticsController for Osboha general statistics.
  *
- * Methods: 
+ * Methods:
  * - byWeek
  */
 
@@ -33,7 +33,7 @@ class StatisticsController extends Controller
 
     /**
      * Get Statistics By Week ID.
-     * 
+     *
      * @return statistics;
      */
 
@@ -102,7 +102,7 @@ class StatisticsController extends Controller
 
     /**
      * Get Statistics
-     * 
+     *
      * @return statistics;
      */
     public function supervisingStatistics($superviser_id, $week_filter = "current")
@@ -110,7 +110,7 @@ class StatisticsController extends Controller
         $supervisingGroup = UserGroup::where('user_id', $superviser_id)->where('user_type', 'supervisor')
             ->whereHas('group.type', function ($q) {
                 $q->where('type', '=', 'supervising');
-            })->first();
+            })->whereNull('termination_reason')->first();
 
         // الفريق الرقابي مع القادة بداخله
 
@@ -163,7 +163,7 @@ class StatisticsController extends Controller
         $advisingGroup = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')
             ->whereHas('group.type', function ($q) {
                 $q->where('type', '=', 'advising');
-            })->first();
+            })->whereNull('termination_reason')->first();
 
         $advisorGroup = Group::without('type', 'Timeline')->with('userAmbassador')->find($advisingGroup->group_id);
 
@@ -216,7 +216,7 @@ class StatisticsController extends Controller
         $consultantingGroup = UserGroup::where('user_id', $consultant_id)->where('user_type', 'consultant')
             ->whereHas('group.type', function ($q) {
                 $q->where('type', '=', 'consultation');
-            })->first();
+            })->whereNull('termination_reason')->first();
 
         if (!$consultantingGroup) {
             throw new NotFound;
@@ -307,7 +307,7 @@ class StatisticsController extends Controller
         $administrationGroup = UserGroup::where('user_id', $administrator_id)->where('user_type', 'admin')
             ->whereHas('group.type', function ($q) {
                 $q->where('type', '=', 'Administration');
-            })->first();
+            })->whereNull('termination_reason')->first();
 
         if (!$administrationGroup) {
             throw new NotFound;
@@ -361,7 +361,7 @@ class StatisticsController extends Controller
         $teamStatistics['leader_name'] = $group->user->name;
         $teamStatistics['team'] = $group->group->name;
 
-        //for each leader get follow up group with its ambassador 
+        //for each leader get follow up group with its ambassador
         $followup = Group::without('type', 'Timeline')->with('leaderAndAmbassadors')->where('id', $group->group_id)->first();
         // Number of Ambassadors
         $teamStatistics['number_ambassadors'] = $followup->leaderAndAmbassadors->count();
@@ -435,7 +435,7 @@ class StatisticsController extends Controller
         $teamStatistics['team'] = $supervisorGroup->name;
 
 
-        //for each supervisor get leaders follow up group with its ambassador 
+        //for each supervisor get leaders follow up group with its ambassador
         $followups = Group::without('type', 'Timeline')->with('leaderAndAmbassadors')->whereIn('id', $group_followups->pluck('group_id'))->get();
 
         // last week Avg.

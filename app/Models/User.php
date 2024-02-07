@@ -99,6 +99,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Group::class, 'user_groups')->withPivot('user_type', 'termination_reason');
     }
+    public function weekActivities()
+    {
+        return $this->belongsToMany(userWeekActivities::class, 'user_week_activities');
+    }
     public function LeaderRrequest()
     {
         return $this->hasMany(leader_request::class, 'leader_id');

@@ -270,10 +270,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'ambassadorMark']);
             Route::get('/marathon-ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'marathonAmbassadorMark']);
             Route::put('/accept-support/user/{user_id}/{week_id}', [MarkController::class, 'acceptSupport']);
+            Route::put('/add-one-thesis-mark/user/{user_id}/{week_id}', [MarkController::class, 'addOneThesisMark']);
             Route::put('/reject-support/user/{user_id}/{week_id}', [MarkController::class, 'rejectSupport']);
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
             Route::get('/top-users-by-month', [MarkController::class, 'topUsersByMonth']);
             Route::get('/top-users-by-week', [MarkController::class, 'topUsersByWeek']);
+            Route::put('/set-activity-mark/{user_id}/{week_id}', [MarkController::class, 'setActivityMark']);
+            Route::put('/unset-activity-mark/{user_id}/{week_id}', [MarkController::class, 'unsetActivityMark']);
+
         });
         ########End Mark########
 
@@ -437,6 +441,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);
             Route::get('/support', [PostController::class, 'getSupportPosts']);
             Route::get('/support/latest', [PostController::class, 'getLastSupportPost']);
+            Route::get('/friday-thesis', [PostController::class, 'getFridayThesisPosts']);
+            Route::get('/friday-thesis/latest', [PostController::class, 'getLastFridayThesisPost']);
             Route::get('/pending/timeline/{timeline_id}/{post_id?}', [PostController::class, 'getPendingPosts']);
             Route::get('/current-week-support', [PostController::class, 'getCurrentWeekSupportPost']);
         });

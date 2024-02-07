@@ -25,6 +25,7 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
+use App\Models\userWeekActivities;
 use App\Notifications\GeneralNotification;
 use App\Notifications\MailSupportPost;
 use App\Traits\PathTrait;
@@ -391,6 +392,30 @@ class MarkController extends Controller
                         $response['support']['supportError'] = 'لم يتم نشر منشور اعرف مشروعك بعد!';
                     }
                     /*end support*/
+
+                    /*osboha activities*/
+                    $activitiesPostType = PostType::whereIn('type', ['friday-thesis', 'discussion'])->pluck('id');
+                    $activities_post = Post::with(['comments' => function ($query) use ($user_id) {
+                        $query->where('user_id', $user_id);
+                    }])
+                        ->whereIn('type_id', $activitiesPostType)
+                        ->where('created_at', '>', $currentWeek->created_at)
+                        ->where('created_at', '<', $main_timer)
+                        ->latest()
+                        ->get();
+
+                    if ($activities_post->isNotEmpty()) {
+                        $graded = userWeekActivities::where('user_id', $user_id)->where('week_id', $week_id)->exists();
+                        $response['activities'] = [
+                            'activities_post' => $activities_post,
+                            'activitiesError' => null,
+                            'graded' => $graded
+                        ];
+                    } else {
+                        $response['activities']['activitiesError'] = 'لا يوجد أنشطة لهذا الأسبوع';
+                    }
+                    /*end osboha activities*/
+
                     return $this->jsonResponseWithoutMessage($response, 'data', 200);
                 } else {
                     throw new NotAuthorized;
@@ -467,6 +492,74 @@ class MarkController extends Controller
         }
     }
 
+    public function setActivityMark($user_id, $week_id)
+    {
+        //get user group and its administrators
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
+        //check if auth user is an administrator in the group
+        if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
+            $week = Week::find($week_id);
+            if ($week) {
+                if (date('Y-m-d H:i:s') > $week->modify_timer) {
+                    return $this->jsonResponseWithoutMessage("لا يمكنك اضافة العلامة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
+                }
+                $graded = userWeekActivities::where('user_id', $user_id)->where('week_id', $week_id)->exists();
+                if (!$graded) {
+                    $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
+                    if ($mark) {
+                        if ($mark->writing_mark <= 32) {
+                            $newWritingMark = $mark->writing_mark + 8;
+                            $mark->update(['writing_mark' => $newWritingMark]);
+                        }
+                        userWeekActivities::updateOrCreate(
+                            ['user_id' => $user_id, 'week_id' => $week_id],
+                            ['user_id' => $user_id, 'week_id' => $week_id]
+                        );
+                        return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+                    } else {
+                        throw new NotFound;
+                    }
+                } else {
+                    return $this->jsonResponseWithoutMessage("already graded", 'data', 200);
+                }
+            } else {
+                return $this->jsonResponseWithoutMessage("Week Not Found", 'data', 200);
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+    // public function unsetActivityMark($user_id, $week_id)
+    // {
+    //     //get user group and its administrators
+    //     $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
+    //     //check if auth user is an administrator in the group
+    //     if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
+    //         $week = Week::find($week_id);
+    //         if ($week) {
+    //             if (date('Y-m-d H:i:s') > $week->modify_timer) {
+    //                 return $this->jsonResponseWithoutMessage("لا يمكنك اضافة العلامة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
+    //             }
+    //             $graded = userWeekActivities::where('user_id', $user_id)->where('week_id', $week_id)->exists();
+    //             if (!$graded) {
+    //                 $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
+    //                 if ($mark) {
+    //                         $newWritingMark = $mark->writing_mark - 8;
+    //                         $mark->update(['writing_mark' => $newWritingMark]);
+    //                     return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+    //                 } else {
+    //                     throw new NotFound;
+    //                 }
+    //             } else {
+    //                 return $this->jsonResponseWithoutMessage("already graded", 'data', 200);
+    //             }
+    //         } else {
+    //             return $this->jsonResponseWithoutMessage("Week Not Found", 'data', 200);
+    //         }
+    //     } else {
+    //         throw new NotAuthorized;
+    //     }
+    // }
     /**
      * reject support vote for ambassador
      * @param  $user_id
