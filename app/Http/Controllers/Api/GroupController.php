@@ -28,6 +28,7 @@ use App\Models\ExceptionType;
 use App\Models\TimelineType;
 use App\Traits\GroupTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Description: GroupController for Osboha group.
@@ -883,6 +884,8 @@ class GroupController extends Controller
                     $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
 
                     if ($group) {
+                        $groupName = $group->name;
+
                         //add user to selected advising group
                         UserGroup::updateOrCreate(
                             [
@@ -920,6 +923,10 @@ class GroupController extends Controller
                                 }
                             }
                         }
+
+                        $logInfo = ' قام ' . Auth::user()->name . " بتعيين " . $user->name . ' على أفرقة ' . $groupName . ' بدور '  . $arabicRole;
+                        Log::channel('community_edits')->info($logInfo);
+
                         return $this->jsonResponseWithoutMessage("تمت الاضافة", 'data', 200);
                     } else {
                         return $this->jsonResponseWithoutMessage("المجموعة غير موجودة", 'data', 200);
@@ -961,6 +968,7 @@ class GroupController extends Controller
                 if (!$currentSupervising) {
                     $group = Group::with('userAmbassador')->where('id', $request->group_id)->first();
                     if ($group) {
+                        $groupName = $group->name;
                         //* اضافة المراقب الجديد إلى مجموعة الرقابة
 
                         UserGroup::updateOrCreate(
@@ -1000,6 +1008,9 @@ class GroupController extends Controller
                             //     ]
                             // );
                         }
+                        $logInfo = ' قام ' . Auth::user()->name . " بتعيين " . $newSupervisor->name . ' على أفرقة ' . $groupName . ' بدور مراقب';
+                        Log::channel('community_edits')->info($logInfo);
+
                         return $this->jsonResponseWithoutMessage('تمت الاضافة', 'data', 200);
                     } else {
                         return $this->jsonResponseWithoutMessage('الفريق الرقابي غير موجود', 'data', 200);

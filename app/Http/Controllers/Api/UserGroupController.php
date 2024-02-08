@@ -21,6 +21,7 @@ use App\Models\Week;
 use App\Notifications\MailAmbassadorDistribution;
 use App\Notifications\MailMemberAdd;
 use App\Traits\PathTrait;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 
@@ -112,8 +113,6 @@ class UserGroupController extends Controller
         } else if (!$user->hasRole($validatedData['uesr_type'])) {
             return $this->jsonResponseWithoutMessage('User does not have the required role', 'data', 401);
         }
-
-
 
         $user->save();
         $userGroup = UserGroup::create(['user_id' => $user->id, 'group_id' =>  $validatedData['group_id'], $validatedData['uesr_type']]);
@@ -295,6 +294,10 @@ class UserGroupController extends Controller
                     //event(new NotificationsEvent($msg,$user));
 
                     $successMessage = 'تمت إضافة العضو ك' . $arabicRole . " للمجموعة";
+
+                    $logInfo = ' قام ' . Auth::user()->name . " باضافة " . $user->name . ' إلى فريق ' . $group->name . ' بدور '  . $arabicRole;
+                    Log::channel('community_edits')->info($logInfo);
+
                     return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
                 } else {
                     return $this->jsonResponseWithoutMessage("قم بترقية العضو ل" . $arabicRole . " أولاً", 'data', 500);
@@ -439,15 +442,16 @@ class UserGroupController extends Controller
         if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
             $user_group = UserGroup::find($user_group_id);
             if ($user_group) {
+                $logInfo = ' قام ' . Auth::user()->name . " بحذف السفير " . $user_group->user->name . ' من فريق ' . $user_group->group->name;
                 //asmaa - check if the deleted member is support_leader then remove the support_leader of the user
                 if ($user_group->user_type == 'support_leader') {
                     $user = User::find($user_group->user_id);
-                    $user->removeRole('support_leader');
+                    // $user->removeRole('support_leader');
+                    $logInfo = ' قام ' . Auth::user()->name . " بحذف قائد الدعم " . $user_group->user->name . ' من فريق ' . $user_group->group->name;
                 }
-                /**
-                 * @todo: slow query - asmaa
-                 */
+
                 $user_group->delete();
+                Log::channel('community_edits')->info($logInfo);
 
                 return $this->jsonResponseWithoutMessage('User Deleted', 'data', 200);
             } else {
@@ -482,6 +486,9 @@ class UserGroupController extends Controller
                 User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
                 $userGroup->termination_reason = 'withdrawn';
                 $userGroup->save();
+                $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
+                Log::channel('community_edits')->info($logInfo);
+
                 return $this->jsonResponseWithoutMessage('User withdrawn', 'data', 200);
             } else {
                 throw new NotFound;
