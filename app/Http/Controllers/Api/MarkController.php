@@ -507,18 +507,20 @@ class MarkController extends Controller
                 if (!$graded) {
                     $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
                     if ($mark) {
-                        if ($mark->writing_mark <= 32) {
-                            $newWritingMark = $mark->writing_mark + 8;
-                            $mark->update(['writing_mark' => $newWritingMark]);
-                        }else{
-                            $markToAdd = 40 - $mark->writing_mark ;
-                            $newWritingMark = $mark->writing_mark + $markToAdd;
-                            $mark->update(['writing_mark' => $newWritingMark]);
+                        if ($mark->writing_mark != 40) {
+                            if ($mark->writing_mark <= 32) {
+                                $newWritingMark = $mark->writing_mark + 8;
+                                $mark->update(['writing_mark' => $newWritingMark]);
+                            } else {
+                                $markToAdd = 40 - $mark->writing_mark;
+                                $newWritingMark = $mark->writing_mark + $markToAdd;
+                                $mark->update(['writing_mark' => $newWritingMark]);
+                            }
+                            userWeekActivities::updateOrCreate(
+                                ['user_id' => $user_id, 'week_id' => $week_id],
+                                ['user_id' => $user_id, 'week_id' => $week_id]
+                            );
                         }
-                        userWeekActivities::updateOrCreate(
-                            ['user_id' => $user_id, 'week_id' => $week_id],
-                            ['user_id' => $user_id, 'week_id' => $week_id]
-                        );
                         return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
                     } else {
                         throw new NotFound;
