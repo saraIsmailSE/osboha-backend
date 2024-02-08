@@ -205,7 +205,7 @@ class GeneralConversationController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->hasAnyRole(['admin', 'consultant', 'advisor', 'supervisor', 'leader'])) {
+        if (!$user->hasAnyRole(['admin', 'consultant', 'advisor'])) {
             throw new NotAuthorized;
         }
 
@@ -325,7 +325,10 @@ class GeneralConversationController extends Controller
             throw new NotAuthorized;
         }
 
-        $question = Question::find($question_id);
+        $question = Question::where('id', $question_id)
+            ->with('answers', function ($query) {
+                $query->where('is_discussion', false);
+            })->first();
 
         if (!$question) {
             return $this->jsonResponse(
@@ -362,7 +365,7 @@ class GeneralConversationController extends Controller
             $answer = $question->answers()->create([
                 "answer" => $request->answer,
                 "user_id" => $user->id,
-                "is_discussion" => $request->is_discussion,
+                "is_discussion" => $request->has('is_discussion') ? $request->is_discussion : false,
             ]);
 
             $message = "لقد قام " . $user->name . " بالإجابة على سؤالك";
