@@ -131,7 +131,7 @@ class ExcludingUsersV2Controller extends Controller
                 ->whereRaw('COALESCE(m3.reading_mark, 0) = 0')
                 ->whereRaw('COALESCE(m3.is_freezed, 0) = 0')
                 ->whereNull('m4.id')
-                ->where('users.created_at', '<', '2024-01-07 02:59:59')
+                ->where('users.created_at', '<', $lastWeekIds[2]->created_at)
                 ->whereNotNull('users.email_verified_at')
                 ->where('users.is_excluded', 0)
                 ->whereExists(function ($query) use ($lastWeekIds) {
