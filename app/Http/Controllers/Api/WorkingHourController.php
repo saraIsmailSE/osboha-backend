@@ -217,7 +217,7 @@ class WorkingHourController extends Controller
 
     public function getWorkingHoursStatistics(Request $request)
     {
-        if (!Auth::user()->hasAnyRole(['admin'])) {
+        if (!Auth::user()->hasAnyRole(['admin', 'consultant', 'advisor'])) {
             throw new NotAuthorized;
         }
 

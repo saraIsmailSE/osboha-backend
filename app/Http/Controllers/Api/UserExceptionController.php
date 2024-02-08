@@ -106,6 +106,7 @@ class UserExceptionController extends Controller
         $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
         $monthlyExam = ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
         $FinalExam = ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
+        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
 
         $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->first()->group;
         $leader_id = Auth::user()->parent_id;
@@ -226,6 +227,21 @@ class UserExceptionController extends Controller
                 } else {
                     (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
                 }
+            }
+            return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
+        } elseif ($request->type_id == $withdrawn->id) { // تجميد استثنائي
+
+            $successMessage = "";
+
+            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
+
+                $exception['status'] = 'pending';
+                $successMessage = "تم رفع طلبك للانسحاب انتظر الموافقة";
+
+                $userException = UserException::create($exception);
+                $userException->fresh();
+            } else {
+                return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
             }
             return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
         } else {
@@ -618,6 +634,7 @@ class UserExceptionController extends Controller
             $exceptionalFreez = ExceptionType::where('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'))->first();
             $monthlyExam = ExceptionType::where('type', config('constants.EXAMS_MONTHLY_TYPE'))->first();
             $FinalExam = ExceptionType::where('type', config('constants.EXAMS_SEASONAL_TYPE'))->first();
+            $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
 
             $owner_of_exception = User::find($userException->user_id);
             $user_group = UserGroup::with("group")->where('user_id', $userException->user_id)->where('user_type', 'ambassador')->first();
@@ -634,6 +651,8 @@ class UserExceptionController extends Controller
                     $this->handleExceptionalFreezing($userException, $authID, $owner_of_exception, $leader_id,  $request->note, $request->decision, $desired_week);
                 } elseif ($userException->type_id == $monthlyExam->id || $userException->type_id == $FinalExam->id) { // exam exception
                     $this->handleExamException($userException, $authID, $owner_of_exception, $leader_id,  $request->note, $request->decision, $desired_week);
+                } elseif ($userException->type_id == $withdrawn->id) { // withdrawn exception
+                    $this->handleWithdrawnException($userException, $authID, $owner_of_exception, $leader_id,  $request->note, $request->decision, $desired_week);
                 }
             } else {
                 throw new NotAuthorized;
@@ -777,6 +796,35 @@ class UserExceptionController extends Controller
         return $this->jsonResponseWithoutMessage("تم التعديل بنجاح", 'data', 200);
     }
 
+    public function handleWithdrawnException($userException, $authID, $owner_of_exception, $leader_id,  $note, $decision, $desired_week)
+    {
+
+        if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
+
+            $userException->note = $note;
+            $userException->reviewer_id = $authID;
+            $userException->status = 'accepted';
+            $status = 'مقبول';
+
+            //notify leader
+            $msg = "السفير:  " . $owner_of_exception->name . " طلب انسحاب مؤقت ";
+            (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+
+            //update
+            $userException->update();
+
+            //notify ambassador By Email
+            $userToNotify = User::find($userException->user_id);
+            $userToNotify->notify(
+                (new \App\Notifications\UpdateExceptionStatus($status, $userException->note, $userException->start_at, $userException->end_at))
+                    ->delay(now()->addMinutes(2))
+            );
+
+            return $this->jsonResponseWithoutMessage("تم التعديل بنجاح", 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
 
     private function updateUserMarksToFreez($weekId, $userId)
     {

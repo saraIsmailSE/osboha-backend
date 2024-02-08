@@ -510,6 +510,10 @@ class MarkController extends Controller
                         if ($mark->writing_mark <= 32) {
                             $newWritingMark = $mark->writing_mark + 8;
                             $mark->update(['writing_mark' => $newWritingMark]);
+                        }else{
+                            $markToAdd = 40 - $mark->writing_mark ;
+                            $newWritingMark = $mark->writing_mark + $markToAdd;
+                            $mark->update(['writing_mark' => $newWritingMark]);
                         }
                         userWeekActivities::updateOrCreate(
                             ['user_id' => $user_id, 'week_id' => $week_id],

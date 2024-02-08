@@ -76,6 +76,7 @@ return [
     'EXCEPTIONAL_FREEZING_TYPE' => 'تجميد استثنائي',
     'EXAMS_MONTHLY_TYPE' => 'نظام امتحانات - شهري',
     'EXAMS_SEASONAL_TYPE' => 'نظام امتحانات - فصلي',
+    'WITHDRAWN_TYPE' => 'انسحاب مؤقت',
     'ARABIC_ROLES' => [
         'support_leader' => 'قائد دعم',
         'ambassador' => "سفير",

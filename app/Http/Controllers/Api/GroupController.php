@@ -24,6 +24,7 @@ use App\Models\UserException;
 use App\Models\Week;
 use Illuminate\Support\Facades\DB;
 use App\Models\Book;
+use App\Models\ExceptionType;
 use App\Models\TimelineType;
 use App\Traits\GroupTrait;
 use Carbon\Carbon;
@@ -326,7 +327,7 @@ class GroupController extends Controller
     public function groupExceptions($group_id)
     {
 
-        //editted by asmaa
+        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
         $userInGroup = UserGroup::where('group_id', $group_id)
             ->where('user_id', Auth::id())
             ->where('user_type', '!=', 'ambassador')
@@ -337,7 +338,7 @@ class GroupController extends Controller
         if ($userInGroup || Auth::user()->hasRole(['admin'])) {
             $response['week'] = Week::latest()->first();
             $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
-            $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->latest()->get();
+            $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
             throw new NotAuthorized;
@@ -354,10 +355,12 @@ class GroupController extends Controller
     {
 
         $group = Group::with('users')->where('id', $group_id)->first();
+        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
+
         if ($filter == 'oldest') {
             $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->get();
         } else if ($filter == 'latest') {
-            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
         } else if ($filter == 'freez') {
             $exceptions = UserException::whereHas('type', function ($query) {
                 $query->where('type', 'تجميد الأسبوع الحالي')
@@ -373,13 +376,13 @@ class GroupController extends Controller
                     ->orWhere('type', 'نظام امتحانات - فصلي');
             })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
         } else if ($filter == 'accepted') {
-            $exceptions = UserException::where('status', 'accepted')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            $exceptions = UserException::where('status', 'accepted')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
         } else if ($filter == 'pending') {
-            $exceptions = UserException::where('status', 'pending')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            $exceptions = UserException::where('status', 'pending')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
         } else if ($filter == 'rejected') {
-            $exceptions = UserException::where('status', 'rejected')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            $exceptions = UserException::where('status', 'rejected')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
         } else if ($filter == 'finished') {
-            $exceptions = UserException::where('status', 'finished')->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            $exceptions = UserException::where('status', 'finished')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
         }
 
         return $this->jsonResponseWithoutMessage($exceptions, 'data', 200);
