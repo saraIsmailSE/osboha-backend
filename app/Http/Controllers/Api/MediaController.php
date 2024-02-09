@@ -25,7 +25,7 @@ class MediaController extends Controller
 
     /**
      * Read all media in the system.
-     * 
+     *
      * @return jsonResponseWithoutMessage;
      */
     public function index()
@@ -38,7 +38,7 @@ class MediaController extends Controller
     }
     /**
      *Add a new media to the system.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponse;
      */
@@ -64,7 +64,7 @@ class MediaController extends Controller
 
     /**
      *upload media to the system. [for testing]
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponse;
      */
@@ -139,7 +139,7 @@ class MediaController extends Controller
 
             return $this->jsonResponseWithoutMessage("Media Updated Successfully", 'data', 200);
         } else {
-            throw new NotFound; //asmaa 
+            throw new NotFound; //asmaa
         }
     }
 
@@ -187,10 +187,11 @@ class MediaController extends Controller
     /**
      * Remove media files of the old records from the public folder.
      * Keep the records of the current week and the last week.
-     * @return JsonResponse;     
+     * @return JsonResponse;
      */
     public function removeOldMedia()
     {
+        Log::channel('media')->info('START');
         //get last week
         $lastWeek = Week::orderBy('id', 'desc')
             ->skip(1)
@@ -207,11 +208,11 @@ class MediaController extends Controller
             ->whereNotNull('comment_id')
             ->pluck('media');
 
-        //delete media files 
+        //delete media files
         try {
             $deletedFiles = $this->deleteMediaFiles($media);
 
-            //log the deleted files            
+            //log the deleted files
             Log::channel('media')->info('Deleted media files', [
                 'deletedFiles' => $deletedFiles,
                 'message' => count($deletedFiles) > 0 ? '(' . count($deletedFiles) . ') Media files deleted successfully' : 'No media files deleted'
