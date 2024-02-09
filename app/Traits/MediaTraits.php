@@ -6,6 +6,7 @@ use App\Models\Media;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Image;
 use Intervention\Image\Facades\Image as ResizeImage;
 
@@ -131,7 +132,7 @@ trait MediaTraits
     function deleteMedia($media_id)
     {
         $currentMedia = Media::find($media_id);
-        //delete current media        
+        //delete current media
         File::delete(public_path('assets/images/' . $currentMedia->media));
         $currentMedia->delete();
     }
@@ -170,7 +171,7 @@ trait MediaTraits
     function deleteTeProfileMedia($id)
     {
         $user = User::find($id);
-        //delete current media    
+        //delete current media
         File::delete('asset/images/temMedia/' . $user->picture);
         $user->picture = null;
         $user->save();
@@ -239,14 +240,30 @@ trait MediaTraits
     {
         $filesDeleted = [];
         foreach ($files as $file) {
-            //check if file exist
-            if (File::exists(public_path('assets/images/' . $file))) {
-                //delete file
-                File::delete(public_path('assets/images/' . $file));
-                $filesDeleted[] = $file;
+            $filePath = public_path('assets/images/' . $file);
+            try {
+                if (File::exists($filePath)) {
+                    File::delete($filePath);
+                    $filesDeleted[] = $file;
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
             }
+            unset($file); // Free up the variable's memory
         }
-
         return $filesDeleted;
+    }
+    function deleteMedia_v2($file)
+    {
+            try {
+                $filePath = public_path('assets/images/' . $file);
+                if (File::exists($filePath)) {
+                    File::delete($filePath);
+                    unset($file); // Free up the variable's memory
+                    return 'deleted';
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
+            }
     }
 }

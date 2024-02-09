@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
 
         //delete old media every week on sunday at 5:00 am
-        $schedule->command('media:deleteOld')->weekly()->fridays()->at('07:11');
+        $schedule->command('media:deleteOld')->weekly()->fridays()->at('08:45');
 
         //accept support for all
         $schedule->command('support:accept')->weekly()->fridays()->at('22:30');

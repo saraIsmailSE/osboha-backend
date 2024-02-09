@@ -147,17 +147,15 @@ class ExcludingUsersV2Controller extends Controller
                     DB::beginTransaction();
 
                     foreach ($users as $user) {
-                        foreach ($users as $user) {
-                            if ($user->hasanyrole('admin|consultant|advisor|supervisor|leader')) {
-                                (new NotificationController)->sendNotification(
-                                    $user->parent_id,
-                                    'لقد حصل '  . $user->name . ' على صفر - تجميد - صفر , يرجى تنبيهه',
-                                    EXCLUDED_USER,
-                                    $this->getProfilePath($user->id)
-                                );
-                            } else {
-                                $this->excludeUser($user);
-                            }
+                        if ($user->hasanyrole('admin|consultant|advisor|supervisor|leader')) {
+                            (new NotificationController)->sendNotification(
+                                $user->parent_id,
+                                'لقد حصل '  . $user->name . ' على صفر - تجميد - صفر , يرجى تنبيهه',
+                                EXCLUDED_USER,
+                                $this->getProfilePath($user->id)
+                            );
+                        } else {
+                            $this->excludeUser($user);
                         }
                     }
                     DB::commit();
