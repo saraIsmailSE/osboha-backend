@@ -207,7 +207,7 @@ class MediaController extends Controller
             ->where('type', 'image')
             ->whereNotNull('comment_id')
             ->pluck('media');
-        Log::channel('media')->info('COUN MEDIA ' . count($media));
+        Log::channel('media')->info('COUN MEDIA ' . $media);
 
         //delete media files
         try {
