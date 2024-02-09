@@ -207,21 +207,21 @@ class MediaController extends Controller
             ->where('type', 'image')
             ->whereNotNull('comment_id')
             ->pluck('media');
-        Log::channel('media')->info('COUN MEDIA ' . $media);
+        Log::channel('media')->info($media);
 
         //delete media files
-        try {
-            $deletedFiles = $this->deleteMediaFiles($media);
+        // try {
+        //     $deletedFiles = $this->deleteMediaFiles($media);
 
-            //log the deleted files
-            Log::channel('media')->info('Deleted media files', [
-                'deletedFiles' => $deletedFiles,
-                'message' => count($deletedFiles) > 0 ? '(' . count($deletedFiles) . ') Media files deleted successfully' : 'No media files deleted'
-            ]);
-        } catch (\Throwable $th) {
-            Log::channel('media')->error('Error while deleting media files', [
-                'error' => $th->getMessage() . ' in ' . $th->getFile() . ' at line ' . $th->getLine(),
-            ]);
-        }
+        //     //log the deleted files
+        //     Log::channel('media')->info('Deleted media files', [
+        //         'deletedFiles' => $deletedFiles,
+        //         'message' => count($deletedFiles) > 0 ? '(' . count($deletedFiles) . ') Media files deleted successfully' : 'No media files deleted'
+        //     ]);
+        // } catch (\Throwable $th) {
+        //     Log::channel('media')->error('Error while deleting media files', [
+        //         'error' => $th->getMessage() . ' in ' . $th->getFile() . ' at line ' . $th->getLine(),
+        //     ]);
+        // }
     }
 }
