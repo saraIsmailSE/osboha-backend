@@ -14,8 +14,13 @@ use App\Models\Mark;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\Week;
+use App\Models\EligibleThesis;
+use App\Models\EligibleQuestion;
+use App\Models\EligibleGeneralInformations;
 use Illuminate\Support\Facades\DB;
 use App\Traits\GroupTrait;
+use Illuminate\Validation\Rule;
+
 
 use function PHPUnit\Framework\returnSelf;
 
@@ -154,7 +159,6 @@ class StatisticsController extends Controller
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
-
     public function advisorsStatistics($advisor_id, $week_filter = "current")
     {
 
@@ -206,8 +210,6 @@ class StatisticsController extends Controller
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
-
-
     public function consultantsStatistics($consultant_id, $week_filter = "current")
     {
 
@@ -298,7 +300,6 @@ class StatisticsController extends Controller
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
-
     public function administratorStatistics($administrator_id, $week_filter = "current")
     {
 
@@ -352,8 +353,6 @@ class StatisticsController extends Controller
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
-
-
     private function followupTeamStatistics($group, $previous_week, $last_previous_week)
     {
         $teamStatistics['leader_name'] = $group->user->name;
@@ -478,6 +477,31 @@ class StatisticsController extends Controller
         $teamStatistics['supervisor_own_followup_team'] = $this->followupTeamStatistics($supervisor_followup_team, $previous_week, $last_previous_week);
 
         return $teamStatistics;
+    }
+    public function certificatesStatistics($week_id){
+       
+        $week = Week::where('id',$week_id)->first();
+
+     if( Auth::user()->hasRole('super_reviewer') || Auth::user()->hasRole('super_auditer') ){
+            $super_reviewer['general_thesis'] =  EligibleThesis::where('status', 'audited')
+            ->with('reviewer', 'auditor')
+            ->where('updated_at', '<=', $week->created_at)
+            ->get();
+            $super_reviewer['eligible_questions'] =  EligibleQuestion::where('status', 'audited')
+            ->with('reviewer', 'auditor')
+            ->where('updated_at', '<=', $week->created_at)
+            ->get();
+            $super_reviewer['eligible_general_informations'] =  EligibleGeneralInformations::where('status', 'audited')
+            ->with('reviewer', 'auditor')
+            ->where('updated_at', '<=', $week->created_at)
+            ->get();
+            $response = $super_reviewer;
+        }
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+
+       
+        
+
     }
 
     private function markChanges($last_previous_week, $previous_week, $followupLeaderAndAmbassadors)

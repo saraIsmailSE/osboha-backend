@@ -89,7 +89,25 @@ class EligibleGeneralInformationsController extends Controller
         }
         return $this->jsonResponseWithoutMessage($general_informations, 'data', 200);
     }
-
+    public function updateOrcreat(Request $request)
+    {
+        $input = $request->all();
+        $validator = Validator::make($request->all(), [
+            'general_question' => 'required',
+            'summary' => 'required',
+            'eligible_user_books_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        if (Auth::id() == $general_informations->user_book->user_id){
+            EligibleGeneralInformations::updateOrCreate($input);
+        }
+        else{
+            $input->status = 'audited';
+            EligibleGeneralInformations::updateOrCreate($input);
+        }         
+    }
     public function destroy($id)
     {
 

@@ -88,7 +88,7 @@ use Illuminate\Support\Facades\Broadcast;
 Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
 
 Route::group(['prefix' => 'v1'], function () {
-    
+
 
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
@@ -483,6 +483,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/supervisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
             Route::get('/advisors-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantsStatistics']);
             Route::get('/consultant-statistics/{admin_id}/{week_filter?}', [StatisticsController::class, 'administratorStatistics']);
+            Route::get('/certificates/week_id', [StatisticsController::class, 'certificatesStatistics']);
+
         });
         ######## End Statisticx########
 
