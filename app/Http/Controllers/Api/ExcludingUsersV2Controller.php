@@ -108,6 +108,8 @@ class ExcludingUsersV2Controller extends Controller
     public function case2($lastWeekIds, $currentWeek)
     {
         try {
+            Log::channel('newWeek')->info("case 2 start");
+
             $users = User::with('roles')->leftJoin('marks as m1', function ($join) use ($lastWeekIds) {
                 $join->on('users.id', '=', 'm1.user_id')
                     ->where('m1.week_id', $lastWeekIds[2]->id);
