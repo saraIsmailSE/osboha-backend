@@ -177,6 +177,34 @@ class UserGroupController extends Controller
                     }
                 }
 
+                if ($role->name == 'marathon_ambassador') {
+
+                    if (UserGroup::where('user_id', $user->id)->where('user_type', 'marathon_ambassador')->whereNull('termination_reason')->exists()) {
+                        return $this->jsonResponseWithoutMessage("العضو موجود  كـ سفير مشارك في مجموعة أخرى", 'data', 200);
+                    }
+                } else {
+                    UserGroup::Create(
+                        [
+                            'user_id' => $user->id,
+                            'group_id' => $group->id,
+                            'user_type' => $role->name
+                        ]
+                    );
+
+
+                    $msg = "تمت إضافتك ك " . $arabicRole . " في المجموعة:  " . $group->name;
+                    (new NotificationController)->sendNotification($user->id, $msg, ROLES, $this->getGroupPath($group->id));
+                    //event(new NotificationsEvent($msg,$user));
+
+                    $successMessage = 'تمت إضافة العضو ك' . $arabicRole . " للمجموعة";
+
+                    $logInfo = ' قام ' . Auth::user()->name . " باضافة " . $user->name . ' إلى فريق ' . $group->name . ' بدور '  . $arabicRole;
+                    Log::channel('community_edits')->info($logInfo);
+
+                    return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
+                }
+
+
                 if ($user->hasRole($role->name)) {
                     //check if the role is leader and above then check if this role found in the group
                     if ($role->name !== 'ambassador') {
