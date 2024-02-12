@@ -465,9 +465,15 @@ class GroupController extends Controller
         $marks['group_users'] = $marks['group']->userAmbassador->count() + 1;
         $marks['ambassadors_achievement'] =
             User::whereIn('id', $marks['group']->userAmbassador->pluck('id'))
-            ->with(['mark' => function ($query) use ($marks) {
+            ->with(['mark' => function ($query) use ($marks, $week_id) {
                 $query->where('week_id', $marks['week']->id);
-            }])->get();
+                $query->with(['pendingThesisCount' => function ($query) use ($week_id){
+                    $query->whereHas('mark', function ($query) use ($week_id) {
+                        $query->where('week_id', $week_id);
+                    });
+                }]);
+            }])
+            ->get();
 
         return $this->jsonResponseWithoutMessage($marks, 'data', 200);
     }
