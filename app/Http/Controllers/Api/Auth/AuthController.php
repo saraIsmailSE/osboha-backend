@@ -356,13 +356,17 @@ class AuthController extends Controller
 
         if ($book_in_progress) {
             foreach ($book_in_progress as $key => $book) {
+                $response['book_in_progress'][$key] = $book->book;
                 $last_thesis = Thesis::where('user_id', Auth::id())
                     ->where('book_id', $book->book_id)
                     ->with('book')
                     ->latest()->first();
                 if ($last_thesis) {
-                    $response['book_in_progress'][$key] = $last_thesis->book;
                     $response['progress'][$key] = ($last_thesis->end_page / $last_thesis->book->end_page) * 100;
+                }
+                else{
+                    $response['progress'][$key] =0;
+
                 }
             }
         } else {
