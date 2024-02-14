@@ -19,6 +19,7 @@ class AnswerResource extends JsonResource
             "answer" => $this->answer,
             "question_id" => $this->question_id,
             "user" =>  UserInfoResource::make($this->user),
+            "media" => MediaResource::collection($this->media),
             "created_at" => $this->created_at,
         ];
     }
