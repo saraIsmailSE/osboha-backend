@@ -352,6 +352,11 @@ class GeneralConversationController extends Controller
             "answer" => "required|string",
             "question_id" => "required|integer|exists:questions,id",
             "is_discussion" => "integer|in:0,1|nullable",
+            "media" => "nullable|array",
+            "media.*" => [
+                new base64OrImage(),
+                new base64OrImageMaxSize(2 * 1024 * 1024),
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -367,6 +372,14 @@ class GeneralConversationController extends Controller
                 "user_id" => $user->id,
                 "is_discussion" => $request->has('is_discussion') ? $request->is_discussion : false,
             ]);
+
+            //save media
+            if ($request->has('media')) {
+                $folder_path = 'answers/' . $request->question_id . '/' . Auth::id();
+                foreach ($request->media as $media) {
+                    $this->createMedia($media, $answer->id, 'answer', $folder_path);
+                }
+            }
 
             $message = "لقد قام " . $user->name . " بالإجابة على سؤالك";
 
@@ -388,7 +401,7 @@ class GeneralConversationController extends Controller
             return $this->jsonResponseWithoutMessage("التحويل غير موجود", 'data', Response::HTTP_NOT_FOUND);
         }
 
-        if (Auth::id() === $question->user_id) {
+        if (Auth::id() === $question->user_id || Auth::user()->hasRole('admin')) {
 
             $question->update([
                 'status' => 'solved',
@@ -614,9 +627,12 @@ class GeneralConversationController extends Controller
 
         //get users based on the auth user role
         $allUsers = [];
+        $advisors = [];
         if ($auth->hasRole('admin')) {
             //get all consultants
             $allUsers = User::role('consultant')->get();
+
+            $advisors = User::role('advisor')->get();
         } else if ($auth->hasRole('consultant')) {
             //get consultants' groups
             $consultantGroups = UserGroup::where('user_id', $auth->id)
@@ -641,7 +657,7 @@ class GeneralConversationController extends Controller
             })->get();
         }
 
-        if ($weeks->count() === 0 || $allUsers->count() === 0) {
+        if ($weeks->count() === 0 || ($allUsers->count() === 0 && $advisors->count() === 0)) {
             return $this->jsonResponseWithoutMessage(
                 $response,
                 'data',
@@ -657,7 +673,7 @@ class GeneralConversationController extends Controller
 
         // dd($startDate, $endDate);
 
-        ##### Start fetching data #####
+        ##### Start fetching data -- for all users#####
         $questionsStats = [];
         foreach ($allUsers as $user) {
             $userData = UserInfoResource::make($user);
@@ -676,7 +692,25 @@ class GeneralConversationController extends Controller
             ];
         }
 
+        //in case of ADMIN, get advisors data
+        $advisorsQuestionsStats = [];
+        foreach ($advisors as $user) {
+            $userData = UserInfoResource::make($user);
+
+            $baseUserQuestions = $this->getUserQuestionsQuery($user, $startDate, $endDate);
+
+            $advisorsQuestionsStats[] = [
+                "user" => $userData,
+                "total_questions" => $baseUserQuestions->count(),
+                "total_solved_questions_after_12_hrs" => $this->getSolvedQuestionsCount($baseUserQuestions, '12'),
+                "total_active_questions" => $this->getActiveQuestionsCount($baseUserQuestions),
+                "total_solved_questions" => $this->getSolvedQuestionsCount($baseUserQuestions),
+                "total_questions_assigned_to_parent" => $this->getQuestionsAssignedToParentCount($user, $startDate, $endDate),
+            ];
+        }
+
         $response['statistics'] = $questionsStats;
+        $response['advisorsStatistics'] = $advisorsQuestionsStats;
 
         return $this->jsonResponseWithoutMessage(
             $response,
