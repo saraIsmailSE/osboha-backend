@@ -251,9 +251,12 @@ class UserGroupController extends Controller
                         'user_type' => $role->name
                     ]
                 );
-                $user->parent_id = $group->groupLeader[0]->id;
-                $user->save();
-                $user->notify(new MailAmbassadorDistribution($group->id));
+                // if user is not admin|consultant|advisor make leader parent
+                if (!$user->hasanyrole('admin|consultant|advisor')) {
+                    $user->parent_id = $group->groupLeader[0]->id;
+                    $user->save();
+                    $user->notify(new MailAmbassadorDistribution($group->id));
+                }
             }
         } else {
             UserGroup::Create(
@@ -301,6 +304,10 @@ class UserGroupController extends Controller
         if ($checkMember) {
             return $this->jsonResponseWithoutMessage('يوجد ' . $arabicRole .  ' في المجموعة ', 'data', 200);
         }
+        if ($group->type->type != 'followup' && in_array($role->name, ['leader', 'support_leader'])) {
+            return $this->jsonResponseWithoutMessage(config('constants.ARABIC_ROLES')[$role->name] . " يُضاف بهذا الدور في أفرقة المتابعة فقط ", 'data', 200);
+        }
+
         ########## check if Leader is a supervisor ##########
         //supervisor is leader and supervisor in his followup team
         if ($user->hasRole('supervisor') && $role->name === 'leader' && $group->type->type === 'followup') {
@@ -385,8 +392,8 @@ class UserGroupController extends Controller
     public function  handelAdministrationRoles($user, $group, $role, $arabicRole)
     {
 
-        ########## check if Supervisor exists in group ##########
-        if ($group->type->type === 'advising' || $group->type->type === 'supervising' || $group->type->type === 'followup') {
+        ########## check if administrator exists in group ##########
+        if ($group->type->type === 'advising' || $group->type->type === 'supervising' || $group->type->type === 'followup' ||  $group->type->type === 'marathon') {
             $checkMember = UserGroup::where('group_id', $group->id)
                 ->where('user_type', $role->name)
                 ->whereNull('termination_reason')->first();
