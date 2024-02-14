@@ -422,12 +422,11 @@ class GroupController extends Controller
             User::whereIn('id', $marks['group']->leaderAndAmbassadors->pluck('id'))
             ->with(['mark' => function ($query) use ($week_id) {
                 $query->where('week_id', $week_id);
-                $query->with(['pendingThesisCount' => function ($query) use ($week_id){
+                $query->with(['pendingThesisCount' => function ($query) use ($week_id) {
                     $query->whereHas('mark', function ($query) use ($week_id) {
                         $query->where('week_id', $week_id);
                     });
                 }]);
-
             }])
             ->inRandomOrder()->limit(3)->get();
 
@@ -452,6 +451,11 @@ class GroupController extends Controller
             User::whereIn('id', $marks['group']->ambassadorsInMarathon->pluck('id'))
             ->with(['mark' => function ($query) use ($week_id) {
                 $query->where('week_id', $week_id);
+                $query->with(['pendingThesisCount' => function ($query) use ($week_id) {
+                    $query->whereHas('mark', function ($query) use ($week_id) {
+                        $query->where('week_id', $week_id);
+                    });
+                }]);
             }])->get();
 
 
@@ -473,7 +477,7 @@ class GroupController extends Controller
             User::whereIn('id', $marks['group']->userAmbassador->pluck('id'))
             ->with(['mark' => function ($query) use ($marks, $week_id) {
                 $query->where('week_id', $marks['week']->id);
-                $query->with(['pendingThesisCount' => function ($query) use ($week_id){
+                $query->with(['pendingThesisCount' => function ($query) use ($week_id) {
                     $query->whereHas('mark', function ($query) use ($week_id) {
                         $query->where('week_id', $week_id);
                     });

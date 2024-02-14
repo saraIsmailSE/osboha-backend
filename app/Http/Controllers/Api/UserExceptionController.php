@@ -229,8 +229,7 @@ class UserExceptionController extends Controller
                 }
             }
             return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
-        } elseif ($request->type_id == $withdrawn->id) { // تجميد استثنائي
-
+        } elseif ($request->type_id == $withdrawn->id) { // انسحاب مؤقت
             $successMessage = "";
 
             if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
