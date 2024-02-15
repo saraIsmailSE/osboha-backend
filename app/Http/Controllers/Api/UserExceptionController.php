@@ -22,6 +22,7 @@ use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * UserExceptionController to create exception for user
@@ -106,7 +107,7 @@ class UserExceptionController extends Controller
         $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
         $monthlyExam = ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
         $FinalExam = ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
-        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
+        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
 
         $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->first()->group;
         $leader_id = Auth::user()->parent_id;
@@ -229,16 +230,18 @@ class UserExceptionController extends Controller
                 }
             }
             return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
-        } elseif ($request->type_id == $withdrawn->id) { // انسحاب مؤقت
+        } elseif ($request->type_id == $withdrawn->id) { // انسحاب
+
             $successMessage = "";
 
             if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
 
                 $exception['status'] = 'pending';
                 $successMessage = "تم رفع طلبك للانسحاب انتظر الموافقة";
-
+                $exception['desired_duration'] =  'مؤقت';
                 $userException = UserException::create($exception);
-                $userException->fresh();
+                return $this->jsonResponseWithoutMessage($userException, 'data', 200);
+
             } else {
                 return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
             }
@@ -633,7 +636,7 @@ class UserExceptionController extends Controller
             $exceptionalFreez = ExceptionType::where('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'))->first();
             $monthlyExam = ExceptionType::where('type', config('constants.EXAMS_MONTHLY_TYPE'))->first();
             $FinalExam = ExceptionType::where('type', config('constants.EXAMS_SEASONAL_TYPE'))->first();
-            $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
+            $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
 
             $owner_of_exception = User::find($userException->user_id);
             $user_group = UserGroup::with("group")->where('user_id', $userException->user_id)->where('user_type', 'ambassador')->first();
@@ -682,7 +685,6 @@ class UserExceptionController extends Controller
                 switch ($decision) {
                         //اعفاء الأسبوع الحالي
                     case 1:
-                        $this->updateUserMarksToFreez($desired_week->id, $owner_of_exception->id);
                         $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
@@ -695,7 +697,6 @@ class UserExceptionController extends Controller
                         break;
                         //اعفاء لأسبوعين الحالي و القادم
                     case 3:
-                        $this->updateUserMarksToFreez($desired_week->id, $owner_of_exception->id);
                         $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
@@ -704,12 +705,13 @@ class UserExceptionController extends Controller
                         //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
 
                     case 4:
-                        $this->updateUserMarksToFreez($desired_week->id, $owner_of_exception->id);
                         $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at->addDays(21))->format('Y-m-d');
                         break;
                 }
+
+                $this->updateUserMarksToFreez($desired_week->id, $owner_of_exception->id);
 
                 //notify leader
                 $msg = "السفير:  " . $owner_of_exception->name . " تحت التجميد الاستثنائي لغاية:  " . $userException->end_at;
@@ -802,22 +804,48 @@ class UserExceptionController extends Controller
 
             $userException->note = $note;
             $userException->reviewer_id = $authID;
-            $userException->status = 'accepted';
-            $status = 'مقبول';
+            //notify ambassador By Email
+            $userToNotify = User::find($userException->user_id);
 
-            //notify leader
-            $msg = "السفير:  " . $owner_of_exception->name . " طلب انسحاب مؤقت ";
-            (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+            if (in_array($decision, [1])) {
+                //مقبول
+                $status = 'مقبول';
+
+                $userGroup = UserGroup::where('user_id', $userException->user_id)
+                    ->where('user_type', 'ambassador')
+                    ->whereNull('termination_reason')->first();
+
+                if ($userGroup) {
+
+                    $userException->status = 'accepted';
+
+                    User::where('id', $userException->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
+                    $userGroup->termination_reason = 'withdrawn';
+                    $userGroup->save();
+                    $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
+                    Log::channel('community_edits')->info($logInfo);
+
+
+                    //notify leader
+                    $msg = "السفير:  " . $owner_of_exception->name . " طلب انسحاب مؤقت ";
+                    (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS);
+                    $userToNotify->notify((new \App\Notifications\WithdrawnAccepted())->delay(now()->addMinutes(2)));
+                } else {
+                    return $this->jsonResponseWithoutMessage("لم يتم التعديل - ليس سفيرا في اي مجموعة", 'data', 200);
+                }
+            } else {
+                // رفض
+                $status = 'مرفوض';
+                $userException->status = 'rejected';
+                $userToNotify->notify((new \App\Notifications\WithdrawnRejected($note))->delay(now()->addMinutes(2)));
+            }
+
 
             //update
             $userException->update();
 
-            //notify ambassador By Email
-            $userToNotify = User::find($userException->user_id);
-            $userToNotify->notify(
-                (new \App\Notifications\UpdateExceptionStatus($status, $userException->note, $userException->start_at, $userException->end_at))
-                    ->delay(now()->addMinutes(2))
-            );
+            $msg = "حالة طلبك للانسحاب هي " . $status;
+            (new NotificationController)->sendNotification($userToNotify->id, $msg, USER_EXCEPTIONS, $this->getExceptionPath($userException->id));
 
             return $this->jsonResponseWithoutMessage("تم التعديل بنجاح", 'data', 200);
         } else {
@@ -995,7 +1023,7 @@ class UserExceptionController extends Controller
         }
     }
 
-    public function listForAdvisor($advisor_id)
+    public function listForAdvisor($exception_type, $advisor_id)
     {
         $advisingGroup = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')
             ->whereHas('group.type', function ($q) {
@@ -1007,12 +1035,25 @@ class UserExceptionController extends Controller
 
         $ambassadorsInGroups = UserGroup::whereIn('group_id', $advisorGroups)->where('user_type', 'ambassador')->whereNull('termination_reason')
             ->pluck('user_id');
-        $response['exceptions'] = UserException::with('user.followupTeam.group')->whereIn('user_id', $ambassadorsInGroups)
-            ->whereHas('type', function ($q) {
-                $q->where('type', '=', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
-            })
-            ->where('status', 'pending')
-            ->latest()->get();
+
+        switch ($exception_type) {
+            case 'exceptional_freez':
+                $response['exceptions'] = UserException::with('user.followupTeam.group')->whereIn('user_id', $ambassadorsInGroups)
+                    ->whereHas('type', function ($q) {
+                        $q->where('type', '=', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
+                    })
+                    ->where('status', 'pending')
+                    ->latest()->get();
+                break;
+            case 'withdrawn':
+                $response['exceptions'] = UserException::with('user.followupTeam.group')->whereIn('user_id', $ambassadorsInGroups)
+                    ->whereHas('type', function ($q) {
+                        $q->where('type', '=', config('constants.WITHDRAWN_TYPE'));
+                    })
+                    ->where('status', 'pending')
+                    ->latest()->get();
+        }
+
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }
