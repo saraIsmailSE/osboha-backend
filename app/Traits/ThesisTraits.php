@@ -784,11 +784,9 @@ trait ThesisTraits
     {
         //check if the user has an exception and cancel the exception if the thesis is added
         $userException = UserException::where('user_id', Auth::id())
-            ->where('status', config('constants.ACCEPTED_STATUS'))
+            ->whereIn('status', [config('constants.ACCEPTED_STATUS'), config('constants.PENDING_STATUS')])
             ->whereHas('type', function ($query) {
-                $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
-                    ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'))
-                    ->orWhere('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
+                $query->whereIn('type', [config('constants.FREEZE_THIS_WEEK_TYPE'), config('constants.FREEZE_NEXT_WEEK_TYPE'), config('constants.EXCEPTIONAL_FREEZING_TYPE')]);
             })
             ->latest('id')
             ->first();
