@@ -365,99 +365,144 @@ class RolesAdministrationController extends Controller
 
                     //supervising group and its leaders [leaders here are ambassadors] for  supervisor 1
 
-                    $supervising1Group = Group::whereHas('type', function ($q) {
-                        $q->where('type', 'supervising');
-                    })
-                        ->whereHas('users', function ($q) use ($currentSupervisor) {
-                            $q->where('user_id', $currentSupervisor->id);
+                    try {
+                        DB::beginTransaction();
+
+                        $supervising1Group = Group::whereHas('type', function ($q) {
+                            $q->where('type', 'supervising');
                         })
-                        ->with('userAmbassador')
-                        ->first();
-
-                    $supervising2Group = Group::whereHas('type', function ($q) {
-                        $q->where('type', 'supervising');
-                    })
-                        ->whereHas('users', function ($q) use ($newSupervisor) {
-                            $q->where('user_id', $newSupervisor->id);
-                        })
-                        ->with('userAmbassador')
-                        ->first();
-
-                    if ($supervising1Group) {
-                        foreach ($supervising1Group->userAmbassador as $leader) {
-                            // for each leader in group 1
-                            //update supervisor
-                            $leader->update(['parent_id'  => $newSupervisor->id]);
-                            //move leader to new supervising group
-                            UserGroup::where('user_type', 'ambassador')->where('user_id', $leader->id)->update(['group_id'  => $supervising2Group->id]);
-                            //update supervisor in following up leader group
-                            $follow_up_group_id = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
-                            UserGroup::where('user_type', 'supervisor')->where('group_id', $follow_up_group_id)->update(['user_id'  => $newSupervisor->id]);
-                        }
-                    } else {
-                        return $this->jsonResponseWithoutMessage("المراقب الأول ليس مراقباً في مجموعة الرقابة ", 'data', 200);
-                    }
-
-                    if ($supervising2Group) {
-                        foreach ($supervising2Group->userAmbassador as $leader) {
-                            // for each leader in group 1
-                            //update supervisor
-                            $leader->update(['parent_id'  => $currentSupervisor->id]);
-                            //move leader to new supervising group
-                            UserGroup::where('user_type', 'ambassador')->where('user_id', $leader->id)->update(['group_id'  => $supervising1Group->id]);
-                            //update supervisor in following up leader group
-                            $follow_up_group_id = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
-                            UserGroup::where('user_type', 'supervisor')->where('group_id', $follow_up_group_id)->update(['user_id'  => $currentSupervisor->id]);
-                        }
-                    } else {
-                        return $this->jsonResponseWithoutMessage("المراقب الثاني ليس مراقباً في مجموعة الرقابة ", 'data', 200);
-                    }
-
-
-                    ########## check Advisors ##########
-
-                    //if 2 diffrent advisors
-                    if ($currentSupervisor->parent_id  != $newSupervisor->parent_id) {
-                        $supervisors_1_Parent = $currentSupervisor->parent_id;
-                        $supervisors_1_Parent_advising_group = Group::whereHas('type', function ($q) {
-                            $q->where('type', 'advising');
-                        })
-                            ->whereHas('users', function ($q) use ($supervisors_1_Parent) {
-                                $q->where('user_id', $supervisors_1_Parent);
+                            ->whereHas('users', function ($q) use ($currentSupervisor) {
+                                $q->where('user_id', $currentSupervisor->id);
                             })
+                            ->with('userAmbassador')
                             ->first();
 
-                        $supervisors_2_Parent = $newSupervisor->parent_id;
-                        $supervisors_2_Parent_advising_group = Group::whereHas('type', function ($q) {
-                            $q->where('type', 'advising');
+                        $supervising2Group = Group::whereHas('type', function ($q) {
+                            $q->where('type', 'supervising');
                         })
-                            ->whereHas('users', function ($q) use ($supervisors_2_Parent) {
-                                $q->where('user_id', $supervisors_2_Parent);
+                            ->whereHas('users', function ($q) use ($newSupervisor) {
+                                $q->where('user_id', $newSupervisor->id);
                             })
+                            ->with('userAmbassador')
                             ->first();
 
+                        if ($supervising1Group) {
+                            foreach ($supervising1Group->userAmbassador as $leader) {
+                                // for each leader in group 1
+                                //update supervisor
+                                $leader->update(['parent_id'  => $newSupervisor->id]);
+                                //move leader to new supervising group
+                                //terminate current recored
+                                // UserGroup::where('user_type', 'ambassador')->where('user_id', $leader->id)->update(['termination_reason'  => 'supervisor_change']);
+                                // UserGroup::Create(
+                                //     [
+                                //         'user_id' => $leader->id,
+                                //         'group_id' => $supervising2Group->id,
+                                //         'user_type' => 'ambassador'
+                                //     ]
+                                // );
 
-                        //change parent id for each supervisor and add advisors to groups
+                                //update supervisor in following up leader group
+                                $follow_up_group_id = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
+                                UserGroup::where('user_type', 'supervisor')->where('group_id', $follow_up_group_id)->update(['user_id'  => $newSupervisor->id]);
+                            }
+                        } else {
+                            return $this->jsonResponseWithoutMessage("المراقب الأول ليس مراقباً في مجموعة الرقابة ", 'data', 200);
+                        }
 
-                        $currentSupervisor->parent_id =  $supervisors_2_Parent;
-                        $currentSupervisor->save();
-                        $currentSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $currentSupervisor->id)->pluck('group_id');
-                        //add advisor to groups
-                        UserGroup::where('user_type', 'advisor')->whereIn('group_id', $currentSupervisorGroups)->update(['user_id'  => $supervisors_2_Parent]);
-                        //add supervisor as ambassador to advising group
-                        UserGroup::where('user_type', 'ambassador')->where('user_id', $currentSupervisor->id)->update(['group_id'  => $supervisors_2_Parent_advising_group->id]);
+                        if ($supervising2Group) {
+                            foreach ($supervising2Group->userAmbassador as $leader) {
+                                // for each leader in group 1
+                                //update supervisor
+                                $leader->update(['parent_id'  => $currentSupervisor->id]);
+                                //move leader to new supervising group
+                                //terminate current recored
+                                // UserGroup::where('user_type', 'ambassador')->where('user_id', $leader->id)->update(['termination_reason'  => 'supervisor_change']);
+                                // UserGroup::Create(
+                                //     [
+                                //         'user_id' => $leader->id,
+                                //         'group_id' => $supervising1Group->id,
+                                //         'user_type' => 'ambassador'
+                                //     ]
+                                // );
+                                //update supervisor in following up leader group
+                                $follow_up_group_id = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
+                                UserGroup::where('user_type', 'supervisor')->where('group_id', $follow_up_group_id)->update(['user_id'  => $currentSupervisor->id]);
+                            }
+                        } else {
+                            return $this->jsonResponseWithoutMessage("المراقب الثاني ليس مراقباً في مجموعة الرقابة ", 'data', 200);
+                        }
 
-                        $newSupervisor->parent_id =  $supervisors_1_Parent;
-                        $newSupervisor->save();
-                        $newSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $newSupervisor->id)->pluck('group_id');
-                        UserGroup::where('user_type', 'advisor')->whereIn('group_id', $newSupervisorGroups)->update(['user_id'  => $supervisors_1_Parent]);
-                        UserGroup::where('user_type', 'ambassador')->where('user_id', $newSupervisor->id)->update(['group_id'  => $supervisors_1_Parent_advising_group->id]);
+
+                        ########## Change Supervising Team ##########
+
+                        //terminate current recored then create one
+                        UserGroup::where('user_type', 'supervisor')->where('user_id', $currentSupervisor->id)->where('group_id', $supervising1Group->id)->update(['termination_reason'  => 'supervisor_change']);
+                        UserGroup::Create(
+                            [
+                                'user_id' =>  $currentSupervisor->id,
+                                'group_id' => $supervising2Group->id,
+                                'user_type' => 'supervisor'
+                            ]
+                        );
+                        UserGroup::where('user_type', 'supervisor')->where('user_id', $newSupervisor->id)->where('group_id', $supervising2Group->id)->update(['termination_reason'  => 'supervisor_change']);
+                        UserGroup::Create(
+                            [
+                                'user_id' =>  $newSupervisor->id,
+                                'group_id' => $supervising1Group->id,
+                                'user_type' => 'supervisor'
+                            ]
+                        );
+
+                        ########## check Advisors ##########
+
+                        //if 2 diffrent advisors
+                        if ($currentSupervisor->parent_id  != $newSupervisor->parent_id) {
+                            $supervisors_1_Parent = $currentSupervisor->parent_id;
+                            $supervisors_1_Parent_advising_group = Group::whereHas('type', function ($q) {
+                                $q->where('type', 'advising');
+                            })
+                                ->whereHas('users', function ($q) use ($supervisors_1_Parent) {
+                                    $q->where('user_id', $supervisors_1_Parent);
+                                })
+                                ->first();
+
+                            $supervisors_2_Parent = $newSupervisor->parent_id;
+                            $supervisors_2_Parent_advising_group = Group::whereHas('type', function ($q) {
+                                $q->where('type', 'advising');
+                            })
+                                ->whereHas('users', function ($q) use ($supervisors_2_Parent) {
+                                    $q->where('user_id', $supervisors_2_Parent);
+                                })
+                                ->first();
+
+
+                            //change parent id for each supervisor and add advisors to groups
+
+                            $currentSupervisor->parent_id =  $supervisors_2_Parent;
+                            $currentSupervisor->save();
+                            $currentSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $currentSupervisor->id)->pluck('group_id');
+                            //add advisor to groups
+                            UserGroup::where('user_type', 'advisor')->whereIn('group_id', $currentSupervisorGroups)->update(['user_id'  => $supervisors_2_Parent]);
+                            //add supervisor as ambassador to advising group
+                            UserGroup::where('user_type', 'ambassador')->where('user_id', $currentSupervisor->id)->update(['group_id'  => $supervisors_2_Parent_advising_group->id]);
+
+                            $newSupervisor->parent_id =  $supervisors_1_Parent;
+                            $newSupervisor->save();
+                            $newSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $newSupervisor->id)->pluck('group_id');
+                            UserGroup::where('user_type', 'advisor')->whereIn('group_id', $newSupervisorGroups)->update(['user_id'  => $supervisors_1_Parent]);
+                            UserGroup::where('user_type', 'ambassador')->where('user_id', $newSupervisor->id)->update(['group_id'  => $supervisors_1_Parent_advising_group->id]);
+                        }
+                        DB::commit();
+
+                        $logInfo = ' قام ' . Auth::user()->name . " بالتبديل " . $currentSupervisor->name . ' و ' .  $newSupervisor->name;
+                        Log::channel('community_edits')->info($logInfo);
+
+                        return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
+                    } catch (\Exception $exception) {
+                        Log::channel('RolesAdministration')->info($exception);
+                        DB::rollBack();
                     }
-
-                    $logInfo = ' قام ' . Auth::user()->name . " بالتبديل " . $currentSupervisor->name . ' و ' .  $newSupervisor->name;
-                    Log::channel('community_edits')->info($logInfo);
-
-                    return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
                 } else {
                     return $this->jsonResponseWithoutMessage("يجب أن يكون العضو مراقب أولاً", 'data', 200);
                 }

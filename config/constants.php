@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 
-$date = Carbon::createFromDate(2023, 12, 31)->format('Y-m-d');
+$date = Carbon::createFromDate(2024, 01, 01)->format('Y-m-d');
 $part_reading_mark = 10;
 $part_writing_mark = 8;
 return [
