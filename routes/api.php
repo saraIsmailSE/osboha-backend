@@ -277,7 +277,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/top-users-by-week', [MarkController::class, 'topUsersByWeek']);
             Route::put('/set-activity-mark/{user_id}/{week_id}', [MarkController::class, 'setActivityMark']);
             Route::put('/unset-activity-mark/{user_id}/{week_id}', [MarkController::class, 'unsetActivityMark']);
-
         });
         ########End Mark########
 
@@ -664,6 +663,7 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::post('/', [GeneralConversationController::class, 'addQuestion']);
                 Route::get('/', [GeneralConversationController::class, 'getAllQuestions']);
                 Route::get('/{question_id}', [GeneralConversationController::class, 'getQuestionById'])->where('question_id', '[0-9]+');
+                Route::get('/{question_id}/check-late', [GeneralConversationController::class, 'checkQuestionLate']);
                 Route::put('/{question_id}/close', [GeneralConversationController::class, 'closeQuestion']);
                 Route::put('/{question_id}/solve', [GeneralConversationController::class, 'solveQuestion']);
                 Route::put('/{question_id}/assign-to-parent', [GeneralConversationController::class, 'AssignQuestionToParent']);
