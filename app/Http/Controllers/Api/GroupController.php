@@ -1061,9 +1061,19 @@ class GroupController extends Controller
     {
         $week = Week::find($week_id);
         $weekPlusSevenDays = $week->created_at->addDays(7);
-        return UserGroup::where('created_at', '<', $weekPlusSevenDays)
-            ->whereNull('termination_reason')
+
+        return UserGroup::where(function ($query) use ($week, $weekPlusSevenDays, $group_id) {
+                $query->where('created_at', '<=', $week->created_at)
+                    ->where('updated_at', '>=', $weekPlusSevenDays)
+                    ->where('group_id', $group_id);
+            })
+            ->orWhere(function ($query) use ($weekPlusSevenDays, $group_id) {
+                $query->where('created_at', '<=', $weekPlusSevenDays)
+                    ->whereNull('termination_reason')
+                    ->where('group_id', $group_id);
+            })
             ->whereIn('user_type', $user_type)
-            ->where('group_id', $group_id)->get();
+            ->get();
+
     }
 }
