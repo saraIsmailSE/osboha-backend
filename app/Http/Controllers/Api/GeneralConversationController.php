@@ -167,21 +167,48 @@ class GeneralConversationController extends Controller
 
     public function getMyLateQuestions()
     {
+        //late questions are the questions that are not answered for 12 hours from the moment of the assigning the question to the user
+
         $user = Auth::user();
 
         if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
+            //check if the question is assigned to the user and late(12 hours from the question assigning time)
+            // $questions = Question::whereHas('assignees', function ($query) use ($user) {
+            //     $query->where('assignee_id', $user->id)
+            //         ->where('is_active', true)
+            //         ->where('created_at', '<', now()->subHours(12));
+            // })
+            //     ->whereIn("status", ["open", "discussion"])
 
-            $questions = Question::where(function ($query) use ($user) {
-                $query->where("user_id", $user->id)->orWhere("current_assignee_id", $user->id);
-            })
-                ->whereIn("status", ["open", "discussion"])
-                ->where("created_at", "<=", Carbon::now()->subHours(12))
-                ->with('answers', function ($query) {
-                    $query->where('is_discussion', false);
-                })
-                ->paginate($this->perPage);
+            //     //check if the user didn't answer the question within 12 hours from the question assigning time
+            //     ->whereDoesntHave('answers', function ($query) use ($user) {
+            //         $query->where('user_id', $user->id)
+            //             ->where('is_discussion', false)
+            //             //answered before 12 hours from the question assigning time
+            //             ->where('created_at', '<', DB::raw("DATE_ADD(questions_assignees.created_at, INTERVAL 12 HOUR)"));
+            //     })
+            //     ->with('answers', function ($query) {
+            //         $query->where('is_discussion', false);
+            //     })
+            //     ->paginate($this->perPage);
 
-            // dd(date("Y-m-d H:i:s", strtotime("2024-01-28 11:01:23")) < date("Y-m-d H:i:s", strtotime(now()->subHours(12))));
+            $questions =  $this->getUsersLateQuestions([$user->id]);
+            // Question::join('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
+            //     ->leftJoin('answers', function ($join) use ($user) {
+            //         $join->on('questions.id', '=', 'answers.question_id')
+            //             ->where('answers.user_id', '=', $user->id)
+            //             ->where('answers.is_discussion', '=', false)
+            //             ->whereRaw('answers.created_at < DATE_ADD(questions_assignees.created_at, INTERVAL 12 HOUR)');
+            //     })
+            //     ->where('questions_assignees.assignee_id', $user->id)
+            //     ->where('questions_assignees.is_active', true)
+            //     ->where('questions_assignees.created_at', '<', now()->subHours(12))
+            //     ->whereIn('questions.status', ['open', 'discussion'])
+            //     ->whereNull('answers.id')
+            //     ->with(['answers' => function ($query) {
+            //         $query->where('is_discussion', false);
+            //     }])
+            //     ->paginate($this->perPage);
 
             if ($questions->isEmpty()) {
                 return $this->jsonResponse(
@@ -209,48 +236,7 @@ class GeneralConversationController extends Controller
             throw new NotAuthorized;
         }
 
-        $questions = [];
-        $allUsers = [];
-
-        // dd($userGroups);                
-        //id advisor, get questions assigned to his/her supervisors
-        //if consultant, get questions assigned to his/her advisors
-        //if admin, get questions assigned to all consultants
-
-        $perPage = $this->perPage;
-        $keyword = "المستشارين";
-
-        //if the user is an admin, display all questions
-        if ($user->hasRole('admin')) {
-            //get all consultants
-            $allUsers = User::role('consultant')->pluck('id')->toArray();
-        } else if ($user->hasRole('consultant')) {
-            //get consultants' groups
-            $consultantGroups = UserGroup::where('user_id', $user->id)
-                ->whereNull('termination_reason')
-                ->where('user_type', 'consultant')
-                ->pluck('group_id')->toArray();
-
-            //get all advisors
-            $allUsers = User::role('advisor')->whereHas('groups', function ($query) use ($consultantGroups) {
-                $query->whereIn('group_id', $consultantGroups);
-            })->pluck('id')->toArray();
-
-            $keyword = "الموجهين";
-        } else if ($user->hasRole('advisor')) {
-            //get advisors' groups
-            $advisorGroups = UserGroup::where('user_id', $user->id)
-                ->whereNull('termination_reason')
-                ->where('user_type', 'advisor')
-                ->pluck('group_id')->toArray();
-
-            //get all supervisors (which are in the same advising team)
-            $allUsers = User::role('supervisor')->whereHas('groups', function ($query) use ($advisorGroups) {
-                $query->whereIn('group_id', $advisorGroups);
-            })->pluck('id')->toArray();
-
-            $keyword = "المراقبين";
-        }
+        [$allUsers, $keyword] = $this->getUsersBasedOnRole($user, true);
 
         if (count($allUsers) === 0) {
             return $this->jsonResponse(
@@ -261,13 +247,20 @@ class GeneralConversationController extends Controller
             );
         }
 
-        $questions = Question::whereIn('current_assignee_id', $allUsers)
-            ->whereIn("status", ["open", "discussion"])
-            ->where('created_at', '<=', now()->subHours(12))
-            ->with('answers', function ($query) {
-                $query->where('is_discussion', false);
-            })
-            ->orderBy('created_at', 'desc')->paginate($perPage);
+        // $questions = Question::whereIn('current_assignee_id', $allUsers)
+        //     ->whereIn("status", ["open", "discussion"])
+        //     ->where('created_at', '<=', now()->subHours(12))
+        //     // ->whereDoesntHave('answers', function ($query) use ($allUsers) {
+        //     //     $query->whereIn('user_id', $allUsers)
+        //     //         ->where('is_discussion', false)
+        //     //         ->where('created_at', '<', DB::raw("DATE_ADD(questions.created_at, INTERVAL 12 HOUR)"));
+        //     // })
+        //     ->with('answers', function ($query) {
+        //         $query->where('is_discussion', false);
+        //     })
+        //     ->orderBy('created_at', 'desc')->paginate($perPage);
+
+        $questions =  $this->getUsersLateQuestions($allUsers);
 
         if ($questions->isEmpty()) {
             return $this->jsonResponse(
@@ -401,7 +394,7 @@ class GeneralConversationController extends Controller
             return $this->jsonResponseWithoutMessage("التحويل غير موجود", 'data', Response::HTTP_NOT_FOUND);
         }
 
-        if (Auth::id() === $question->user_id || Auth::user()->hasRole('admin')) {
+        if (Auth::id() === $question->user_id || Auth::user()->hasAnyRole(['admin', 'consultant', 'advisor'])) {
 
             $question->update([
                 'status' => 'solved',
@@ -435,15 +428,6 @@ class GeneralConversationController extends Controller
                 'data',
                 Response::HTTP_NOT_FOUND,
                 "التحويل غير موجود"
-            );
-        }
-
-        if ($question->current_assignee_id != $user->id) {
-            return $this->jsonResponse(
-                [],
-                'data',
-                Response::HTTP_FORBIDDEN,
-                "لا يمكنك تعيين هذا السؤال"
             );
         }
 
@@ -562,13 +546,54 @@ class GeneralConversationController extends Controller
         (new NotificationController())->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
     }
 
+    public function checkQuestionLate($question_id)
+    {
+        $question = Question::find($question_id);
+
+        if (!$question) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_NOT_FOUND,
+                "التحويل غير موجود"
+            );
+        }
+
+
+        $is_late = false;
+        if ($question->status == "solved") {
+            $createdAt = Carbon::parse($question->created_at);
+            $closedAt = Carbon::parse($question->closed_at);
+            $is_late = $closedAt->diffInHours($createdAt) >= 12;
+        } else {
+
+            $assignee = $question->currentAssignee;
+            $lastAnswer = $question->answers->where('user_id', $assignee->id)->where('is_discussion', false)->first();
+            if ($lastAnswer) {
+                //question is answered late if the answer comes after 12 hours of the question
+                $createdAt = Carbon::parse($question->created_at);
+                $answeredAt = Carbon::parse($lastAnswer->created_at);
+                $is_late = $answeredAt->diffInHours($createdAt) >= 12;
+            } else {
+                //check if question is late (not answered for 12 hours)
+                $is_late = Carbon::now()->diffInHours($question->created_at) >= 12;
+            }
+        }
+
+        return $this->jsonResponseWithoutMessage(
+            ["is_late" => $is_late],
+            'data',
+            Response::HTTP_OK
+        );
+    }
+
     public function getQuestionsStatistics(Request $request)
     {
         /*
         في صفحة الاحصائيات، نحتاج ظهور جدول الاحصائية للمسؤول عن كل الذين هم ضمن مسؤوليته
          (الأسبوع الحالي\ الأسبوع الماضي\الشهر الحالي\ الشهرين التي يسبقها).
         وتلزم هذه المعلومات في الاحصائيات .
-        *عدد مجموع التحويلات التي وصلت هذا الشخص (مراقب\موجه\مستشار).
+        عدد مجموع التحويلات التي وصلت هذا الشخص (مراقب\موجه\مستشار).
         ** عدد التحويلات التي تم إجابتها بعد مرور 12 ساعة عند هذا الشخص
         *** عدد التحويلات الفعالة حتى هذه اللحظة عند هذا الشخص
         **** عدد التحويلات التي تمت إجابتها عند هذا الشخص .
@@ -581,7 +606,133 @@ class GeneralConversationController extends Controller
             throw new NotAuthorized;
         }
 
-        #### Get date stats to get data based on it ####
+        //get date stats
+        [$response, $weeks] = $this->getDateStats($request);
+
+        //get users based on the auth user role
+        [$allUsers,, $advisors] = $this->getUsersBasedOnRole($auth, false, $auth->hasRole('admin'));
+
+        if ($weeks->count() === 0 || ($allUsers->count() === 0 && $advisors->count() === 0)) {
+            return $this->jsonResponseWithoutMessage(
+                $response,
+                'data',
+                Response::HTTP_OK
+            );
+        }
+
+        $weeks = $weeks->get();
+        //get the beginning created_at of weeks
+        $startDate = $weeks->first()->created_at;
+        $endDate = $weeks->last()->main_timer;
+
+        ##### Start fetching data -- for all users#####
+
+        //get all users questions stats
+        $response['statistics'] = $this->getUsersQuestionsStats($allUsers, $startDate, $endDate);
+
+        //in case of ADMIN, get advisors data
+        $response['advisorsStatistics'] = $this->getUsersQuestionsStats($advisors, $startDate, $endDate);
+
+        return $this->jsonResponseWithoutMessage(
+            $response,
+            'data',
+            Response::HTTP_OK
+        );
+    }
+
+    //Function to get the late questions for users
+    private function getUsersLateQuestions($users)
+    {
+        //id advisor, get questions assigned to his/her supervisors
+        //if consultant, get questions assigned to his/her advisors
+        //if admin, get questions assigned to all consultants
+
+        return Question::select('questions.*')
+            ->join('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
+            ->leftJoin('answers', function ($join) use ($users) {
+                $join->on('questions.id', '=', 'answers.question_id')
+                    ->whereIn('answers.user_id', $users)
+                    ->where('answers.is_discussion', '=', false)
+                    ->whereRaw('answers.created_at < DATE_ADD(questions.created_at, INTERVAL 12 HOUR)');
+            })
+            ->whereIn('questions_assignees.assignee_id', $users)
+            ->where('questions_assignees.is_active', true)
+            ->where('questions_assignees.created_at', '<', now()->subHours(12))
+            ->whereIn('questions.status', ['open', 'discussion'])
+            ->whereNull('answers.id')
+            ->with(['answers' => function ($query) {
+                $query->where('is_discussion', false);
+            }, 'currentAssignee', 'media', 'user'])
+            ->orderBy('questions.created_at', 'desc')
+            ->paginate($this->perPage);
+    }
+
+    // Function to get the users based on the auth user role
+    private function getUsersBasedOnRole($user, $justIds = false, $withAdvisorsForAdmin = false)
+    {
+        $allUsers = [];
+        $advisors = [];
+        $keyword = "المستشارين";
+
+        //if the user is an admin, display all questions
+        if ($user->hasRole('admin')) {
+            //get all consultants
+            $allUsers = User::role('consultant');
+
+            $keyword = "المستشارين";
+
+            if ($withAdvisorsForAdmin) {
+                $advisors = User::role('advisor');
+            }
+        } else if ($user->hasRole('consultant')) {
+            //get consultants' groups
+            $consultantGroups = UserGroup::where('user_id', $user->id)
+                ->whereNull('termination_reason')
+                ->where('user_type', 'consultant')
+                ->pluck('group_id')->toArray();
+
+            //get all advisors
+            $allUsers = User::role('advisor')->whereHas('groups', function ($query) use ($consultantGroups) {
+                $query->whereIn('group_id', $consultantGroups);
+            });
+
+            $keyword = "الموجهين";
+        } else if ($user->hasRole('advisor')) {
+            //get advisors' groups
+            $advisorGroups = UserGroup::where('user_id', $user->id)
+                ->whereNull('termination_reason')
+                ->where('user_type', 'advisor')
+                ->pluck('group_id')->toArray();
+
+            //get all supervisors (which are in the same advising team)
+            $allUsers = User::role('supervisor')->whereHas('groups', function ($query) use ($advisorGroups) {
+                $query->whereIn('group_id', $advisorGroups);
+            });
+
+            $keyword = "المراقبين";
+        }
+
+        if ($justIds) {
+            $allUsers = $allUsers->orderBy('name', 'asc')->pluck('id')->toArray();
+
+            if ($withAdvisorsForAdmin) {
+                $advisors = $advisors->orderBy('name', 'asc')->pluck('id')->toArray();
+            }
+        } else {
+            $allUsers = $allUsers->orderBy('name', 'asc')->get();
+
+            if ($withAdvisorsForAdmin) {
+                $advisors = $advisors->orderBy('name', 'asc')->get();
+            }
+        }
+
+        return [$allUsers, $keyword, $advisors];
+    }
+
+    //Function to get the date related data and weeks for the statistics
+    private function getDateStats($request)
+    {
+        $response = [];
 
         //get last 2 weeks
         $response['weeks'] = Week::orderBy('created_at', 'desc')->take(2)->get();
@@ -624,99 +775,29 @@ class GeneralConversationController extends Controller
 
         $response['selectedMonth'] = $month;
 
+        return [$response, $weeks];
+    }
 
-        //get users based on the auth user role
-        $allUsers = [];
-        $advisors = [];
-        if ($auth->hasRole('admin')) {
-            //get all consultants
-            $allUsers = User::role('consultant')->get();
-
-            $advisors = User::role('advisor')->get();
-        } else if ($auth->hasRole('consultant')) {
-            //get consultants' groups
-            $consultantGroups = UserGroup::where('user_id', $auth->id)
-                ->whereNull('termination_reason')
-                ->where('user_type', 'consultant')
-                ->pluck('group_id')->toArray();
-
-            //get all advisors
-            $allUsers = User::role('advisor')->whereHas('groups', function ($query) use ($consultantGroups) {
-                $query->whereIn('group_id', $consultantGroups);
-            })->get();
-        } else if ($auth->hasRole('advisor')) {
-            //get advisors' groups
-            $advisorGroups = UserGroup::where('user_id', $auth->id)
-                ->whereNull('termination_reason')
-                ->where('user_type', 'advisor')
-                ->pluck('group_id')->toArray();
-
-            //get all supervisors (which are in the same advising team)
-            $allUsers = User::role('supervisor')->whereHas('groups', function ($query) use ($advisorGroups) {
-                $query->whereIn('group_id', $advisorGroups);
-            })->get();
-        }
-
-        if ($weeks->count() === 0 || ($allUsers->count() === 0 && $advisors->count() === 0)) {
-            return $this->jsonResponseWithoutMessage(
-                $response,
-                'data',
-                Response::HTTP_OK
-            );
-        }
-        // $weeks = $weeks->pluck('id')->toArray();
-        // dd($weeks);
-        $weeks = $weeks->get();
-        //get the beginning created_at of weeks
-        $startDate = $weeks->first()->created_at;
-        $endDate = $weeks->last()->main_timer;
-
-        // dd($startDate, $endDate);
-
-        ##### Start fetching data -- for all users#####
+    //Function to get users questions statistics
+    private function getUsersQuestionsStats($users, $startDate, $endDate)
+    {
         $questionsStats = [];
-        foreach ($allUsers as $user) {
+        foreach ($users as $user) {
             $userData = UserInfoResource::make($user);
 
-
             $baseUserQuestions = $this->getUserQuestionsQuery($user, $startDate, $endDate);
-
 
             $questionsStats[] = [
                 "user" => $userData,
                 "total_questions" => $baseUserQuestions->count(),
-                "total_solved_questions_after_12_hrs" => $this->getSolvedQuestionsCount($baseUserQuestions, '12'),
+                "total_solved_questions_after_12_hrs" => $this->getSolvedQuestionsCount($baseUserQuestions, '12', $user, $startDate, $endDate),
                 "total_active_questions" => $this->getActiveQuestionsCount($baseUserQuestions),
-                "total_solved_questions" => $this->getSolvedQuestionsCount($baseUserQuestions),
+                "total_solved_questions" => $this->getSolvedQuestionsCount($baseUserQuestions, null, $user, $startDate, $endDate),
                 "total_questions_assigned_to_parent" => $this->getQuestionsAssignedToParentCount($user, $startDate, $endDate),
             ];
         }
 
-        //in case of ADMIN, get advisors data
-        $advisorsQuestionsStats = [];
-        foreach ($advisors as $user) {
-            $userData = UserInfoResource::make($user);
-
-            $baseUserQuestions = $this->getUserQuestionsQuery($user, $startDate, $endDate);
-
-            $advisorsQuestionsStats[] = [
-                "user" => $userData,
-                "total_questions" => $baseUserQuestions->count(),
-                "total_solved_questions_after_12_hrs" => $this->getSolvedQuestionsCount($baseUserQuestions, '12'),
-                "total_active_questions" => $this->getActiveQuestionsCount($baseUserQuestions),
-                "total_solved_questions" => $this->getSolvedQuestionsCount($baseUserQuestions),
-                "total_questions_assigned_to_parent" => $this->getQuestionsAssignedToParentCount($user, $startDate, $endDate),
-            ];
-        }
-
-        $response['statistics'] = $questionsStats;
-        $response['advisorsStatistics'] = $advisorsQuestionsStats;
-
-        return $this->jsonResponseWithoutMessage(
-            $response,
-            'data',
-            Response::HTTP_OK
-        );
+        return $questionsStats;
     }
 
     // Function to get the base user questions query
@@ -730,18 +811,31 @@ class GeneralConversationController extends Controller
     }
 
     // Function to get the count of solved questions
-    private function getSolvedQuestionsCount($query, $hours = null)
+    private function getSolvedQuestionsCount($query, $hours = null, $user = null, $startDate = null, $endDate = null)
     {
         $solvedQuestionsQuery = clone $query;
 
         if ($hours !== null) {
-            $solvedQuestionsQuery->where('status', 'solved')
-                ->where('closed_at', '>', DB::raw("DATE_ADD(created_at, INTERVAL $hours HOUR)"));
+            return  Question::join('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
+                ->join('answers', function ($join) use ($hours, $user) {
+                    $join->on('questions.id', '=', 'answers.question_id')
+                        ->where('answers.user_id', $user->id)
+                        ->where('answers.is_discussion', false)
+                        ->whereRaw("answers.created_at < DATE_ADD(questions.created_at, INTERVAL $hours HOUR)");
+                })
+                ->where('questions_assignees.assignee_id', $user->id)
+                ->where('questions_assignees.is_active', true)
+                ->whereBetween('questions_assignees.created_at', [$startDate, $endDate])
+                ->whereBetween('questions.created_at', [$startDate, $endDate])
+                ->count();
         } else {
-            $solvedQuestionsQuery->where('status', 'solved');
+            return $solvedQuestionsQuery->where('status', 'solved')
+                ->orWhereHas('answers', function ($query) use ($user, $startDate, $endDate) {
+                    $query->where('user_id', $user->id)
+                        ->where('is_discussion', false)
+                        ->whereBetween('created_at', [$startDate, $endDate]);
+                })->count();
         }
-
-        return $solvedQuestionsQuery->count();
     }
 
     // Function to get the count of active questions
