@@ -125,7 +125,7 @@ trait ThesisTraits
         }
 
         //get thesis type
-        $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
+        $thesis_type = ThesisType::findOrFail($thesis['type_id'])->type;
 
         $max_length = (array_key_exists('max_length', $thesis) ? $thesis['max_length'] : 0);
         $total_thesis = (array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
@@ -560,75 +560,89 @@ trait ThesisTraits
      */
     public function calculate_mark_for_ramadan_thesis($total_pages, $max_length, $total_screenshots, $thesis_type)
     {
-        if ($max_length <= 0 && $total_screenshots <= 0) { //if no thesis -- it is considered as normal thesis
-            return $this->calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots);
+        if (
+            $thesis_type  === 'ramadan' &&
+            ($total_pages < 10
+                || ($max_length > 0 && $max_length < COMPLETE_THESIS_LENGTH))
+        ) {
+            throw new \Exception('Cannot add thesis for ramadan less than 10 pages or 400 characters');
+        } else if ($thesis_type  === 'tafseer' && ($total_pages < 2 ||
+            ($max_length < COMPLETE_THESIS_LENGTH && $total_screenshots < 1))) {
+            throw new \Exception('Cannot add thesis for tafseer less than 2 pages or 400 characters or 1 screenshot');
         }
 
         //if the thesis is within a duration of exams exception, the mark will be full if the user satisfies the conditions
-        $is_exams_exception = $this->check_exam_exception();
-        if ($is_exams_exception) {
-            if ($total_pages >= 10 && ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= MAX_SCREENSHOTS)) {
+        // $is_exams_exception = $this->check_exam_exception();
+        // if ($is_exams_exception) {
+        //     $mark = $this->calculate_mark_for_exam_exception($total_pages, $max_length, $total_screenshots);
+        //     if ($mark) {
+        //         return $mark;
+        //     }
+        // }
+
+        //ramadan thesis
+        /*
+            الورد الأسبوعي للحصول على العلامة الكاملة هو (15) صفحة و أطروحة واحدة من 400 حرف او رفع عدد 1 اقتباس
+            يحصل السفير على علامة 80 من مائة في حال قرأ (10) صفحات وكتب اطروحة واحدة من 400 حرف او 1 اقتباسات
+            يحصل السفير على علامة 70 من مائة في حال قرأ 15 صفحة ولم يكتب اطروحة او اقتباس
+            يحصل السفير على علامة 60 من مائة في حال قرأ 10 صفحات ولم يكتب أطروحة او اقتباس .
+            لا يسمح بالتصويت اقل من 10 ،
+            اي تصويت أقل من 15 يعتبر 10 .
+        */
+
+        if ($thesis_type  === 'ramadan') {
+
+            if ($max_length <= 0 && $total_screenshots <= 0) {
+                if ($total_pages >= 15) {
+                    return [
+                        'reading_mark' => config('constants.FULL_READING_MARK'),
+                        'writing_mark' => 70 - config('constants.FULL_READING_MARK'),
+                    ];
+                } else {
+                    return [
+                        'reading_mark' => config('constants.FULL_READING_MARK'),
+                        'writing_mark' => 60 - config('constants.FULL_READING_MARK'),
+                    ];
+                }
+            } else if ($max_length >= COMPLETE_THESIS_LENGTH || $total_screenshots >= 1) {
+
+                if ($total_pages >= 15) {
+                    return [
+                        'reading_mark' => config('constants.FULL_READING_MARK'),
+                        'writing_mark' => config('constants.FULL_WRITING_MARK'),
+                    ];
+                } else {
+                    return [
+                        'reading_mark' => config('constants.FULL_READING_MARK'),
+                        'writing_mark' => 80 - config('constants.FULL_READING_MARK'),
+                    ];
+                }
+            }
+        }
+        //tafseer thesis
+        /*
+             صفحات 6 + 400 حرف اطروحة او اقتباس(سكرين شوت >> 100
+             صفحات 4 + 400 حرف اطروحة او اقتباس(سكرين شوت) >> 80
+             صفحات 2 + 400 حرف أطروحة أو اقتباس (سكرين شوت)>> 70 
+            اي ادخال غير ذلك، راح يرفض الإدخال ويطلع اله تنبيه انه الورد المسموح به هو المذكور اعلاه .
+        */ else {
+            if ($total_pages >= 6) {
                 return [
                     'reading_mark' => config('constants.FULL_READING_MARK'),
                     'writing_mark' => config('constants.FULL_WRITING_MARK'),
                 ];
+            } else if ($total_pages >= 4) {
+                return [
+                    'reading_mark' => config('constants.FULL_READING_MARK'),
+                    'writing_mark' => 80 - config('constants.FULL_READING_MARK'),
+                ];
+            } else {
+                return [
+                    'reading_mark' => config('constants.FULL_READING_MARK'),
+                    'writing_mark' => 70 - config('constants.FULL_READING_MARK'),
+                ];
             }
         }
-
-        $number_of_parts = 0;
-        if ($thesis_type === RAMADAN_THESIS_TYPE) {
-            $number_of_parts = (int) ($total_pages / RAMADAN_PART_PAGES);
-        }
-        //tafseer thesis consedered based on the number of ayats
-        else if ($thesis_type === TAFSEER_THESIS_TYPE) {
-            $number_of_parts = $total_pages;
-        }
-
-        if ($number_of_parts > MAX_PARTS) { //if the parts exceeded the max number
-            $number_of_parts = MAX_PARTS;
-        }
-
-        //reading mark
-        $reading_mark = $number_of_parts * config('constants.PART_READING_MARK');
-        $thesis_mark = 0;
-        if ($max_length > 0) {
-            if ($max_length >= COMPLETE_THESIS_LENGTH) { //COMPLETE THESIS
-                $thesis_mark = $number_of_parts * config('constants.PART_WRITING_MARK');
-            } else { //INCOMPLETE THESIS
-                $thesis_mark += config('constants.PART_WRITING_MARK');
-
-                //if screenshots exist
-                if ($total_screenshots > 0) {
-
-                    //decresing the number of parts by 1 since the first part is for the incomplete thesis
-                    $number_of_parts -= 1;
-
-                    $screenshots = $total_screenshots;
-                    if ($screenshots >= MAX_SCREENSHOTS) {
-                        $screenshots = MAX_SCREENSHOTS;
-                    }
-                    if ($screenshots > $number_of_parts) {
-                        $screenshots = $number_of_parts;
-                    }
-
-                    $thesis_mark += $screenshots * config('constants.PART_WRITING_MARK');
-                }
-            }
-        } else if ($total_screenshots > 0) {
-            $screenshots = $total_screenshots;
-            if ($screenshots >= MAX_SCREENSHOTS) {
-                $screenshots = MAX_SCREENSHOTS;
-            }
-            if ($screenshots > $number_of_parts) {
-                $screenshots = $number_of_parts;
-            }
-            $thesis_mark = $screenshots * config('constants.PART_WRITING_MARK');
-        }
-
-        return [
-            'reading_mark' => $reading_mark ?? 0,
-            'writing_mark' => $thesis_mark ?? 0,
-        ];
     }
 
     /**
