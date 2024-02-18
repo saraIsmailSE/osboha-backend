@@ -713,16 +713,16 @@ class GeneralConversationController extends Controller
         }
 
         if ($justIds) {
-            $allUsers = $allUsers->pluck('id')->toArray();
+            $allUsers = $allUsers->orderBy('name', 'asc')->pluck('id')->toArray();
 
             if ($withAdvisorsForAdmin) {
-                $advisors = $advisors->pluck('id')->toArray();
+                $advisors = $advisors->orderBy('name', 'asc')->pluck('id')->toArray();
             }
         } else {
-            $allUsers = $allUsers->get();
+            $allUsers = $allUsers->orderBy('name', 'asc')->get();
 
             if ($withAdvisorsForAdmin) {
-                $advisors = $advisors->get();
+                $advisors = $advisors->orderBy('name', 'asc')->get();
             }
         }
 
