@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,7 +19,9 @@ class Question extends Model
     ];
 
     protected $appends = [
-        "user_parents"
+        "user_parents",
+        "is_answered_late",
+        'current_assignee_created_at',
     ];
 
     protected $with = ['media'];
@@ -103,5 +106,22 @@ class Question extends Model
                 ]
             ];
         }
+    }
+
+    public function getIsAnsweredLateAttribute()
+    {
+        $currentAssigneeCreatedAt = $this->assignees->where('assignee_id', $this->current_assignee_id)->first()->created_at;
+        $answers = $this->answers->where('user_id', $this->current_assignee_id)
+            ->where('is_discussion', false)
+            ->where('created_at', '<', Carbon::parse($currentAssigneeCreatedAt)->addHours(12))
+            ->count();
+
+        return $answers === 0;
+    }
+
+    public function getCurrentAssigneeCreatedAtAttribute()
+    {
+        $assignee = $this->assignees->where('assignee_id', $this->current_assignee_id)->first();
+        return $assignee ? $assignee->created_at : null;
     }
 }
