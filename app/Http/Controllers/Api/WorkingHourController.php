@@ -32,7 +32,7 @@ class WorkingHourController extends Controller
             return $this->jsonResponseWithoutMessage(
                 $validator->errors()->first(),
                 'data',
-                Response::HTTP_UNPROCESSABLE_ENTITY,
+                Response::HTTP_BAD_REQUEST,
             );
         }
         $user = Auth::user();
