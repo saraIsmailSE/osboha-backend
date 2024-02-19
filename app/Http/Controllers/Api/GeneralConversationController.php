@@ -327,7 +327,7 @@ class GeneralConversationController extends Controller
             return $this->jsonResponse(
                 [],
                 'data',
-                Response::HTTP_OK,
+                Response::HTTP_NOT_FOUND,
                 "التحويل غير موجود"
             );
         }
@@ -437,7 +437,7 @@ class GeneralConversationController extends Controller
             return $this->jsonResponse(
                 [],
                 'data',
-                Response::HTTP_NOT_FOUND,
+                Response::HTTP_BAD_REQUEST,
                 "المشرف غير موجود"
             );
         }
@@ -449,7 +449,7 @@ class GeneralConversationController extends Controller
             return $this->jsonResponse(
                 [],
                 'data',
-                Response::HTTP_FORBIDDEN,
+                Response::HTTP_BAD_REQUEST,
                 "المشرف معين بالفعل على هذا السؤال"
             );
         }
