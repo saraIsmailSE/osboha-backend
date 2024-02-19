@@ -67,7 +67,7 @@ class RolesAdministrationController extends Controller
         //check role exists
         $role = Role::find($request->role_id);
         if (!$role) {
-            return $this->jsonResponseWithoutMessage("هذه الترقية غير موجودة", 'data', 500);
+            return $this->jsonResponseWithoutMessage("هذه الترقية غير موجودة", 'data', 200);
         }
 
         //check user exists
@@ -76,7 +76,7 @@ class RolesAdministrationController extends Controller
             //check if user has the role
 
             if ($user->hasRole($role->name)) {
-                return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 500);
+                return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
             } else {
                 $user->assignRole($role->name);
                 $msg = "قام " . Auth::user()->name . " بـ تعيينك : " . config('constants.ARABIC_ROLES')[$role->name];
@@ -88,7 +88,7 @@ class RolesAdministrationController extends Controller
                 return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
             }
         } else {
-            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 500);
+            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
         }
     }
 
@@ -113,7 +113,7 @@ class RolesAdministrationController extends Controller
         //check role exists
         $role = Role::find($request->role_id);
         if (!$role) {
-            return $this->jsonResponseWithoutMessage("هذه الرتبة غير موجودة", 'data', 500);
+            return $this->jsonResponseWithoutMessage("هذه الرتبة غير موجودة", 'data', 200);
         }
 
         //check user exists
@@ -125,11 +125,11 @@ class RolesAdministrationController extends Controller
                 if (Auth::user()->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
 
                     if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
-                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية المستخدم ل " . config('constants.ARABIC_ROLES')[$role->name] . " لأنه يملك صلاحيات قيادية", 'data', 500);
+                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية المستخدم ل " . config('constants.ARABIC_ROLES')[$role->name] . " لأنه يملك صلاحيات قيادية", 'data', 200);
                     }
 
                     if ($user->hasRole($role->name)) {
-                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 500);
+                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data',200);
                     }
 
                     $user->assignRole($role->name);
@@ -139,7 +139,7 @@ class RolesAdministrationController extends Controller
 
                     return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
                 } else {
-                    return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 500);
+                    return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
                 }
             }
 
@@ -158,12 +158,12 @@ class RolesAdministrationController extends Controller
                         ($user_current_role->name === 'advisor' && $role->name === 'supervisor') ||
                         ($user_current_role->name === 'consultant' && $role->name === 'supervisor')
                     ) {
-                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية العضو لمراقب مباشرة, يجب أن يكون قائد أولاً", 'data', 500);
+                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية العضو لمراقب مباشرة, يجب أن يكون قائد أولاً", 'data', 200);
                     }
 
                     //check if user has the role
                     if ($user->hasRole($role->name) && $user_current_role->id >= $role->id) {
-                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 500);
+                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
                     }
 
                     //if the last role of the user is greater than the new role (last role is less than new role) => downgrade
@@ -220,13 +220,13 @@ class RolesAdministrationController extends Controller
 
                     return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
                 } else {
-                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى من الرتبة المراد الترقية لها", 'data', 500);
+                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى من الرتبة المراد الترقية لها", 'data', 200);
                 }
             } else {
-                return $this->jsonResponseWithoutMessage("المسؤول غير موجود", 'data', 500);
+                return $this->jsonResponseWithoutMessage("المسؤول غير موجود", 'data', 200);
             }
         } else {
-            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 500);
+            return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
         }
     }
 
@@ -598,12 +598,11 @@ class RolesAdministrationController extends Controller
                                         $currentSupervisor->removeRole("leader");
 
                                         //* اضافة القائد الجديد إلى مجموعة المتابعة كـ قائد
-                                        UserGroup::updateOrCreate(
+                                        UserGroup::where('user_type', 'leader')->where('user_id',  $newLeader->id)->update(['termination_reason'  => 'supervisor_change']);
+                                        UserGroup::create(
                                             [
                                                 'user_id' => $newLeader->id,
-                                                'user_type' => "leader"
-                                            ],
-                                            [
+                                                'user_type' => "leader",
                                                 'group_id' => $currentSupervisor_leadingGroup->group_id
                                             ]
                                         );
@@ -629,12 +628,11 @@ class RolesAdministrationController extends Controller
                                         //     ->whereNull('user_groups.termination_reason')
                                         //     ->first();
 
-                                        UserGroup::updateOrCreate(
+                                        UserGroup::where('user_type', 'ambassador')->where('user_id',  $newLeader->id)->update(['termination_reason'  => 'supervisor_change']);
+                                        UserGroup::create(
                                             [
                                                 'user_id' => $newLeader->id,
-                                                'user_type' => "ambassador"
-                                            ],
-                                            [
+                                                'user_type' => "ambassador",
                                                 'group_id' => $currentSupervisor_supervisingGroup->group_id
                                             ]
                                         );
@@ -726,16 +724,15 @@ class RolesAdministrationController extends Controller
                             try {
 
                                 //* اضافة المراقب الجديد إلى مجموعة التوجيه كـ سفير
-
-                                UserGroup::updateOrCreate(
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $newSupervisor->id)->update(['termination_reason'  => 'supervisor_upgrade']);
+                                UserGroup::create(
                                     [
                                         'user_id' => $newSupervisor->id,
-                                        'user_type' => "ambassador"
-                                    ],
-                                    [
+                                        'user_type' => "ambassador",
                                         'group_id' => $currentSupervisor_followupGroup->group_id
                                     ]
                                 );
+
 
                                 //* نقل قادة المراقب الحالي إلى المراقب الجديد
                                 User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {
@@ -761,15 +758,14 @@ class RolesAdministrationController extends Controller
                                         $q->where('type_id', '=', $supervisingGroupTypeID);
                                     })->where('user_type', 'supervisor')->pluck('group_id')->first();
 
-                                UserGroup::updateOrCreate(
-                                    [
-                                        'user_id' => $currentSupervisor->id,
-                                        'user_type' => "ambassador"
-                                    ],
-                                    [
-                                        'group_id' => $newSupervisor_SupervisingGroupID
-                                    ]
-                                );
+                                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $currentSupervisor->id)->update(['termination_reason'  => 'supervisor_withdrawn']);
+                                    UserGroup::create(
+                                        [
+                                            'user_id' => $currentSupervisor->id,
+                                            'user_type' => "ambassador",
+                                            'group_id' => $newSupervisor_SupervisingGroupID
+                                        ]
+                                    );
 
 
                                 DB::commit();
@@ -854,7 +850,14 @@ class RolesAdministrationController extends Controller
                                     ->where('user_type', 'ambassador')
                                     ->pluck('group_id')->first();
 
-                                UserGroup::where('user_type', 'ambassador')->where('user_id', $newLeader->id)->update(['group_id'  => $supervisingGroupId]);
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $newLeader->id)->update(['termination_reason'  => 'leader_upgrade']);
+                                UserGroup::create(
+                                    [
+                                        'user_id' => $newLeader->id,
+                                        'user_type' => "ambassador",
+                                        'group_id' => $supervisingGroupId
+                                    ]
+                                );
 
                                 // المسؤول عن القائد الجديد هو المراقب
                                 User::where('id', $newLeader->id)->update(['parent_id'  => User::where('id', $currentLeader->id)->pluck('parent_id')->first()]);
@@ -930,7 +933,15 @@ class RolesAdministrationController extends Controller
                     //get the followup group of new leader
                     $newLeaderGroupId = UserGroup::where('user_type', 'leader')->where('user_id', $newLeader->id)->pluck('group_id')->first();
                     //transfer ambassador to new followup group
-                    UserGroup::where('user_type', 'ambassador')->where('user_id', $ambassador->id)->update(['group_id'  => $newLeaderGroupId]);
+                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'transfer_ambassador']);
+                    UserGroup::create(
+                        [
+                            'user_id' => $ambassador->id,
+                            'user_type' => "ambassador",
+                            'group_id' => $newLeaderGroupId
+                        ]
+                    );
+
 
                     $logInfo = ' قام ' . Auth::user()->name . " بنقل السفير " . $ambassador->name . ' إلى القائد ' .  $newLeader->name;
                     Log::channel('community_edits')->info($logInfo);
@@ -997,7 +1008,14 @@ class RolesAdministrationController extends Controller
                                     $currentAdvisorId = User::where('id', $leader->parent_id)->pluck('parent_id')->first();
 
                                     // جعل القائد سفير في غروب الرقابة الجديد
-                                    UserGroup::where('user_type', 'ambassador')->where('user_id', $leader->id)->update(['group_id'  => $newSupervisingGroupId]);
+                                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $leader->id)->update(['termination_reason'  => 'transfer_leader']);
+                                    UserGroup::create(
+                                        [
+                                            'user_id' => $leader->id,
+                                            'user_type' => "ambassador",
+                                            'group_id' => $newSupervisingGroupId
+                                        ]
+                                    );
 
                                     //إضافة المراقب الجديد لفريق المتابعة الخاص بالقائد
                                     // find leader group id
