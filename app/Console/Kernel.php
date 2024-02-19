@@ -37,7 +37,7 @@ class Kernel extends ConsoleKernel
         //exclude users
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
         //exclude new users
-        $schedule->command('users:exclude_new')->weekly()->mondays()->at('12:03');
+        $schedule->command('users:exclude_new')->weekly()->mondays()->at('12:15');
     }
 
     /**
