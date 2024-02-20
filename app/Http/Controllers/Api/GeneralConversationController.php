@@ -376,9 +376,32 @@ class GeneralConversationController extends Controller
 
             $message = "لقد قام " . $user->name . " بالإجابة على سؤالك";
 
+            $messageToPrents = "لقد قام " . $user->name . " بالإجابة على سؤال المستخدم " . $question->user->name;
+
             //notify the owner
             $notification = new NotificationController();
             $notification->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
+
+            //notify parents
+            if ($question->user->hasRole('advisor')) {
+                //send to consultant
+                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            } else if ($question->user->hasRole('supervisor')) {
+                //send to advisor
+                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+
+                //send to consultant
+                $notification->sendNotification($question->user->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            } else if ($question->user->hasAnyRole(['leader', 'support_leader'])) {
+                //send to supervisor
+                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+
+                //send to advisor
+                $notification->sendNotification($question->user->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+
+                //send to consultant
+                $notification->sendNotification($question->user->parent->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            }
 
             return $this->jsonResponseWithoutMessage(AnswerResource::make($answer), 'data', Response::HTTP_OK);
         }
@@ -518,6 +541,8 @@ class GeneralConversationController extends Controller
 
         $message = "لقد قام المستخدم " . $user->name . " بتحويل سؤالك للمناقشة";
         (new NotificationController())->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
+
+        return $this->jsonResponseWithoutMessage(QuestionResource::make($question), 'data', Response::HTTP_OK);
     }
 
     public function moveQuestionToQuestions($question_id)
@@ -544,6 +569,8 @@ class GeneralConversationController extends Controller
 
         $message = "لقد قام المستخدم " . $user->name . " بإعادة سؤالك للتحويل";
         (new NotificationController())->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
+
+        return $this->jsonResponseWithoutMessage(QuestionResource::make($question), 'data', Response::HTTP_OK);
     }
 
     public function checkQuestionLate($question_id)
