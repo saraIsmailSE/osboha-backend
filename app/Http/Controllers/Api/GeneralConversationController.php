@@ -172,43 +172,8 @@ class GeneralConversationController extends Controller
         $user = Auth::user();
 
         if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
-            //check if the question is assigned to the user and late(12 hours from the question assigning time)
-            // $questions = Question::whereHas('assignees', function ($query) use ($user) {
-            //     $query->where('assignee_id', $user->id)
-            //         ->where('is_active', true)
-            //         ->where('created_at', '<', now()->subHours(12));
-            // })
-            //     ->whereIn("status", ["open", "discussion"])
-
-            //     //check if the user didn't answer the question within 12 hours from the question assigning time
-            //     ->whereDoesntHave('answers', function ($query) use ($user) {
-            //         $query->where('user_id', $user->id)
-            //             ->where('is_discussion', false)
-            //             //answered before 12 hours from the question assigning time
-            //             ->where('created_at', '<', DB::raw("DATE_ADD(questions_assignees.created_at, INTERVAL 12 HOUR)"));
-            //     })
-            //     ->with('answers', function ($query) {
-            //         $query->where('is_discussion', false);
-            //     })
-            //     ->paginate($this->perPage);
 
             $questions =  $this->getUsersLateQuestions([$user->id]);
-            // Question::join('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
-            //     ->leftJoin('answers', function ($join) use ($user) {
-            //         $join->on('questions.id', '=', 'answers.question_id')
-            //             ->where('answers.user_id', '=', $user->id)
-            //             ->where('answers.is_discussion', '=', false)
-            //             ->whereRaw('answers.created_at < DATE_ADD(questions_assignees.created_at, INTERVAL 12 HOUR)');
-            //     })
-            //     ->where('questions_assignees.assignee_id', $user->id)
-            //     ->where('questions_assignees.is_active', true)
-            //     ->where('questions_assignees.created_at', '<', now()->subHours(12))
-            //     ->whereIn('questions.status', ['open', 'discussion'])
-            //     ->whereNull('answers.id')
-            //     ->with(['answers' => function ($query) {
-            //         $query->where('is_discussion', false);
-            //     }])
-            //     ->paginate($this->perPage);
 
             if ($questions->isEmpty()) {
                 return $this->jsonResponse(
@@ -246,19 +211,6 @@ class GeneralConversationController extends Controller
                 "لا يوجد تحويلات متأخرة لدى " . $keyword
             );
         }
-
-        // $questions = Question::whereIn('current_assignee_id', $allUsers)
-        //     ->whereIn("status", ["open", "discussion"])
-        //     ->where('created_at', '<=', now()->subHours(12))
-        //     // ->whereDoesntHave('answers', function ($query) use ($allUsers) {
-        //     //     $query->whereIn('user_id', $allUsers)
-        //     //         ->where('is_discussion', false)
-        //     //         ->where('created_at', '<', DB::raw("DATE_ADD(questions.created_at, INTERVAL 12 HOUR)"));
-        //     // })
-        //     ->with('answers', function ($query) {
-        //         $query->where('is_discussion', false);
-        //     })
-        //     ->orderBy('created_at', 'desc')->paginate($perPage);
 
         $questions =  $this->getUsersLateQuestions($allUsers);
 
@@ -376,9 +328,32 @@ class GeneralConversationController extends Controller
 
             $message = "لقد قام " . $user->name . " بالإجابة على سؤالك";
 
+            $messageToPrents = "لقد قام " . $user->name . " بالإجابة على سؤال المستخدم " . $question->user->name;
+
             //notify the owner
             $notification = new NotificationController();
             $notification->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
+
+            //notify parents
+            if ($question->user->hasRole('advisor')) {
+                //send to consultant
+                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            } else if ($question->user->hasRole('supervisor')) {
+                //send to advisor
+                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+
+                //send to consultant
+                $notification->sendNotification($question->user->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            } else if ($question->user->hasAnyRole(['leader', 'support_leader'])) {
+                //send to supervisor
+                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+
+                //send to advisor
+                $notification->sendNotification($question->user->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+
+                //send to consultant
+                $notification->sendNotification($question->user->parent->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            }
 
             return $this->jsonResponseWithoutMessage(AnswerResource::make($answer), 'data', Response::HTTP_OK);
         }
@@ -518,6 +493,8 @@ class GeneralConversationController extends Controller
 
         $message = "لقد قام المستخدم " . $user->name . " بتحويل سؤالك للمناقشة";
         (new NotificationController())->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
+
+        return $this->jsonResponseWithoutMessage(QuestionResource::make($question), 'data', Response::HTTP_OK);
     }
 
     public function moveQuestionToQuestions($question_id)
@@ -544,6 +521,8 @@ class GeneralConversationController extends Controller
 
         $message = "لقد قام المستخدم " . $user->name . " بإعادة سؤالك للتحويل";
         (new NotificationController())->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
+
+        return $this->jsonResponseWithoutMessage(QuestionResource::make($question), 'data', Response::HTTP_OK);
     }
 
     public function checkQuestionLate($question_id)

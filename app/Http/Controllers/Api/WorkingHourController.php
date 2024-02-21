@@ -82,22 +82,23 @@ class WorkingHourController extends Controller
 
         $currentWeek = Week::latest()->first();
 
-        //get all working hours grouped by created_at date
-        $workingHours = WorkHour::where("user_id", $user->id)
-            ->where("week_id", $currentWeek->id)
-            ->orderBy('created_at', 'asc')
-            ->get();
 
         if (Carbon::now()->dayOfWeek <= 3) {
-            $startDate = Week::latest()->skip(1)->first()->created_at;
+            $startDate = Week::latest()->skip(1)->first();
         } else {
-            $startDate = $currentWeek->created_at;
+            $startDate = $currentWeek;
         }
+
+        //get all working hours grouped by created_at date
+        $workingHours = WorkHour::where("user_id", $user->id)
+            ->where("week_id", $startDate->id)
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return $this->jsonResponseWithoutMessage(
             [
                 "workingHours" => $workingHours,
-                "startDate" => $startDate,
+                "startDate" => $startDate->created_at,
             ],
             'data',
             Response::HTTP_OK
