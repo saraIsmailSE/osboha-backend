@@ -18,11 +18,9 @@ use App\Http\Controllers\Api\{
     LeaderRequestController,
     HighPriorityRequestController,
     SystemIssueController,
-    TransactionController,
     CommentController,
     MarkController,
     AuditMarkController,
-    RejectedMarkController,
     UserExceptionController,
     GroupController,
     InfographicController,
@@ -68,6 +66,7 @@ use App\Http\Controllers\Api\Eligible\{
     EligibleCertificatesController,
     EligibleGeneralInformationsController,
     EligiblePDFController,
+    TeamStatisticsController
 };
 
 /*
@@ -781,6 +780,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/review', [EligibleGeneralInformationsController::class, "review"]);
             Route::patch('review-general-informations/{id}', [EligibleGeneralInformationsController::class, "reviewGeneralInformations"]);
         });
+
+        //Eligible Statistics
+        Route::group(['prefix' => 'eligible-statistics'], function () {
+            Route::get('/my-team/{week_id}', [TeamStatisticsController::class, 'teamStatistics']);
+        });
+
+
         ######## StatisticsSupervisor ########
         Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
         ######## END StatisticsSupervisor ########
@@ -795,8 +801,5 @@ Route::group(['prefix' => 'v1'], function () {
 
 
     });
-    //move Eligible DB routes
-    Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
-
     Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
 });

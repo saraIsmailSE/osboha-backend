@@ -188,7 +188,9 @@ class StatisticsController extends Controller
             ->get();
 
         foreach ($group_followups as $key => $group) {
-            $response['supervisor_own_followup_team'][$key] = $this->followupTeamStatistics($group, $previous_week, $last_previous_week);
+            if ($group) {
+                $response['supervisor_own_followup_team'][$key] = $this->followupTeamStatistics($group, $previous_week, $last_previous_week);
+            }
         }
 
         //جرد أفرقة المتابعة التي يشرف عليها المراقبين
@@ -358,6 +360,12 @@ class StatisticsController extends Controller
 
     private function followupTeamStatistics($group, $previous_week, $last_previous_week)
     {
+        if (!$group) {
+            $teamStatistics['team'] = 'لا يوجد فريق متابعة';
+
+            return $teamStatistics;
+        }
+
         $teamStatistics['leader_name'] = $group->user->name;
         $teamStatistics['team'] = $group->group->name;
 
@@ -510,8 +518,6 @@ class StatisticsController extends Controller
         return UserGroup::without('user')->where('group_id', $group_id)
             ->whereBetween('created_at', [$previous_week->created_at, $previous_week->created_at->addDays(7)])->get()->count();
     }
-
-
 
     private function excluded_and_withdraw($previous_week, $group_id)
     {

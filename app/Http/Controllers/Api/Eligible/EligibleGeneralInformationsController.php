@@ -38,10 +38,17 @@ class EligibleGeneralInformationsController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $input = $request->all();
 
         try {
-            $general_informations = EligibleGeneralInformations::create($input);
+            $general_informations = EligibleGeneralInformations::updateOrCreate(
+                ['eligible_user_books_id' => $request->eligible_user_books_id],
+                [
+                    'summary' => $request->summary,
+                    'general_question' => $request->general_question,
+                    'eligible_user_books_id' => $request->eligible_user_books_id
+                ]
+            );
+
         } catch (\Illuminate\Database\QueryException $e) {
             return $this->jsonResponseWithoutMessage('User Book does not exist', 'data', 404);
         }

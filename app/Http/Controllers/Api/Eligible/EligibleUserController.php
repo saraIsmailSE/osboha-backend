@@ -39,7 +39,7 @@ class EligibleUserController extends Controller
 
   /**
    * Get users by name.
-   * 
+   *
    * @param  user name
    * @return users;
    */

@@ -703,16 +703,15 @@ class GroupController extends Controller
         }
 
         $response['week'] = Week::find($week_id);
+        $response['weeks'] = Week::where('is_vacation', 0)->latest('id')->limit(10)->get();
 
-        // $users_in_group = Group::where('id', $group_id)
-        //     ->with('leaderAndAmbassadors')
-        //     ->first();
         $users_in_group = $this->usersByWeek($group_id, $week_id, ['leader', 'ambassador']);
 
 
         $response['users_in_group'] = $users_in_group->count();
+        $response['group_leader'] = $users_in_group->where('user_type','leader')->pluck('user_id');
 
-        $response['ambassadors_reading'] = User::without('userProfile')->with('roles')->select('users.*')
+        $response['ambassadors_reading'] = User::without('userProfile')->select('users.*')
             ->whereIn('users.id', $users_in_group->pluck('user_id'))
             ->selectRaw('COALESCE(marks.reading_mark, 0) as reading_mark')
             ->selectRaw('COALESCE(marks.writing_mark, 0) as writing_mark')
@@ -1055,25 +1054,5 @@ class GroupController extends Controller
             ], 'data', 200);
         }
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
-    }
-
-    public function usersByWeek($group_id, $week_id, $user_type)
-    {
-        $week = Week::find($week_id);
-        $weekPlusSevenDays = $week->created_at->addDays(7);
-
-        return UserGroup::where(function ($query) use ($week, $weekPlusSevenDays, $group_id) {
-                $query->where('created_at', '<=', $week->created_at)
-                    ->where('updated_at', '>=', $weekPlusSevenDays)
-                    ->where('group_id', $group_id);
-            })
-            ->orWhere(function ($query) use ($weekPlusSevenDays, $group_id) {
-                $query->where('created_at', '<=', $weekPlusSevenDays)
-                    ->whereNull('termination_reason')
-                    ->where('group_id', $group_id);
-            })
-            ->whereIn('user_type', $user_type)
-            ->get();
-
     }
 }
