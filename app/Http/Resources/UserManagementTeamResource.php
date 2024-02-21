@@ -61,16 +61,18 @@ class UserManagementTeamResource extends JsonResource
 
         return [
             "parent" => UserInfoResource::make($this->parent),
-            "ambassadorTeam" => [
+            "ambassadorTeam" => $ambassadorTeam ?  [
                 "id" => $ambassadorTeam->id,
                 "name" => $ambassadorTeam->name,
                 'title' => $ambassadorTeamTitle
-            ],
-            "leaderTeam" => [
-                "id" => $leaderTeam->id,
-                "name" => $leaderTeam->name,
-                'title' => $leaderTeamTitle
-            ],
+            ] : null,
+            "leaderTeam" =>
+            $leaderTeam ?
+                [
+                    "id" => $leaderTeam->id,
+                    "name" => $leaderTeam->name,
+                    'title' => $leaderTeamTitle
+                ] : null,
         ];
     }
 }
