@@ -244,13 +244,21 @@ class UserGroupController extends Controller
             if ($group->groupLeader->isEmpty()) {
                 return $this->jsonResponseWithoutMessage("لا يوجد قائد للمجموعة, لا يمكنك إضافة أعضاء", 'data', 200);
             } else {
-                UserGroup::Create(
+                UserGroup::updateOrCreate(
                     [
                         'user_id' => $user->id,
                         'group_id' => $group->id,
-                        'user_type' => $role->name
+                        'user_type' => $role->name,
+                        'termination_reason' => null
+                    ],
+                    [
+                        'user_id' => $user->id,
+                        'group_id' => $group->id,
+                        'user_type' => $role->name,
+                        'termination_reason' => null
                     ]
                 );
+
                 // if user is not admin|consultant|advisor make leader parent
                 if (!$user->hasanyrole('admin|consultant|advisor')) {
                     $user->parent_id = $group->groupLeader[0]->id;
@@ -259,11 +267,18 @@ class UserGroupController extends Controller
                 }
             }
         } else {
-            UserGroup::Create(
+            UserGroup::updateOrCreate(
                 [
                     'user_id' => $user->id,
                     'group_id' => $group->id,
-                    'user_type' => $role->name
+                    'user_type' => $role->name,
+                    'termination_reason' => null
+                ],
+                [
+                    'user_id' => $user->id,
+                    'group_id' => $group->id,
+                    'user_type' => $role->name,
+                    'termination_reason' => null
                 ]
             );
         }
