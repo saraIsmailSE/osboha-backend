@@ -244,7 +244,7 @@ trait ThesisTraits
 
             if ($mark_record) {
                 //get thesis type
-                $thesis_type = ThesisType::find($thesis['type_id'])->first()->type;
+                $thesis_type = ThesisType::findOrFail($thesis['type_id'])->type;
 
                 $max_length = ($thesisToUpdate['max_length'] ? $thesisToUpdate['max_length'] : 0);
                 $total_thesis = ($thesisToUpdate['max_length'] ? ($thesisToUpdate['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0);
