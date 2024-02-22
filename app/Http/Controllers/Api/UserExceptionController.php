@@ -241,7 +241,6 @@ class UserExceptionController extends Controller
                 $exception['desired_duration'] =  'مؤقت';
                 $userException = UserException::create($exception);
                 return $this->jsonResponseWithoutMessage($userException, 'data', 200);
-
             } else {
                 return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
             }
@@ -1055,5 +1054,38 @@ class UserExceptionController extends Controller
         }
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+
+    public function endExceptions()
+    {
+        $week = Week::latest()->first();
+
+        // End accepted exceptions
+        UserException::where('end_at', '<=', $week->created_at)
+            ->where('status', 'accepted')
+            ->update(['status' => 'finished']);
+
+        // Set Pending exceptions to rejected
+        // UserException::where('end_at', '<=', $week->created_at)
+        // ->where('status', 'pending')
+        // ->update(['status' => 'rejected']);
+    }
+
+    public function SetMarkForExceptionalFreez()
+    {
+        $week = Week::latest()->first();
+        $exceptions = UserException::where('end_at', '>=', $week->created_at)
+            ->where('status', 'accepted')
+            ->where('type_id', 5)
+            ->where('reason', '!=', 'عضو جديد')
+            ->get();
+
+        foreach ($exceptions as $exception) {
+            Mark::updateOrCreate(
+                ['week_id' =>  $week->id, 'user_id' => $exception->user_id],
+                ['week_id' =>  $week->id, 'user_id' =>  $exception->user_id, 'is_freezed' => 1]
+            );
+        }
     }
 }
