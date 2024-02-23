@@ -671,6 +671,7 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::get('/my-questions', [GeneralConversationController::class, 'getMyQuestions']);
                 Route::get('/my-active-questions', [GeneralConversationController::class, 'getMyActiveQuestions']);
                 Route::get('/my-late-questions', [GeneralConversationController::class, 'getMyLateQuestions']);
+                Route::get('/my-assigned-to-parent-questions', [GeneralConversationController::class, 'getMyAssignedToParentQuestions']);
                 Route::get('/discussion-questions', [GeneralConversationController::class, 'getDiscussionQuestions']);
                 Route::get('/statistics', [GeneralConversationController::class, 'getQuestionsStatistics']);
             });
