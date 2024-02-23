@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('media:deleteOld')->weekly()->fridays()->at('08:45');
 
         //accept support for all
-        $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
+        // $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
 
         //exclude users
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
