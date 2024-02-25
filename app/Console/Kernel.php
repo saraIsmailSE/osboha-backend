@@ -45,7 +45,7 @@ class Kernel extends ConsoleKernel
         ##########  30	20	*	*	7 ##########
         $schedule->command('media:deleteOld')->weekly()->sundays()->at('23:30');
 
-
+        ########## 05	19	*	*	3	 ##########
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
 
 
@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
 
         //exclude users
+        ########## 15	19	*	*	5 ##########
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
     }
 
