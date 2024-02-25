@@ -56,6 +56,15 @@ class GroupController extends Controller
             case 'marathon':
                 $groupType = ['marathon'];
                 break;
+            case 'advising':
+                $groupType = ['advising'];
+                break;
+            case 'supervising':
+                $groupType = ['supervising'];
+                break;
+            case 'followup':
+                $groupType = ['followup'];
+                break;
             default:
                 $groupType = [
                     'followup',
@@ -709,7 +718,7 @@ class GroupController extends Controller
 
 
         $response['users_in_group'] = $users_in_group->count();
-        $response['group_leader'] = $users_in_group->where('user_type','leader')->pluck('user_id');
+        $response['group_leader'] = $users_in_group->where('user_type', 'leader')->pluck('user_id');
 
         $response['ambassadors_reading'] = User::without('userProfile')->select('users.*')
             ->whereIn('users.id', $users_in_group->pluck('user_id'))

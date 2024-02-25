@@ -34,11 +34,11 @@ class Kernel extends ConsoleKernel
         //accept support for all
         // $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
 
-        //exclude users
+        //exclude users 
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
         //exclude new users
-        $schedule->command('users:exclude_new')->weekly()->mondays()->at('12:15');
-        //exclude new users
+        $schedule->command('users:exclude_new')->weekly()->sundays()->at('12:15');
+        //Set Mark For Exceptional Freeze
         $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->thursdays()->at('20:30');
     }
 
