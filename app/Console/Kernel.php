@@ -19,10 +19,19 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
-        $schedule->command('weekly:marks')->weekly()->sundays()->at('12:00'); //main part
+        ########## Sunday ##########
+        //insert New Week
+        $schedule->command('weekly:marks')->weekly()->sundays()->at('17:10'); //main part
+
+        //exclude new users
+        $schedule->command('users:exclude_new')->weekly()->sundays()->at('17:30');
+
         //auditMark
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
+
+        //Set Mark For Exceptional Freeze
+        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->thursdays()->at('20:30');
+
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
         //finishedException
 
@@ -34,12 +43,8 @@ class Kernel extends ConsoleKernel
         //accept support for all
         // $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
 
-        //exclude users 
+        //exclude users
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
-        //exclude new users
-        $schedule->command('users:exclude_new')->weekly()->sundays()->at('12:15');
-        //Set Mark For Exceptional Freeze
-        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->thursdays()->at('20:30');
     }
 
     /**

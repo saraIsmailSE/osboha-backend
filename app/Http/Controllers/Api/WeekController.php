@@ -68,8 +68,7 @@ class WeekController extends Controller
             $new_week->save();
 
 
-            $this->check_all_users();
-
+            //$this->check_all_users();
 
             DB::commit();
             $this->openBooksComments();
