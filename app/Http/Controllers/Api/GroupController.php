@@ -337,7 +337,7 @@ class GroupController extends Controller
     public function groupExceptions($group_id)
     {
 
-        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
+        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
         $userInGroup = UserGroup::where('group_id', $group_id)
             ->where('user_id', Auth::id())
             ->where('user_type', '!=', 'ambassador')
