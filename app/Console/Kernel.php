@@ -29,10 +29,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('users:exclude_new')->weekly()->sundays()->at('12:30');
 
         //auditMark
+        ##########  00	19	*	*	7 ##########
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
 
         //Set Mark For Exceptional Freeze
-        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->thursdays()->at('20:30');
+        ##########  30	19	*	*	7 ##########
+        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->sundays()->at('22:30');
 
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
         //finishedException
