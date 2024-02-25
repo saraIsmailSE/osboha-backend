@@ -368,7 +368,7 @@ class GroupController extends Controller
         $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
 
         if ($filter == 'oldest') {
-            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->get();
+            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->get();
         } else if ($filter == 'latest') {
             $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
         } else if ($filter == 'freez') {

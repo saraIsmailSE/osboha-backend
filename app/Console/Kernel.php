@@ -21,10 +21,12 @@ class Kernel extends ConsoleKernel
     {
         ########## Sunday ##########
         //insert New Week
-        $schedule->command('weekly:marks')->weekly()->sundays()->at('17:10'); //main part
+        ##########  00	09	*	*	7 ##########
+        $schedule->command('weekly:marks')->weekly()->sundays()->at('12:00'); //main part
 
         //exclude new users
-        $schedule->command('users:exclude_new')->weekly()->sundays()->at('17:30');
+        ##########  30	09	*	*	7 ##########
+        $schedule->command('users:exclude_new')->weekly()->sundays()->at('12:30');
 
         //auditMark
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');

@@ -240,7 +240,7 @@ class UserExceptionController extends Controller
                 $successMessage = "تم رفع طلبك للانسحاب انتظر الموافقة";
                 $exception['desired_duration'] =  'مؤقت';
                 $userException = UserException::create($exception);
-                return $this->jsonResponseWithoutMessage($userException, 'data', 200);
+                return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
             } else {
                 return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
             }
