@@ -193,6 +193,39 @@ class GeneralConversationController extends Controller
         }
     }
 
+    public function getMyAssignedToParentQuestions()
+    {
+        $user = Auth::user();
+
+        if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
+            $questions = Question::where("user_id", $user->id)
+                ->whereHas('assignees', function ($query) use ($user) {
+                    $query->where('assignee_id', $user->id)
+                        ->where('is_active', false);
+                })->with('answers', function ($query) {
+                    $query->where('is_discussion', false);
+                })->paginate($this->perPage);
+
+            if ($questions->isEmpty()) {
+                return $this->jsonResponse(
+                    [],
+                    'data',
+                    Response::HTTP_OK,
+                    "لا يوجد تحويلات مرفوعة  للمسؤول"
+                );
+            }
+
+            return $this->jsonResponseWithoutMessage([
+                "questions" => QuestionResource::collection($questions),
+                "total" => $questions->total(),
+                "last_page" => $questions->lastPage(),
+                "has_more_pages" => $questions->hasMorePages(),
+            ], 'data', Response::HTTP_OK);
+        }
+
+        throw new NotAuthorized;
+    }
+
     public function getAllQuestions()
     {
         $user = Auth::user();
@@ -334,25 +367,13 @@ class GeneralConversationController extends Controller
             $notification = new NotificationController();
             $notification->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
 
-            //notify parents
-            if ($question->user->hasRole('advisor')) {
-                //send to consultant
-                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
-            } else if ($question->user->hasRole('supervisor')) {
-                //send to advisor
-                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            //notify parents (get the parents from the question's assignees)
+            $parents = $question->assignees()
+                ->where('assignee_id', '!=', $user->id)
+                ->pluck('assignee_id')->unique();
 
-                //send to consultant
-                $notification->sendNotification($question->user->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
-            } else if ($question->user->hasAnyRole(['leader', 'support_leader'])) {
-                //send to supervisor
-                $notification->sendNotification($question->user->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
-
-                //send to advisor
-                $notification->sendNotification($question->user->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
-
-                //send to consultant
-                $notification->sendNotification($question->user->parent->parent->parent_id, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
+            foreach ($parents as $parent) {
+                $notification->sendNotification($parent, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
             }
 
             return $this->jsonResponseWithoutMessage(AnswerResource::make($answer), 'data', Response::HTTP_OK);
