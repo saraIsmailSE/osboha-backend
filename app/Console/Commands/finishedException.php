@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\Api\UserExceptionController;
 use Illuminate\Console\Command;
 
 class finishedException extends Command
@@ -37,8 +38,9 @@ class finishedException extends Command
      */
     public function handle()
     {
-        // Log::info("Hello" ); 
-        app()->call('App\Http\Controllers\Api\UserExceptionController@finishedException');
-        \Log::info("Cron is working fine!");
+        $controller = new UserExceptionController();
+        $controller->endExceptions();
+
+        return 0;
     }
 }

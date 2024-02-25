@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         ########## Sunday ##########
+
         //insert New Week
         ##########  00	09	*	*	7 ##########
         $schedule->command('weekly:marks')->weekly()->sundays()->at('12:00'); //main part
@@ -32,17 +33,21 @@ class Kernel extends ConsoleKernel
         ##########  00	19	*	*	7 ##########
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
 
-        //Set Mark For Exceptional Freeze
+        //Finish Exceptions
         ##########  30	19	*	*	7 ##########
-        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->sundays()->at('22:30');
+        $schedule->command('userException:finished')->weekly()->sundays()->at('22:30');
+
+        //Set Mark For Exceptional Freeze
+        ##########  00	20	*	*	7 ##########
+        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->sundays()->at('23:00');
+
+        //delete old media
+        ##########  30	20	*	*	7 ##########
+        $schedule->command('media:deleteOld')->weekly()->sundays()->at('23:30');
+
 
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
-        //finishedException
 
-        // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
-
-        //delete old media every week on sunday at 5:00 am
-        $schedule->command('media:deleteOld')->weekly()->fridays()->at('08:45');
 
         //accept support for all
         // $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
