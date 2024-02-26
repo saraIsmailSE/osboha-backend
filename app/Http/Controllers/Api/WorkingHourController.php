@@ -12,6 +12,7 @@ use App\Traits\ResponseJson;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -36,40 +37,64 @@ class WorkingHourController extends Controller
             );
         }
         $user = Auth::user();
-        $week = Week::latest()->first();
 
-        //loop through working hours
-        foreach ($request->working_hours as $working_hour) {
-            $date = Carbon::parse($working_hour['date']);
+        DB::beginTransaction();
 
-            //find working hours for date part of created_at
-            $workingHours = WorkHour::where("user_id", $user->id)
-                ->where("week_id", $week->id)
-                ->whereDate('created_at', $date)
-                ->first();
+        try {
+            //loop through working hours
+            foreach ($request->working_hours as $working_hour) {
+                $date = Carbon::parse($working_hour['date']);
 
-            if (!$workingHours) {
-                //if minutes is 0, don't create a record
-                if ($working_hour['minutes'] == 0) {
-                    continue;
+                //get week of the date
+                $week = Week::whereDate('created_at', '<=', $date)
+                    ->whereDate('main_timer', '>', $date)
+                    ->first();
+
+                if (!$week) {
+                    return $this->jsonResponseWithoutMessage(
+                        'لا يمكن إضافة ساعات العمل لتاريخ خارج الأسبوع الحالي',
+                        'data',
+                        Response::HTTP_BAD_REQUEST
+                    );
                 }
-                $workingHours = WorkHour::create([
-                    "user_id" => $user->id,
-                    "minutes" => $working_hour['minutes'],
-                    "week_id" => Week::latest()->first()->id,
-                    "created_at" => $date,
-                ]);
-            } else {
-                $workingHours->minutes = $working_hour['minutes'];
-                $workingHours->save();
-            }
-        }
 
-        return $this->jsonResponseWithoutMessage(
-            'تم إضافة ساعات العمل بنجاح',
-            'data',
-            Response::HTTP_OK
-        );
+                //find working hours for date part of created_at
+                $workingHours = WorkHour::where("user_id", $user->id)
+                    ->where("week_id", $week->id)
+                    ->whereDate('created_at', $date)
+                    ->first();
+
+                if (!$workingHours) {
+                    //if minutes is 0, don't create a record
+                    if ($working_hour['minutes'] == 0) {
+                        continue;
+                    }
+                    $workingHours = WorkHour::create([
+                        "user_id" => $user->id,
+                        "minutes" => $working_hour['minutes'],
+                        "week_id" => $week->id,
+                        "created_at" => $date,
+                    ]);
+                } else {
+                    $workingHours->minutes = $working_hour['minutes'];
+                    $workingHours->save();
+                }
+            }
+
+            DB::commit();
+            return $this->jsonResponseWithoutMessage(
+                'تم إضافة ساعات العمل بنجاح',
+                'data',
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->jsonResponseWithoutMessage(
+                'حدث خطأ ما',
+                'data',
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     public function getWorkingHours()
@@ -80,13 +105,12 @@ class WorkingHourController extends Controller
             throw new NotAuthorized;
         }
 
-        $currentWeek = Week::latest()->first();
-
+        $startDate = null;
 
         if (Carbon::now()->dayOfWeek <= 3) {
             $startDate = Week::latest()->skip(1)->first();
         } else {
-            $startDate = $currentWeek;
+            $startDate = Week::latest()->first();
         }
 
         //get all working hours grouped by created_at date
