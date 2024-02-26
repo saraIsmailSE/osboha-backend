@@ -58,4 +58,23 @@ trait GroupTrait
             ->whereIn('user_type', $user_type)
             ->get();
     }
+
+    function groupsUsersByWeek($groups_id, $week_id, $user_type)
+    {
+        $week = Week::find($week_id);
+        $weekPlusSevenDays = $week->created_at->addDays(7);
+
+        return UserGroup::where(function ($query) use ($week, $weekPlusSevenDays, $groups_id) {
+            $query->where('created_at', '<=', $week->created_at)
+                ->where('updated_at', '>=', $weekPlusSevenDays)
+                ->whereIn('group_id', $groups_id);
+        })
+            ->orWhere(function ($query) use ($weekPlusSevenDays, $groups_id) {
+                $query->where('created_at', '<=', $weekPlusSevenDays)
+                    ->whereNull('termination_reason')
+                    ->whereIn('group_id', $groups_id);
+            })
+            ->whereIn('user_type', $user_type)
+            ->get();
+    }
 }

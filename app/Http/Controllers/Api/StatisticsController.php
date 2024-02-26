@@ -114,7 +114,7 @@ class StatisticsController extends Controller
 
         // الفريق الرقابي مع القادة بداخله
 
-        $supervisorGroup = Group::without('type', 'Timeline')->with('userAmbassador')->find($supervisingGroup->group_id);
+        $supervisorGroup = Group::without('type', 'Timeline')->find($supervisingGroup->group_id);
         if (!$supervisorGroup) {
             throw new NotFound;
         }
@@ -126,9 +126,9 @@ class StatisticsController extends Controller
         $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
 
         $response = [];
+        $leaders = $this->usersByWeek($supervisingGroup->group_id, $previous_week->id, ['ambassador']);
 
-        $leadersIDs = $supervisorGroup->userAmbassador->pluck('id');
-
+        $leadersIDs =  $leaders->pluck('user_id');
         //افرقة المتابعة الخاصة بالقادة
         $group_followups = UserGroup::with('user')->where('user_type', 'leader')
             ->whereIn('user_id', $leadersIDs)
@@ -149,6 +149,11 @@ class StatisticsController extends Controller
             ->whereNull('termination_reason')
             ->first();
         $response['supervisor_own_followup_team'] = $this->followupTeamStatistics($supervisor_followup_team, $previous_week, $last_previous_week);
+
+
+        $allLeadersAndAmbassadors = $this->groupsUsersByWeek($group_followups->pluck('group_id'), $previous_week->id, ['leader', 'ambassador']);
+        $allLeadersAndAmbassadorsIDS = $allLeadersAndAmbassadors->pluck('user_id');
+        $response['week_general_avg'] = $this->groupAvg(1,  $previous_week->id, $allLeadersAndAmbassadorsIDS);
 
 
         $response['supervisor_group'] = $supervisorGroup;
@@ -179,7 +184,9 @@ class StatisticsController extends Controller
 
         $response = [];
 
-        $supervisorsIDs = $advisorGroup->userAmbassador->pluck('id');
+        $supervisors = $this->usersByWeek($advisorGroup->id, $previous_week->id, ['ambassador']);
+
+        $supervisorsIDs = $supervisors->pluck('user_id');
 
         //جرد أفرقة المتابعة الخاصة بالمراقبين
         $group_followups = UserGroup::with('user')->where('user_type', 'leader')
@@ -370,16 +377,18 @@ class StatisticsController extends Controller
         $teamStatistics['team'] = $group->group->name;
 
         //for each leader get follow up group with its ambassador
-        $followup = Group::without('type', 'Timeline')->with('leaderAndAmbassadors')->where('id', $group->group_id)->first();
+        $followup = Group::without('type', 'Timeline')->where('id', $group->group_id)->first();
+
+        $leaderAndAmbassadors = $this->usersByWeek($group->group_id, $previous_week->id, ['leader', 'ambassador']);
         // Number of Ambassadors
-        $teamStatistics['number_ambassadors'] = $followup->leaderAndAmbassadors->count();
+        $teamStatistics['number_ambassadors'] = $leaderAndAmbassadors->count();
         // last week Avg.
-        $teamStatistics['week_avg'] = $this->groupAvg($group->group_id,  $previous_week->id, $followup->leaderAndAmbassadors->pluck('id'));
+        $teamStatistics['week_avg'] = $this->groupAvg($group->group_id,  $previous_week->id, $leaderAndAmbassadors->pluck('user_id'));
 
 
         // Number of freezed users in last week
         $teamStatistics['is_freezed'] = Mark::without('user')->where('week_id', $previous_week->id)
-            ->whereIn('user_id', $followup->leaderAndAmbassadors->pluck('id'))
+            ->whereIn('user_id', $leaderAndAmbassadors->pluck('user_id'))
             ->where('is_freezed', 1)
             ->count();
 
@@ -393,7 +402,7 @@ class StatisticsController extends Controller
 
         $teamStatistics['new_ambassadors'] = $this->newMembers($previous_week, $group->id);
 
-        $followupLeaderAndAmbassadors = $followup->leaderAndAmbassadors->pluck('id');
+        $followupLeaderAndAmbassadors = $leaderAndAmbassadors->pluck('user_id');
 
         $markChanges = $this->markChanges($last_previous_week, $previous_week, $followupLeaderAndAmbassadors);
 
@@ -421,11 +430,13 @@ class StatisticsController extends Controller
         }
         $supervisorGroup = Group::without('type', 'Timeline')->with('userAmbassador')->find($supervisingGroup->group_id);
 
-        // Number of Leaders
-        $teamStatistics['number_of_leaders'] = $supervisorGroup->userAmbassador->count();
 
-        $leadersIDs = $supervisorGroup->userAmbassador->pluck('id');
-        //$leadersIDs->push($superviser->id);
+        $leaders = $this->usersByWeek($supervisingGroup->group_id, $previous_week->id, ['ambassador']);
+
+        $leadersIDs =  $leaders->pluck('user_id');
+
+        // Number of Leaders
+        $teamStatistics['number_of_leaders'] = $leaders->count();
 
         //افرقة المتابعة الخاصة بالقادة
         $group_followups = UserGroup::where('user_type', 'leader')
@@ -434,10 +445,7 @@ class StatisticsController extends Controller
             ->get();
         $teamStatistics['group_followups'] = $group_followups;
 
-        $allLeadersAndAmbassadors = UserGroup::whereIn('user_type', ['ambassador', 'leader'])
-            ->whereIn('group_id', $group_followups->pluck('group_id'))
-            ->whereNull('termination_reason')
-            ->get();
+        $allLeadersAndAmbassadors = $this->groupsUsersByWeek($group_followups->pluck('group_id'), $previous_week->id, ['leader', 'ambassador']);
 
         $allLeadersAndAmbassadorsIDS = $allLeadersAndAmbassadors->pluck('user_id');
         $teamStatistics['team'] = $supervisorGroup->name;

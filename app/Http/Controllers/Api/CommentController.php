@@ -21,6 +21,7 @@ use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
 use App\Models\ThesisType;
+use App\Models\userWeekActivities;
 use App\Models\Week;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
@@ -42,7 +43,7 @@ class CommentController extends Controller
      *      - Thesis has a body.
      *      - Thesis has an image.
      * If the thesis has an image (Add the image to the system using MediaTraits).
-     *  5- Add a new thesis to the system if the comment type is “thesis”. 
+     *  5- Add a new thesis to the system if the comment type is “thesis”.
      *  6- Return a success or error message.
      * @param  Request  $request
      * @return jsonResponseWithoutMessage;
@@ -50,7 +51,7 @@ class CommentController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            //body is required only if the comment is not a thesis and has no image            
+            //body is required only if the comment is not a thesis and has no image
             //in case of read only, body and screenshot are not required
             'body' => [
                 'string',
@@ -165,7 +166,7 @@ class CommentController extends Controller
 
             if ($request->has('image')) {
                 // if comment has media
-                // upload media                
+                // upload media
                 $folder_path = 'comments/' . Auth::id();
                 $this->createMedia($request->image, $comment->id, 'comment', $folder_path);
             }
@@ -342,8 +343,8 @@ class CommentController extends Controller
                             $thesis['max_length'] = Str::length(trim($request->body));
                         }
                         /**asmaa **/
-                        //delete the previous screenshots 
-                        //because the user can't edit the screenshots, so if user kept the screenshots and added new ones, 
+                        //delete the previous screenshots
+                        //because the user can't edit the screenshots, so if user kept the screenshots and added new ones,
                         //the old ones will be deleted and added again with the new ones
                         //if the user deleted all screenshots, the old ones will be deleted
                         $screenshots_comments =
@@ -440,7 +441,7 @@ class CommentController extends Controller
         }
     }
     /**
-     * Delete an existing comment using its id (“delete comment” permission is required).     
+     * Delete an existing comment using its id (“delete comment” permission is required).
      * 1- Check if the comment exists.
      * 2- Check if the logged in user has the “delete comment” permission or the logged in user_id has to match the user_id in the request.
      * 3- Delete the comment replies.
@@ -448,7 +449,7 @@ class CommentController extends Controller
      * 5- Delete the comment screenshots.
      * 6- Delete the thesis.
      * 7- Delete the comment media.
-     * 8- Delete the comment.     
+     * 8- Delete the comment.
      * @param  Int $comment_id
      * @return jsonResponse;
      */
@@ -461,6 +462,33 @@ class CommentController extends Controller
                 DB::beginTransaction();
 
                 try {
+
+                    $post = Post::find($comment->post_id);
+                    if ($post->type->type == 'friday-thesis') {
+
+                        $currentWeek = Week::latest()->first();
+
+                        $graded = userWeekActivities::where('user_id', $comment->user_id)->where('week_id', $currentWeek->id)->first();
+                        if ($graded) {
+                            if ($graded->week_id < $currentWeek->id) {
+                                return $this->jsonResponseWithoutMessage('لقد انتهى الوقت, لا يمكنك حذف مشاركتك', 'data', 500);
+                            }
+
+                            $mark = Mark::where('week_id', $currentWeek->id)->where('user_id', $comment->user_id)->first();
+                            if ($mark) {
+                                // calculate mark
+                                $theses_mark = $this->calculate_mark_for_all_thesis($mark->id);
+                                $writing_mark = $theses_mark['writing_mark'];
+                                if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
+                                    $writing_mark = config('constants.FULL_WRITING_MARK');
+                                }
+                                $mark->update(['writing_mark' => $writing_mark]);
+                                $graded->delete();
+                            }
+                        }
+                    }
+
+
                     if ($comment->type == "thesis" || $comment->type == "screenshot") {
 
                         $currentWeek = Week::latest()->first();
@@ -488,6 +516,7 @@ class CommentController extends Controller
                             $screenshot->delete();
                         });
                     }
+
                     //check Media
                     $currentMedia = Media::where('comment_id', $comment->id)->first();
                     // if exist, delete

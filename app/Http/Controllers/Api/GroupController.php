@@ -748,6 +748,8 @@ class GroupController extends Controller
                 DB::raw('sum(total_screenshot) as total_screenshot'),
             )->first();
 
+        $response['week_avg'] = $this->groupAvg($group_id,  $response['week']->id, $users_in_group->pluck('user_id'));
+
         $response['most_read'] = Mark::where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
