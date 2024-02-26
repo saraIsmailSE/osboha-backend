@@ -240,7 +240,7 @@ class UserExceptionController extends Controller
                 $successMessage = "تم رفع طلبك للانسحاب انتظر الموافقة";
                 $exception['desired_duration'] =  'مؤقت';
                 $userException = UserException::create($exception);
-                return $this->jsonResponseWithoutMessage($userException, 'data', 200);
+                return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
             } else {
                 return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
             }
@@ -1059,33 +1059,41 @@ class UserExceptionController extends Controller
 
     public function endExceptions()
     {
-        $week = Week::latest()->first();
+        try {
+            $week = Week::latest()->first();
 
-        // End accepted exceptions
-        UserException::where('end_at', '<=', $week->created_at)
-            ->where('status', 'accepted')
-            ->update(['status' => 'finished']);
+            // End accepted exceptions
+            UserException::where('end_at', '<=', $week->created_at)
+                ->where('status', 'accepted')
+                ->update(['status' => 'finished']);
 
-        // Set Pending exceptions to rejected
-        // UserException::where('end_at', '<=', $week->created_at)
-        // ->where('status', 'pending')
-        // ->update(['status' => 'rejected']);
+            // Set Pending exceptions to rejected
+            UserException::where('end_at', '<=', $week->created_at)
+                ->where('status', 'pending')
+                ->update(['status' => 'rejected', 'note' => '-', 'reviewer_id' => 1]);
+        } catch (\Exception $e) {
+            Log::channel('newWeek')->info('End Exceptions: ' . $e);
+        }
     }
 
     public function SetMarkForExceptionalFreez()
     {
-        $week = Week::latest()->first();
-        $exceptions = UserException::where('end_at', '>=', $week->created_at)
-            ->where('status', 'accepted')
-            ->where('type_id', 5)
-            ->where('reason', '!=', 'عضو جديد')
-            ->get();
+        try {
+            $week = Week::latest()->first();
+            $exceptions = UserException::where('end_at', '>=', $week->created_at)
+                ->where('status', 'accepted')
+                ->where('type_id', 5)
+                ->where('reason', '!=', 'عضو جديد')
+                ->get();
 
-        foreach ($exceptions as $exception) {
-            Mark::updateOrCreate(
-                ['week_id' =>  $week->id, 'user_id' => $exception->user_id],
-                ['week_id' =>  $week->id, 'user_id' =>  $exception->user_id, 'is_freezed' => 1]
-            );
+            foreach ($exceptions as $exception) {
+                Mark::updateOrCreate(
+                    ['week_id' =>  $week->id, 'user_id' => $exception->user_id],
+                    ['week_id' =>  $week->id, 'user_id' =>  $exception->user_id, 'is_freezed' => 1]
+                );
+            }
+        } catch (\Exception $e) {
+            Log::channel('newWeek')->info('Set Mark For Exceptional Freez: ' . $e);
         }
     }
 }

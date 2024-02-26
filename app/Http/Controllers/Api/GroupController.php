@@ -56,6 +56,15 @@ class GroupController extends Controller
             case 'marathon':
                 $groupType = ['marathon'];
                 break;
+            case 'advising':
+                $groupType = ['advising'];
+                break;
+            case 'supervising':
+                $groupType = ['supervising'];
+                break;
+            case 'followup':
+                $groupType = ['followup'];
+                break;
             default:
                 $groupType = [
                     'followup',
@@ -328,7 +337,7 @@ class GroupController extends Controller
     public function groupExceptions($group_id)
     {
 
-        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
+        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
         $userInGroup = UserGroup::where('group_id', $group_id)
             ->where('user_id', Auth::id())
             ->where('user_type', '!=', 'ambassador')
@@ -356,10 +365,10 @@ class GroupController extends Controller
     {
 
         $group = Group::with('users')->where('id', $group_id)->first();
-        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN"))->first();
+        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
 
         if ($filter == 'oldest') {
-            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->get();
+            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->get();
         } else if ($filter == 'latest') {
             $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
         } else if ($filter == 'freez') {
@@ -709,7 +718,7 @@ class GroupController extends Controller
 
 
         $response['users_in_group'] = $users_in_group->count();
-        $response['group_leader'] = $users_in_group->where('user_type','leader')->pluck('user_id');
+        $response['group_leader'] = $users_in_group->where('user_type', 'leader')->pluck('user_id');
 
         $response['ambassadors_reading'] = User::without('userProfile')->select('users.*')
             ->whereIn('users.id', $users_in_group->pluck('user_id'))

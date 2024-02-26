@@ -21,7 +21,7 @@ class WithdrawnRejected extends Notification implements ShouldQueue
     public function __construct($note)
     {
         $this->note = $note;
-        $this->url = 'https://platform.osboha180.com';
+        $this->url = 'https://www.messenger.com/t/117840717971244/';
     }
 
     /**

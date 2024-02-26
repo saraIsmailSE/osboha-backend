@@ -19,27 +19,42 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //type php artisan schedule:work in the terminal to run (run the test part and stop the main part)
+        ########## Sunday ##########
+
+        //insert New Week
+        ##########  00	09	*	*	7 ##########
         $schedule->command('weekly:marks')->weekly()->sundays()->at('12:00'); //main part
+
+        //exclude new users
+        ##########  30	09	*	*	7 ##########
+        $schedule->command('users:exclude_new')->weekly()->sundays()->at('12:30');
+
         //auditMark
+        ##########  00	19	*	*	7 ##########
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
+
+        //Finish Exceptions
+        ##########  30	19	*	*	7 ##########
+        $schedule->command('userException:finished')->weekly()->sundays()->at('22:30');
+
+        //Set Mark For Exceptional Freeze
+        ##########  00	20	*	*	7 ##########
+        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->sundays()->at('23:00');
+
+        //delete old media
+        ##########  30	20	*	*	7 ##########
+        $schedule->command('media:deleteOld')->weekly()->sundays()->at('23:30');
+
+        ########## 05	19	*	*	3	 ##########
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
-        //finishedException
 
-        // $schedule->command('userException:finished')->weekly()->sundays()->at('8:00');
-
-        //delete old media every week on sunday at 5:00 am
-        $schedule->command('media:deleteOld')->weekly()->fridays()->at('08:45');
 
         //accept support for all
-        $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
+        // $schedule->command('support:accept')->weekly()->fridays()->at('22:30');
 
         //exclude users
+        ########## 15	19	*	*	5 ##########
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
-        //exclude new users
-        $schedule->command('users:exclude_new')->weekly()->mondays()->at('12:15');
-        //exclude new users
-        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->thursdays()->at('20:30');
     }
 
     /**
