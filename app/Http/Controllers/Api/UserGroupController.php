@@ -264,8 +264,8 @@ class UserGroupController extends Controller
                     ]
                 );
 
-                // if user is not admin|consultant|advisor make leader parent
-                if (!$user->hasanyrole('admin|consultant|advisor')) {
+                // if user is not admin|consultant|advisor|supervisor|leader make leader parent
+                if (!$user->hasanyrole('admin|consultant|advisor|supervisor|leader')) {
                     $user->parent_id = $group->groupLeader[0]->id;
                     $user->save();
                     $user->notify(new MailAmbassadorDistribution($group->id));
