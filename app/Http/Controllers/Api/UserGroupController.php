@@ -251,19 +251,11 @@ class UserGroupController extends Controller
                 if (in_array($group->type->type, ['advanced_followup', 'sophisticated_followup'])) {
 
                     UserGroup::where('user_type', 'ambassador')->where('user_id', $user->id)->update(['termination_reason'  => 'upgradet_to_' . $group->type->type]);
-                    UserGroup::Create(
-                        [
-                            'user_id' =>  $user->id,
-                            'group_id' => $group->id,
-                            'user_type' => 'ambassador'
-                        ]
-                    );
-                    return $this->notifyAddToGroup($user, $group, $arabicRole);
-                }
-
-                //CHECK IF USER IS AMBASSADOR IN ANOTHER GROUP
-                if (UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->exists()) {
-                    return $this->jsonResponseWithoutMessage("العضو موجود كـسفير في مجموعة أخرى", 'data', 200);
+                } else {
+                    //CHECK IF USER IS AMBASSADOR IN ANOTHER GROUP
+                    if (UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->exists()) {
+                        return $this->jsonResponseWithoutMessage("العضو موجود كـسفير في مجموعة أخرى", 'data', 200);
+                    }
                 }
 
                 UserGroup::updateOrCreate(
@@ -282,7 +274,7 @@ class UserGroupController extends Controller
                 );
 
                 // if user is not admin|consultant|advisor make leader parent
-                if (!$user->hasanyrole('admin|consultant|advisor')) {
+                if (!$user->hasanyrole('admin|consultant|advisor|supervisor|leader')) {
                     $user->parent_id = $group->groupLeader[0]->id;
                     $user->save();
                     $user->notify(new MailAmbassadorDistribution($group->id));
