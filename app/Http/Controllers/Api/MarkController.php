@@ -34,10 +34,11 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ThesisTraits;
 
 class MarkController extends Controller
 {
-    use ResponseJson, PathTrait;
+    use ResponseJson, PathTrait, ThesisTraits;
 
     /**
      * Read all  marks in the current week in the system(“audit mark” permission is required)
@@ -535,37 +536,43 @@ class MarkController extends Controller
             throw new NotAuthorized;
         }
     }
-    // public function unsetActivityMark($user_id, $week_id)
-    // {
-    //     //get user group and its administrators
-    //     $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
-    //     //check if auth user is an administrator in the group
-    //     if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
-    //         $week = Week::find($week_id);
-    //         if ($week) {
-    //             if (date('Y-m-d H:i:s') > $week->modify_timer) {
-    //                 return $this->jsonResponseWithoutMessage("لا يمكنك اضافة العلامة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
-    //             }
-    //             $graded = userWeekActivities::where('user_id', $user_id)->where('week_id', $week_id)->exists();
-    //             if (!$graded) {
-    //                 $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
-    //                 if ($mark) {
-    //                         $newWritingMark = $mark->writing_mark - 8;
-    //                         $mark->update(['writing_mark' => $newWritingMark]);
-    //                     return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
-    //                 } else {
-    //                     throw new NotFound;
-    //                 }
-    //             } else {
-    //                 return $this->jsonResponseWithoutMessage("already graded", 'data', 200);
-    //             }
-    //         } else {
-    //             return $this->jsonResponseWithoutMessage("Week Not Found", 'data', 200);
-    //         }
-    //     } else {
-    //         throw new NotAuthorized;
-    //     }
-    // }
+    public function unsetActivityMark($user_id, $week_id)
+    {
+        //get user group and its administrators
+        $group = UserGroup::with('group.groupAdministrators')->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
+        if ($group && $group->group->groupAdministrators->contains('id', Auth::id())) {
+            $week = Week::find($week_id);
+            if ($week) {
+                if (date('Y-m-d H:i:s') > $week->modify_timer) {
+                    return $this->jsonResponseWithoutMessage("لا يمكنك خصم العلامة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
+                }
+                $graded = userWeekActivities::where('user_id', $user_id)->where('week_id', $week_id)->first();
+                if ($graded) {
+                    $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
+                    if ($mark) {
+                        // calculate mark
+                        $theses_mark = $this->calculate_mark_for_all_thesis($mark->id);
+                        $writing_mark = $theses_mark['writing_mark'];
+                        if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
+                            $writing_mark = config('constants.FULL_WRITING_MARK');
+                        }
+
+                        $mark->update(['writing_mark' => $writing_mark]);
+                        $graded->delete();
+                        return $this->jsonResponseWithoutMessage("Mark Updated Successfully", 'data', 200);
+                    } else {
+                        throw new NotFound;
+                    }
+                } else {
+                    return $this->jsonResponseWithoutMessage("لا يوجد تقييم للسفير", 'data', 200);
+                }
+            } else {
+                return $this->jsonResponseWithoutMessage("Week Not Found", 'data', 200);
+            }
+        } else {
+            throw new NotAuthorized;
+        }
+    }
     /**
      * reject support vote for ambassador
      * @param  $user_id

@@ -166,8 +166,13 @@ class UserGroupController extends Controller
 
             $group = Group::find($request->group_id);
             if ($group) {
-
                 $arabicRole = config('constants.ARABIC_ROLES')[$role->name];
+
+                if (in_array($group->type->type, ['advanced_followup','sophisticated_followup']) && $role->name == 'leader') {
+                    return $this->handleLeaderRole($user, $group, $role, $arabicRole);
+                }
+
+
                 if ($user->hasRole($role->name)) {
 
                     ########## check if USER exists in the group with the same role ##########
@@ -238,7 +243,7 @@ class UserGroupController extends Controller
             return $this->jsonResponseWithoutMessage("العضو موجود كـسفير في مجموعة أخرى", 'data', 200);
         }
         //CHECK GROUP TYPE
-        if ($group->type->type == 'followup') {
+        if ($group->type->type == 'followup' || $group->type->type == 'advanced_followup' || $group->type->type == 'sophisticated_followup' ) {
             //CHECK IF LEADER EXISTS
 
             if ($group->groupLeader->isEmpty()) {
@@ -319,7 +324,7 @@ class UserGroupController extends Controller
         if ($checkMember) {
             return $this->jsonResponseWithoutMessage('يوجد ' . $arabicRole .  ' في المجموعة ', 'data', 200);
         }
-        if ($group->type->type != 'followup' && in_array($role->name, ['leader', 'support_leader'])) {
+        if ( !in_array($group->type->type, ['followup', 'advanced_followup','sophisticated_followup']) && in_array($role->name, ['leader', 'support_leader'])) {
             return $this->jsonResponseWithoutMessage(config('constants.ARABIC_ROLES')[$role->name] . " يُضاف بهذا الدور في أفرقة المتابعة فقط ", 'data', 200);
         }
 
@@ -362,7 +367,7 @@ class UserGroupController extends Controller
             );
         }
         // Make sure the leader is parent of group ambassadors
-        if ($role->name === 'leader' && $group->type->type === 'followup') {
+        if ($role->name === 'leader' && in_array($group->type->type, ['followup', 'advanced_followup','sophisticated_followup'])) {
             $leaderID = $user->id;
             $groupAmbassadors = $group->userAmbassador->pluck('id');
             foreach ($groupAmbassadors as $ambassadorID) {

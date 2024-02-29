@@ -129,7 +129,7 @@ class RolesAdministrationController extends Controller
                     }
 
                     if ($user->hasRole($role->name)) {
-                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data',200);
+                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
                     }
 
                     $user->assignRole($role->name);
@@ -313,6 +313,16 @@ class RolesAdministrationController extends Controller
                                 ]
                             );
                         }
+
+                        // add supervisor as ambassador to the new advising team
+                        UserGroup::where('user_type', 'ambassador')->where('user_id', $supervisor->id)->update(['termination_reason'  => 'advisor_change']);
+                        UserGroup::Create(
+                            [
+                                'user_id' =>  $supervisor->id,
+                                'group_id' => $advising_group->group_id,
+                                'user_type' => 'ambassador'
+                            ]
+                        );
 
                         DB::commit();
 
@@ -758,14 +768,14 @@ class RolesAdministrationController extends Controller
                                         $q->where('type_id', '=', $supervisingGroupTypeID);
                                     })->where('user_type', 'supervisor')->pluck('group_id')->first();
 
-                                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $currentSupervisor->id)->update(['termination_reason'  => 'supervisor_withdrawn']);
-                                    UserGroup::create(
-                                        [
-                                            'user_id' => $currentSupervisor->id,
-                                            'user_type' => "ambassador",
-                                            'group_id' => $newSupervisor_SupervisingGroupID
-                                        ]
-                                    );
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $currentSupervisor->id)->update(['termination_reason'  => 'supervisor_withdrawn']);
+                                UserGroup::create(
+                                    [
+                                        'user_id' => $currentSupervisor->id,
+                                        'user_type' => "ambassador",
+                                        'group_id' => $newSupervisor_SupervisingGroupID
+                                    ]
+                                );
 
 
                                 DB::commit();
