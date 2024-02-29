@@ -224,4 +224,8 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('user_type', 'ambassador')
             ->whereNull('termination_reason');
     }
+    public function children()
+    {
+        return $this->hasMany(User::class, 'parent_id')->where('is_excluded',0);
+    }
 }
