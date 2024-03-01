@@ -44,6 +44,22 @@ class UserController extends Controller
         }
     }
 
+    public function searchByName($name)
+    {
+        $response['users']  = User::with(['parent', 'groups' => function ($query) {
+            $query->wherePivot('user_type', 'ambassador')
+            ->whereNull('termination_reason')->get();
+
+        }])
+        ->where('name', 'LIKE', "%{$name}%")
+        ->withCount('children')->get();
+        if ($response['users']) { 
+            return $this->jsonResponseWithoutMessage($response, "data", 200);           
+        } else {
+            return $this->jsonResponseWithoutMessage(null, "data", 200);
+        }
+    }
+
     public function listInChargeOf()
     {
         $response = User::where('parent_id', Auth::id())->get();

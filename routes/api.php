@@ -121,6 +121,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "users"], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
+            Route::get('/search-by-name/{name}', [UserController::class, 'searchByName']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
             Route::get('/info/{id}', [UserController::class, 'getInfo']);
             Route::get('/list-un-allowed-to-eligible', [UserController::class, 'listUnAllowedToEligible']);
