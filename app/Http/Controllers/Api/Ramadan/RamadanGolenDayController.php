@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Ramadan;
 
 use App\Http\Controllers\Controller;
 use App\Models\RamadanGolenDay;
@@ -41,6 +41,7 @@ class RamadanGolenDayController extends Controller
 
         try {
             $user_id = Auth::id();
+
             $golden_day_data = [
                 'user_id' => $user_id,
                 'ramadan_day_id' => $request->ramadan_day_id,
@@ -59,7 +60,7 @@ class RamadanGolenDayController extends Controller
 
             $golden_day = RamadanGolenDay::updateOrCreate(
                 ['user_id' => $user_id, 'ramadan_day_id' => $request->ramadan_day_id],
-                $golden_day_data 
+                $golden_day_data
             );
 
             return $this->jsonResponseWithoutMessage($golden_day, 'data', 200);

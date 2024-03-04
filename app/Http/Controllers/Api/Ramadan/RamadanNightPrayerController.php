@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Ramadan;
 
 use App\Http\Controllers\Controller;
-use App\Models\RamadanGolenDay;
 use App\Models\RamadanNightPrayer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ResponseJson;
-use Illuminate\Support\Facades\DB;
 
 class RamadanNightPrayerController extends Controller
 {

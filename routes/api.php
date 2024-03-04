@@ -54,7 +54,6 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    EligibleMoveDBController,
     EmptyingTeamController,
     WorkingHourController,
 };
@@ -69,6 +68,13 @@ use App\Http\Controllers\Api\Eligible\{
     TeamStatisticsController
 };
 
+use App\Http\Controllers\Api\Ramadan\{
+    RamadanDayController,
+    RamadanNightPrayerController,
+    RamadanGolenDayController,
+};
+use App\Models\RamadanNightPrayer;
+
 /*
 |--------------------------------------------------------------------------
 | Osboha Main API Routes
@@ -76,7 +82,6 @@ use App\Http\Controllers\Api\Eligible\{
 |
 */
 
-Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
 
 Route::group(['prefix' => 'v1'], function () {
 
@@ -801,7 +806,28 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## Emptying ########
 
+        /*
+    |--------------------------------------------------------------------------|
+    |                       Ramadan API Routes                                |
+    |--------------------------------------------------------------------------|
+    */
+        Route::group(['prefix' => 'ramadan-day'], function () {
+            Route::get('/all', [RamadanDayController::class, 'all']);
+            Route::get('/current', [RamadanDayController::class, 'currentDay']);
+            Route::get('/previous', [RamadanDayController::class, 'previousDay']);
+        });
 
+        Route::group(['prefix' => 'ramadan-golden-day'], function () {
+            Route::post('/store', [RamadanGolenDayController::class, 'store']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanGolenDayController::class, 'statistics']);
+        });
+
+
+        Route::group(['prefix' => 'ramadan-night-pray'], function () {
+            Route::post('/store', [RamadanNightPrayer::class, 'store']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanNightPrayer::class, 'statistics']);
+        });
     });
+
     Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
 });
