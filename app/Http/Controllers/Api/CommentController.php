@@ -341,6 +341,8 @@ class CommentController extends Controller
                         $thesis['status'] = 'pending';
                         if ($request->has('body')) {
                             $thesis['max_length'] = Str::length(trim($request->body));
+                        } else {
+                            $thesis['max_length'] = 0;
                         }
                         /**asmaa **/
                         //delete the previous screenshots
@@ -396,6 +398,8 @@ class CommentController extends Controller
                                     $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment',  $folder_path);
                                 }
                             }
+                        } else {
+                            $thesis['total_screenshots'] = 0;
                         }
                         $this->updateThesis($thesis);
                     }
