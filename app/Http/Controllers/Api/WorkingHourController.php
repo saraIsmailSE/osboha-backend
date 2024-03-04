@@ -27,6 +27,7 @@ class WorkingHourController extends Controller
             'working_hours' => 'required|array',
             'working_hours.*.minutes' => 'required|numeric',
             'working_hours.*.date' => 'required|date',
+            "working_hours.*.week_id" => "required|exists:weeks,id",
         ]);
 
         if ($validator->fails()) {
@@ -44,23 +45,13 @@ class WorkingHourController extends Controller
             //loop through working hours
             foreach ($request->working_hours as $working_hour) {
                 $date = Carbon::parse($working_hour['date']);
+                $week_id = $working_hour['week_id'];
 
-                //get week of the date
-                $week = Week::whereDate('created_at', '<=', $date)
-                    ->whereDate('main_timer', '>', $date)
-                    ->first();
 
-                if (!$week) {
-                    return $this->jsonResponseWithoutMessage(
-                        'لا يمكن إضافة ساعات العمل لتاريخ خارج الأسبوع الحالي',
-                        'data',
-                        Response::HTTP_BAD_REQUEST
-                    );
-                }
 
                 //find working hours for date part of created_at
                 $workingHours = WorkHour::where("user_id", $user->id)
-                    ->where("week_id", $week->id)
+                    ->where("week_id", $week_id)
                     ->whereDate('created_at', $date)
                     ->first();
 
@@ -72,7 +63,7 @@ class WorkingHourController extends Controller
                     $workingHours = WorkHour::create([
                         "user_id" => $user->id,
                         "minutes" => $working_hour['minutes'],
-                        "week_id" => $week->id,
+                        "week_id" => $week_id,
                         "created_at" => $date,
                     ]);
                 } else {
@@ -105,24 +96,57 @@ class WorkingHourController extends Controller
             throw new NotAuthorized;
         }
 
-        $startDate = null;
+        $currentWeek = Week::latest()->first();
+        $previousWeek = null;
 
         if (Carbon::now()->dayOfWeek <= 3) {
-            $startDate = Week::latest()->skip(1)->first();
-        } else {
-            $startDate = Week::latest()->first();
+            $previousWeek = Week::latest()->skip(1)->first();
         }
-
         //get all working hours grouped by created_at date
-        $workingHours = WorkHour::where("user_id", $user->id)
-            ->where("week_id", $startDate->id)
+        $workingHours = WorkHour::with('week')->where("user_id", $user->id)
+            ->whereIn("week_id", [$currentWeek->id, $previousWeek ? $previousWeek->id : 0])
             ->orderBy('created_at', 'asc')
             ->get();
+
+
+        $groupedWorkingHours = $workingHours->groupBy(function ($item) {
+            return Carbon::parse($item->created_at)->toDateString();
+        })->map(function ($group) {
+            return $group->sum('minutes');
+        });
+        //get days from previous week till current week
+        $days = [];
+        if ($previousWeek) {
+            $createdAt = Carbon::parse($previousWeek->created_at);
+            $mainTimer = Carbon::parse($previousWeek->main_timer);
+            while ($createdAt->lte($mainTimer)) {
+                $days[] = [
+                    "week_id" => $previousWeek->id,
+                    "date" => $createdAt->toDateString(),
+                    "minutes" => $groupedWorkingHours[$createdAt->toDateString()] ?? 0,
+                    "week_title" => $previousWeek->title,
+                ];
+                $createdAt->addDay();
+            }
+        }
+
+        $createdAt = Carbon::parse($currentWeek->created_at);
+        $mainTimer = Carbon::parse($currentWeek->main_timer);
+        while ($createdAt->lte($mainTimer)) {
+            $days[] = [
+                "week_id" => $currentWeek->id,
+                "date" => $createdAt->toDateString(),
+                "minutes" => $groupedWorkingHours[$createdAt->toDateString()] ?? 0,
+                "week_title" => $currentWeek->title,
+            ];
+            $createdAt->addDay();
+        }
 
         return $this->jsonResponseWithoutMessage(
             [
                 "workingHours" => $workingHours,
-                "startDate" => $startDate->created_at,
+                "days" => $days,
+                "groupedWorkingHours" => $groupedWorkingHours,
             ],
             'data',
             Response::HTTP_OK
