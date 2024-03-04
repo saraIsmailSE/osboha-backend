@@ -2,11 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\NotAuthorized;
-use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ActivityResource;
-use App\Models\Activity;
 use App\Models\RamadanGolenDay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,7 +59,7 @@ class RamadanGolenDayController extends Controller
 
             $golden_day = RamadanGolenDay::updateOrCreate(
                 ['user_id' => $user_id, 'ramadan_day_id' => $request->ramadan_day_id],
-                $golden_day_data // Data to update or create
+                $golden_day_data 
             );
 
             return $this->jsonResponseWithoutMessage($golden_day, 'data', 200);
