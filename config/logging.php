@@ -153,6 +153,11 @@ return [
             'path' => storage_path('logs/user_search-' . now()->format('Y-W') . '.log'),
             'level' => 'debug',
         ],
+        'ramadanDay' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/ramadanDay.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];
