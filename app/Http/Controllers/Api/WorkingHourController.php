@@ -90,9 +90,6 @@ class WorkingHourController extends Controller
 
     public function getWorkingHours()
     {
-        DB::enableQueryLog();
-
-
         $user = Auth::user();
 
         if (!Auth::user()->hasAnyRole(['admin', 'consultant', 'advisor', 'supervisor'])) {
