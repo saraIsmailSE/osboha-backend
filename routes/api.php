@@ -138,6 +138,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "roles"], function () {
             Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
             Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
+            Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
             Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
