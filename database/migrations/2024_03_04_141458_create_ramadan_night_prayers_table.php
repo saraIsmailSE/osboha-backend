@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('ramadan_day_id');
-            $table->integer('no_of_rakaat');
-            $table->boolean('night_pray');
+            $table->tinyInteger('no_of_rakaat');
+            $table->tinyInteger('night_pray');
             $table->timestamps();
 
             // Foreign key constraints
