@@ -815,6 +815,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/all', [RamadanDayController::class, 'all']);
             Route::get('/current', [RamadanDayController::class, 'currentDay']);
             Route::get('/previous', [RamadanDayController::class, 'previousDay']);
+            Route::post('/all', [RamadanDayController::class, 'createRamadanDays']);
         });
 
         Route::group(['prefix' => 'ramadan-golden-day'], function () {

@@ -5,21 +5,21 @@ namespace App\Console\Commands;
 use App\Http\Controllers\Api\Ramadan\RamadanDayController;
 use Illuminate\Console\Command;
 
-class CreateRamadanDay extends Command
+class CloseRamadanDay extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'ramadan:createDay';
+    protected $signature = 'ramadan:closeDay';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new day in Ramadan days table.';
+    protected $description = 'Close the previous day and open the next day of Ramadan';
 
     /**
      * Execute the console command.
@@ -29,7 +29,7 @@ class CreateRamadanDay extends Command
     public function handle()
     {
         $controller = new RamadanDayController();
-        $controller->create();
+        $controller->closeDay();
         return 0;
     }
 }
