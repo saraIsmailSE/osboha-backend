@@ -72,6 +72,8 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanDayController,
     RamadanNightPrayerController,
     RamadanGolenDayController,
+    RamadanHadithController,
+    RamadanHadithMemorizationController,
 };
 
 /*
@@ -688,9 +690,6 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## End GeneralConversation ########
 
-
-
-
         /*
 |--------------------------------------------------------------------------|
 |                       Eligible API Routes                                |
@@ -829,7 +828,18 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/statistics/{ramadan_day_id}', [RamadanNightPrayerController::class, 'statistics']);
             Route::get('/show/{ramadan_day_id}', [RamadanNightPrayerController::class, 'show']);
         });
-    });
 
-    Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
+        Route::prefix('ramadan-hadith-memorization')->group(function () {
+            Route::post('/', [RamadanHadithMemorizationController::class, 'create']);
+            Route::get('/{hadith_id}/{user_id?}', [RamadanHadithMemorizationController::class, 'show'])->where('hadith_id', '[0-9]+')->where('user_id', '[0-9]+');
+            Route::put('/{id}/correct', [RamadanHadithMemorizationController::class, 'correct'])->where('id', '[0-9]+');
+            Route::get('/statistics', [RamadanHadithMemorizationController::class, 'statistics']);
+            Route::get('/pending', [RamadanHadithMemorizationController::class, 'getMemorizedHadiths']);
+        });
+
+        Route::prefix('ramadan-hadith')->group(function () {
+            Route::get('/', [RamadanHadithController::class, 'index']);
+            Route::get('/days/{day_id}', [RamadanHadithController::class, 'getHadithByDay'])->where('day_id', '[0-9]+');
+        });
+    });
 });

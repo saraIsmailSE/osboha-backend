@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class RamadanHadithMemorization extends Model
 {
     protected $fillable = [
-        'ramadan_hadith_id',
+        'ramadan_hadiths_id',
+        'hadith',
         'user_id',
         'status',
         'points',
         'reviews',
         'reviewer_id',
+        'redo_at',
     ];
 
     public function user()
@@ -22,7 +24,7 @@ class RamadanHadithMemorization extends Model
 
     public function hadith()
     {
-        return $this->belongsTo(RamadanHadith::class, 'ramadan_hadith_id');
+        return $this->belongsTo(RamadanHadith::class, 'ramadan_hadiths_id');
     }
 
     public function reviewer()
