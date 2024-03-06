@@ -34,8 +34,9 @@ class RamadanAlwirdController extends Controller
         }
 
         try {
-            $user_id =5;
 
+            $user_id = Auth::id();
+            
             if( $request->number_juzu_read >= 1)
             $points = 2;
             if( $request->number_juzu_read > 1)
@@ -62,7 +63,7 @@ class RamadanAlwirdController extends Controller
         }
         
     }
-    public function statistics()
+    public function statistics($ramadan_day_id)
     {
         /*count of users who read at least one juzu
         * count of users who read more than one juzu
@@ -70,11 +71,10 @@ class RamadanAlwirdController extends Controller
         */
 
         $statistics = [];
-        $ramadan_day_id = 1;
         
         // 1. Number of  users who read at least one juzu
         $statistics['num_users_read_one_juzu'] = RamadanAlwird::where('number_juzu_read', '=', 1)
-            ->where('ramadan_day_id', 1)
+            ->where('ramadan_day_id', $ramadan_day_id)
             ->count();
 
         // 2. Number of users who read more than one juzu
@@ -88,7 +88,7 @@ class RamadanAlwirdController extends Controller
             ->count();
 
         // 5. Summation of Auth user
-        $statistics['auth_specific_ramadan_alwird_points'] = RamadanAlwird::where('user_id',5)
+        $statistics['auth_specific_ramadan_alwird_points'] = RamadanAlwird::where('user_id',Auth::id())
             ->where('ramadan_day_id', $ramadan_day_id)
             ->pluck('points');
             

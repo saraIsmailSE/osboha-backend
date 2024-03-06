@@ -74,7 +74,6 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanGolenDayController,
     RamadanHadithController,
     RamadanHadithMemorizationController,
-    RamadanAlwirdController,
 };
 
 /*
@@ -86,8 +85,7 @@ use App\Http\Controllers\Api\Ramadan\{
 
 
 Route::group(['prefix' => 'v1'], function () {
-    
-   
+
 
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
@@ -96,7 +94,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::delete('/old', [MediaController::class, 'removeOldMedia']);
     });
     ########End Media route########
-    Route::get('/statistics', [RamadanAlwirdController::class, 'statistics']);
+
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -846,5 +844,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [RamadanHadithController::class, 'index']);
             Route::get('/days/{day_id}', [RamadanHadithController::class, 'getHadithByDay'])->where('day_id', '[0-9]+');
         });
+
+        Route::prefix('ramadan-alwird')->group(function () {
+            Route::post('/store', [RamadanAlwirdController::class, 'store']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanAlwirdController::class, 'statistics']);
+        });
+
+        
     });
 });
