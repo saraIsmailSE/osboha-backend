@@ -74,6 +74,7 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanGolenDayController,
     RamadanHadithController,
     RamadanHadithMemorizationController,
+    RamadanAlwirdController,
 };
 
 /*
@@ -841,6 +842,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [RamadanHadithController::class, 'index']);
             Route::get('/days/{day_id}', [RamadanHadithController::class, 'getHadithByDay'])->where('day_id', '[0-9]+');
             Route::get('/show/{id}', [RamadanHadithController::class, 'show'])->where('day_id', '[0-9]+');
+        });
+        Route::prefix('ramadan-alwird')->group(function () {
+            Route::post('/store', [RamadanAlwirdController::class, 'store']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanAlwirdController::class, 'statistics']);
         });
     });
 });
