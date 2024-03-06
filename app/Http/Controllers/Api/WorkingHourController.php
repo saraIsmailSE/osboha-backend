@@ -108,12 +108,12 @@ class WorkingHourController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-
         $groupedWorkingHours = $workingHours->groupBy(function ($item) {
             return Carbon::parse($item->created_at)->toDateString();
         })->map(function ($group) {
             return $group->sum('minutes');
         });
+
         //get days from previous week till current week
         $days = [];
         if ($previousWeek) {
@@ -142,11 +142,20 @@ class WorkingHourController extends Controller
             $createdAt->addDay();
         }
 
+        $workingHoursList = $workingHours->groupBy(function ($item) {
+            return $item->week->title;
+        })->map(function ($group) {
+            return [
+                'workingHours' => $group,
+                'totalMinutes' => $group->sum('minutes')
+            ];
+        });
+
         return $this->jsonResponseWithoutMessage(
             [
                 "workingHours" => $workingHours,
                 "days" => $days,
-                "groupedWorkingHours" => $groupedWorkingHours,
+                "workingHoursList" => $workingHoursList
             ],
             'data',
             Response::HTTP_OK
