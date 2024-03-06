@@ -36,12 +36,12 @@ class RamadanDayController extends Controller
     }
     public function currentDay()
     {
-        $current_day = RamadanDay::latest()->first();
+        $current_day = RamadanDay::latest()->where('is_active', 1)->first();
         return $this->jsonResponseWithoutMessage($current_day, 'data', 200);
     }
     public function previousDay()
     {
-        $previous_day = RamadanDay::latest()->skip(1)->take(2)->first();
+        $previous_day = RamadanDay::latest()->where('is_active', 1)->skip(1)->take(2)->first();
         return $this->jsonResponseWithoutMessage($previous_day, 'data', 200);
     }
 

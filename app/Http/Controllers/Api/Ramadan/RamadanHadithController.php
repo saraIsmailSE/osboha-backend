@@ -17,17 +17,15 @@ class RamadanHadithController extends Controller
 
     /**
      * @author Asmaa
-     * Get all hadiths based on the days of Ramadan
-     * 
+     * Get all hadiths based with days of Ramadan
+     *
      * @return ResponseJson
      */
     public function index()
     {
         //get all days with their hadiths and the memorized hadith for authenticated user of each hadith
-        $data = RamadanDay::with(['hadiths' => function ($query) {
-            $query->with(['memorization' => function ($query) {
-                $query->where('user_id', Auth::id());
-            }]);
+        $data = RamadanHadith::with('ramadanDay')->with(['memorization' => function ($query) {
+            $query->where('user_id', Auth::id());
         }])->get();
 
         return $this->jsonResponseWithoutMessage($data, 'data', Response::HTTP_OK);
@@ -36,9 +34,9 @@ class RamadanHadithController extends Controller
     /**
      * @author Asmaa
      * Get day's hadiths
-     * 
+     *
      * @param int $dayId
-     * 
+     *
      * @return ResponseJson
      */
     public function getHadithByDay($dayId)
@@ -53,5 +51,13 @@ class RamadanHadithController extends Controller
         }])->get();
 
         return $this->jsonResponseWithoutMessage($data, 'data', Response::HTTP_OK);
+    }
+    public function show($id)
+    {
+        $hadith = RamadanHadith::with('ramadanDay')->with(['memorization' => function ($query) {
+            $query->where('user_id', Auth::id());
+        }])->find($id);
+
+        return $this->jsonResponseWithoutMessage($hadith, 'data', Response::HTTP_OK);
     }
 }

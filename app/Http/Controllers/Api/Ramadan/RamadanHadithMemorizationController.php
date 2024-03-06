@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\Ramadan;
 
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Controller;
 use App\Models\RamadanDay;
 use App\Models\RamadanHadith;
 use App\Models\RamadanHadithMemorization;
 use App\Traits\ResponseJson;
+use App\Traits\PathTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,12 +17,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RamadanHadithMemorizationController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, PathTrait;
 
     /**
      * @author Asmaa
      * Create a new submission for certain hadith or update existing submission
-     * 
+     *
      * @param Request $request
      * @return ResponseJson
      */
@@ -28,7 +30,7 @@ class RamadanHadithMemorizationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'ramadan_hadiths_id' => 'required|exists:ramadan_hadiths,id',
-            'hadith' => 'required|confirmed',
+            'hadith' => 'required',
             'redo' => 'nullable|boolean'
         ]);
 
@@ -54,7 +56,7 @@ class RamadanHadithMemorizationController extends Controller
             $hadithMemorization = RamadanHadithMemorization::updateOrCreate(
                 ['ramadan_hadiths_id' => $request->ramadan_hadiths_id, 'user_id' => Auth::id()],
                 [
-                    'hadith' => $request->hadith,
+                    'hadith_memorize' => $request->hadith,
                     'redo_at' => $request->redo ? now() : null,
                     'status' => 'pending',
                 ]
@@ -74,26 +76,20 @@ class RamadanHadithMemorizationController extends Controller
     /**
      * @author Asmaa
      * Get single hadith memorization for the authenticated user
-     * 
+     *
      * @param int $hadithId
      * @param int $userId
      * @return ResponseJson
      */
-    public function show($hadithId, $userId = null)
+    public function show($hadithMemorizationId)
     {
-        if ($userId) {
-            if (!Auth::user()->hasRole('ramadan_hadith_corrector')) {
-                return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
-            }
-        } else {
-            $userId = Auth::id();
+        if (!Auth::user()->hasanyrole('admin|ramadan_hadith_corrector|ramadan_coordinator')) {
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
         }
-
-        $hadithMemorization = RamadanHadithMemorization::where('ramadan_hadiths_id', $hadithId)
-            ->where('user_id', $userId)
-            ->with('hadith')
+        $hadithMemorization = RamadanHadithMemorization::with('hadith')
             ->with('reviewer')
-            ->first();
+            ->with('user')
+            ->find($hadithMemorizationId);
 
         if (!$hadithMemorization) {
             return $this->jsonResponseWithoutMessage('لا يوجد بيانات', 'data', Response::HTTP_NOT_FOUND);
@@ -105,19 +101,20 @@ class RamadanHadithMemorizationController extends Controller
     /**
      * @author Asmaa
      * Correct the hadith memorization
-     * 
+     *
      * @param Request $request
      * @param int $hadithMemorizationId
      * @return ResponseJson
      */
-    public function correct(Request $request, $hadithMemorizationId)
+    public function correct(Request $request)
     {
 
-        if (!Auth::user()->hasRole('ramadan_hadith_corrector')) {
-            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
+        if (!Auth::user()->hasanyrole('admin|ramadan_hadith_corrector|ramadan_coordinator')) {
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', 403);
         }
 
         $validator = Validator::make($request->all(), [
+            'hadith_memorization_id' => 'required|exists:ramadan_hadith_memorizations,id',
             'status' => 'required|in:accepted,redo',
             'reviews' => 'required|string',
         ]);
@@ -126,7 +123,10 @@ class RamadanHadithMemorizationController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', Response::HTTP_BAD_REQUEST);
         }
 
-        $hadithMemorization = RamadanHadithMemorization::find($hadithMemorizationId);
+        $hadithMemorization = RamadanHadithMemorization::with('user')
+            ->with('hadith')
+            ->with('reviewer')
+            ->find($request->hadith_memorization_id);
 
         if (!$hadithMemorization) {
             return $this->jsonResponseWithoutMessage('لا يوجد بيانات', 'data', Response::HTTP_NOT_FOUND);
@@ -150,20 +150,25 @@ class RamadanHadithMemorizationController extends Controller
             'reviewer_id' => Auth::id(),
         ]);
 
+        $hadithMemorization->fresh();
+
+        $msg = "تمت تصحيح الحديث  " . $hadithMemorization->hadith->hadith_title;
+        (new NotificationController)->sendNotification($hadithMemorization->user->id, $msg, ROLES, $this->getHadithPath($hadithMemorization->hadith->id));
+
         return $this->jsonResponseWithoutMessage($hadithMemorization, 'data', Response::HTTP_OK);
     }
 
     /**
      * @author Asmaa
      * Get statistics for users participation in memorizing hadiths
-     * 
+     *
      * @return ResponseJson
      */
     public function statistics()
     {
         /*count of users who memorized at least one hadith
         * count of users who memorized 5 hadiths
-        * count of users who memorized 15 hadiths   
+        * count of users who memorized 15 hadiths
         * count of users who memorized 25 hadiths
         */
 
@@ -202,27 +207,20 @@ class RamadanHadithMemorizationController extends Controller
     /**
      * @author Asmaa
      * Get submitted hadiths by users
-     * 
+     *
      * @return ResponseJson
      */
     public function getMemorizedHadiths()
     {
-        if (!Auth::user()->hasRole('ramadan_hadith_corrector')) {
+        if (!Auth::user()->hasanyrole('admin|ramadan_hadith_corrector|ramadan_coordinator')) {
             return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
         }
 
-        $memorizedHadiths = RamadanHadithMemorization::
-            // where('status', 'pending')
-            // ->
-            with('user')
+        $memorizedHadiths = RamadanHadithMemorization::where('status', 'pending')
+            ->with('user')
             ->with('hadith')
-            ->paginate(25);
+            ->orderBy('created_at', 'asc')->limit(25)->get();
 
-        return $this->jsonResponseWithoutMessage([
-            "hadiths" => $memorizedHadiths->items(),
-            "total" => $memorizedHadiths->total(),
-            "last_page" => $memorizedHadiths->lastPage(),
-            "has_more_pages" => $memorizedHadiths->hasMorePages(),
-        ], 'data', Response::HTTP_OK);
+        return $this->jsonResponseWithoutMessage($memorizedHadiths, 'data', Response::HTTP_OK);
     }
 }

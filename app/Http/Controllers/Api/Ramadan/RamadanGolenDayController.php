@@ -110,7 +110,7 @@ class RamadanGolenDayController extends Controller
         // 6. Summation of specific ramadan_day_id
         $statistics['auth_specific_ramadan_day_points'] = RamadanGolenDay::where('user_id', Auth::id())
             ->where('ramadan_day_id', $ramadan_day_id)
-            ->sum('sunan_al_rawatib', 'tasbeeh', 'istighfar', 'duha_prayer', 'morning_evening_dhikr', 'shaf_and_witr', 'suhoor', 'drink_water', 'sleep_amount', 'brushing_teeth', 'contemplation_of_allahs_signs');
+            ->sum(DB::raw("sunan_al_rawatib + tasbeeh + istighfar + duha_prayer + morning_evening_dhikr + shaf_and_witr + suhoor + drink_water + sleep_amount + brushing_teeth + contemplation_of_allahs_signs"));
 
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', 200);

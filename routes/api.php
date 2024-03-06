@@ -831,8 +831,8 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::prefix('ramadan-hadith-memorization')->group(function () {
             Route::post('/', [RamadanHadithMemorizationController::class, 'create']);
-            Route::get('/{hadith_id}/{user_id?}', [RamadanHadithMemorizationController::class, 'show'])->where('hadith_id', '[0-9]+')->where('user_id', '[0-9]+');
-            Route::put('/{id}/correct', [RamadanHadithMemorizationController::class, 'correct'])->where('id', '[0-9]+');
+            Route::get('/show/{hadithMemorizationId}', [RamadanHadithMemorizationController::class, 'show'])->where('hadithMemorizationId', '[0-9]+');
+            Route::post('/correct', [RamadanHadithMemorizationController::class, 'correct']);
             Route::get('/statistics', [RamadanHadithMemorizationController::class, 'statistics']);
             Route::get('/pending', [RamadanHadithMemorizationController::class, 'getMemorizedHadiths']);
         });
@@ -840,6 +840,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::prefix('ramadan-hadith')->group(function () {
             Route::get('/', [RamadanHadithController::class, 'index']);
             Route::get('/days/{day_id}', [RamadanHadithController::class, 'getHadithByDay'])->where('day_id', '[0-9]+');
+            Route::get('/show/{id}', [RamadanHadithController::class, 'show'])->where('day_id', '[0-9]+');
         });
     });
 });

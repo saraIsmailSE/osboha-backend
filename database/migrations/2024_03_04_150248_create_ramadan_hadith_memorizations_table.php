@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('ramadan_hadiths_id');
             $table->unsignedBigInteger('user_id');
-            $table->text('hadith');
+            $table->text('hadith_memorize');
             $table->enum('status', ['pending', 'accepted', 'redo'])->default('pending');
             $table->integer('points')->default(0);
             $table->text('reviews')->nullable();

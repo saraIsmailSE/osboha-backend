@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Ramadan;
 
 use App\Models\RamadanDay;
 use Carbon\Carbon;
