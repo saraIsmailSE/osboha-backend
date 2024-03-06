@@ -115,4 +115,10 @@ class RamadanGolenDayController extends Controller
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', 200);
     }
+
+    public function show($ramadan_day_id)
+    {
+        $golden_day = RamadanGolenDay::where('ramadan_day_id', $ramadan_day_id)->where('user_id', Auth::id())->first();
+        return $this->jsonResponseWithoutMessage($golden_day, 'data', 200);
+    }
 }

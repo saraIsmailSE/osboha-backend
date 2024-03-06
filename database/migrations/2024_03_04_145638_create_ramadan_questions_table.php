@@ -15,9 +15,11 @@ return new class extends Migration
     {
         Schema::create('ramadan_questions', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('link')->nullable();
             $table->text('question');
             $table->unsignedBigInteger('ramadan_day_id');
-            $table->timestamp('time_to_publish')->nullable();
+            $table->time('time_to_publish')->nullable();
             $table->string('category');
             $table->timestamps();
 

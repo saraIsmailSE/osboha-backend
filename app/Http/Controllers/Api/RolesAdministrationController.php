@@ -53,6 +53,22 @@ class RolesAdministrationController extends Controller
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
 
+
+    public function getRamadanRoles()
+    {
+        $rolesToRetrieve = [
+            'ramadan_coordinator',
+            'ramadan_hadith_corrector',
+            'ramadan_fiqh_corrector',
+            'ramadan_tafseer_corrector',
+            'ramadan_vedio_corrector',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
+
+
+
     public function assignRoleV2(Request $request)
     {
         $validator = Validator::make($request->all(), [
