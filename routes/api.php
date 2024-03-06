@@ -828,7 +828,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/store', [RamadanNightPrayerController::class, 'store']);
             Route::get('/statistics/{ramadan_day_id}', [RamadanNightPrayerController::class, 'statistics']);
             Route::get('/show/{ramadan_day_id}', [RamadanNightPrayerController::class, 'show']);
-
         });
     });
 

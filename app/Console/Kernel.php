@@ -60,9 +60,7 @@ class Kernel extends ConsoleKernel
 
         //ramadan day create
         //for testing
-        $schedule->command('ramadan:createDay')->everyMinute()->onFailure(function (Stringable $output) {
-            Log::channel('ramadanDay')->error('create new day error: ' . $output);
-        });
+        $schedule->command('ramadan:closeDay')->everyMinute();
         // $schedule->command('ramadan:createDay')->dailyAt('06:00');
     }
 
