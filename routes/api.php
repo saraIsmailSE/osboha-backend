@@ -74,6 +74,8 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanGolenDayController,
     RamadanHadithController,
     RamadanHadithMemorizationController,
+    RamadanAlwirdController,
+
 };
 
 /*
@@ -86,7 +88,6 @@ use App\Http\Controllers\Api\Ramadan\{
 
 Route::group(['prefix' => 'v1'], function () {
 
-
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
@@ -94,6 +95,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::delete('/old', [MediaController::class, 'removeOldMedia']);
     });
     ########End Media route########
+    
+    Route::get('/rufitest/{ramadan_day_id}', [RamadanAlwirdController::class, 'statistics']);
 
 
     Route::post('/login', [AuthController::class, 'login']);
@@ -487,8 +490,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/supervisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
             Route::get('/advisors-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantsStatistics']);
             Route::get('/consultant-statistics/{admin_id}/{week_filter?}', [StatisticsController::class, 'administratorStatistics']);
-            Route::get('/certificates/week_id', [StatisticsController::class, 'certificatesStatistics']);
-
         });
         ######## End Statisticx########
 
@@ -844,12 +845,5 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [RamadanHadithController::class, 'index']);
             Route::get('/days/{day_id}', [RamadanHadithController::class, 'getHadithByDay'])->where('day_id', '[0-9]+');
         });
-
-        Route::prefix('ramadan-alwird')->group(function () {
-            Route::post('/store', [RamadanAlwirdController::class, 'store']);
-            Route::get('/statistics/{ramadan_day_id}', [RamadanAlwirdController::class, 'statistics']);
-        });
-
-        
     });
 });

@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Carbon\Doctrine\CarbonDoctrineType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\RamadanAlwird;
+use App\Models\RamadanQuranWird;
 
 class RamadanAlwirdController extends Controller
 {
@@ -25,9 +25,8 @@ class RamadanAlwirdController extends Controller
     use ResponseJson;
     public function store(Request $request)
     {
-        $points = 0;
         $validator = Validator::make($request->all(), [
-            'number_juzu_read' => 'required',
+            'no_of_parts' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', Response::HTTP_BAD_REQUEST);
@@ -35,24 +34,14 @@ class RamadanAlwirdController extends Controller
 
         try {
 
-            $user_id = Auth::id();
-            
-            if( $request->number_juzu_read >= 1)
-            $points = 2;
-            if( $request->number_juzu_read > 1)
-            $points =$points + 4;
-            if( $request->number_juzu_read > 3)
-            $points =$points + 6;
-        
-            
+            $user_id = 5;
             $ramadan_alwird = [
                 'user_id' => $user_id,
                 'ramadan_day_id' => $request->ramadan_day_id,
-                'number_juzu_read' => $request->number_juzu_read,
-                'points' => $points,
+                'no_of_parts' => $request->no_of_parts,
             ];
 
-            $ramadan_alwird_day = RamadanAlwird::updateOrCreate(
+            $ramadan_alwird_day = RamadanQuranWird::updateOrCreate(
                 ['user_id' => $user_id, 'ramadan_day_id' => $request->ramadan_day_id],
                 $ramadan_alwird
             );
@@ -73,24 +62,24 @@ class RamadanAlwirdController extends Controller
         $statistics = [];
         
         // 1. Number of  users who read at least one juzu
-        $statistics['num_users_read_one_juzu'] = RamadanAlwird::where('number_juzu_read', '=', 1)
+        $statistics['num_users_read_one_juzu'] = RamadanQuranWird::where('no_of_parts', '=', 1)
             ->where('ramadan_day_id', $ramadan_day_id)
             ->count();
 
         // 2. Number of users who read more than one juzu
-        $statistics['num_users_read_more_than_one_juzu'] = RamadanAlwird::whereBetween('number_juzu_read', [2,4])
+        $statistics['num_users_read_more_than_one_juzu'] = RamadanQuranWird::whereBetween('no_of_parts', [2,4])
             ->where('ramadan_day_id', $ramadan_day_id)
             ->count();
 
         // 3. Number of users who read 5 juzu or more 
-        $statistics['num_users_read_five_juzu_or_more'] = RamadanAlwird::where('number_juzu_read', '>', 4)
+        $statistics['num_users_read_five_juzu_or_more'] = RamadanQuranWird::where('no_of_parts', '>', 4)
             ->where('ramadan_day_id', $ramadan_day_id)
             ->count();
 
         // 5. Summation of Auth user
-        $statistics['auth_specific_ramadan_alwird_points'] = RamadanAlwird::where('user_id',Auth::id())
+        $statistics['auth_specific_ramadan_alwird_points'] = RamadanQuranWird::where('user_id',Auth::id())
             ->where('ramadan_day_id', $ramadan_day_id)
-            ->pluck('points');
+            ->count();
             
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', 200);
