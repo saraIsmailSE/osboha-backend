@@ -143,8 +143,21 @@ return [
             'path' => storage_path('logs/media.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
-
-
+        'community_edits' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/community_edits-' . now()->format('Y-W') . '.log'),
+            'level' => 'debug',
+        ],
+        'user_search' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/user_search-' . now()->format('Y-W') . '.log'),
+            'level' => 'debug',
+        ],
+        'ramadanDay' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/ramadanDay.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];

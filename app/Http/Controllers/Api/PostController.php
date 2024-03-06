@@ -36,7 +36,7 @@ class PostController extends Controller
     use ResponseJson, MediaTraits, PathTrait;
     /**
      * Read all information about all posts of auth user in the system.
-     * 
+     *
      * @return jsonResponseWithoutMessage
      */
     public function index()
@@ -52,8 +52,8 @@ class PostController extends Controller
         }
     }
     /**
-     * Add a new post to the system (“create post” permission is required) 
-     * 
+     * Add a new post to the system (“create post” permission is required)
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -105,7 +105,7 @@ class PostController extends Controller
 
     /**
      * Find an existing post in the system by its id.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -138,7 +138,7 @@ class PostController extends Controller
     }
     /**
      * Update an existing post in the system by the auth user.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -199,7 +199,7 @@ class PostController extends Controller
     }
     /**
      * Delete an existing post in the system by auth user or with “delete post” permission.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -276,7 +276,7 @@ class PostController extends Controller
     }
     /**
      * Return all posts that match requested timeline_id.
-     * 
+     *
      * @param int  $timeline_id
      * @return jsonResponseWithoutMessage posts collection
      */
@@ -347,8 +347,8 @@ class PostController extends Controller
      * Get posts for the auth user to display in the home page
      * Posts are selected from the timelines that the auth user is following.
      * main timeline, user timeline, groups timelines, friends timelines, friends of timelines.
-     *       
-     * @return jsonResponseWithoutMessage     
+     *
+     * @return jsonResponseWithoutMessage
      * @todo: slow query - asmaa
      */
     public function getPostsForMainPage()
@@ -401,7 +401,7 @@ class PostController extends Controller
     }
     /**
      * Get support posts
-     * @return jsonResponseWithoutMessage     
+     * @return jsonResponseWithoutMessage
      * @todo: slow query - asmaa
      */
     public function getSupportPosts()
@@ -444,8 +444,52 @@ class PostController extends Controller
     }
 
     /**
+     * Get Friday Thesis Posts
+     * @return jsonResponseWithoutMessage
+     */
+    public function getFridayThesisPosts()
+    {
+        $user = Auth::user();
+
+        $fridayThesisPostTypeId = Cache::remember('post_type_id_friday_thesis', 60 * 60 * 60, function () {
+            return PostType::where('type', 'friday-thesis')->value('id');
+        });
+
+        $mainTimelineId = Cache::remember('timeline_id_main', 60 * 60 * 60, function () {
+            return Timeline::where('type_id', TimelineType::where('type', 'main')->value('id'))->value('id');
+        });
+
+        $posts = Post::where('type_id', $fridayThesisPostTypeId)
+            ->where('timeline_id', $mainTimelineId)
+            ->whereNotNull('is_approved')
+            ->withCount('comments')
+            ->with('pollOptions.votes', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->withCount('pollVotes')
+            ->with('user')
+            // ->with('taggedUsers.user')
+            ->withCount('reactions')
+            ->with('reactions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->latest()
+            ->paginate(5);
+
+        if ($posts->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'posts' => PostResource::collection($posts),
+                'total' => $posts->total(),
+                'last_page' => $posts->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+
+    /**
      * Get support post for this week
-     * @return jsonResponseWithoutMessage     
+     * @return jsonResponseWithoutMessage
      */
     public function getCurrentWeekSupportPost()
     {
@@ -455,7 +499,7 @@ class PostController extends Controller
             return Week::latest()->first();
         });
 
-        // Cache the PostType ID for 'support' for a certain amount of time. 
+        // Cache the PostType ID for 'support' for a certain amount of time.
         $supportPostTypeId = Cache::remember('post_type_id_support', 60 * 60 * 60, function () {
             return PostType::where('type', 'support')->value('id');
         });
@@ -490,7 +534,7 @@ class PostController extends Controller
 
     /**
      * Return all posts that match requested user_id.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -508,7 +552,7 @@ class PostController extends Controller
     }
     /**
      *Return all posts that match requested timeline_id where is_approved is null.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -534,7 +578,7 @@ class PostController extends Controller
     /**
      * Accept post that matches the required post_id where is_approved = null,
      * give date for this approval and send notification to user
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -559,7 +603,7 @@ class PostController extends Controller
     /**
      * Decline post that matches the required post_id where is_approved = null,
      * delete post and send notification to user
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -625,7 +669,7 @@ class PostController extends Controller
      * 3- change is_pinned value to 1 or 0
      * 4- unpin other posts if the post is pinned
      * 5- return message
-     * 
+     *
      * @param  int  $post_id
      * @return jsonResponseWithoutMessage
      */
@@ -666,7 +710,6 @@ class PostController extends Controller
 
     public function getLastSupportPost()
     {
-        return $this->jsonResponseWithoutMessage(null, 'data', 200);
 
         $current_week = Week::latest()->first();
         // $createdAt = $current_week->created_at;
@@ -692,6 +735,33 @@ class PostController extends Controller
         }
     }
 
+    public function getLastFridayThesisPost()
+    {
+
+        $current_week = Week::latest()->first();
+        // $createdAt = $current_week->created_at;
+        // $mainTimer = $current_week->main_timer;
+
+        $fridayThesisPostTypeId = Cache::remember('post_type_id_friday_thesis', 60 * 60 * 60, function () {
+            return PostType::where('type', 'friday-thesis')->value('id');
+        });
+
+        $post = Cache::remember('current_week_friday_thesis_post', now()->addHours(24), function () use ($fridayThesisPostTypeId, $current_week) {
+            return Post::where('type_id', $fridayThesisPostTypeId)
+                ->whereBetween('created_at', [
+                    $current_week->created_at,
+                    $current_week->created_at->addDays(7)
+                ])
+                ->latest()->first();
+        });
+
+        if ($post) {
+            return $this->jsonResponseWithoutMessage($post, 'data', 200);
+        } else {
+            return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        }
+    }
+
     /**
      * Get pending posts by timeline id and post id if exists
      * @param Int $timeline_id
@@ -700,7 +770,7 @@ class PostController extends Controller
      */
     public function getPendingPosts($timeline_id, $post_id = null)
     {
-        //check if timeline exists        
+        //check if timeline exists
         $timeline = Timeline::findorFail($timeline_id);
 
         //check if timeline is profile or group
@@ -778,7 +848,7 @@ class PostController extends Controller
     //helpers
     /**
      * Validate post request
-     * 
+     *
      * @param  Request  $request
      * @return Validator
      */
@@ -952,7 +1022,7 @@ class PostController extends Controller
             $status = $this->getPostsStatusInProfile($timeline);
             $input =  $status['input'];
             $notificationData = $status['notificationData'];
-        } else { //timeline type => book || news || main (1-2-3)        
+        } else { //timeline type => book || news || main (1-2-3)
             //only supervisors and above are allowed to create announcements
             if ($request->type === 'announcement') {
                 if (!Auth::user()->can('create announcement')) {
@@ -1047,7 +1117,7 @@ class PostController extends Controller
     /**
      * Get the announcements
      * @param string $type
-     * @param int $limit 
+     * @param int $limit
      * @param bool $pinned
      */
     private function selectPostsQuery($type, $limit = null, $pinned = false)
@@ -1085,7 +1155,7 @@ class PostController extends Controller
 
     private function selectMainPosts()
     {
-        //eager load 
+        //eager load
         $user = Auth::user()->load('userProfile', 'groups', 'friends.userProfile', 'friendsOf.userProfile');
 
         //get the ids of the excluded post types

@@ -5,21 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class QuestionFollowup extends Model
+class userWeekActivities extends Model
 {
     use HasFactory;
-
-    protected $table = 'questions_followup';
-
     protected $fillable = [
         'user_id',
         'week_id',
-        'counter',
-        'date',
     ];
+    public function week()
+    {
+        return $this->belongsTo(Week::class, 'week_id');
+    }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

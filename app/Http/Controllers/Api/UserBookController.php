@@ -58,12 +58,11 @@ class UserBookController extends Controller
     /**
      * Find free books belongs to specific user.
      *
-     * @param user_id , page for 
+     * @param user_id , page for
      * @return jsonResponse[user books]
      */
-    public function free($user_id, $page)
+    public function free($user_id)
     {
-        $free_book = BookType::where('type', 'free')->first();
         $in_progress_books = 0;
 
         $can_add_books = true;
@@ -71,7 +70,7 @@ class UserBookController extends Controller
 
         $userFreeBooks = UserBook::with('book')->where('user_id', $user_id)->whereHas('book.type', function ($q) {
             $q->where('type', '=', 'free');
-        })->paginate(200);
+        })->paginate(9);
 
         if ($userFreeBooks->isNotEmpty()) {
             $books = collect();
@@ -95,7 +94,7 @@ class UserBookController extends Controller
             }
             return $this->jsonResponseWithoutMessage([
                 'books' => BookResource::collection($books),
-                'total' => $books->count(),
+                'total' => $userFreeBooks->total(),
                 'in_progress_books' => $in_progress_books,
                 'can_add_books' => $can_add_books,
             ], 'data', 200);
@@ -145,9 +144,9 @@ class UserBookController extends Controller
 
                 if ($userNotFreeBooks_notFinished->isNotEmpty()) {
                     /* Check Theses
-                        * at least 18 pages 
+                        * at least 18 pages
                         * at least full thesis [length=> at least 400 letters] or [at least 3 screenshots or 3 theses]
-    
+
                         */
 
                     //current week id [ to check this week theses]
@@ -189,7 +188,7 @@ class UserBookController extends Controller
 
     /**
      * Update an existing book belongs to user .
-     * 
+     *
      *  @param  Request  $request
      * @return jsonResponseWithoutMessage
      */

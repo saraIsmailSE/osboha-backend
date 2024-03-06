@@ -99,6 +99,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Group::class, 'user_groups')->withPivot('user_type', 'termination_reason');
     }
+    public function weekActivities()
+    {
+        return $this->belongsToMany(userWeekActivities::class, 'user_week_activities');
+    }
     public function LeaderRrequest()
     {
         return $this->hasMany(leader_request::class, 'leader_id');
@@ -214,21 +218,14 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new \App\Notifications\MailResetPasswordNotification($token));
     }
 
-    public function questionsFollowups()
-    {
-        return $this->hasMany(QuestionFollowup::class);
-    }
-
-    public function todaysFollowup()
-    {
-        return $this->questionsFollowups()
-            ->whereDate('date', now()->format('Y-m-d'));
-    }
-
     public function followupTeam()
     {
         return $this->hasOne(UserGroup::class, 'user_id', 'id')
-        ->where('user_type', 'ambassador')
-        ->whereNull('termination_reason');
-}
+            ->where('user_type', 'ambassador')
+            ->whereNull('termination_reason');
+    }
+    public function children()
+    {
+        return $this->hasMany(User::class, 'parent_id')->where('is_excluded',0);
+    }
 }

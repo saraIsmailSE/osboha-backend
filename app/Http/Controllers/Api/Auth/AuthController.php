@@ -230,7 +230,7 @@ class AuthController extends Controller
                     }
                 } //end else Check for High Priority Requests
 
-            } //while     
+            } //while
         });
     }
     public function insert_ambassador($ambassador, $results)
@@ -273,7 +273,7 @@ class AuthController extends Controller
             } else {
                 Sign_up::updateRequest($result->id);
                 $msg = "You request is done";
-                // (new NotificationController)->sendNotification($result->leader_id , $msg);           
+                // (new NotificationController)->sendNotification($result->leader_id , $msg);
                 return false;
             }
         }
@@ -322,7 +322,7 @@ class AuthController extends Controller
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 /**
-                 * @todo: slow query - asmaa         
+                 * @todo: slow query - asmaa
                  */
                 $user->forceFill([
                     'password' => Hash::make($password)
@@ -341,13 +341,13 @@ class AuthController extends Controller
 
     /**
      *get auth user session data for frontend.
-     * 
+     *
      * @return jsonResponse;
      */
 
     public function sessionData()
     {
-        // latest books whereHas 'status'='in progress' 
+        // latest books whereHas 'status'='in progress'
         $book_in_progress = UserBook::where('status', 'in progress')
             ->where('user_id', Auth::id())
             ->latest()
@@ -356,13 +356,17 @@ class AuthController extends Controller
 
         if ($book_in_progress) {
             foreach ($book_in_progress as $key => $book) {
+                $response['book_in_progress'][$key] = $book->book;
                 $last_thesis = Thesis::where('user_id', Auth::id())
                     ->where('book_id', $book->book_id)
                     ->with('book')
                     ->latest()->first();
                 if ($last_thesis) {
-                    $response['book_in_progress'][$key] = $last_thesis->book;
                     $response['progress'][$key] = ($last_thesis->end_page / $last_thesis->book->end_page) * 100;
+                }
+                else{
+                    $response['progress'][$key] =0;
+
                 }
             }
         } else {
@@ -401,14 +405,14 @@ class AuthController extends Controller
 
     /**
      *return excluded member [FOR NOW].
-     * 
+     *
      * @return jsonResponse;
      * @todo: slow query - asmaa
      */
 
     public function returnToTeam()
     {
-        //update is_excluded to 0
+        //update is_excluded \ is_hold to 0
         $user = User::Find(Auth::id());
 
         $userGroup = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->latest()->first();
@@ -419,10 +423,14 @@ class AuthController extends Controller
                 if ($leader) {
                     $user->parent_id = $leader->user_id;
                     $user->is_excluded = 0;
+                    $user->is_hold = 0;
                     $user->save();
 
-                    $userGroup->termination_reason = null;
-                    $userGroup->save();
+                    UserGroup::create([
+                        'user_id' => $user->id,
+                        'group_id' =>  $userGroup->group_id,
+                        'user_type' => 'ambassador'
+                    ]);
                     DB::commit();
 
                     $notification = new NotificationController();
@@ -445,7 +453,7 @@ class AuthController extends Controller
 
     /**
      *reset auth email.
-     * 
+     *
      * @return jsonResponse;
      */
 

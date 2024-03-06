@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,27 +14,41 @@ class Question extends Model
         "question",
         "status",
         "user_id",
-        "assignee_id"
-
+        "current_assignee_id",
+        "closed_at"
     ];
 
     protected $appends = [
-        "user_parents"
+        "user_parents",
+        "is_answered_late",
+        'current_assignee_created_at',
     ];
+
+    protected $with = ['media'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function assignee()
+    public function currentAssignee()
     {
-        return $this->belongsTo(User::class, "assignee_id");
+        return $this->belongsTo(User::class, "current_assignee_id");
     }
 
     public function answers()
     {
         return $this->hasMany(Answer::class);
+    }
+
+    public function assignees()
+    {
+        return $this->hasMany(QuestionAssignee::class);
+    }
+
+    public function media()
+    {
+        return $this->hasMany(Media::class);
     }
 
     public function getUserParentsAttribute()
@@ -55,7 +70,7 @@ class Question extends Model
                 [
                     "role" => "المستشار",
                     "name" => $this->user->parent->name
-                ]
+                ],
             ];
         }
         //if supervisor, return advisor and consultant
@@ -91,5 +106,22 @@ class Question extends Model
                 ]
             ];
         }
+    }
+
+    public function getIsAnsweredLateAttribute()
+    {
+        $currentAssigneeCreatedAt = $this->assignees->where('assignee_id', $this->current_assignee_id)->first()->created_at;
+        $answers = $this->answers->where('user_id', $this->current_assignee_id)
+            ->where('is_discussion', false)
+            ->where('created_at', '<', Carbon::parse($currentAssigneeCreatedAt)->addHours(12))
+            ->count();
+
+        return $answers === 0;
+    }
+
+    public function getCurrentAssigneeCreatedAtAttribute()
+    {
+        $assignee = $this->assignees->where('assignee_id', $this->current_assignee_id)->first();
+        return $assignee ? $assignee->created_at : null;
     }
 }

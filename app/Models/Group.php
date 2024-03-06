@@ -29,7 +29,10 @@ class Group extends Model
     }
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('id', 'user_type', 'termination_reason')->withTimestamps();
+        return $this->belongsToMany(User::class, 'user_groups')
+            ->whereNull('user_groups.termination_reason')
+            ->withPivot('id', 'user_type', 'termination_reason')
+            ->withTimestamps()->orderByRaw("FIELD(user_type,'leader', 'supervisor','advisor','consultant', 'admin') DESC");
     }
     public function userAmbassador()
     {

@@ -12,9 +12,12 @@ class Answer extends Model
     protected $fillable = [
         "answer",
         "question_id",
-        "user_id"
+        "user_id",
+        "is_discussion",
 
     ];
+
+    protected $with = ['media'];
 
     public function question()
     {
@@ -24,5 +27,10 @@ class Answer extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function media()
+    {
+        return $this->hasMany(Media::class);
     }
 }

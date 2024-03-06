@@ -18,11 +18,9 @@ use App\Http\Controllers\Api\{
     LeaderRequestController,
     HighPriorityRequestController,
     SystemIssueController,
-    TransactionController,
     CommentController,
     MarkController,
     AuditMarkController,
-    RejectedMarkController,
     UserExceptionController,
     GroupController,
     InfographicController,
@@ -49,7 +47,6 @@ use App\Http\Controllers\Api\{
     PostTypeController,
     ThesisTypeController,
     TimelineTypeController,
-    RejectedThesesController,
     WeekController,
     MessagesController,
     ModificationReasonController,
@@ -57,8 +54,8 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    EligibleMoveDBController,
     EmptyingTeamController,
+    WorkingHourController,
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -68,15 +65,16 @@ use App\Http\Controllers\Api\Eligible\{
     EligibleCertificatesController,
     EligibleGeneralInformationsController,
     EligiblePDFController,
+    TeamStatisticsController
 };
 
-use App\Http\Controllers\QuestionFollowupController;
-use App\Http\Resources\RoomResource;
-use App\Models\Room;
-use Illuminate\Http\Request;
-use Illuminate\Notifications\Events\NotificationSent;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\Api\Ramadan\{
+    RamadanDayController,
+    RamadanNightPrayerController,
+    RamadanGolenDayController,
+    RamadanHadithController,
+    RamadanHadithMemorizationController,
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -85,7 +83,6 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
 
 Route::group(['prefix' => 'v1'], function () {
 
@@ -131,6 +128,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "users"], function () {
             Route::get('/search', [UserController::class, 'searchUsers'])->where('searchQuery', '.*');
             Route::get('/search-by-email/{email}', [UserController::class, 'searchByEmail']);
+            Route::get('/search-by-name/{name}', [UserController::class, 'searchByName']);
             Route::post('/assign-to-parent', [UserController::class, 'assignToParent']);
             Route::get('/info/{id}', [UserController::class, 'getInfo']);
             Route::get('/list-un-allowed-to-eligible', [UserController::class, 'listUnAllowedToEligible']);
@@ -143,6 +141,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "roles"], function () {
             Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
             Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
+            Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
             Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
@@ -180,7 +179,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'user-books'], function () {
             Route::get('/show/{user_id}', [UserBookController::class, 'show']);
             Route::get('/later-books/{user_id}', [UserBookController::class, 'later']);
-            Route::get('/free-books/{user_id}/{page}', [UserBookController::class, 'free']);
+            Route::get('/free-books/{user_id}/', [UserBookController::class, 'free']);
             Route::get('/delete-for-later-book/{id}', [UserBookController::class, 'deleteForLater']);
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
@@ -279,10 +278,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'ambassadorMark']);
             Route::get('/marathon-ambassador-mark/{user_id}/{week_id}', [MarkController::class, 'marathonAmbassadorMark']);
             Route::put('/accept-support/user/{user_id}/{week_id}', [MarkController::class, 'acceptSupport']);
+            Route::put('/add-one-thesis-mark/user/{user_id}/{week_id}', [MarkController::class, 'addOneThesisMark']);
             Route::put('/reject-support/user/{user_id}/{week_id}', [MarkController::class, 'rejectSupport']);
             Route::post('/set-support-for-all', [MarkController::class, 'setSupportMarkForAll']);
             Route::get('/top-users-by-month', [MarkController::class, 'topUsersByMonth']);
             Route::get('/top-users-by-week', [MarkController::class, 'topUsersByWeek']);
+            Route::put('/set-activity-mark/{user_id}/{week_id}', [MarkController::class, 'setActivityMark']);
+            Route::put('/unset-activity-mark/{user_id}/{week_id}', [MarkController::class, 'unsetActivityMark']);
         });
         ########End Mark########
 
@@ -333,7 +335,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-exceptional-freez', [UserExceptionController::class, 'setExceptionalFreez']);
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
-            Route::get('/list-by-advisor/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
+            Route::get('/list-by-advisor/{exception_type}/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
         });
         ############End UserException########
 
@@ -446,6 +448,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);
             Route::get('/support', [PostController::class, 'getSupportPosts']);
             Route::get('/support/latest', [PostController::class, 'getLastSupportPost']);
+            Route::get('/friday-thesis', [PostController::class, 'getFridayThesisPosts']);
+            Route::get('/friday-thesis/latest', [PostController::class, 'getLastFridayThesisPost']);
             Route::get('/pending/timeline/{timeline_id}/{post_id?}', [PostController::class, 'getPendingPosts']);
             Route::get('/current-week-support', [PostController::class, 'getCurrentWeekSupportPost']);
         });
@@ -654,40 +658,40 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## BookStatistics ########
 
+        ######## WorkingHour ########
+        Route::group(['prefix' => 'working-hours'], function () {
+            Route::post('/', [WorkingHourController::class, 'addWorkingHours']);
+            Route::get('/', [WorkingHourController::class, 'getWorkingHours']);
+            Route::get('/statistics', [WorkingHourController::class, 'getWorkingHoursStatistics']);
+        });
+        ######## End WorkingHour ########
+
         ######## GeneralConversation ########
         Route::group(['prefix' => 'general-conversations'], function () {
             Route::group(['prefix' => 'questions'], function () {
+                Route::get('/index', [GeneralConversationController::class, 'index']);
                 Route::post('/', [GeneralConversationController::class, 'addQuestion']);
-                Route::get('/', [GeneralConversationController::class, 'getQuestions']);
-                Route::get('/{question_id}', [GeneralConversationController::class, 'getQuestionById']);
-                Route::put('/close-overdue', [GeneralConversationController::class, 'closeOverdueQuestions']);
+                Route::get('/', [GeneralConversationController::class, 'getAllQuestions']);
+                Route::get('/{question_id}', [GeneralConversationController::class, 'getQuestionById'])->where('question_id', '[0-9]+');
+                Route::get('/{question_id}/check-late', [GeneralConversationController::class, 'checkQuestionLate']);
                 Route::put('/{question_id}/close', [GeneralConversationController::class, 'closeQuestion']);
                 Route::put('/{question_id}/solve', [GeneralConversationController::class, 'solveQuestion']);
                 Route::put('/{question_id}/assign-to-parent', [GeneralConversationController::class, 'AssignQuestionToParent']);
-                Route::get('/assigned-to-me', [GeneralConversationController::class, 'getAssignedToMeQuestions']);
+                Route::put('/{question_id}/move-to-discussion', [GeneralConversationController::class, 'moveQuestionToDiscussion']);
+                Route::put('/{question_id}/move-to-questions', [GeneralConversationController::class, 'moveQuestionToQuestions']);
                 Route::get('/my-questions', [GeneralConversationController::class, 'getMyQuestions']);
+                Route::get('/my-active-questions', [GeneralConversationController::class, 'getMyActiveQuestions']);
+                Route::get('/my-late-questions', [GeneralConversationController::class, 'getMyLateQuestions']);
+                Route::get('/my-assigned-to-parent-questions', [GeneralConversationController::class, 'getMyAssignedToParentQuestions']);
+                Route::get('/discussion-questions', [GeneralConversationController::class, 'getDiscussionQuestions']);
                 Route::get('/statistics', [GeneralConversationController::class, 'getQuestionsStatistics']);
             });
 
             Route::group(['prefix' => 'answers'], function () {
                 Route::post('/', [GeneralConversationController::class, 'answerQuestion']);
             });
-
-            Route::group(['prefix' => 'working-hours'], function () {
-                Route::post('/', [GeneralConversationController::class, 'addWorkingHours']);
-                Route::get('/', [GeneralConversationController::class, 'getWorkingHours']);
-                Route::get('/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
-            });
-
-            Route::prefix('followup')->group(function () {
-                Route::post('/', [QuestionFollowupController::class, 'addFollowup']);
-                Route::get('/statistics', [QuestionFollowupController::class, 'getFollowupStatistics']);
-            });
         });
-        ######## BookStatistics ########
-
-
-
+        ######## End GeneralConversation ########
 
         /*
 |--------------------------------------------------------------------------|
@@ -785,6 +789,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/review', [EligibleGeneralInformationsController::class, "review"]);
             Route::patch('review-general-informations/{id}', [EligibleGeneralInformationsController::class, "reviewGeneralInformations"]);
         });
+
+        //Eligible Statistics
+        Route::group(['prefix' => 'eligible-statistics'], function () {
+            Route::get('/my-team/{week_id}', [TeamStatisticsController::class, 'teamStatistics']);
+        });
+
+
         ######## StatisticsSupervisor ########
         Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
         ######## END StatisticsSupervisor ########
@@ -797,10 +808,41 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## Emptying ########
 
+        /*
+    |--------------------------------------------------------------------------|
+    |                       Ramadan API Routes                                |
+    |--------------------------------------------------------------------------|
+    */
+        Route::group(['prefix' => 'ramadan-day'], function () {
+            Route::get('/all', [RamadanDayController::class, 'all']);
+            Route::get('/current', [RamadanDayController::class, 'currentDay']);
+            Route::get('/previous', [RamadanDayController::class, 'previousDay']);
+        });
 
+        Route::group(['prefix' => 'ramadan-golden-day'], function () {
+            Route::post('/store', [RamadanGolenDayController::class, 'store']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanGolenDayController::class, 'statistics']);
+            Route::get('/show/{ramadan_day_id}', [RamadanGolenDayController::class, 'show']);
+        });
+
+
+        Route::group(['prefix' => 'ramadan-night-pray'], function () {
+            Route::post('/store', [RamadanNightPrayerController::class, 'store']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanNightPrayerController::class, 'statistics']);
+            Route::get('/show/{ramadan_day_id}', [RamadanNightPrayerController::class, 'show']);
+        });
+
+        Route::prefix('ramadan-hadith-memorization')->group(function () {
+            Route::post('/', [RamadanHadithMemorizationController::class, 'create']);
+            Route::get('/{hadith_id}/{user_id?}', [RamadanHadithMemorizationController::class, 'show'])->where('hadith_id', '[0-9]+')->where('user_id', '[0-9]+');
+            Route::put('/{id}/correct', [RamadanHadithMemorizationController::class, 'correct'])->where('id', '[0-9]+');
+            Route::get('/statistics', [RamadanHadithMemorizationController::class, 'statistics']);
+            Route::get('/pending', [RamadanHadithMemorizationController::class, 'getMemorizedHadiths']);
+        });
+
+        Route::prefix('ramadan-hadith')->group(function () {
+            Route::get('/', [RamadanHadithController::class, 'index']);
+            Route::get('/days/{day_id}', [RamadanHadithController::class, 'getHadithByDay'])->where('day_id', '[0-9]+');
+        });
     });
-    //move Eligible DB routes
-    Route::get('/move/eligible/db', [EligibleMoveDBController::class, 'moveEligibleDB']);
-
-    Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
 });

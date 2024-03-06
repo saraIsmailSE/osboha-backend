@@ -11,6 +11,7 @@ use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -33,7 +34,27 @@ class UserController extends Controller
             $response['in_charge_of'] = User::where('parent_id', $response['user']->id)->get();
             $response['followup_team'] = UserGroup::with('group')->where('user_id', $response['user']->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             $response['groups'] = UserGroup::with('group')->where('user_id', $response['user']->id)->get();
+            if (!Auth::user()->hasAnyRole(['admin'])) {
+                $logInfo = ' قام ' . Auth::user()->name . " بالبحث عن سفير ";
+                Log::channel('user_search')->info($logInfo);
+            }
             return $this->jsonResponseWithoutMessage($response, "data", 200);
+        } else {
+            return $this->jsonResponseWithoutMessage(null, "data", 200);
+        }
+    }
+
+    public function searchByName($name)
+    {
+        $response['users']  = User::with(['parent', 'groups' => function ($query) {
+            $query->wherePivot('user_type', 'ambassador')
+            ->whereNull('termination_reason')->get();
+
+        }])
+        ->where('name', 'LIKE', "%{$name}%")
+        ->withCount('children')->get();
+        if ($response['users']) { 
+            return $this->jsonResponseWithoutMessage($response, "data", 200);           
         } else {
             return $this->jsonResponseWithoutMessage(null, "data", 200);
         }
@@ -77,6 +98,9 @@ class UserController extends Controller
 
                         $msg = "قام " . Auth::user()->name . " بـ تعيينك مسؤولاً عن : " . $user->name;
                         (new NotificationController)->sendNotification($head_user->id, $msg, ROLES);
+
+                        $logInfo = ' قام ' . Auth::user()->name . " بـ تعيين  "  . $head_user->name . " مسؤولاً عن " .  $user->name;
+                        Log::channel('community_edits')->info($logInfo);
 
                         return $this->jsonResponseWithoutMessage("تم التعيين", 'data', 200);
                     } else {

@@ -40,7 +40,7 @@ class AuditMarkController extends Controller
     /**
      * Generate audit marks for supervisor and advisor for each followup group in the current week,
      * (if this week is not vacation) automatically on Sunday at 6:00 A.M Saudi Arabia time.
-     * 
+     *
      * @return jsonResponseWithoutMessage;
      */
 
@@ -105,7 +105,7 @@ class AuditMarkController extends Controller
                             ->having('out_of_100', '<', 100)
                             ->where('week_id', $previous_week->id)
                             ->count();
-                        //Get 10% of NOT Full Mark                
+                        //Get 10% of NOT Full Mark
                         $ratioVariantMarkToAudit = ($lowMark * 0.10) + 1;
                         $variantMarkToAudit = Mark::whereIn('user_id', $group->userAmbassador->pluck('id'))
                             ->select(DB::raw('id,(reading_mark + writing_mark + support) as out_of_100'))
@@ -163,7 +163,7 @@ class AuditMarkController extends Controller
                     $advisorAuditMarks->auditor_id = $advisor;
                     $advisorAuditMarks->save();
 
-                    // get all groups 
+                    // get all groups
                     $groupsID = UserGroup::where('user_id', $advisor)->where('user_type', 'advisor')->whereNull('termination_reason')
                         ->whereHas('group.type', function ($q) {
                             $q->where('type', '=', 'followup');
@@ -175,7 +175,7 @@ class AuditMarkController extends Controller
                     foreach ($supervisors as $key => $supervisor) {
                         // get audit marks [in the current week] for each $supervisor
                         $auditMarks = AuditMark::where('auditor_id', $supervisor->user_id)->where('week_id', $previous_week->id)->get()->pluck('id');
-                        // get count of marks of supervisor audit 
+                        // get count of marks of supervisor audit
                         $supervisorAudit = MarksForAudit::whereIn('audit_marks_id', $auditMarks)->get()->pluck('mark_id');
 
                         // 5% supervisorAuditCount[updated 01-23-2024]
@@ -185,7 +185,7 @@ class AuditMarkController extends Controller
                             ->limit($ratioToAudit)
                             ->pluck('id')->toArray();
 
-                        // 5% of OTHER Marks 
+                        // 5% of OTHER Marks
                         /* get all related Ambassadors
                    * 1- get all supervisor groups
                    * 2- get ambassadors
@@ -357,7 +357,7 @@ class AuditMarkController extends Controller
             // all supervisors of advisor (unique)
             $supervisors = UserGroup::with('group')->where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->get()->unique('user_id');
             $response = [];
-            foreach ($supervisors as $key => $supervisor) { //for each supervisor of advisor 
+            foreach ($supervisors as $key => $supervisor) { //for each supervisor of advisor
                 // supervisor name
                 $supervisorinfo['supervisor'] = $supervisor->group->groupSupervisor->first();
                 //all group for $supervisor
@@ -399,7 +399,7 @@ class AuditMarkController extends Controller
             $advisorAudit = AuditMark::where('auditor_id', $advisor_id)->whereNull('group_id')->where('week_id', $previous_week)->first();
 
             $response = [];
-            foreach ($advisorAudit->marksForAudit as $key => $mark) { //for each audit of advisor 
+            foreach ($advisorAudit->marksForAudit as $key => $mark) { //for each audit of advisor
                 $auditInfo['audit_mark'] = $mark;
                 // get userinfo from mark
                 $userMark = Mark::find($mark->mark_id);
@@ -484,11 +484,13 @@ class AuditMarkController extends Controller
 
     public function pendingTheses($supervisor_id, $week_id = 0)
     {
+
         if (Auth::user()->hasanyrole('admin|advisor|supervisor')) {
             if ($week_id == 0) {
-                $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+                $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(10)->first();
                 $week_id = $previous_week->id;
             }
+
             $response = [];
 
             //supervising group and leaders for this supervisor
@@ -498,35 +500,47 @@ class AuditMarkController extends Controller
                 ->whereHas('users', function ($q) use ($supervisor_id) {
                     $q->where('user_id', $supervisor_id);
                 })
-                ->with('userAmbassador')
+                ->with('userAmbassador:id,name') //***/
                 ->first();
 
-            if ($group) {
-                foreach ($group->userAmbassador as $leader) {
-                    // all ambassadors foreach leader
-                    $ambassadors =  UserGroup::where('user_id', $leader->id)->where('user_type', 'leader')
-                        ->with('group.userAmbassador')
-                        ->first();
-                    $c = 0;
-                    if ($ambassadors) {
 
-                        foreach ($ambassadors->group->userAmbassador as $ambassador) {
-                            if ($ambassador) {
-                                // pendingThesis foreach ambassador
-                                $pendingThesis = Thesis::where('user_id', $ambassador->id)->where('status', 'pending')
+            if ($group) {
+
+                $ambassadors = $group->userAmbassador->mapWithKeys(function ($leader) use ($week_id) {
+                    // Fetch information about each leader and their associated group
+                    $ambassador = UserGroup::where('user_id', $leader->id)
+                        ->where('user_type', 'leader')
+                        ->with(['group' => function ($query) use ($week_id) {
+                            $query->select('id')->with(['userAmbassador.theses' => function ($query) use ($week_id) {
+                                // Filter the theses to include only pending ones
+                                $query->where('status', 'pending')
                                     ->whereHas('mark', function ($q) use ($week_id) {
                                         $q->where('week_id', $week_id);
-                                    })->get();
+                                    });
+                            }]);
+                        }])
+                        ->first();
 
-                                if (($pendingThesis->isNotEmpty())) {
-                                    $response[$leader->name]['pendingThesis'][$ambassador->name]  = $pendingThesis;
-                                }
-                            }
-                        }
+                    // Check if $ambassador is not null and pending_theses is not null before including it
+                    if ($ambassador && $ambassador->group->userAmbassador->pluck('theses')->flatten()->isNotEmpty()) {
+                        $ambassadorsData = $ambassador->group->userAmbassador
+                            ->filter(function ($ambassador) {
+                                return $ambassador->theses->isNotEmpty();
+                            })
+                            ->mapWithKeys(function ($ambassador) {
+                                return [$ambassador->name => [
+                                    'pending_theses' => $ambassador->theses,
+                                ]];
+                            })
+                            ->all();
+
+                        return [$leader->name => $ambassadorsData];
                     }
-                }
 
-                return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                    // If $ambassador is null or pending_theses is null or empty, skip this iteration
+                    return [];
+                });
+                return $this->jsonResponseWithoutMessage($ambassadors, 'data', 200);
             } else {
                 throw new NotFound;
             }

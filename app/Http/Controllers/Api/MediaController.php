@@ -14,6 +14,7 @@ use App\Traits\MediaTraits;
 use Illuminate\Support\Facades\File;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Termwind\Components\Dd;
@@ -25,7 +26,7 @@ class MediaController extends Controller
 
     /**
      * Read all media in the system.
-     * 
+     *
      * @return jsonResponseWithoutMessage;
      */
     public function index()
@@ -38,7 +39,7 @@ class MediaController extends Controller
     }
     /**
      *Add a new media to the system.
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponse;
      */
@@ -64,7 +65,7 @@ class MediaController extends Controller
 
     /**
      *upload media to the system. [for testing]
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponse;
      */
@@ -139,7 +140,7 @@ class MediaController extends Controller
 
             return $this->jsonResponseWithoutMessage("Media Updated Successfully", 'data', 200);
         } else {
-            throw new NotFound; //asmaa 
+            throw new NotFound; //asmaa
         }
     }
 
@@ -187,39 +188,35 @@ class MediaController extends Controller
     /**
      * Remove media files of the old records from the public folder.
      * Keep the records of the current week and the last week.
-     * @return JsonResponse;     
+     * @return JsonResponse;
      */
     public function removeOldMedia()
     {
-        //get last week
-        $lastWeek = Week::orderBy('id', 'desc')
-            ->skip(1)
-            ->take(1)
-            ->first();
-
-        $created_at = $lastWeek->created_at;
-
-        //get all media records of the last week that has comment_id not null
-
-        $media = DB::table('media')
-            ->where('created_at', '<', $created_at)
-            ->where('type', 'image')
-            ->whereNotNull('comment_id')
-            ->pluck('media');
-
-        //delete media files 
         try {
-            $deletedFiles = $this->deleteMediaFiles($media);
+            Log::channel('media')->info('START');
+            //get last week
+            $lastWeek = Week::orderBy('id', 'desc')
+                ->skip(1)
+                ->take(1)
+                ->first();
 
-            //log the deleted files            
-            Log::channel('media')->info('Deleted media files', [
-                'deletedFiles' => $deletedFiles,
-                'message' => count($deletedFiles) > 0 ? '(' . count($deletedFiles) . ') Media files deleted successfully' : 'No media files deleted'
-            ]);
+            $created_at = $lastWeek->created_at;
+            // Log::channel('media')->info('Memory usage befor: ' . memory_get_usage());
+
+            $matchingIds = Media::where('media', 'LIKE', "theses/%")
+                ->where('created_at', '<',$created_at)
+                ->chunkById(2000, function ($records) {
+                    foreach ($records as $media) {
+                        $deletedFiles = $this->deleteMedia_v2($media->media);
+                    }
+                });
+
+            Log::channel('media')->info('END');
         } catch (\Throwable $th) {
             Log::channel('media')->error('Error while deleting media files', [
                 'error' => $th->getMessage() . ' in ' . $th->getFile() . ' at line ' . $th->getLine(),
             ]);
         }
+
     }
 }

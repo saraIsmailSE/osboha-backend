@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 
-trait MediaTraits
+trait Eligible_MediaTraits
 {
 
     function createThesisMedia($media, $id)

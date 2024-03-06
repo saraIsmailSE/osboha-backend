@@ -19,12 +19,16 @@ class Week extends Model
 
     ];
 
-    public function exception(){
+    public function exception()
+    {
         return $this->hasMany(UserException::class);
     }
     public function assignSupport()
     {
         return $this->hasMany(AssignSupport::class);
     }
-
+    public function usersActivities()
+    {
+        return $this->belongsToMany(userWeekActivities::class, 'user_week_activities');
+    }
 }
