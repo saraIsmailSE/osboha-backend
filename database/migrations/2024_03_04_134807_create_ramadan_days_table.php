@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('ramadan_days', function (Blueprint $table) {
             $table->id();
             $table->integer('day');
+            $table->boolean('is_active')->default(0);
             $table->timestamps();
         });
     }
