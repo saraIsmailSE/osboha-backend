@@ -78,4 +78,8 @@ trait PathTrait
     {
         return 'ramadan/fill-hadith/' . $hadith_id;
     }
+    function getQuestionPath($question_id)
+    {
+        return 'ramadan/question/' . $question_id;
+    }
 }

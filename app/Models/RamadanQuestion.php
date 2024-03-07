@@ -22,7 +22,6 @@ class RamadanQuestion extends Model
 
     public function answers()
     {
-         return $this->hasMany(RamadanQuestionsAnswer::class);
+        return $this->hasMany(RamadanQuestionsAnswer::class);
     }
-
 }
