@@ -25,8 +25,4 @@ class RamadanQuestion extends Model
          return $this->hasMany(RamadanQuestionsAnswer::class);
     }
 
-    public function answerAuthUser()
-    {
-        return $this->hasOne(RamadanQuestionsAnswer::class)->where('user_id', auth()->id());
-    }
 }

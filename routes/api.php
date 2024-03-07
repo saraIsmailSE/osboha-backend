@@ -74,9 +74,7 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanGolenDayController,
     RamadanHadithController,
     RamadanHadithMemorizationController,
-    RamadanQuranWirdController,
-    
-    RamadanQuestionController,
+    RamadanQuranWirdController,    
     RamadanQuestionAnswerController,
 };
 
@@ -853,14 +851,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/statistics/{ramadan_day_id}', [RamadanQuranWirdController::class, 'statistics']);
         });
 
-        
-        Route::controller(RamadanQuestionController::class)->prefix('ramadan-question')->group(function () {
-            Route::get('/show/{ramadan_day_id}', 'show');
-            Route::get('/get/to/correct', 'getToCorrect');
-        });
-
-        Route::controller(RamadanQuestionAnswerController::class)->prefix('ramadan-answer')->group(function () {
+        Route::controller(RamadanQuestionAnswerController::class)->prefix('ramadan-answer-question')->group(function () {
             Route::post('/store', 'store');
+            Route::post('/correct', 'correctAnswer');
+            Route::get('/show/{ramadan_day_id}', 'show');
+            Route::get('/get/to/correct/{category}', 'getToCorrect');
+
         });
 
 
