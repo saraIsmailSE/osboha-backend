@@ -76,10 +76,10 @@ class RamadanQuranWirdController extends Controller
             ->where('ramadan_day_id', $ramadan_day_id)
             ->count();
 
-        // 5. Summation of Auth user
-        $statistics['auth_specific_ramadan_alwird_points'] = RamadanQuranWird::where('user_id', Auth::id())
+        // 5.  Auth user wird for specific day
+        $statistics['auth_specific_ramadan_day_wird'] = RamadanQuranWird::where('user_id', Auth::id())
             ->where('ramadan_day_id', $ramadan_day_id)
-            ->count();
+            ->first();
 
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', 200);

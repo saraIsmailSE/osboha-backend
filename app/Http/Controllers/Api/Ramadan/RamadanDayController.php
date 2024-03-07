@@ -45,6 +45,11 @@ class RamadanDayController extends Controller
         return $this->jsonResponseWithoutMessage($previous_day, 'data', 200);
     }
 
+    public function dayById($id){
+        $night_pray = RamadanDay::find($id);
+        return $this->jsonResponseWithoutMessage($night_pray, 'data', 200);
+
+    }
     public function closeDay()
     {
         Log::channel('ramadanDay')->info('START: Closing the previous day and opening the next day of Ramadan');
