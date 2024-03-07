@@ -153,7 +153,7 @@ class RamadanHadithMemorizationController extends Controller
 
         $hadithMemorization->fresh();
 
-        $msg = "تمت تصحيح الحديث  " . $hadithMemorization->hadith->hadith_title;
+        $msg = "تم تصحيح الحديث  " . $hadithMemorization->hadith->hadith_title;
         (new NotificationController)->sendNotification($hadithMemorization->user->id, $msg, ROLES, $this->getHadithPath($hadithMemorization->hadith->id));
 
         return $this->jsonResponseWithoutMessage($hadithMemorization, 'data', Response::HTTP_OK);
