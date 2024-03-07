@@ -72,6 +72,8 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanDayController,
     RamadanNightPrayerController,
     RamadanGolenDayController,
+    RamadanQuestionController,
+    RamadanQuestionAnswerController,
 };
 
 /*
@@ -830,6 +832,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/show/{ramadan_day_id}', [RamadanNightPrayerController::class, 'show']);
 
         });
+
+
     });
 
     Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);

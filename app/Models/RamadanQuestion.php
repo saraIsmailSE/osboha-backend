@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class RamadanQuestion extends Model
 {
     protected $fillable = [
+        'title',
+        'link',
         'question',
         'ramadan_day_id',
         'time_to_publish',
@@ -16,5 +18,15 @@ class RamadanQuestion extends Model
     public function ramadanDay()
     {
         return $this->belongsTo(RamadanDay::class);
+    }
+
+    public function answers()
+    {
+         return $this->hasMany(RamadanQuestionsAnswer::class);
+    }
+
+    public function answerAuthUser()
+    {
+        return $this->hasOne(RamadanQuestionsAnswer::class)->where('user_id', auth()->id());
     }
 }

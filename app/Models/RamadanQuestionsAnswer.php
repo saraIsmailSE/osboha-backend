@@ -13,6 +13,7 @@ class RamadanQuestionsAnswer extends Model
         'points',
         'reviews',
         'reviewer_id',
+        'answer'
     ];
 
     public function user()

@@ -17,8 +17,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('ramadan_question_id');
             $table->unsignedBigInteger('user_id');
+            $table->text('answer');
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
-            $table->integer('points');
+            $table->integer('points')->default(0);
             $table->text('reviews')->nullable();
             $table->unsignedBigInteger('reviewer_id')->nullable();
             $table->timestamps();
