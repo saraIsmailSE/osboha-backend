@@ -12,4 +12,9 @@ class RamadanHadith extends Model
     {
         return $this->belongsTo(RamadanDay::class);
     }
+
+    public function memorization()
+    {
+        return $this->hasMany(RamadanHadithMemorization::class, 'ramadan_hadiths_id');
+    }
 }

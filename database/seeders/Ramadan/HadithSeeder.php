@@ -29,6 +29,7 @@ class HadithSeeder extends Seeder
                     'ramadan_day_id' => $row[0],
                     'hadith_title' => $row[1],
                     'hadith' => $row[2],
+                    'image' => $row[3],
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
 
@@ -39,6 +40,7 @@ class HadithSeeder extends Seeder
                     'ramadan_day_id' => 'required|int',
                     'hadith_title' => 'required|String',
                     'hadith' => 'required|String',
+                    'image' => 'required|String',
                 ]);
 
                 if ($validator->fails()) {

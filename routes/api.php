@@ -72,6 +72,10 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanDayController,
     RamadanNightPrayerController,
     RamadanGolenDayController,
+    RamadanHadithController,
+    RamadanHadithMemorizationController,
+    RamadanQuranWirdController,
+    
     RamadanQuestionController,
     RamadanQuestionAnswerController,
 };
@@ -690,9 +694,6 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## End GeneralConversation ########
 
-
-
-
         /*
 |--------------------------------------------------------------------------|
 |                       Eligible API Routes                                |
@@ -817,6 +818,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/all', [RamadanDayController::class, 'all']);
             Route::get('/current', [RamadanDayController::class, 'currentDay']);
             Route::get('/previous', [RamadanDayController::class, 'previousDay']);
+            Route::get('/day-by-id/{id}', [RamadanDayController::class, 'dayById']);
         });
 
         Route::group(['prefix' => 'ramadan-golden-day'], function () {
@@ -830,11 +832,37 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/store', [RamadanNightPrayerController::class, 'store']);
             Route::get('/statistics/{ramadan_day_id}', [RamadanNightPrayerController::class, 'statistics']);
             Route::get('/show/{ramadan_day_id}', [RamadanNightPrayerController::class, 'show']);
+        });
 
+        Route::prefix('ramadan-hadith-memorization')->group(function () {
+            Route::post('/', [RamadanHadithMemorizationController::class, 'create']);
+            Route::get('/show/{hadithMemorizationId}', [RamadanHadithMemorizationController::class, 'show'])->where('hadithMemorizationId', '[0-9]+');
+            Route::post('/correct', [RamadanHadithMemorizationController::class, 'correct']);
+            Route::get('/statistics', [RamadanHadithMemorizationController::class, 'statistics']);
+            Route::get('/pending', [RamadanHadithMemorizationController::class, 'getMemorizedHadiths']);
+        });
+
+        Route::prefix('ramadan-hadith')->group(function () {
+            Route::get('/', [RamadanHadithController::class, 'index']);
+            Route::get('/days/{day_id}', [RamadanHadithController::class, 'getHadithByDay'])->where('day_id', '[0-9]+');
+            Route::get('/show/{id}', [RamadanHadithController::class, 'show'])->where('day_id', '[0-9]+');
+        });
+        Route::prefix('ramadan-quran-wird')->group(function () {
+            Route::post('/store', [RamadanQuranWirdController::class, 'store']);
+            Route::get('/show/{ramadan_day_id}', [RamadanQuranWirdController::class, 'show']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanQuranWirdController::class, 'statistics']);
+        });
+
+        
+        Route::controller(RamadanQuestionController::class)->prefix('ramadan-question')->group(function () {
+            Route::get('/show/{ramadan_day_id}', 'show');
+            Route::get('/get/to/correct', 'getToCorrect');
+        });
+
+        Route::controller(RamadanQuestionAnswerController::class)->prefix('ramadan-answer')->group(function () {
+            Route::post('/store', 'store');
         });
 
 
     });
-
-    Route::get('/test/statistics', [GeneralConversationController::class, 'getWorkingHoursStatistics']);
 });
