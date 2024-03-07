@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class RamadanQuestion extends Model
 {
     protected $fillable = [
+        'title',
+        'link',
         'question',
         'ramadan_day_id',
         'time_to_publish',
@@ -17,4 +19,10 @@ class RamadanQuestion extends Model
     {
         return $this->belongsTo(RamadanDay::class);
     }
+
+    public function answers()
+    {
+         return $this->hasMany(RamadanQuestionsAnswer::class);
+    }
+
 }
