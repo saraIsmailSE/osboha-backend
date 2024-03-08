@@ -27,46 +27,47 @@ class RamadanQuestionAnswerController extends Controller
             return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', 403);
         }
 
-        $answers = RamadanQuestionsAnswer::where('status', 'pending')->with('user')
-            ->with('ramadanQuestion', function ($query)  use ($category) {
-                $query->where('category', $category);
-            })->orderBy('created_at', 'asc')->get();
+        switch ($category) {
+            case 'فقه':
+                $questionCategory = ['فقه'];
+                break;
+            case 'تفسير':
+                $questionCategory = ['تفسير'];
+                break;
+            case 'التثقيف بالفيديو':
+                $questionCategory = ['التثقيف بالفيديو'];
+                break;
+            default:
+                $questionCategory = [
+                    'التثقيف بالفيديو',
+                    'فقه',
+                    'تفسير',
+                ];
+        }
+
+
+        $answers = RamadanQuestionsAnswer::where('status', 'pending')
+            ->with('user')->with('ramadanQuestion')
+            ->whereHas('ramadanQuestion', function ($q) use ($questionCategory) {
+                $q->whereIn('category', $questionCategory);
+            })
+            ->orderBy('created_at', 'asc')->get();
 
         return $this->jsonResponseWithoutMessage($answers, 'data', 200);
     }
 
 
     /**
-     * Retrieve and return Ramadan questions for a specific day
-     * that have a time_to_publish before the current time with answer for auth user.
+     * Retrieve Answer.
      *
      * @param int $ramadan_day_id
      * @return JsonResponse JSON response
      *
      * */
-    function show($ramadan_day_id)
+    function show($id)
     {
-        if (!$ramadan_day_id) {
-            return $this->jsonResponseWithoutMessage("عذراً، لم يفتح هذا اليوم بعد!", 'data', 200);
-        }
-
-        $now = Carbon::now(); // // Get current time
-
-        $ramadanDayQuestions = RamadanQuestion::where('ramadan_day_id', $ramadan_day_id)
-            ->where('time_to_publish', '<', $now)
-            ->withSum('answers', 'points')
-            ->with('answers', function ($query) {
-                $query->where('user_id', Auth::id());
-            })
-            ->get();
-        $totalPoint = $ramadanDayQuestions->sum("answers_sum_points");
-        $ramadanDayQuestions->totalPoint = $totalPoint;
-
-        if ($ramadanDayQuestions->isNotEmpty()) {
-            return $this->jsonResponseWithoutMessage($ramadanDayQuestions, 'data', 200);
-        } else {
-            throw new NotFound;
-        }
+        $answer = RamadanQuestionsAnswer::with('user')->with('reviewer')->with('ramadanQuestion')->find($id);
+        return $this->jsonResponseWithoutMessage($answer, 'data', 200);
     }
 
     /**
@@ -114,9 +115,9 @@ class RamadanQuestionAnswerController extends Controller
         }
 
         if (!Auth::user()->hasanyrole('admin|ramadan_vedio_corrector|ramadan_fiqh_corrector|ramadan_tafseer_corrector|ramadan_coordinator')) {
-            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', 403);
         }
-        $answer = RamadanQuestionsAnswer::with('ramadanQuestion')->findOrFail($request->answer_id);
+        $answer = RamadanQuestionsAnswer::with('user')->with('reviewer')->with('ramadanQuestion')->findOrFail($request->answer_id);
 
         if ($request->status == 'accepted') {
             $now = Carbon::now(); // // Get current time
@@ -141,10 +142,13 @@ class RamadanQuestionAnswerController extends Controller
             'reviews' => $request->reviews,
             'reviewer_id' => Auth::id(),
         ]);
-        $msg = "تم تصحيح السؤال  " . $answer->ramadanQuestion->title . " وقد حصلت على " .  $points . " نقطة إضافية.";
-        (new NotificationController)->sendNotification($answer->user->id, $msg, ROLES, $this->getHadithPath($answer->questionramadanQuestion->id));
+
+        $answer->fresh();
+
+        $msg = "تم تصحيح اجابتك على سؤال ال" . $answer->ramadanQuestion->category . " وقد حصلت على " .  $points . " نقطة إضافية.";
+        (new NotificationController)->sendNotification($answer->user->id, $msg, ROLES, $this->getQuestionPath($answer->ramadanQuestion->id));
 
 
-        return $this->jsonResponseWithoutMessage('تم اعتماد التصحيح', 'data', 200);
+        return $this->jsonResponseWithoutMessage($answer, 'data', 200);
     }
 }

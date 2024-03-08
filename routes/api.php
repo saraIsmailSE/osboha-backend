@@ -855,7 +855,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::controller(RamadanQuestionAnswerController::class)->prefix('ramadan-question-answer')->group(function () {
             Route::post('/store', 'store');
             Route::post('/correct', 'correctAnswer');
-            Route::get('/show/{ramadan_day_id}', 'show');
+            Route::get('/show/{id}', 'show');
             Route::get('/get-pending-questions/{category}', 'getPending');
         });
         Route::controller(RamadanQuestionController::class)->prefix('ramadan-question')->group(function () {
