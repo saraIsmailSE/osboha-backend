@@ -8,7 +8,7 @@ class RamadanHadithMemorization extends Model
 {
     protected $fillable = [
         'ramadan_hadiths_id',
-        'hadith',
+        'hadith_memorize',
         'user_id',
         'status',
         'points',
