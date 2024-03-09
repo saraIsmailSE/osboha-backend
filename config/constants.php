@@ -94,7 +94,13 @@ return [
         'marathon_coordinator' => "مسؤول عام في مارثون أصبوحة",
         'marathon_verification_supervisor' => "مسؤول تدقيق مارثون أصبوحة",
         'marathon_supervisor' => "مسؤول في مارثون أصبوحة",
-        'marathon_ambassador' => "سفير مشارك في مارثون أصبوحة"
+        'marathon_ambassador' => "سفير مشارك في مارثون أصبوحة",
+        'ramadan_coordinator'=> "مسؤول فعاليات رمضان",
+        'ramadan_hadith_corrector' =>"مُصحح  مسابقة حديث",
+        'ramadan_fiqh_corrector' => "مًصحح مسابقة فقه",
+        'ramadan_tafseer_corrector' => "مُصحح مسابقة تفسير",
+        'ramadan_vedio_corrector' =>"مُصحح مسابقة التثقيف بالفيديو",
+
 
     ],
     'FRONT_URL' => 'https://www.platform.osboha180.com',
