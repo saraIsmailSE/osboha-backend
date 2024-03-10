@@ -173,6 +173,8 @@ class RamadanHadithMemorizationController extends Controller
         * count of users who memorized 25 hadiths
         */
 
+        $user = Auth::user();
+
         $usersCount = RamadanHadithMemorization::select('user_id')
             ->distinct()
             ->count('user_id');
@@ -195,11 +197,28 @@ class RamadanHadithMemorizationController extends Controller
             ->havingRaw('count(user_id) = 25')
             ->count('user_id');
 
+        $memorizedHadithsCount = RamadanHadithMemorization::where('user_id', $user->id)
+            ->where('status', 'accepted')->count();
+
+        /*
+        * * uncomment the commented query if you want to count the points of the user in the current active day
+        */
+        $userPoints = RamadanHadithMemorization::where('user_id', $user->id)
+            ->where('status', 'accepted')
+            // ->whereHas('hadith', function ($q) {
+            //     $q->whereHas('ramadanDay', function ($q) {
+            //         $q->where('is_active', 1);
+            //     });
+            // })
+            ->sum('points');
+
         $statistics = [
             'usersCount' => $usersCount,
             'usersCount5' => $usersCount5,
             'usersCount15' => $usersCount15,
             'usersCount25' => $usersCount25,
+            'memorizedHadithsCount' => $memorizedHadithsCount,
+            'userPoints' => $userPoints
         ];
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', Response::HTTP_OK);
