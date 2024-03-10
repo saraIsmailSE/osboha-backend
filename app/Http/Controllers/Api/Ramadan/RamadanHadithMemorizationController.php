@@ -165,7 +165,7 @@ class RamadanHadithMemorizationController extends Controller
      *
      * @return ResponseJson
      */
-    public function statistics()
+    public function statistics($ramadan_day_id)
     {
         /*count of users who memorized at least one hadith
         * count of users who memorized 5 hadiths
@@ -200,16 +200,11 @@ class RamadanHadithMemorizationController extends Controller
         $memorizedHadithsCount = RamadanHadithMemorization::where('user_id', $user->id)
             ->where('status', 'accepted')->count();
 
-        /*
-        * * uncomment the commented query if you want to count the points of the user in the current active day
-        */
         $userPoints = RamadanHadithMemorization::where('user_id', $user->id)
             ->where('status', 'accepted')
-            // ->whereHas('hadith', function ($q) {
-            //     $q->whereHas('ramadanDay', function ($q) {
-            //         $q->where('is_active', 1);
-            //     });
-            // })
+            ->whereHas('hadith', function ($q) use ($ramadan_day_id) {
+                    $q->where('ramadan_day_id', $ramadan_day_id);
+            })
             ->sum('points');
 
         $statistics = [

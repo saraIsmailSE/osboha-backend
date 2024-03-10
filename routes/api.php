@@ -837,7 +837,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [RamadanHadithMemorizationController::class, 'create']);
             Route::get('/show/{hadithMemorizationId}', [RamadanHadithMemorizationController::class, 'show'])->where('hadithMemorizationId', '[0-9]+');
             Route::post('/correct', [RamadanHadithMemorizationController::class, 'correct']);
-            Route::get('/statistics', [RamadanHadithMemorizationController::class, 'statistics']);
+            Route::get('/statistics/{ramadan_day_id}', [RamadanHadithMemorizationController::class, 'statistics']);
             Route::get('/pending', [RamadanHadithMemorizationController::class, 'getMemorizedHadiths']);
         });
 
