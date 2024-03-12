@@ -39,15 +39,15 @@ class RamadanHadithMemorizationController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', Response::HTTP_BAD_REQUEST);
         }
 
-        //check if day is open
-        $activeDay = RamadanDay::where('is_active', 1)->first();
-        $hadith = RamadanHadith::where('id', $request->ramadan_hadiths_id)->whereHas('ramadanDay', function ($q) use ($activeDay) {
-            $q->where('day', '<=', $activeDay->day);
-        })->first();
+        // //check if day is open
+        // $activeDay = RamadanDay::where('is_active', 1)->first();
+        // $hadith = RamadanHadith::where('id', $request->ramadan_hadiths_id)->whereHas('ramadanDay', function ($q) use ($activeDay) {
+        //     $q->where('day', '<=', $activeDay->day);
+        // })->first();
 
-        if (!$hadith) {
-            return $this->jsonResponseWithoutMessage('لا يمكنك حفظ هذا الحديث الآن', 'data', Response::HTTP_BAD_REQUEST);
-        }
+        // if (!$hadith) {
+        //     return $this->jsonResponseWithoutMessage('لا يمكنك حفظ هذا الحديث الآن', 'data', Response::HTTP_BAD_REQUEST);
+        // }
 
 
         DB::beginTransaction();
