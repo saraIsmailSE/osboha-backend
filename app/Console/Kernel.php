@@ -60,7 +60,7 @@ class Kernel extends ConsoleKernel
 
         //ramadan day create
         ########## 00	03	*	*	* ##########
-        $schedule->command('ramadan:createDay')->dailyAt('06:00');
+        $schedule->command('ramadan:closeDay')->dailyAt('06:06');
     }
 
     /**
