@@ -30,7 +30,8 @@ class RamadanHadithMemorizationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'ramadan_hadiths_id' => 'required|exists:ramadan_hadiths,id',
-            'hadith' => 'required',
+            'hadith_memorize' => 'required',
+            'hadith_memorize_2' => 'required',
             'redo' => 'nullable|boolean'
         ]);
 
@@ -57,7 +58,8 @@ class RamadanHadithMemorizationController extends Controller
             $hadithMemorization = RamadanHadithMemorization::updateOrCreate(
                 ['ramadan_hadiths_id' => $request->ramadan_hadiths_id, 'user_id' => Auth::id()],
                 [
-                    'hadith_memorize' => $request->hadith,
+                    'hadith_memorize' => $request->hadith_memorize,
+                    'hadith_memorize_2' => $request->hadith_memorize_2,
                     'redo_at' => $request->redo ? now() : null,
                     'status' => 'pending',
                 ]

@@ -30,7 +30,7 @@ trait GroupTrait
                 ->where('is_freezed', 1)
                 ->count();
 
-            if ($avg)
+            if ($avg && (count($users_in_group) - $total_freezed) !=0 )
                 return $avg->out_of_100 / (count($users_in_group) - $total_freezed);
 
             return 0;
