@@ -59,8 +59,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
 
         //ramadan day create
-        ########## 00	03	*	*	* ##########
-        $schedule->command('ramadan:closeDay')->dailyAt('06:00');
+        ########## 00	06	*	*	* ##########
+        $schedule->command('ramadan:closeDay')->dailyAt('09:00');
     }
 
     /**
