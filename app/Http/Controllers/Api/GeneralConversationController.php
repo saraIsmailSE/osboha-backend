@@ -265,25 +265,68 @@ class GeneralConversationController extends Controller
         ], 'data', Response::HTTP_OK);
     }
 
-    public function getDiscussionQuestions()
+    public function getDiscussionQuestions(Request $request)
     {
         $user = Auth::user();
+        $type = $request->type;
 
+        if (!$type) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "الرجاء تحديد نوع المناقشة"
+            );
+        }
+
+        $users = [];
+
+        //for public discussions (between admin, all consultants and all advisors)
         if (!$user->hasAnyRole(['admin', 'consultant', 'advisor'])) {
             throw new NotAuthorized;
         }
 
+        //for administrative discussions (between admin and all consultants)
+        if ($type === 'administrative') {
+            if (!$user->hasAnyRole(['admin', 'consultant']))
+                throw new NotAuthorized;
+        }
+        //for private discussions (between consultant and their advisors)
+        else if ($type === 'private') {
+            if (!$user->hasAnyRole(['consultant', 'advisor']))
+                throw new NotAuthorized;
+
+            //user id: if the auth is consultant
+            //parent id: if the auth is advisor
+            //since the discussion moved to private by the consultant only
+            $users = [$user->id, $user->parent_id];
+        }
+
         $questions = Question::where('status', 'discussion')
-            ->with('answers', function ($query) {
-                $query->where('is_discussion', true);
-            })->paginate($this->perPage);
+            ->where('discussion_type', $type)
+            ->with('answers', function ($query) use ($type) {
+                $query->where('is_discussion', true)->where('discussion_type', $type);
+            });
+
+        if ($users) {
+            $questions = $questions->whereIn('moved_to_discussion_by', $users);
+        }
+
+        $questions = $questions->paginate($this->perPage);
+
+
+        $types = [
+            "public" => "عامة",
+            "private" => "خاصة",
+            "administrative" => "إدارية"
+        ];
 
         if ($questions->isEmpty()) {
             return $this->jsonResponse(
                 [],
                 'data',
                 Response::HTTP_OK,
-                "لا يوجد تحويلات مناقشة"
+                "لا يوجد تحويلات مناقشة " . $types[$type]
             );
         }
 
@@ -330,6 +373,7 @@ class GeneralConversationController extends Controller
             "answer" => "required|string",
             "question_id" => "required|integer|exists:questions,id",
             "is_discussion" => "integer|in:0,1|nullable",
+            "discussion_type" => "in:public,private,administrative|required_if:is_discussion,1|nullable",
             "media" => "nullable|array",
             "media.*" => [
                 new base64OrImage(),
@@ -349,6 +393,7 @@ class GeneralConversationController extends Controller
                 "answer" => $request->answer,
                 "user_id" => $user->id,
                 "is_discussion" => $request->has('is_discussion') ? $request->is_discussion : false,
+                "discussion_type" => $request->discussion_type,
             ]);
 
             //save media
@@ -490,9 +535,19 @@ class GeneralConversationController extends Controller
         }
     }
 
-    public function moveQuestionToDiscussion($question_id)
+    public function moveQuestionToDiscussion(Request $request, $question_id)
     {
         $user = Auth::user();
+        $type = $request->type;
+
+        if (!$type) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "الرجاء تحديد نوع المناقشة"
+            );
+        }
 
         if (!$user->hasAnyRole(['admin', 'consultant'])) {
             throw new NotAuthorized;
@@ -510,6 +565,8 @@ class GeneralConversationController extends Controller
         }
 
         $question->status = 'discussion';
+        $question->discussion_type = $type;
+        $question->moved_to_discussion_by = $user->id;
         $question->save();
 
         $message = "لقد قام المستخدم " . $user->name . " بتحويل سؤالك للمناقشة";
@@ -538,6 +595,8 @@ class GeneralConversationController extends Controller
         }
 
         $question->status = 'open';
+        $question->discussion_type = null;
+        $question->moved_to_discussion_by = null;
         $question->save();
 
         $message = "لقد قام المستخدم " . $user->name . " بإعادة سؤالك للتحويل";

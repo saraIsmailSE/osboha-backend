@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        //drop questions - answers - questions_followup tables
-        Schema::dropIfExists('answers');
-        Schema::dropIfExists('questions_followup');
-        Schema::dropIfExists('questions');
+        Schema::table('answers', function (Blueprint $table) {
+            $table->enum('discussion_type', ['public', 'private', 'administrative'])->nullable()->after('is_discussion');
+        });
     }
 
     /**
@@ -26,5 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::table('answers', function (Blueprint $table) {
+            $table->dropColumn('discussion_type');
+        });
     }
 };
