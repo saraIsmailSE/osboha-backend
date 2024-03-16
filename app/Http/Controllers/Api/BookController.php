@@ -18,6 +18,7 @@ use App\Models\BookLevel;
 use App\Models\BookType;
 use App\Models\Language;
 use App\Models\PostType;
+use App\Models\RamadanDay;
 use App\Models\Section;
 use App\Models\Thesis;
 use App\Models\Timeline;
@@ -42,8 +43,8 @@ class BookController extends Controller
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])->paginate(9);
-        if ($books->isNotEmpty()) {
 
+        if ($books->isNotEmpty()) {
             foreach ($books as $book) {
                 $book->last_thesis = Auth::user()
                     ->theses()
@@ -87,6 +88,7 @@ class BookController extends Controller
 
         return $this->jsonResponseWithoutMessage($books, "data", '201');
     }
+
     public function getAllForRamadan()
     {
         $books = Book::with('posts')->with('media')->whereHas('type', function ($q) {
@@ -104,9 +106,11 @@ class BookController extends Controller
                     ->orderBy('updated_at', 'desc')->first();
             }
 
+            $isRamadanActive = RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
             return $this->jsonResponseWithoutMessage([
                 'books' => BookResource::collection($books),
                 'total' => $books->total(),
+                'isRamadanActive' => $isRamadanActive,
             ], 'data', 200);
         } else {
             throw new NotFound;
@@ -281,6 +285,8 @@ class BookController extends Controller
                 ->where('book_id', $book_id)
                 ->orderBy('created_at', 'desc')->first();
 
+            $isRamadanActive = RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
+
             return $this->jsonResponseWithoutMessage(
                 [
                     'book' => new BookResource($book),
@@ -289,6 +295,7 @@ class BookController extends Controller
                     'comments_count' => $comments_count,
                     'rate' => $rate,
                     'last_thesis' => $last_thesis ? new ThesisResource($last_thesis) : null,
+                    'isRamadanActive' => $isRamadanActive,
                 ],
                 'data',
                 200
