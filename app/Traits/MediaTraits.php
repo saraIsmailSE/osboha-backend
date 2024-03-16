@@ -22,8 +22,11 @@ trait MediaTraits
                 File::makeDirectory(public_path($fullPath), 0777, true, true);
             }
 
-            $imageName = rand(100000, 999999) . time() . '.';
+            $fileName = rand(100000, 999999) . time() . '.';
             $imageFile = null;
+            $videoFile = null;
+            $fileType = null;
+
             if (is_string($media)) {
                 //base64 image
                 $image = $media;
@@ -31,33 +34,41 @@ trait MediaTraits
                 $imageTypeAux = explode("image/", $imageParts[0]);
                 $imageType = $imageTypeAux[1];
                 $imageBase64 = base64_decode($imageParts[1]);
-                $imageName = $imageName . $imageType;
+                $fileName .=  $imageType;
 
                 $imageFile = $imageBase64;
                 //resize image
                 ResizeImage::make($imageBase64)->resize(500, null, function ($constraint) {
                     $constraint->aspectRatio();
-                })->save(public_path($fullPath . '/' . $imageName));
+                })->save(public_path($fullPath . '/' . $fileName));
 
-                // file_put_contents(public_path($fullPath . '/' . $imageName), $imageBase64);
+                // file_put_contents(public_path($fullPath . '/' . $fileName), $imageBase64);
             } else {
-                //image file
-                $imageName = $imageName . $media->extension();
-                $imageFile = $media;
+                $fileName .= $media->extension();
 
-                // $media->move(public_path($fullPath), $imageName);
+                //get file type
+                $fileType = explode('/', $media->getClientMimeType())[0];
+
+                if ($fileType === 'video') {
+                    $videoFile = $media;
+                    $videoFile->move(public_path($fullPath), $fileName);
+                } else {
+                    $imageFile = $media;
+                }
+            }
+
+            if ($imageFile) {
+                // resize the image to a width of 500 and constrain aspect ratio (auto height)
+                ResizeImage::make($imageFile)->resize(500, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save(public_path($fullPath . '/' . $fileName));
             }
 
 
-            // // resize the image to a width of 500 and constrain aspect ratio (auto height)
-            ResizeImage::make($imageFile)->resize(500, null, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save(public_path($fullPath . '/' . $imageName));
-
             // link media with comment
             $media = new Media();
-            $media->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
-            $media->type = 'image';
+            $media->media = $folderPath ? $folderPath . '/' . $fileName : $fileName;
+            $media->type = $fileType;
             $media->user_id = Auth::id();
 
             switch ($type) {
@@ -255,15 +266,15 @@ trait MediaTraits
     }
     function deleteMedia_v2($file)
     {
-            try {
-                $filePath = public_path('assets/images/' . $file);
-                if (File::exists($filePath)) {
-                    File::delete($filePath);
-                    unset($file); // Free up the variable's memory
-                    return 'deleted';
-                }
-            } catch (\Exception $e) {
-                Log::error("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
+        try {
+            $filePath = public_path('assets/images/' . $file);
+            if (File::exists($filePath)) {
+                File::delete($filePath);
+                unset($file); // Free up the variable's memory
+                return 'deleted';
             }
+        } catch (\Exception $e) {
+            Log::error("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
+        }
     }
 }
