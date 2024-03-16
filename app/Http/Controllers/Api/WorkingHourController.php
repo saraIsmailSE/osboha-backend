@@ -47,8 +47,6 @@ class WorkingHourController extends Controller
                 $date = Carbon::parse($working_hour['date']);
                 $week_id = $working_hour['week_id'];
 
-
-
                 //find working hours for date part of created_at
                 $workingHours = WorkHour::where("user_id", $user->id)
                     ->where("week_id", $week_id)
@@ -99,12 +97,12 @@ class WorkingHourController extends Controller
         $currentWeek = Week::latest()->first();
         $previousWeek = null;
 
-        if (Carbon::now()->dayOfWeek <= 3) {
+        if (Carbon::now()->dayOfWeek <= Carbon::WEDNESDAY)
             $previousWeek = Week::latest()->skip(1)->first();
-        }
+
         //get all working hours grouped by created_at date
         $workingHours = WorkHour::with('week')->where("user_id", $user->id)
-            ->whereIn("week_id", [$currentWeek->id, $previousWeek ? $previousWeek->id : 0])
+            ->whereIn("week_id", [$currentWeek->id, optional($previousWeek)->id ?? 0])
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -115,32 +113,7 @@ class WorkingHourController extends Controller
         });
 
         //get days from previous week till current week
-        $days = [];
-        if ($previousWeek) {
-            $createdAt = Carbon::parse($previousWeek->created_at);
-            $mainTimer = Carbon::parse($previousWeek->main_timer);
-            while ($createdAt->lte($mainTimer)) {
-                $days[] = [
-                    "week_id" => $previousWeek->id,
-                    "date" => $createdAt->toDateString(),
-                    "minutes" => $groupedWorkingHours[$createdAt->toDateString()] ?? 0,
-                    "week_title" => $previousWeek->title,
-                ];
-                $createdAt->addDay();
-            }
-        }
-
-        $createdAt = Carbon::parse($currentWeek->created_at);
-        $mainTimer = Carbon::parse($currentWeek->main_timer);
-        while ($createdAt->lte($mainTimer)) {
-            $days[] = [
-                "week_id" => $currentWeek->id,
-                "date" => $createdAt->toDateString(),
-                "minutes" => $groupedWorkingHours[$createdAt->toDateString()] ?? 0,
-                "week_title" => $currentWeek->title,
-            ];
-            $createdAt->addDay();
-        }
+        $days = $this->getDaysData($previousWeek, $currentWeek, $groupedWorkingHours);
 
         $workingHoursList = $workingHours->groupBy(function ($item) {
             return $item->week->title;
@@ -395,5 +368,44 @@ class WorkingHourController extends Controller
             'data',
             Response::HTTP_OK
         );
+    }
+
+    //private functions
+    private function getDaysData($previousWeek, $currentWeek, $groupedWorkingHours)
+    {
+        $days = [];
+
+        $this->processWeekDays($previousWeek, $groupedWorkingHours, $days);
+        $this->processWeekDays($currentWeek, $groupedWorkingHours, $days);
+
+        return $days;
+    }
+
+    private function processWeekDays($week, $groupedWorkingHours, &$days)
+    {
+        if (!$week) {
+            return;
+        }
+
+        $createdAt = Carbon::parse($week->created_at);
+        $mainTimer = Carbon::parse($week->main_timer);
+
+        if ($createdAt->dayOfWeek === Carbon::SATURDAY) {
+            $createdAt->addDay();
+        }
+
+        while ($createdAt->lte($mainTimer)) {
+            if ($createdAt->toDateString() === $mainTimer->toDateString()) {
+                break;
+            }
+
+            $days[] = [
+                "week_id" => $week->id,
+                "date" => $createdAt->toDateString(),
+                "minutes" => $groupedWorkingHours[$createdAt->toDateString()] ?? 0,
+                "week_title" => $week->title,
+            ];
+            $createdAt->addDay();
+        }
     }
 }
