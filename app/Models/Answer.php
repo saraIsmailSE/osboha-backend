@@ -14,7 +14,7 @@ class Answer extends Model
         "question_id",
         "user_id",
         "is_discussion",
-
+        "discussion_type"
     ];
 
     protected $with = ['media'];

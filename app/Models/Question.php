@@ -13,6 +13,8 @@ class Question extends Model
     protected $fillable = [
         "question",
         "status",
+        "discussion_type",
+        "moved_to_discussion_by",
         "user_id",
         "current_assignee_id",
         "closed_at"
@@ -49,6 +51,11 @@ class Question extends Model
     public function media()
     {
         return $this->hasMany(Media::class);
+    }
+
+    public function movedToDiscussionBy()
+    {
+        return $this->belongsTo(User::class, 'moved_to_discussion_by');
     }
 
     public function getUserParentsAttribute()
