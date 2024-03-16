@@ -6,6 +6,8 @@ use App\Console\Commands\generateAuditMark;
 use App\Console\Commands\ModifyTimer;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
+use Stringable;
 
 class Kernel extends ConsoleKernel
 {
@@ -55,6 +57,10 @@ class Kernel extends ConsoleKernel
         //exclude users
         ########## 15	19	*	*	5 ##########
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
+
+        //ramadan day create
+        ########## 00	06	*	*	* ##########
+        $schedule->command('ramadan:closeDay')->dailyAt('09:00');
     }
 
     /**

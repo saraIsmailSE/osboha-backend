@@ -149,11 +149,11 @@ class UserExceptionController extends Controller
 
                     $exception['week_id'] =  $current_week->id;
                     $exception['start_at'] = $current_week->created_at;
-                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
+                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(8))->format('Y-m-d');
                 } else {
                     $exception['week_id'] =  $current_week->id;
-                    $exception['start_at'] = Carbon::parse($current_week->created_at->addDays(7))->format('Y-m-d');
-                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(14))->format('Y-m-d');
+                    $exception['start_at'] = Carbon::parse($current_week->created_at->addDays(8))->format('Y-m-d');
+                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(15))->format('Y-m-d');
                 }
 
                 $userException = UserException::create($exception);
@@ -316,7 +316,7 @@ class UserExceptionController extends Controller
             $exception['status'] = 'pending';
             $exception['week_id'] =  $week->id;
             $exception['start_at'] = $week->created_at;
-            $exception['end_at'] = Carbon::parse($week->created_at->addDays(7))->format('Y-m-d');
+            $exception['end_at'] = Carbon::parse($week->created_at->addDays(8))->format('Y-m-d');
 
             $userException = UserException::updateOrCreate(
                 ['user_id' => $request->user_id, 'week_id' => $week->id],
@@ -409,7 +409,7 @@ class UserExceptionController extends Controller
             $exception['status'] = 'accepted';
             $exception['week_id'] =  $week->id;
             $exception['start_at'] = $week->created_at;
-            $exception['end_at'] = Carbon::parse($week->created_at->addDays(7))->format('Y-m-d');
+            $exception['end_at'] = Carbon::parse($week->created_at->addDays(8))->format('Y-m-d');
 
             $userException = UserException::updateOrCreate(
                 ['user_id' => $request->user_id, 'week_id' => $week->id],
@@ -686,19 +686,19 @@ class UserExceptionController extends Controller
                     case 1:
                         $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
+                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
                         break;
                         //اعفاء الأسبوع القادم
                     case 2:
                         $userException->week_id =  $desired_week->id;
-                        $userException->start_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
+                        $userException->start_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
+                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
                         break;
                         //اعفاء لأسبوعين الحالي و القادم
                     case 3:
                         $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
+                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
 
                         break;
                         //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
@@ -706,7 +706,7 @@ class UserExceptionController extends Controller
                     case 4:
                         $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(21))->format('Y-m-d');
+                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(22))->format('Y-m-d');
                         break;
                 }
 
@@ -756,20 +756,20 @@ class UserExceptionController extends Controller
                 case 1:
                     $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
-                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
+                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
 
                     break;
                     //اعفاء الأسبوع القادم
                 case 2:
                     $userException->week_id =  $desired_week->id;
-                    $userException->start_at = Carbon::parse($desired_week->created_at->addDays(7))->format('Y-m-d');
-                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
+                    $userException->start_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
+                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
                     break;
                     //اعفاء لأسبوعين الحالي و القادم
                 case 3:
                     $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
-                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(14))->format('Y-m-d');
+                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
                     break;
             }
             $this->calculate_mark_for_exam($owner_of_exception, $desired_week);

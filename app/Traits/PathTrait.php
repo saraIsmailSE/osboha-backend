@@ -74,4 +74,12 @@ trait PathTrait
     {
         return 'general-conversation/' . $conversation_id;
     }
+    function getHadithPath($hadith_id)
+    {
+        return 'ramadan/fill-hadith/' . $hadith_id;
+    }
+    function getQuestionPath($question_id)
+    {
+        return 'ramadan/question/' . $question_id;
+    }
 }

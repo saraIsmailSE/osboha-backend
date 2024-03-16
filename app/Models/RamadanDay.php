@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RamadanDay extends Model
 {
-    protected $fillable = [];
+    protected $fillable = ['day', 'is_active', 'created_at', 'updated_at'];
 
     public function ramadanQuranWirds()
     {

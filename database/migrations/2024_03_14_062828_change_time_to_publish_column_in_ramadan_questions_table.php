@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ramadan_days', function (Blueprint $table) {
-            $table->id();
-            $table->integer('day');
-            $table->boolean('is_active')->default(0);
-            $table->timestamps();
+        Schema::table('ramadan_questions', function (Blueprint $table) {
+            $table->dateTime('time_to_publish')->change();
         });
     }
 
@@ -28,6 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ramadan_days');
+        Schema::table('ramadan_questions', function (Blueprint $table) {
+        });
     }
 };

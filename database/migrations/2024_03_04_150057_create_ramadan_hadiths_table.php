@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('hadith_title');
             $table->text('hadith');
+            $table->string('image');
             $table->unsignedBigInteger('ramadan_day_id');
             $table->timestamps();
 

@@ -614,7 +614,15 @@ class UserGroupController extends Controller
             $userGroup = UserGroup::find($request->user_group_id);
 
             if ($userGroup) {
+
+                $userToWithdrawn= User::find($userGroup->user_id);
+
+                if ($userToWithdrawn->hasanyrole('admin|advisor|consultant|supervisor|leader')) {
+                    return $this->jsonResponseWithoutMessage('Withdrawn NOT Allowed', 'data', 200);
+                }
+                
                 User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
+
                 $userGroup->termination_reason = 'withdrawn';
                 $userGroup->save();
                 $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
