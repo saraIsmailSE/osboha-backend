@@ -153,7 +153,7 @@ class WeekController extends Controller
      * @author Asmaa
      * @throws Exception error if anything wrong happens
      */
-    private function insert_week()
+    public function insert_week()
     {
         $previousWeek = Week::latest('id')->first();
         $previousDate = $previousWeek ? Carbon::parse($previousWeek->created_at) : null;
@@ -178,20 +178,19 @@ class WeekController extends Controller
             }
         }
 
-        //seach sundays
-        $dateToSearch = $date->addDay();
+        //search sundays
+        $dateToSearch = $date;
         $week->title = $this->search_for_week_title($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
-        //seach is_vacation
+        //search is_vacation
         $week->is_vacation = $this->search_for_is_vacation($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
-        //add end of SUNDAYS
-        $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
+        //add hours to be at 14:00 of SUNDAYS
+        $dateToAdd = $date->addHours(14);
         $week->created_at = $dateToAdd;
         $week->updated_at = $dateToAdd;
 
-        //add 7 days to the date to get the end of the week
-        $week->main_timer = $dateToAdd->addDays(7)->addHours(12);
-
+        //add 7 days to the date to get the end of the week at 13:59
+        $week->main_timer = $dateToAdd->addDays(7)->subMinute();
         if ($week->save()) { //insert new week
             return $week->id;
         }
