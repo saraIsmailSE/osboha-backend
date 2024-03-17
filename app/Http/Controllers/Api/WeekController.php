@@ -168,13 +168,13 @@ class WeekController extends Controller
 
         $date = $currentDate;
 
-        //check if $date is saturday or not
-        if ($currentDate->dayOfWeek != Carbon::SATURDAY) {
-            //check if the previous saturday is equal to the previous week date
-            $date = $currentDate->previous(Carbon::SATURDAY);
+        //check if $date is SUNDAY or not
+        if ($currentDate->dayOfWeek != Carbon::SUNDAY) {
+            //check if the previous SUNDAY is equal to the previous week date
+            $date = $currentDate->previous(Carbon::SUNDAY);
             if ($previousDate && $previousDate->format('Y-m-d') == $date->format('Y-m-d')) {
 
-                $date = $currentDate->next(Carbon::SATURDAY);
+                $date = $currentDate->next(Carbon::SUNDAY);
             }
         }
 
@@ -184,7 +184,7 @@ class WeekController extends Controller
         //seach is_vacation
         $week->is_vacation = $this->search_for_is_vacation($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
-        //add end of saturdays
+        //add end of SUNDAYS
         $dateToAdd = $date->subDay()->addHours(23)->addMinutes(59)->addSeconds(59);
         $week->created_at = $dateToAdd;
         $week->updated_at = $dateToAdd;
