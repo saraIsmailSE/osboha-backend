@@ -81,6 +81,11 @@ class RamadanQuranWirdController extends Controller
             ->where('ramadan_day_id', $ramadan_day_id)
             ->first();
 
+        // 6. Summation of specific ramadan_day_id
+        $statistics['auth_total_no_of_parts'] = RamadanQuranWird::where('user_id', Auth::id())
+        ->sum("no_of_parts");
+        // ->sum(DB::raw("no_of_parts"));
+
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', 200);
     }
