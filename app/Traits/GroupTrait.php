@@ -2,15 +2,11 @@
 
 namespace App\Traits;
 
-use App\Models\Group;
 use App\Models\Mark;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\Week;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Image;
 
 trait GroupTrait
 {
@@ -30,7 +26,7 @@ trait GroupTrait
                 ->where('is_freezed', 1)
                 ->count();
 
-            if ($avg && (count($users_in_group) - $total_freezed) !=0 )
+            if ($avg && (count($users_in_group) - $total_freezed) != 0)
                 return $avg->out_of_100 / (count($users_in_group) - $total_freezed);
 
             return 0;
@@ -75,6 +71,29 @@ trait GroupTrait
                     ->whereIn('group_id', $groups_id);
             })
             ->whereIn('user_type', $user_type)
+            ->get();
+    }
+    function membersReading($membersIDs, $week_id)
+    {
+        return User::leftJoin('marks', function ($join) use ($week_id) {
+            $join->on('users.id', '=', 'marks.user_id')
+                ->where('marks.week_id', '=', $week_id);
+        })
+            ->whereIn('users.id', $membersIDs)
+            ->select([
+                'users.id AS user_id',
+                'users.name AS name',
+                DB::raw($week_id . ' AS week_id'),
+                DB::raw('COALESCE(marks.reading_mark, 0) AS reading_mark'),
+                DB::raw('COALESCE(marks.writing_mark, 0) AS writing_mark'),
+                DB::raw('COALESCE(marks.total_pages, 0) AS total_pages'),
+                DB::raw('COALESCE(marks.support, 0) AS support'),
+                DB::raw('COALESCE(marks.total_thesis, 0) AS total_thesis'),
+                DB::raw('COALESCE(marks.total_screenshot, 0) AS total_screenshot'),
+                DB::raw('COALESCE(marks.is_freezed, 0) AS is_freezed'),
+                'marks.created_at',
+                'marks.updated_at',
+            ])
             ->get();
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Mark;
 use App\Models\User;
 use App\Models\UserException;
 use App\Models\UserGroup;
+use App\Models\UserParent;
 use App\Models\Week;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -186,6 +187,9 @@ class ExcludingUsersV2Controller extends Controller
         }
 
         User::where('id', $user->id)->update(['parent_id' => null, 'is_excluded' => 1]);
+        //Update User Parent
+        UserParent::where("user_id", $user->id)->update(["is_active" => 0]);
+
         return true;
     }
 
@@ -225,7 +229,7 @@ class ExcludingUsersV2Controller extends Controller
                 ->where('users.is_excluded', 0)
                 ->pluck('users.id');
             User::whereIn('id', $users)
-                ->chunkById(100, function (Collection $users) use($lastWeekIds) {
+                ->chunkById(100, function (Collection $users) use ($lastWeekIds) {
                     DB::beginTransaction();
 
                     foreach ($users as $user) {

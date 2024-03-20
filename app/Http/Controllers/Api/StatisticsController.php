@@ -16,6 +16,7 @@ use App\Models\UserGroup;
 use App\Models\Week;
 use Illuminate\Support\Facades\DB;
 use App\Traits\GroupTrait;
+use App\Traits\UserParentTrait;
 
 use function PHPUnit\Framework\returnSelf;
 
@@ -29,7 +30,7 @@ use function PHPUnit\Framework\returnSelf;
 class StatisticsController extends Controller
 {
 
-    use ResponseJson, GroupTrait;
+    use ResponseJson, GroupTrait, UserParentTrait;
 
     /**
      * Get Statistics By Week ID.
@@ -126,7 +127,8 @@ class StatisticsController extends Controller
         $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
 
         $response = [];
-        $leaders = $this->usersByWeek($supervisingGroup->group_id, $previous_week->id, ['ambassador']);
+        //$leaders = $this->usersByWeek($supervisingGroup->group_id, $previous_week->id, ['ambassador']);
+        $leaders = $this->childrensByWeek($superviser_id, $previous_week->id, ['leader']);
 
         $leadersIDs =  $leaders->pluck('user_id');
         //افرقة المتابعة الخاصة بالقادة
@@ -139,10 +141,7 @@ class StatisticsController extends Controller
             $response['leaders_followup_team'][$key] = $this->followupTeamStatistics($group, $previous_week, $last_previous_week);
         }
         // leaders reading
-        $response['leaders_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
-            ->whereIn('user_id', $leadersIDs)
-            ->get();
-
+        $response['leaders_reading'] = $this->membersReading($leadersIDs, $previous_week->id);
 
         $supervisor_followup_team = UserGroup::with('user')->where('user_type', 'leader')
             ->where('user_id', $superviser_id)
@@ -170,6 +169,10 @@ class StatisticsController extends Controller
                 $q->where('type', '=', 'advising');
             })->whereNull('termination_reason')->first();
 
+        if (!$advisingGroup) {
+
+            return $this->jsonResponseWithoutMessage('لا يوجد فريق توجيه', 'data', 200);
+        }
         $advisorGroup = Group::without('type', 'Timeline')->with('userAmbassador')->find($advisingGroup->group_id);
 
         if (!$advisorGroup) {
@@ -184,7 +187,9 @@ class StatisticsController extends Controller
 
         $response = [];
 
-        $supervisors = $this->usersByWeek($advisorGroup->id, $previous_week->id, ['ambassador']);
+        // $supervisors = $this->usersByWeek($advisorGroup->id, $previous_week->id, ['ambassador']);
+        $supervisors = $this->childrensByWeek($advisor_id, $previous_week->id, ['supervisor']);
+
 
         $supervisorsIDs = $supervisors->pluck('user_id');
 
@@ -208,9 +213,7 @@ class StatisticsController extends Controller
         }
 
         // Supervisors reading
-        $response['supervisors_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
-            ->whereIn('user_id', $supervisorsIDs)
-            ->get();
+        $response['supervisors_reading'] = $this->membersReading($supervisorsIDs, $previous_week->id);
 
         $response['advisor_group'] = $advisorGroup;
 
@@ -300,9 +303,7 @@ class StatisticsController extends Controller
         }
 
         // Supervisors reading
-        $response['advisors_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
-            ->whereIn('user_id', $advisors->pluck('id'))
-            ->get();
+        $response['advisors_reading'] = $this->membersReading($advisors->pluck('id'), $previous_week->id);
 
         $response['consultant_group'] = $consultantingGroup->group;
 
@@ -354,9 +355,7 @@ class StatisticsController extends Controller
         }
 
         // Supervisors reading
-        $response['consultants_reading'] = Mark::without('week')->where('week_id', $previous_week->id)
-            ->whereIn('user_id', $consultants->pluck('id'))
-            ->get();
+        $response['consultants_reading'] = $this->membersReading($consultants->pluck('id'), $previous_week->id);
 
         $response['administrator_group'] = $administrationGroup->group;
 
