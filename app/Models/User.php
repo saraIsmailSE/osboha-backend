@@ -228,4 +228,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(User::class, 'parent_id')->where('is_excluded',0);
     }
+
+    public function parents()
+    {
+        return $this->belongsToMany(Parent::class, 'user_parent', 'user_id', 'parent_id');
+    }
+
 }
