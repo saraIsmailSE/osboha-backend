@@ -20,6 +20,7 @@ use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\UserBook;
 use App\Models\UserException;
+use App\Models\UserParent;
 use App\Models\Week;
 use App\Notifications\MailDowngradeRole;
 use App\Notifications\MailUpgradeRole;
@@ -363,10 +364,8 @@ class AuthController extends Controller
                     ->latest()->first();
                 if ($last_thesis) {
                     $response['progress'][$key] = ($last_thesis->end_page / $last_thesis->book->end_page) * 100;
-                }
-                else{
-                    $response['progress'][$key] =0;
-
+                } else {
+                    $response['progress'][$key] = 0;
                 }
             }
         } else {
@@ -425,12 +424,25 @@ class AuthController extends Controller
                     $user->is_excluded = 0;
                     $user->is_hold = 0;
                     $user->save();
-
-                    UserGroup::create([
+                    UserParent::create([
                         'user_id' => $user->id,
-                        'group_id' =>  $userGroup->group_id,
-                        'user_type' => 'ambassador'
+                        'parent_id' => $leader->user_id,
+                        'is_active' => 1,
                     ]);
+                    UserGroup::updateOrCreate(
+                        [
+                            'user_id' => $user->id,
+                            'group_id' =>  $userGroup->group_id,
+                            'user_type' => 'ambassador',
+                            'termination_reason' => null
+                        ],
+                        [
+                            'user_id' => $user->id,
+                            'group_id' =>  $userGroup->group_id,
+                            'user_type' => 'ambassador',
+                            'termination_reason' => null
+                        ]
+                    );
                     DB::commit();
 
                     $notification = new NotificationController();

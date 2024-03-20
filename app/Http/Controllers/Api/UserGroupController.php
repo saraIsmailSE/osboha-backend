@@ -622,11 +622,14 @@ class UserGroupController extends Controller
                     return $this->jsonResponseWithoutMessage('Withdrawn NOT Allowed', 'data', 200);
                 }
 
+                $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+
                 User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
                 //Update User Parent
                 UserParent::where("user_id", $userGroup->user_id)->update(["is_active" => 0]);
 
                 $userGroup->termination_reason = 'withdrawn';
+                $userGroup->updated_at = $previous_week->created_at;
                 $userGroup->save();
                 $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
                 Log::channel('community_edits')->info($logInfo);

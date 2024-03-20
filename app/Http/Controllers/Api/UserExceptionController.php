@@ -18,6 +18,7 @@ use App\Exceptions\NotFound;
 use App\Models\ExceptionType;
 use App\Models\Mark;
 use App\Models\Thesis;
+use App\Models\UserParent;
 use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
@@ -819,7 +820,11 @@ class UserExceptionController extends Controller
                     $userException->status = 'accepted';
 
                     User::where('id', $userException->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
+                    //Update User Parent
+                    UserParent::where("user_id", $userException->user_id)->update(["is_active" => 0]);
+
                     $userGroup->termination_reason = 'withdrawn';
+                    $userGroup->updated_at = $desired_week->created_at;
                     $userGroup->save();
                     $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
                     Log::channel('community_edits')->info($logInfo);
