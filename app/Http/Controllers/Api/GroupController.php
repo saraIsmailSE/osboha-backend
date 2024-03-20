@@ -192,7 +192,7 @@ class GroupController extends Controller
 
         $response['info'] = Group::with('users', 'groupAdministrators', 'leaderAndAmbassadors', 'groupSupportLeader')->withCount('userAmbassador')->where('id', $group_id)->first();
         if ($response['info']) {
-            $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)
+            $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->whereNull('termination_reason')->where('group_id', $group_id)
                 ->latest() //admaa
                 ->first();
 
