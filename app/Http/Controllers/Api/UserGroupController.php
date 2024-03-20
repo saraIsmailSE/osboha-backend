@@ -17,6 +17,7 @@ use Spatie\Permission\Models\Role;
 use App\Models\Group;
 use App\Models\Mark;
 use App\Models\UserBook;
+use App\Models\UserParent;
 use App\Models\Week;
 use App\Notifications\MailAmbassadorDistribution;
 use App\Notifications\MailMemberAdd;
@@ -615,13 +616,15 @@ class UserGroupController extends Controller
 
             if ($userGroup) {
 
-                $userToWithdrawn= User::find($userGroup->user_id);
+                $userToWithdrawn = User::find($userGroup->user_id);
 
                 if ($userToWithdrawn->hasanyrole('admin|advisor|consultant|supervisor|leader')) {
                     return $this->jsonResponseWithoutMessage('Withdrawn NOT Allowed', 'data', 200);
                 }
-                
+
                 User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
+                //Update User Parent
+                UserParent::where("user_id", $userGroup->user_id)->update(["is_active" => 0]);
 
                 $userGroup->termination_reason = 'withdrawn';
                 $userGroup->save();

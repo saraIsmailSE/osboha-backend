@@ -16,6 +16,7 @@ use App\Models\Group;
 use App\Models\GroupType;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Models\UserParent;
 use App\Notifications\MailDowngradeRole;
 use App\Notifications\MailUpgradeRole;
 use Illuminate\Support\Facades\DB;
@@ -209,6 +210,14 @@ class RolesAdministrationController extends Controller
                     $user->parent_id = $head_user->id;
                     $user->save();
 
+                    //Update User Parent
+                    UserParent::where("user_id", $user->id)->update(["is_active" => 0]);
+                    UserParent::create([
+                        'user_id' => $user->id,
+                        'parent_id' =>  $head_user->id,
+                        'is_active' => 1,
+                    ]);
+
                     $msg = "";
                     $successMessage = "";
                     if (!$userRoles) {
@@ -279,6 +288,14 @@ class RolesAdministrationController extends Controller
                         // link supervisor with his new advisor
                         $supervisor->parent_id = $new_advisor->id;
                         $supervisor->save();
+
+                        //Update User Parent
+                        UserParent::where("user_id", $supervisor->id)->update(["is_active" => 0]);
+                        UserParent::create([
+                            'user_id' => $supervisor->id,
+                            'parent_id' =>  $new_advisor->id,
+                            'is_active' => 1,
+                        ]);
 
                         /* make supervisor ambassador in new advisor advising group
                         * 1- get advising group
@@ -422,6 +439,15 @@ class RolesAdministrationController extends Controller
 
                             $currentSupervisor->parent_id =  $supervisors_2_Parent;
                             $currentSupervisor->save();
+
+                            //Update User Parent
+                            UserParent::where("user_id", $currentSupervisor->id)->update(["is_active" => 0]);
+                            UserParent::create([
+                                'user_id' => $currentSupervisor->id,
+                                'parent_id' =>  $supervisors_2_Parent,
+                                'is_active' => 1,
+                            ]);
+
                             $currentSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $currentSupervisor->id)->pluck('group_id');
 
 
@@ -432,6 +458,15 @@ class RolesAdministrationController extends Controller
 
                             $newSupervisor->parent_id =  $supervisors_1_Parent;
                             $newSupervisor->save();
+
+                            //Update User Parent
+                            UserParent::where("user_id", $newSupervisor->id)->update(["is_active" => 0]);
+                            UserParent::create([
+                                'user_id' => $currentSupervisor->id,
+                                'parent_id' =>  $supervisors_1_Parent,
+                                'is_active' => 1,
+                            ]);
+
                             $newSupervisorGroups = UserGroup::where('user_type', 'supervisor')->where('user_id', $newSupervisor->id)->pluck('group_id');
                             UserGroup::where('user_type', 'advisor')->whereIn('group_id', $newSupervisorGroups)->update(['user_id'  => $supervisors_1_Parent]);
                             UserGroup::where('user_type', 'ambassador')->where('user_id', $newSupervisor->id)->update(['group_id'  => $supervisors_1_Parent_advising_group->id]);
@@ -460,6 +495,13 @@ class RolesAdministrationController extends Controller
                                 // for each leader in group 1
                                 //update supervisor
                                 $leader->update(['parent_id'  => $newSupervisor->id]);
+                                //Update User Parent
+                                UserParent::where("user_id", $leader->id)->update(["is_active" => 0]);
+                                UserParent::create([
+                                    'user_id' => $leader->id,
+                                    'parent_id' =>  $newSupervisor->id,
+                                    'is_active' => 1,
+                                ]);
                                 $follow_up_group_id = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
                                 UserGroup::where('user_type', 'supervisor')->where('group_id', $follow_up_group_id)->update(['user_id'  => $newSupervisor->id]);
                             }
@@ -472,6 +514,14 @@ class RolesAdministrationController extends Controller
                                 // for each leader in group 1
                                 //update supervisor
                                 $leader->update(['parent_id'  => $currentSupervisor->id]);
+                                //Update User Parent
+                                UserParent::where("user_id", $leader->id)->update(["is_active" => 0]);
+                                UserParent::create([
+                                    'user_id' => $leader->id,
+                                    'parent_id' =>  $currentSupervisor->id,
+                                    'is_active' => 1,
+                                ]);
+
                                 //update supervisor in following up leader group
                                 $follow_up_group_id = UserGroup::where('user_type', 'leader')->where('user_id', $leader->id)->pluck('group_id')->first();
                                 UserGroup::where('user_type', 'supervisor')->where('group_id', $follow_up_group_id)->update(['user_id'  => $currentSupervisor->id]);
@@ -587,19 +637,49 @@ class RolesAdministrationController extends Controller
                                         );
 
                                         //* نقل قادة المراقب الحالي إلى المراقب الجديد
-                                        User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {
+                                        $supervisorLeaders = User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {
                                             $q->where('name', '=', 'leader');
-                                        })->update(["parent_id" => $newSupervisor->id]);
+                                        })->get();
+                                        foreach ($supervisorLeaders as $leader) {
+                                            $leader->parent_id = $newSupervisor->id;
+                                            $leader->save();
+                                            //Update User Parent
+                                            UserParent::where("user_id", $leader->id)->update(["is_active" => 0]);
+                                            UserParent::create([
+                                                'user_id' => $leader->id,
+                                                'parent_id' =>  $newSupervisor->id,
+                                                'is_active' => 1,
+                                            ]);
+                                        }
 
                                         //* نقل سفراء المراقب الحالي إلى القائد الجديد
-                                        User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {
+                                        $supervisorAmbassadors = User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {
                                             $q->whereNotIn('name', ['leader', 'supervisor', 'admin', 'advisor', 'consultant']);
-                                        })->update(["parent_id" => $newLeader->id]);
-
+                                        })->get();
+                                        foreach ($supervisorAmbassadors as $ambassador) {
+                                            $ambassador->parent_id = $newLeader->id;
+                                            $ambassador->save();
+                                            //Update User Parent
+                                            UserParent::where("user_id", $ambassador->id)->update(["is_active" => 0]);
+                                            UserParent::create([
+                                                'user_id' => $ambassador->id,
+                                                'parent_id' =>  $newLeader->id,
+                                                'is_active' => 1,
+                                            ]);
+                                        }
 
                                         //* المسؤول عن المراقب الحالي يصبح القائد الجديد
                                         $currentSupervisor->parent_id = $newLeader->id;
                                         $currentSupervisor->save();
+
+                                        //Update User Parent
+                                        UserParent::where("user_id", $currentSupervisor->id)->update(["is_active" => 0]);
+                                        UserParent::create([
+                                            'user_id' => $currentSupervisor->id,
+                                            'parent_id' =>  $newLeader->id,
+                                            'is_active' => 1,
+                                        ]);
+
 
                                         //* سحب رتبة الرقابة والقيادة من المراقب الحالي
                                         $currentSupervisor->removeRole("supervisor");
@@ -627,14 +707,6 @@ class RolesAdministrationController extends Controller
                                             ->where('user_groups.user_type', 'supervisor')
                                             ->whereNull('user_groups.termination_reason')
                                             ->first();
-
-                                        // $currentSupervisor_supervisingGroup = Group::whereHas('type', function ($q) {
-                                        //     $q->where('type', '=', 'supervising');
-                                        // })
-                                        //     ->where('user_groups.user_id', $currentSupervisor->id)
-                                        //     ->where('user_groups.user_type', 'supervisor')
-                                        //     ->whereNull('user_groups.termination_reason')
-                                        //     ->first();
 
                                         UserGroup::where('user_type', 'ambassador')->where('user_id',  $newLeader->id)->update(['termination_reason'  => 'supervisor_change']);
                                         UserGroup::create(
@@ -743,12 +815,34 @@ class RolesAdministrationController extends Controller
 
 
                                 //* نقل قادة المراقب الحالي إلى المراقب الجديد
-                                User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {
+                                $supervisorLeaders = User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {
                                     $q->where('name', '=', 'leader');
-                                })->update(["parent_id" => $newSupervisor->id]);
+                                })->get();
+
+                                foreach ($supervisorLeaders as $leader) {
+                                    $leader->parent_id = $newSupervisor->id;
+                                    $leader->save();
+
+                                    //Update User Parent
+                                    UserParent::where("user_id", $leader->id)->update(["is_active" => 0]);
+                                    UserParent::create([
+                                        'user_id' => $leader->id,
+                                        'parent_id' =>  $newSupervisor->id,
+                                        'is_active' => 1,
+                                    ]);
+                                }
+
                                 //* المسؤول عن المراقب الحالي يصبح المراقب الجديد
                                 $currentSupervisor->parent_id = $newSupervisor->id;
                                 $currentSupervisor->save();
+
+                                //Update User Parent
+                                UserParent::where("user_id", $currentSupervisor->id)->update(["is_active" => 0]);
+                                UserParent::create([
+                                    'user_id' => $currentSupervisor->id,
+                                    'parent_id' =>  $newSupervisor->id,
+                                    'is_active' => 1,
+                                ]);
 
                                 //* سحب رتبة الرقابة من المراقب الحالي
                                 $currentSupervisor->removeRole("supervisor");
@@ -850,8 +944,19 @@ class RolesAdministrationController extends Controller
                                     ->where('user_type', 'ambassador')
                                     ->pluck('user_id');
 
-                                //update parent id for ambassador
-                                User::whereIn('id', $ambassadorsID)->update(['parent_id'  => $newLeader->id]);
+                                //update parent id for ambassadors
+                                $ambassadors = User::whereIn('id', $ambassadorsID)->get();
+                                foreach ($ambassadors as $ambassador) {
+                                    $ambassadors->parent_id = $newLeader->id;
+                                    $ambassadors->save();
+                                    //Update User Parent
+                                    UserParent::where("user_id", $ambassador->id)->update(["is_active" => 0]);
+                                    UserParent::create([
+                                        'user_id' => $ambassador->id,
+                                        'parent_id' =>  $newLeader->id,
+                                        'is_active' => 1,
+                                    ]);
+                                }
 
                                 //  إضافة القائد الجديد لغروب الرقابة كسفير
                                 $supervisingGroupId = UserGroup::where('user_id', $currentLeader->id)
@@ -868,7 +973,16 @@ class RolesAdministrationController extends Controller
                                 );
 
                                 // المسؤول عن القائد الجديد هو المراقب
-                                User::where('id', $newLeader->id)->update(['parent_id'  => User::where('id', $currentLeader->id)->pluck('parent_id')->first()]);
+                                $supervisorID = User::where('id', $currentLeader->id)->pluck('parent_id')->first();
+                                User::where('id', $newLeader->id)->update(['parent_id'  => $supervisorID]);
+
+                                //Update User Parent
+                                UserParent::where("user_id", $newLeader->id)->update(["is_active" => 0]);
+                                UserParent::create([
+                                    'user_id' => $newLeader->id,
+                                    'parent_id' =>  $supervisorID->id,
+                                    'is_active' => 1,
+                                ]);
 
                                 // اضافة القائد الجديد إلى مجموعة المتابعة كقائد
                                 UserGroup::where('user_type', 'leader')->where('group_id', $leaderGroupId)->update(['user_id'  => $newLeader->id]);
@@ -878,6 +992,14 @@ class RolesAdministrationController extends Controller
 
                                 //المسؤول عن القائد الحالي هو القائد الجديد
                                 User::where('id', $currentLeader->id)->update(['parent_id'  => $newLeader->id]);
+                                //Update User Parent
+                                UserParent::where("user_id", $currentLeader->id)->update(["is_active" => 0]);
+                                UserParent::create([
+                                    'user_id' => $currentLeader->id,
+                                    'parent_id' =>  $newLeader->id,
+                                    'is_active' => 1,
+                                ]);
+
                                 // اضافة القائد الحالي إلى مجموعة المتابعة الخاصة به كـ سفير
                                 UserGroup::where('user_type', 'ambassador')->where('user_id', $currentLeader->id)->update(['group_id'  => $leaderGroupId]);
 
@@ -938,6 +1060,13 @@ class RolesAdministrationController extends Controller
                     }
                     //update parent id for ambassador
                     $ambassador->update(['parent_id'  => $newLeader->id]);
+                    //Update User Parent
+                    UserParent::where("user_id", $ambassador->id)->update(["is_active" => 0]);
+                    UserParent::create([
+                        'user_id' => $ambassador->id,
+                        'parent_id' =>  $newLeader->id,
+                        'is_active' => 1,
+                    ]);
                     //get the followup group of new leader
                     $newLeaderGroupId = UserGroup::where('user_type', 'leader')->where('user_id', $newLeader->id)->pluck('group_id')->first();
                     //transfer ambassador to new followup group
@@ -1033,6 +1162,13 @@ class RolesAdministrationController extends Controller
 
                                     //جعل المراقب الجديد مسؤل عن القائد
                                     $leader->update(['parent_id'  => $newSupervisor->id]);
+                                    //Update User Parent
+                                    UserParent::where("user_id", $leader->id)->update(["is_active" => 0]);
+                                    UserParent::create([
+                                        'user_id' => $leader->id,
+                                        'parent_id' =>  $newSupervisor->id,
+                                        'is_active' => 1,
+                                    ]);
 
                                     // تغيير الموجه المسؤول عن القائد إذا كان المراقب الجديد في فريق توجيه آخر
                                     if ($newSupervisor->parent_id != $currentAdvisorId) {

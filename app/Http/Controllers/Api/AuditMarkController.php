@@ -38,10 +38,15 @@ class AuditMarkController extends Controller
 
 
     /**
-     * Generate audit marks for supervisor and advisor for each followup group in the current week,
-     * (if this week is not vacation) automatically on Sunday at 6:00 A.M Saudi Arabia time.
+     * Generate audit marks for supervisors and advisors.
+     * automatically on Sunday at 10:00 P.M Saudi Arabia time.
+
+     * This function generates audit marks for supervisors and advisors based on the previous week's data if it is not a vacation.
+     * Audit marks are created for follow-up groups only. For supervisors, marks are generated based on
+     * full and variant audits, while for advisors, marks are generated based on supervisor audits and
+     * non-supervisor audits.
      *
-     * @return jsonResponseWithoutMessage;
+     * @return string|null Returns an error message if an exception occurs, otherwise null.
      */
 
     public function generateAuditMarks()
@@ -54,6 +59,7 @@ class AuditMarkController extends Controller
                 $previous_week->audit_timer = Carbon::now()->addDays(2);
                 $previous_week->save();
 
+                //Audit is ONLY for followup groups
                 $groupsID = Group::whereHas('type', function ($q) {
                     $q->where('type', '=', 'followup');
                 })->pluck('id');
@@ -71,6 +77,7 @@ class AuditMarkController extends Controller
                     $weekAuditMarks = AuditMark::where('week_id', $previous_week->id)->where('group_id', $groupID)->exists();
 
                     if (!$weekAuditMarks) {
+                        // the followup group with its ambassadors
                         $group = Group::where('id', $groupID)->with('userAmbassador')->with('groupSupervisor')->first();
 
                         if (!$group->groupSupervisor->pluck('id')->first()) {
@@ -168,7 +175,7 @@ class AuditMarkController extends Controller
                         ->whereHas('group.type', function ($q) {
                             $q->where('type', '=', 'followup');
                         })->pluck('group_id');
-                    // get supervisors of $advisor
+                    // get supervisors of $advisor [Based on where the advisor is advisor]
                     $supervisors = UserGroup::where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->distinct()->get(['user_id']);
 
                     // get Audit [in the current week] for each $supervisor
@@ -190,8 +197,8 @@ class AuditMarkController extends Controller
                    * 1- get all supervisor groups
                    * 2- get ambassadors
                    */
-                        $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->pluck('group_id');
-                        $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->distinct()->pluck('user_id');
+                        $supervisorsGroups = UserGroup::where('user_id', $supervisor->user_id)->where('user_type', 'supervisor')->whereNull('termination_reason')->pluck('group_id');
+                        $ambassadors = UserGroup::where('user_type', 'ambassador')->whereIn('group_id', $supervisorsGroups)->whereNull('termination_reason')->distinct()->pluck('user_id');
                         // get 1% of ther marks that NOT in supervisorAudit [updated 01-23-2024]
                         $ratioToAudit = round(count($ambassadors) * 0.01) + 1;
                         $marksOfNotSupervisorAudit = Mark::whereIn('user_id', $ambassadors)->whereNotIn('id', $supervisorAudit)
@@ -318,15 +325,17 @@ class AuditMarkController extends Controller
     public function groupsAudit($supervisor_id)
     {
         if (Auth::user()->hasanyrole('admin|supervisor|advisor')) {
-            // get all groups for auth supervisor
+            // get all groups for a supervisor
             $groupsID = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')->pluck('group_id');
             $response['groups'] = Group::withCount('leaderAndAmbassadors')->whereHas('type', function ($q) {
                 $q->where('type', '=', 'followup');
             })->whereIn('id', $groupsID)->without('Timeline')->get();
             $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
 
+
             foreach ($response['groups']  as $key => $group) {
-                $week_avg = $this->groupAvg($group->id,  $previous_week, $group->leaderAndAmbassadors->pluck('id'));
+                $users_in_group = $this->usersByWeek($group->id, $previous_week, ['leader', 'ambassador']);
+                $week_avg = $this->groupAvg($group->id,  $previous_week, $users_in_group->pluck('user_id'));
                 //add marks_week_avg to group object
                 $group->setAttribute('marks_week_avg', $week_avg);
             }
@@ -361,14 +370,14 @@ class AuditMarkController extends Controller
                 // supervisor name
                 $supervisorinfo['supervisor'] = $supervisor->group->groupSupervisor->first();
                 //all group for $supervisor
-                $groups = UserGroup::with('group')->where('user_type', 'supervisor')->where('user_id', $supervisor->user_id)->get(['group_id']);
+                $groups = UserGroup::with('group')->where('user_type', 'supervisor')->where('user_id', $supervisor->user_id)->whereNull('termination_reason')->get(['group_id']);
                 // num of leaders
                 $supervisorinfo['num_of_leaders'] = $groups->count();
                 // marks week_avg for each group
                 $total_avg = 0;
                 foreach ($groups as $group) {
-                    $week_avg = $this->groupAvg(1,  $previous_week, $group->group->leaderAndAmbassadors->pluck('id'));
-
+                    $users_in_group = $this->usersByWeek($group->group_id, $previous_week, ['leader', 'ambassador']);
+                    $week_avg = $this->groupAvg($group->group_id,  $previous_week, $users_in_group->pluck('user_id'));
                     $total_avg += $week_avg;
                 }
                 // marks week avg for all $supervisor groups
@@ -446,9 +455,9 @@ class AuditMarkController extends Controller
             ]);
             $mark = Mark::find($request->mark_for_audit_id);
 
-            $userGroup = UserGroup::where('user_id', $mark->user->id)->where('user_type', 'ambassador')->first();
+            $userGroup = UserGroup::where('user_id', $mark->user->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             $supportLeaderInGroup = UserGroup::where('group_id', $userGroup->group_id)
-                ->where('user_type', 'support_leader')
+                ->where('user_type', 'support_leader')->whereNull('termination_reason')
                 ->first();
 
             $parentId = $supportLeaderInGroup ? $supportLeaderInGroup->user_id : $mark->user->parent_id;
@@ -509,7 +518,7 @@ class AuditMarkController extends Controller
                 $ambassadors = $group->userAmbassador->mapWithKeys(function ($leader) use ($week_id) {
                     // Fetch information about each leader and their associated group
                     $ambassador = UserGroup::where('user_id', $leader->id)
-                        ->where('user_type', 'leader')
+                        ->where('user_type', 'leader')->whereNull('termination_reason')
                         ->with(['group' => function ($query) use ($week_id) {
                             $query->select('id')->with(['userAmbassador.theses' => function ($query) use ($week_id) {
                                 // Filter the theses to include only pending ones

@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Book;
 use App\Models\ExceptionType;
 use App\Models\TimelineType;
+use App\Models\UserParent;
 use App\Traits\GroupTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -1008,6 +1009,12 @@ class GroupController extends Controller
                         );
                         foreach ($group->userAmbassador as $leader) {
                             User::where("id", $leader->id)->update(["parent_id" => $newSupervisor->id]);
+                            UserParent::where("user_id", $leader->id)->update(["is_active" => 0]);
+                            UserParent::create([
+                                'user_id' => $leader->id,
+                                'parent_id' =>  $newSupervisor->id,
+                                'is_active' => 1,
+                            ]);
 
                             $followupGroup = UserGroup::where('user_id',  $leader->id)->where('user_type', 'leader')->whereNull('termination_reason')
                                 ->whereHas('group.type', function ($q) {
