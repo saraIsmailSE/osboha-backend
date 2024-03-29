@@ -137,6 +137,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/allow-to-eligible/{id}', [UserController::class, 'acceptEligibleUser']);
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
+            Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
         });
 
         ########Start Roles########

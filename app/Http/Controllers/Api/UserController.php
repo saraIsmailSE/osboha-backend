@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserInfoResource;
+use App\Models\Group;
 use App\Models\GroupType;
 use App\Models\User;
 use App\Models\UserGroup;
@@ -13,9 +14,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+use App\Traits\UserParentTrait;
+
 class UserController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, UserParentTrait;
 
 
     public function searchUsers(Request $request)
@@ -48,13 +51,12 @@ class UserController extends Controller
     {
         $response['users']  = User::with(['parent', 'groups' => function ($query) {
             $query->wherePivot('user_type', 'ambassador')
-            ->whereNull('termination_reason')->get();
-
+                ->whereNull('termination_reason')->get();
         }])
-        ->where('name', 'LIKE', "%{$name}%")
-        ->withCount('children')->get();
-        if ($response['users']) { 
-            return $this->jsonResponseWithoutMessage($response, "data", 200);           
+            ->where('name', 'LIKE', "%{$name}%")
+            ->withCount('children')->get();
+        if ($response['users']) {
+            return $this->jsonResponseWithoutMessage($response, "data", 200);
         } else {
             return $this->jsonResponseWithoutMessage(null, "data", 200);
         }
@@ -190,5 +192,35 @@ class UserController extends Controller
                 unlink($file);
             }
         }
+    }
+
+
+    function retrieveNestedUsers($parentId)
+    {
+        $response['root_user'] = User::find($parentId);
+        $response['nested_users'] = $this->nestedUsers($parentId);
+
+        $roles = ['admin', 'consultant', 'advisor', 'supervisor', 'leader'];
+        $response['followup_groups'] = UserGroup::where('user_id',  $parentId)->whereIn('user_type', $roles)->whereNull('termination_reason')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'followup');
+            })->count();
+        $response['supervising_groups'] = UserGroup::where('user_id',  $parentId)->whereIN('user_type', $roles)->whereNull('termination_reason')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'supervising');
+            })->count();
+
+
+        //FOR ADMIN
+        $response['total_followup_groups'] = Group::where('is_active',1)
+            ->whereHas('type', function ($q) {
+                $q->where('type', '=', 'followup');
+            })->count();
+        $response['total_supervising_groups'] = Group::where('is_active',1)
+            ->whereHas('type', function ($q) {
+                $q->where('type', '=', 'supervising');
+            })->count();
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 }

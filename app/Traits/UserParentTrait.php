@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\UserParent;
 use App\Models\Week;
+use Illuminate\Support\Facades\DB;
 
 trait UserParentTrait
 {
@@ -30,5 +31,31 @@ trait UserParentTrait
                     });
             })
             ->get();
+    }
+
+    function nestedUsers($parentId)
+    {
+        $depthLimit = 3; // The number of tree levels
+
+        $query = "
+            WITH RECURSIVE cte AS (
+                SELECT id, name, parent_id, 0 AS depth
+                FROM users
+                WHERE parent_id = :parentId
+
+                UNION ALL
+
+                SELECT u.id, u.name, u.parent_id, cte.depth + 1
+                FROM cte
+                JOIN users u ON u.parent_id = cte.id
+                WHERE cte.depth < :depthLimit
+            )
+            SELECT * FROM cte
+            ORDER BY depth, parent_id, id;
+        ";
+        return DB::select(DB::raw($query), [
+            'parentId' => $parentId,
+            'depthLimit' => $depthLimit - 1
+        ]);
     }
 }
