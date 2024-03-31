@@ -82,21 +82,21 @@ class RamadanGolenDayController extends Controller
         // 2. Number of distinct users who got points = 30 for 5 days
         $statistics['users_completed_5_golden_days'] = RamadanGolenDay::select('user_id')
             ->groupBy('user_id')
-            ->havingRaw("SUM(sunan_al_rawatib + tasbeeh + istighfar + duha_prayer + morning_evening_dhikr + shaf_and_witr + suhoor + drink_water + sleep_amount + brushing_teeth + contemplation_of_allahs_signs) = ?", [30 * 5])
+            ->havingRaw("SUM(sunan_al_rawatib + tasbeeh + istighfar + duha_prayer + morning_evening_dhikr + shaf_and_witr + suhoor + drink_water + sleep_amount + brushing_teeth + contemplation_of_allahs_signs) >= ?", [30 * 5])
             ->distinct('user_id')
             ->count();
 
         // 3. Number of distinct users who got points = 30 for 10 days
         $statistics['users_completed_10_golden_days'] = RamadanGolenDay::select('user_id')
             ->groupBy('user_id')
-            ->havingRaw("SUM(sunan_al_rawatib + tasbeeh + istighfar + duha_prayer + morning_evening_dhikr + shaf_and_witr + suhoor + drink_water + sleep_amount + brushing_teeth + contemplation_of_allahs_signs) = ?", [30 * 10])
+            ->havingRaw("SUM(sunan_al_rawatib + tasbeeh + istighfar + duha_prayer + morning_evening_dhikr + shaf_and_witr + suhoor + drink_water + sleep_amount + brushing_teeth + contemplation_of_allahs_signs) >= ?", [30 * 10])
             ->distinct('user_id')
             ->count();
 
         // 4. Number of distinct users who got points = 30 for 20 days
         $statistics['users_completed_20_golden_days'] = RamadanGolenDay::select('user_id')
             ->groupBy('user_id')
-            ->havingRaw("SUM(sunan_al_rawatib + tasbeeh + istighfar + duha_prayer + morning_evening_dhikr + shaf_and_witr + suhoor + drink_water + sleep_amount + brushing_teeth + contemplation_of_allahs_signs) = ?", [30 * 20])
+            ->havingRaw("SUM(sunan_al_rawatib + tasbeeh + istighfar + duha_prayer + morning_evening_dhikr + shaf_and_witr + suhoor + drink_water + sleep_amount + brushing_teeth + contemplation_of_allahs_signs) >= ?", [30 * 20])
             ->distinct('user_id')
             ->count();
 

@@ -185,21 +185,21 @@ class RamadanHadithMemorizationController extends Controller
             ->distinct()
             ->groupBy('user_id')
             ->where('status', 'accepted')
-            ->havingRaw('count(user_id) = 5')
+            ->havingRaw('count(user_id) >= 5')
             ->count('user_id');
 
         $usersCount15 = RamadanHadithMemorization::select('user_id')
             ->distinct()
             ->groupBy('user_id')
             ->where('status', 'accepted')
-            ->havingRaw('count(user_id) = 15')
+            ->havingRaw('count(user_id) >= 15')
             ->count('user_id');
 
         $usersCount25 = RamadanHadithMemorization::select('user_id')
             ->distinct()
             ->groupBy('user_id')
             ->where('status', 'accepted')
-            ->havingRaw('count(user_id) = 25')
+            ->havingRaw('count(user_id) >= 25')
             ->count('user_id');
 
         $memorizedHadithsCount = RamadanHadithMemorization::where('user_id', $user->id)
