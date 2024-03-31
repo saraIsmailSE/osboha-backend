@@ -980,7 +980,7 @@ class RolesAdministrationController extends Controller
                                 UserParent::where("user_id", $newLeader->id)->update(["is_active" => 0]);
                                 UserParent::create([
                                     'user_id' => $newLeader->id,
-                                    'parent_id' =>  $supervisorID->id,
+                                    'parent_id' =>  $supervisorID,
                                     'is_active' => 1,
                                 ]);
 
