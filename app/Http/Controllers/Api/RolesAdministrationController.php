@@ -947,8 +947,8 @@ class RolesAdministrationController extends Controller
                                 //update parent id for ambassadors
                                 $ambassadors = User::whereIn('id', $ambassadorsID)->get();
                                 foreach ($ambassadors as $ambassador) {
-                                    $ambassadors->parent_id = $newLeader->id;
-                                    $ambassadors->save();
+                                    $ambassador->parent_id = $newLeader->id;
+                                    $ambassador->save();
                                     //Update User Parent
                                     UserParent::where("user_id", $ambassador->id)->update(["is_active" => 0]);
                                     UserParent::create([
