@@ -22,7 +22,7 @@ return [
         array('title' => 'الخامس من مارس', 'date' => Carbon::parse($date)->addWeeks(12)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من ابريل', 'date' => Carbon::parse($date)->addWeeks(13)->format('Y-m-d'), 'is_vacation' => 1),
         array('title' => 'الثاني من ابريل', 'date' => Carbon::parse($date)->addWeeks(14)->format('Y-m-d'), 'is_vacation' => 1),
-        array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d'), 'is_vacation' => 0),
+        array('title' => 'الثالث من ابريل', 'date' => Carbon::parse($date)->addWeeks(15)->format('Y-m-d'), 'is_vacation' => 1),
         array('title' => 'الرابع من ابريل', 'date' => Carbon::parse($date)->addWeeks(16)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من مايو', 'date' => Carbon::parse($date)->addWeeks(17)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثاني من مايو', 'date' => Carbon::parse($date)->addWeeks(18)->format('Y-m-d'), 'is_vacation' => 0),
