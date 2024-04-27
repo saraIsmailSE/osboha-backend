@@ -8,6 +8,7 @@ use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Mark;
 use App\Models\ModificationReason;
+use App\Models\RamadanDay;
 use App\Models\Thesis;
 use App\Models\ThesisType;
 use App\Models\User;
@@ -100,8 +101,7 @@ trait ThesisTraits
             $week = Week::latest('id')->first();
 
             if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
-                // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
-                throw new \Exception('Cannot add thesis');
+                throw new \Exception('Cannot add thesis [Current week is not available]');
             }
 
             $mark_record = Mark::firstOrCreate(
@@ -560,6 +560,13 @@ trait ThesisTraits
      */
     public function calculate_mark_for_ramadan_thesis($total_pages, $max_length, $total_screenshots, $thesis_type)
     {
+        //check if ramadan is active, if not => calculate as normal thesis
+        $isRamadanActive = RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
+
+        if (!$isRamadanActive) {
+            return $this->calculate_mark_for_normal_thesis($total_pages, $max_length, $total_screenshots);
+        }
+
         if (
             $thesis_type  === 'ramadan' &&
             ($total_pages < 10
