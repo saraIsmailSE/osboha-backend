@@ -41,6 +41,7 @@ class EmailVerificationController extends Controller
         }
 
         if ($user->markEmailAsVerified()) {
+            //HERE
             event(new Verified($request->user()));
         }
 

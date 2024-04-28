@@ -29,7 +29,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_hold',
         'is_excluded',
         'parent_id',
-        'allowed_to_eligible'
+        'allowed_to_eligible',
+        'leader_gender',
+        'last_name',
     ];
 
     /**
@@ -226,12 +228,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function children()
     {
-        return $this->hasMany(User::class, 'parent_id')->where('is_excluded',0);
+        return $this->hasMany(User::class, 'parent_id')->where('is_excluded', 0);
     }
 
     public function parents()
     {
         return $this->belongsToMany(Parent::class, 'user_parent', 'user_id', 'parent_id');
     }
-
 }
