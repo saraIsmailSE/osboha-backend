@@ -8,6 +8,7 @@ use App\Models\Group;
 use App\Models\GroupType;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Models\UserParent;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -94,6 +95,12 @@ class UserController extends Controller
                         // Link with head user
                         $user->parent_id = $head_user->id;
                         $user->save();
+                        UserParent::where("user_id", $user->id)->update(["is_active" => 0]);
+                        UserParent::create([
+                            'user_id' => $user->id,
+                            'parent_id' =>  $head_user->id,
+                            'is_active' => 1,
+                        ]);
 
                         $msg = "قام " . Auth::user()->name . " بـ تعيين : " . $head_user->name . " مسؤولًا عنك";
                         (new NotificationController)->sendNotification($user->id, $msg, ROLES);
@@ -212,11 +219,11 @@ class UserController extends Controller
 
 
         //FOR ADMIN
-        $response['total_followup_groups'] = Group::where('is_active',1)
+        $response['total_followup_groups'] = Group::where('is_active', 1)
             ->whereHas('type', function ($q) {
                 $q->where('type', '=', 'followup');
             })->count();
-        $response['total_supervising_groups'] = Group::where('is_active',1)
+        $response['total_supervising_groups'] = Group::where('is_active', 1)
             ->whereHas('type', function ($q) {
                 $q->where('type', '=', 'supervising');
             })->count();
