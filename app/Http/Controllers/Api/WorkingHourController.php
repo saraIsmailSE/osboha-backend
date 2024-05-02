@@ -86,7 +86,42 @@ class WorkingHourController extends Controller
         }
     }
 
-    public function getWorkingHours()
+    public function getWorkingHours(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!Auth::user()->hasAnyRole(['admin', 'consultant', 'advisor', 'supervisor'])) {
+            throw new NotAuthorized;
+        }
+
+        //TODO: turn the value to false
+        $previousWeek = true;
+
+        if (Carbon::now()->dayOfWeek <= Carbon::WEDNESDAY)
+            $previousWeek = true;
+
+        //get weeks to be displayed in frontend
+        $response['weeks'] = Week::orderBy('created_at', 'desc')->take($previousWeek ? 2 : 1)->get();
+
+        $week_id = $request->week ? $request->week : Week::latest()->first()->id;
+
+        //get all working hours grouped by created_at date
+        $workingHours = WorkHour::where("user_id", $user->id)
+            ->where("week_id", $week_id)
+            ->orderBy('created_at', 'asc')
+            ->get(["id", "minutes", "created_at"]);
+
+        $response['workingHours'] = $workingHours;
+        $response['totalMinutes'] = $workingHours->sum('minutes');
+        // //get days from previous week till current week
+        return $this->jsonResponseWithoutMessage(
+            $response,
+            'data',
+            Response::HTTP_OK
+        );
+    }
+
+    public function getWorkingHours_old()
     {
         $user = Auth::user();
 
@@ -126,7 +161,7 @@ class WorkingHourController extends Controller
 
         return $this->jsonResponseWithoutMessage(
             [
-                "workingHours" => $workingHours,
+                "workingHours" =>  $groupedWorkingHours,
                 "days" => $days,
                 "workingHoursList" => $workingHoursList
             ],
