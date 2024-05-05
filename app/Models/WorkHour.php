@@ -30,6 +30,6 @@ class WorkHour extends Model
 
     public function getDateAttribute()
     {
-        return $this->created_at->format('Y-m-d');
+        return $this->created_at->format('m/d/Y');
     }
 }
