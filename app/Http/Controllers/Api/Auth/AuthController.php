@@ -123,8 +123,8 @@ class AuthController extends Controller
     {
         $ambassador = Validator::make($request->all(), [
             'name'             => 'required',
+            'last_name'           => 'required',
             'gender'           => 'required',
-            'leader_gender'           => 'required',
             'email'            => 'required|email|unique:users,email',
             'password'         => 'required',
         ]);

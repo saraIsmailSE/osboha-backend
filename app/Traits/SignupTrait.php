@@ -2,23 +2,11 @@
 
 namespace App\Traits;
 
-use App\Models\User;
-use App\Models\UserGroup;
+use App\Models\AmbassadorsRequests;
+use Illuminate\Support\Facades\Log;
 
 trait SignupTrait
 {
-
-    //check if new user is already an ambassador
-    public function checkAmbassador($email)
-    {
-        $user_group = null;
-        $user = User::where('email', $email)->first();
-        if ($user) {
-            //return last user group result as ambassador
-            $user_group = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->latest()->first();
-        }
-        return $user_group;
-    }
 
     // select team
     public function selectTeam($ambassador, $leaderGender)
@@ -29,29 +17,108 @@ trait SignupTrait
         $ambassadorGender = $ambassador->gender;
 
         if ($ambassadorGender == 'any') {
-            $ambassador_condition = "leader_request.gender = '" . $ambassadorGender . "'";
+            $ambassador_condition = "ambassadors_gender = '" . $ambassadorGender . "'";
         } else {
-            $ambassador_condition = "(leader_request.gender = '" . $ambassadorGender . "' OR leader_request.gender = 'any')";
+            $ambassador_condition = "(ambassadors_gender = '" . $ambassadorGender . "' OR ambassadors_gender = 'any')";
         }
 
         if ($leaderGender == "any") {
-            $leader_condition = " (leader_info.leader_gender = 'female' OR leader_info.leader_gender = 'male')";
+            $leader_condition = " (leader_gender IN ('female', 'male'))";
         } else {
-            $leader_condition = "leader_info.leader_gender = '" . $leaderGender . "'";
+            $leader_condition = "leader_gender = '" . $leaderGender . "'";
         }
 
+        //Select High Priority
 
-        // Check for SpecialCare
-        // Check for High Priority Requests
-        //Check New Teams
-        //Check Teams With Less Than 12 Members
-        //Check Teams With More Than 12 Members
+        $result = AmbassadorsRequests::with('group')
+            ->whereRaw($leader_condition)
+            ->whereRaw($ambassador_condition)
+            ->where('is_done', 0)
+            ->where('high_priority', 1)
+            ->orderBy('created_at', 'asc')
+            ->first();
 
+        if ($result) {
+            return $result;
+        }
+
+        //Select Special Care
+        $result = AmbassadorsRequests::with(['group' => function ($query) {
+            $query->whereHas('type', function ($q) {
+                $q->where('type', '=', 'special_care');
+            });
+        }])
+            ->whereRaw($leader_condition)
+            ->whereRaw($ambassador_condition)
+            ->where('is_done', '=', 0)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($result) {
+            return $result;
+        }
+
+        //Select new teams
+        $result = AmbassadorsRequests::with(['group' => function ($query) {
+            $query->whereHas('userAmbassador')
+                ->withCount(['userAmbassador as ambassador_count'])
+                ->having('ambassador_count', '=', 0);
+        }])->whereRaw($leader_condition)
+            ->whereRaw($ambassador_condition)
+            ->where('is_done', 0)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($result) {
+            return $result;
+        }
+
+        //Select teams with members count between 1 and 12
+        $result = AmbassadorsRequests::with(['group' => function ($query) {
+            $query->whereHas('userAmbassador')
+                ->withCount(['userAmbassador as ambassador_count'])
+                ->having('ambassador_count', '>=', 1)
+                ->having('ambassador_count', '<=', 12);
+        }])
+            ->whereRaw($leader_condition)
+            ->whereRaw($ambassador_condition)
+            ->where('is_done', 0)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($result) {
+            return $result;
+        }
+
+        //Select teams with members count > 12
+        $result = AmbassadorsRequests::with(['group' => function ($query) {
+            $query->whereHas('userAmbassador')
+                ->withCount(['userAmbassador as ambassador_count'])
+                ->having('ambassador_count', '>', 12);
+        }])->whereRaw($leader_condition)
+            ->whereRaw($ambassador_condition)
+            ->where('is_done', 0)
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($result) {
+            return $result;
+        }
+
+        return null;
     }
-    public function informLeader()
+
+    public function checkIsDone($request_id)
     {
+        $ambassadorsRequest = AmbassadorsRequests::withCount('ambassadors')->find($request_id);
+        if ($ambassadorsRequest) {
 
-        $firstMsg = "السلام عليكم ورحمة الله وبركاته " . '\n' . " أرجو أن تكون بخير 🌸 " . '\n' . " . " . '\n' . "  لقد قام موقع الإرشاد الإلكتروني بتوزيع بعض المشتركين الجدد لفريقك حسب طلبك." . '\n' . " . " . '\n' . " . " . '\n' . " ⚠️ تذكر، بعض المشتركين الجدد قد يغير رأيه و يمتنع عن الانضمام لفريق المتابعة أو لمشروعنا لأسباب شخصية مختلفة.  لا تقلق أبدًا لأن هدفنا هو الاستمرار بالمحاولة وتغيير نظرة المجتمع والتزامه اتجاه التعلم بالقراءة المنهجية، في حال لم يقم المشترك الجديد بالانضمام لمجموعة المتابعة الخاص بك، فإن بإمكانك طلب عدد جديد وسوف نقوم بتوفيره لك سريعًا ♥️." . '\n' . " . " . '\n' . " " . '\n' . " ✅ حفظًا على جهودكم وجهود فريقكم، في حال ⛔ لم يظهر المشترك الجديد أي ردة فعل أو رغبة في القراءة بإمكانك ضغط على زر (انسحاب⛔) في موقع العلامات بعد نهاية الأسبوع الأول له." . '\n' . " " . '\n' . " قواكم الله وبارك همتكم قائدنا.";
-    } //informLeader
-
+            if ($ambassadorsRequest->ambassadors_count >= $ambassadorsRequest->members_num) {
+                $ambassadorsRequest->is_done = 1;
+                $ambassadorsRequest->save();
+                return true;
+            }
+            return false;
+        }
+    }
 }

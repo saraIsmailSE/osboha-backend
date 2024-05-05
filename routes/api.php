@@ -1,8 +1,6 @@
 <?php
 
-use App\Events\NotificationsEvent;
 use Illuminate\Support\Facades\Route;
-use App\Models\User;
 
 use App\Http\Controllers\Api\{
     ActivityController,
@@ -15,8 +13,7 @@ use App\Http\Controllers\Api\{
     PollVoteController,
     RateController,
     ReactionController,
-    LeaderRequestController,
-    HighPriorityRequestController,
+    AmbassadorsRequestsController,
     SystemIssueController,
     CommentController,
     MarkController,
@@ -100,6 +97,7 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
+    Route::post('/new_register', [AuthController::class, 'signUp_v2']);
 
     Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
     Route::get('/official_document/{user_id}', [UserProfileController::class, 'getOfficialDocument'])->where('file_name', '.*');
@@ -113,6 +111,14 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::post('email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
         Route::post('email/reset', [AuthController::class, 'resetEmail']);
+
+        ########AmbassadorsRequests########
+        Route::controller(AmbassadorsRequestsController::class)->prefix('ambassadors-request')->group(function () {
+            Route::get('/allocate-ambassador/{leader_gender}/{user_id?}', 'allocateAmbassador');
+            Route::get('/check-ambassador/{user_id}', 'checkAmbassador');
+        });
+        ########End AmbassadorsRequests########
+
     });
 
 
@@ -144,6 +150,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(["prefix" => "roles"], function () {
             Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
             Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
+            Route::get('/get-special-care-roles', [RolesAdministrationController::class, 'getSpecialCareRoles']);
             Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
@@ -212,21 +219,16 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/posts/{post_id}/users/{user_id?}', [ReactionController::class, 'getPostReactionsUsers'])->where('post_id', '[0-9]+')->where('user_id', '[0-9]+');
         });
         ########End Reaction########
-        ########LeaderRequest########
-        Route::group(['prefix' => 'leader-request'], function () {
-            Route::get('/', [LeaderRequestController::class, 'index']);
-            Route::post('/create', [LeaderRequestController::class, 'create']);
-            Route::post('/show', [LeaderRequestController::class, 'show']);
-            Route::post('/update', [LeaderRequestController::class, 'update']);
+
+        ########AmbassadorsRequests########
+        Route::controller(AmbassadorsRequestsController::class)->prefix('ambassadors-request')->group(function () {
+            Route::post('/create', 'create');
+            Route::get('/show/{id}', 'show')->where('id', '[0-9]+');
+            Route::get('/latest-group-request/{group_id}', 'latest')->where('group_id', '[0-9]+');
+            Route::get('/list-requests/{retrieveType}/{is_done}/{name?}', 'listRequests');
         });
-        ########End LeaderRequest########
-        ########HighPriorityRequest########
-        Route::group(['prefix' => 'high-priority-request'], function () {
-            Route::get('/', [HighPriorityRequestController::class, 'index']);
-            Route::post('/create', [HighPriorityRequestController::class, 'create']);
-            Route::post('/show', [HighPriorityRequestController::class, 'show']);
-        });
-        ########End HighPriorityRequest########
+        ########End AmbassadorsRequests########
+
         ########SystemIssue########
         Route::group(['prefix' => 'system-issue'], function () {
             Route::get('/', [SystemIssueController::class, 'index']);
@@ -371,6 +373,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/assign-administrator', [GroupController::class, 'assignAdministrator']);
             Route::post('/assign-supervisor', [GroupController::class, 'assignSupervisor']);
             Route::get('/list-marathon-participants', [GroupController::class, 'getMarathonParticipants']);
+            Route::get('/current-ambassadors-count/{id}', [GroupController::class, 'currentAmbassadorsCount']);
         });
         ############End Group############
 
@@ -520,6 +523,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/listUserGroup', [UserGroupController::class, 'list_user_group']);
             Route::delete('/delete/{user_group_id}', [UserGroupController::class, 'delete']);
             Route::post('/withdrawn', [UserGroupController::class, 'withdrawnMember']);
+            Route::get('/members-by-month/{group_id}/{month_filter}', [UserGroupController::class, 'membersByMonth']);
         });
         ######## End UserGroup ########
         ####### Start Thesis ########

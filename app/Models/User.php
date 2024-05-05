@@ -30,7 +30,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_excluded',
         'parent_id',
         'allowed_to_eligible',
-        'leader_gender',
         'last_name',
     ];
 
@@ -105,13 +104,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(userWeekActivities::class, 'user_week_activities');
     }
-    public function LeaderRrequest()
+    public function ambassadorsRequests()
     {
-        return $this->hasMany(leader_request::class, 'leader_id');
+        return $this->hasMany(AmbassadorsRequests::class, 'applicant_id');
     }
-    public function AmbassadorRrequest()
+    public function joinRequest()
     {
-        return $this->belongsToOne(leader_request::class);
+        return $this->belongsTo(AmbassadorsRequests::class, 'request_id');
     }
     public function messages()
     {
@@ -175,11 +174,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function notFriendsOf()
     {
         return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')->wherePivot('status', 0);
-    }
-
-    public function transaction()
-    {
-        return $this->hasMany(Transaction::class);
     }
 
     public function media()
