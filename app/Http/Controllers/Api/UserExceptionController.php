@@ -110,7 +110,7 @@ class UserExceptionController extends Controller
         $FinalExam = ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
         $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
 
-        $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->first()->group;
+        $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->whereNull('termination_reason')->first()->group;
         $leader_id = Auth::user()->parent_id;
         $authID = Auth::id();
 
@@ -456,7 +456,7 @@ class UserExceptionController extends Controller
 
         if ($userException) {
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
-                $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+                $group_id = UserGroup::where('user_id', $userException->user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->pluck('group_id')->first();
                 $response['authInGroup'] = UserGroup::where('user_id', Auth::id())->where('group_id', $group_id)
                     ->latest() //asmaa
                     ->first();
@@ -639,7 +639,7 @@ class UserExceptionController extends Controller
             $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
 
             $owner_of_exception = User::find($userException->user_id);
-            $user_group = UserGroup::with("group")->where('user_id', $userException->user_id)->where('user_type', 'ambassador')->first();
+            $user_group = UserGroup::with("group")->where('user_id', $userException->user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
 
             $group = $user_group->group;
             //the head of owner_of_exception
@@ -679,33 +679,29 @@ class UserExceptionController extends Controller
 
 
                 $userException->status = 'accepted';
+                $userException->week_id =  $desired_week->id;
                 $status = 'مقبول';
 
 
                 switch ($decision) {
                         //اعفاء الأسبوع الحالي
                     case 1:
-                        $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
                         break;
                         //اعفاء الأسبوع القادم
                     case 2:
-                        $userException->week_id =  $desired_week->id;
                         $userException->start_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
                         $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
                         break;
                         //اعفاء لأسبوعين الحالي و القادم
                     case 3:
-                        $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
 
                         break;
                         //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
-
                     case 4:
-                        $userException->week_id =  $desired_week->id;
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at->addDays(22))->format('Y-m-d');
                         break;
@@ -750,25 +746,23 @@ class UserExceptionController extends Controller
         if (in_array($decision, [1, 2, 3])) {
             //مقبول
             $userException->status = 'accepted';
+            $userException->week_id =  $desired_week->id;
             $status = 'مقبول';
 
             switch ($decision) {
                     //اعفاء الأسبوع الحالي
                 case 1:
-                    $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
 
                     break;
                     //اعفاء الأسبوع القادم
                 case 2:
-                    $userException->week_id =  $desired_week->id;
                     $userException->start_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
                     $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
                     break;
                     //اعفاء لأسبوعين الحالي و القادم
                 case 3:
-                    $userException->week_id =  $desired_week->id;
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
                     break;
@@ -875,9 +869,9 @@ class UserExceptionController extends Controller
     }
 
 
-    public function calculate_mark_for_exam($owner_of_exception, $current_week)
+    public function calculate_mark_for_exam($owner_of_exception, $week)
     {
-        $thisWeekMark = Mark::where('week_id', $current_week->id)
+        $thisWeekMark = Mark::where('week_id', $week->id)
             ->where('user_id', $owner_of_exception->id)->first();
         if ($thisWeekMark) {
             $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
