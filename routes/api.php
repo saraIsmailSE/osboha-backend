@@ -223,7 +223,9 @@ Route::group(['prefix' => 'v1'], function () {
         ########AmbassadorsRequests########
         Route::controller(AmbassadorsRequestsController::class)->prefix('ambassadors-request')->group(function () {
             Route::post('/create', 'create');
+            Route::post('/update', 'update');
             Route::get('/show/{id}', 'show')->where('id', '[0-9]+');
+            Route::delete('/delete/{id}', 'delete')->where('id', '[0-9]+');
             Route::get('/latest-group-request/{group_id}', 'latest')->where('group_id', '[0-9]+');
             Route::get('/list-requests/{retrieveType}/{is_done}/{name?}', 'listRequests');
         });
@@ -800,10 +802,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/my-team/{week_id}', [TeamStatisticsController::class, 'teamStatistics']);
         });
 
-
-        ######## StatisticsSupervisor ########
-        Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
-        ######## END StatisticsSupervisor ########
 
         ######## Emptying ########
         Route::group(['prefix' => 'emptying'], function () {

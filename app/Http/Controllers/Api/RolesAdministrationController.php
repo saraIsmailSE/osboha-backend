@@ -58,6 +58,7 @@ class RolesAdministrationController extends Controller
     {
         $rolesToRetrieve = [
             'special_care_coordinator',
+            'special_care_supervisor',
             'special_care_leader',
         ];
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();

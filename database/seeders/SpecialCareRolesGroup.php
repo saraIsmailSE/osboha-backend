@@ -16,6 +16,7 @@ class SpecialCareRolesGroup extends Seeder
     public function run()
     {
         Role::create(['name' => 'special_care_coordinator']);
+        Role::create(['name' => 'special_care_supervisor']);
         Role::create(['name' => 'special_care_leader']);
 
         //GROUP TYPE
