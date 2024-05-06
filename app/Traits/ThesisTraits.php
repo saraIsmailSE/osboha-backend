@@ -630,7 +630,7 @@ trait ThesisTraits
         /*
              صفحات 6 + 400 حرف اطروحة او اقتباس(سكرين شوت >> 100
              صفحات 4 + 400 حرف اطروحة او اقتباس(سكرين شوت) >> 80
-             صفحات 2 + 400 حرف أطروحة أو اقتباس (سكرين شوت)>> 70 
+             صفحات 2 + 400 حرف أطروحة أو اقتباس (سكرين شوت)>> 70
             اي ادخال غير ذلك، راح يرفض الإدخال ويطلع اله تنبيه انه الورد المسموح به هو المذكور اعلاه .
         */ else {
             if ($total_pages >= 6) {
@@ -659,11 +659,8 @@ trait ThesisTraits
      */
     public function check_exam_exception()
     {
-        $date = Carbon::now()->format('Y-m-d');
         $user_exception = UserException::where('user_id', Auth::id())
             ->where('status', config('constants.ACCEPTED_STATUS'))
-            // ->whereDate('end_at', '>=', $date)
-            // ->whereDate('start_at', '<=', $date)
             ->whereHas('type', function ($query) {
                 $query->where('type', config('constants.EXAMS_MONTHLY_TYPE'))
                     ->orWhere('type', config('constants.EXAMS_SEASONAL_TYPE'));

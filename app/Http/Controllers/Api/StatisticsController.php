@@ -133,8 +133,9 @@ class StatisticsController extends Controller
         $leadersIDs =  $leaders->pluck('user_id');
         //افرقة المتابعة الخاصة بالقادة
         $group_followups = UserGroup::with('user')->where('user_type', 'leader')
-            ->whereIn('user_id', $leadersIDs)
-            ->whereNull('termination_reason')
+        ->whereIn('user_id', $leadersIDs)
+        ->where('user_id','!=', $superviser_id)
+        ->whereNull('termination_reason')
             ->get();
 
         foreach ($group_followups as $key => $group) {
