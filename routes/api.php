@@ -36,7 +36,6 @@ use App\Http\Controllers\Api\{
     RoomController,
     SectionController,
     StatisticsController,
-    StatisticsSupervisorController,
     BookTypeController,
     BookLevelController,
     LanguageController,
@@ -795,11 +794,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'eligible-statistics'], function () {
             Route::get('/my-team/{week_id}', [TeamStatisticsController::class, 'teamStatistics']);
         });
-
-
-        ######## StatisticsSupervisor ########
-        Route::get('/statistics/{group_id}', [StatisticsSupervisorController::class, 'statistics']);
-        ######## END StatisticsSupervisor ########
 
         ######## Emptying ########
         Route::group(['prefix' => 'emptying'], function () {
