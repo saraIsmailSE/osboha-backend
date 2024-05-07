@@ -88,10 +88,6 @@ use App\Http\Controllers\Api\Ramadan\{
 
 Route::group(['prefix' => 'v1'], function () {
 
-    Route::get('/test-log-viewer', function () {
-        return app('arcanedev.log-viewer') . index();
-    });
-
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
