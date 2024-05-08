@@ -202,12 +202,13 @@ class UserGroupController extends Controller
                     }
                     ########## Handel Supervisor Roles ##########
 
-                    if ($role->name === 'supervisor') {
+                    if (in_array($role->name, ['supervisor', 'special_care_supervisor'])) {
+
                         return $this->handleSupervisorRole($user, $group, $role, $arabicRole);
                     }
                     ########## Handel Admin, Consultant, Advisor, Marathon_verification_supervisor, Marathon_coordinator Roles ##########
 
-                    if (in_array($role->name, ['admin', 'consultant', 'advisor', 'marathon_verification_supervisor', 'marathon_coordinator'])) {
+                    if (in_array($role->name, ['admin', 'consultant', 'advisor', 'marathon_verification_supervisor', 'marathon_coordinator', 'special_care_coordinator'])) {
                         return  $this->handelAdministrationRoles($user, $group, $role, $arabicRole);
                     }
                 } else {

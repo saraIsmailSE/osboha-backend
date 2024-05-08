@@ -267,6 +267,7 @@ class AmbassadorsRequestsController extends Controller
                 $ambassador = User::Find($ambassador_id);
             }
 
+            $ambassador->leader_gender = $leader_gender;
 
             $response['message'] = 'no group found';
             $teamRequest = $this->selectTeam($ambassador, $leader_gender);
