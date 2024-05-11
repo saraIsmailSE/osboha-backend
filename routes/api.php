@@ -224,6 +224,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/create', 'create');
             Route::post('/update', 'update');
             Route::get('/show/{id}', 'show')->where('id', '[0-9]+');
+            Route::get('/statistics/{timeFrame}', 'statistics');
             Route::delete('/delete/{id}', 'delete')->where('id', '[0-9]+');
             Route::get('/latest-group-request/{group_id}', 'latest')->where('group_id', '[0-9]+');
             Route::get('/list-requests/{retrieveType}/{is_done}/{name?}', 'listRequests');

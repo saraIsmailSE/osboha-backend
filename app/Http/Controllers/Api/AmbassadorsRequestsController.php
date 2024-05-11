@@ -17,13 +17,14 @@ use App\Models\UserParent;
 use App\Notifications\MailAmbassadorDistribution;
 use App\Notifications\MailAmbassadorDistributionToYourTeam;
 use App\Traits\SignupTrait;
+use App\Traits\AmbassadorsTrait;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AmbassadorsRequestsController extends Controller
 {
-    use ResponseJson, SignupTrait, PathTrait;
+    use ResponseJson, SignupTrait, PathTrait, AmbassadorsTrait;
 
 
 
@@ -268,6 +269,8 @@ class AmbassadorsRequestsController extends Controller
             }
 
             $ambassador->leader_gender = $leader_gender;
+            $ambassador->save();
+            $ambassador->fresh();
 
             $response['message'] = 'no group found';
             $teamRequest = $this->selectTeam($ambassador, $leader_gender);
@@ -521,6 +524,17 @@ class AmbassadorsRequestsController extends Controller
             return $this->jsonResponseWithoutMessage("deleted", 'data', 200);
         } else {
             throw new NotAuthorized;
+        }
+    }
+
+    public function statistics($timeFrame)
+    {
+        try {
+            $statistics = $this->getStatistics($timeFrame);
+            return $this->jsonResponseWithoutMessage($statistics, 'data', 200);
+        } catch (\Exception $e) {
+            Log::channel('newUser')->info($e);
+            return $this->jsonResponseWithoutMessage("ERROR", 'data', 400);
         }
     }
 }
