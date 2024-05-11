@@ -260,7 +260,6 @@ class AmbassadorsRequestsController extends Controller
     {
 
         try {
-            DB::beginTransaction();
 
             if (is_null($ambassador_id)) {
                 $ambassador = User::Find(Auth::id());
@@ -273,6 +272,7 @@ class AmbassadorsRequestsController extends Controller
             $ambassador->fresh();
 
             $response['message'] = 'no group found';
+            DB::beginTransaction();
             $teamRequest = $this->selectTeam($ambassador, $leader_gender);
             if ($teamRequest) {
                 //get group leader
@@ -527,6 +527,39 @@ class AmbassadorsRequestsController extends Controller
         }
     }
 
+    /*
+        # Ambassadors Requests Statistics Endpoint Documentation
+
+        This endpoint retrieves statistics related to ambassadors requests within a specified time frame.
+
+        ## Endpoint
+
+        `GET /ambassadors-requests/statistics/{timeFrame}`
+
+        ## Parameters
+
+        - `timeFrame` (string, required): Specifies the time frame for which statistics are requested.
+
+        ## Functionality
+
+        - Retrieves statistics related to ambassadors requests within the specified time frame.
+
+        ## Response
+
+        A successful response will include the requested statistics.
+
+        ## Errors
+
+        - `200 OK`: The statistics are successfully retrieved.
+        - `400 Bad Request`: An error occurred while retrieving the statistics.
+
+        ## Example
+
+        To retrieve statistics for the last month:
+        ```
+        GET /ambassadors-requests/statistics/last-month
+        ```
+    */
     public function statistics($timeFrame)
     {
         try {

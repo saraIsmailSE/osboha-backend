@@ -45,7 +45,6 @@ trait AmbassadorsTrait
     {
         return DB::table('ambassadors_requests')
             ->where('is_done', 0)
-            ->whereBetween('created_at', $dates)
             ->count();
     }
 
@@ -53,7 +52,6 @@ trait AmbassadorsTrait
     {
         return DB::table('ambassadors_requests')
             ->where('is_done', 1)
-            ->whereBetween('created_at', $dates)
             ->count();
     }
 
@@ -61,7 +59,7 @@ trait AmbassadorsTrait
     {
         return DB::table('ambassadors_requests')
             ->where('ambassadors_gender', $gender)
-            ->whereBetween('created_at', $dates)
+            ->where('is_done', 0)
             ->count();
     }
 
