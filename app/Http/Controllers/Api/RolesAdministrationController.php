@@ -1063,7 +1063,7 @@ class RolesAdministrationController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
+        if (Auth::user()->hasanyrole('admin|advisor|consultant|special_care_coordinator')) {
             $ambassador = User::where('email', $request->ambassador_email)->first();
 
             if ($ambassador) {
@@ -1084,7 +1084,8 @@ class RolesAdministrationController extends Controller
                         'is_active' => 1,
                     ]);
                     //get the followup group of new leader
-                    $newLeaderGroupId = UserGroup::where('user_type', 'leader')->where('user_id', $newLeader->id)->pluck('group_id')->first();
+                    $newLeaderGroupId = UserGroup::where('user_type', 'leader')
+                        ->orWhere('user_type', 'special_care_leader')->whereNull('termination_reason')->where('user_id', $newLeader->id)->pluck('group_id')->first();
                     //transfer ambassador to new followup group
                     UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'transfer_ambassador']);
                     UserGroup::create(
