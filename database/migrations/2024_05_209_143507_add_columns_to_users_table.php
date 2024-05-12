@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateHighPriorityRequestsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,8 @@ class CreateHighPriorityRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::create('high_priority_requests', function (Blueprint $table) {
-            $table->id();
-            $table->integer('request_id');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('leader_gender')->nullable();
         });
     }
 
@@ -27,6 +25,8 @@ class CreateHighPriorityRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('high_priority_requests');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('leader_gender');
+        });
     }
-}
+};

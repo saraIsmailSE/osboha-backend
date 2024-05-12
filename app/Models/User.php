@@ -29,7 +29,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_hold',
         'is_excluded',
         'parent_id',
-        'allowed_to_eligible'
+        'allowed_to_eligible',
+        'last_name',
+        'leader_gender',
     ];
 
     /**
@@ -103,13 +105,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(userWeekActivities::class, 'user_week_activities');
     }
-    public function LeaderRrequest()
+    public function ambassadorsRequests()
     {
-        return $this->hasMany(leader_request::class, 'leader_id');
+        return $this->hasMany(AmbassadorsRequests::class, 'applicant_id');
     }
-    public function AmbassadorRrequest()
+    public function joinRequest()
     {
-        return $this->belongsToOne(leader_request::class);
+        return $this->belongsTo(AmbassadorsRequests::class, 'request_id');
     }
     public function messages()
     {
@@ -175,11 +177,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')->wherePivot('status', 0);
     }
 
-    public function transaction()
-    {
-        return $this->hasMany(Transaction::class);
-    }
-
     public function media()
     {
         return $this->hasMany(Media::class);
@@ -226,12 +223,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function children()
     {
-        return $this->hasMany(User::class, 'parent_id')->where('is_excluded',0);
+        return $this->hasMany(User::class, 'parent_id')->where('is_excluded', 0);
     }
 
     public function parents()
     {
         return $this->belongsToMany(Parent::class, 'user_parent', 'user_id', 'parent_id');
     }
-
 }

@@ -95,11 +95,14 @@ return [
         'marathon_verification_supervisor' => "مسؤول تدقيق مارثون أصبوحة",
         'marathon_supervisor' => "مسؤول في مارثون أصبوحة",
         'marathon_ambassador' => "سفير مشارك في مارثون أصبوحة",
-        'ramadan_coordinator'=> "مسؤول فعاليات رمضان",
-        'ramadan_hadith_corrector' =>"مُصحح  مسابقة حديث",
+        'ramadan_coordinator' => "مسؤول فعاليات رمضان",
+        'ramadan_hadith_corrector' => "مُصحح  مسابقة حديث",
         'ramadan_fiqh_corrector' => "مًصحح مسابقة فقه",
         'ramadan_tafseer_corrector' => "مُصحح مسابقة تفسير",
-        'ramadan_vedio_corrector' =>"مُصحح مسابقة التثقيف بالفيديو",
+        'ramadan_vedio_corrector' => "مُصحح مسابقة التثقيف بالفيديو",
+        'special_care_coordinator' => "مسؤول عام لأفرقة الرعاية الخاصة",
+        'special_care_supervisor' => "مراقب رعاية خاصة",
+        'special_care_leader' => "قائد رعاية خاصة",
 
 
     ],

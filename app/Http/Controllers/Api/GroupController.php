@@ -54,6 +54,9 @@ class GroupController extends Controller
     public function listGroups($retrieveType, $name = '')
     {
         switch ($retrieveType) {
+            case 'special_care':
+                $groupType = ['special_care'];
+                break;
             case 'marathon':
                 $groupType = ['marathon'];
                 break;
@@ -69,6 +72,7 @@ class GroupController extends Controller
             default:
                 $groupType = [
                     'followup',
+                    'special_care',
                     'supervising',
                     'advising',
                     'consultation',
@@ -1072,5 +1076,11 @@ class GroupController extends Controller
             ], 'data', 200);
         }
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+    public function currentAmbassadorsCount($id)
+    {
+        $ambassadorsCount = Group::with('type')->withCount('userAmbassador')->where('id', $id)->first();
+        return $this->jsonResponseWithoutMessage($ambassadorsCount, 'data', 200);
     }
 }

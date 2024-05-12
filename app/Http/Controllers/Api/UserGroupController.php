@@ -22,6 +22,7 @@ use App\Models\Week;
 use App\Notifications\MailAmbassadorDistribution;
 use App\Notifications\MailMemberAdd;
 use App\Traits\PathTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -196,17 +197,20 @@ class UserGroupController extends Controller
 
                     ########## Handel Leader, Support Leader, marathon_supervisor Roles ##########
 
-                    if (in_array($role->name, ['leader', 'support_leader', 'marathon_supervisor'])) {
+                    if (in_array($role->name, ['leader', 'support_leader', 'marathon_supervisor', 'special_care_leader'])) {
                         return $this->handleLeaderRole($user, $group, $role, $arabicRole);
                     }
                     ########## Handel Supervisor Roles ##########
 
-                    if ($role->name === 'supervisor') {
-                        return $this->handleSupervisorRole($user, $group, $role, $arabicRole);
+                    if (in_array($role->name, ['supervisor', 'special_care_supervisor'])) {
+                        if ($user->hasRole('leader')) {
+                            return $this->handleSupervisorRole($user, $group, $role, $arabicRole);
+                        }
+                        return $this->jsonResponseWithoutMessage("قم بترقية العضو لقائدأولاً", 'data', 200);
                     }
                     ########## Handel Admin, Consultant, Advisor, Marathon_verification_supervisor, Marathon_coordinator Roles ##########
 
-                    if (in_array($role->name, ['admin', 'consultant', 'advisor', 'marathon_verification_supervisor', 'marathon_coordinator'])) {
+                    if (in_array($role->name, ['admin', 'consultant', 'advisor', 'marathon_verification_supervisor', 'marathon_coordinator', 'special_care_coordinator'])) {
                         return  $this->handelAdministrationRoles($user, $group, $role, $arabicRole);
                     }
                 } else {
@@ -377,7 +381,7 @@ class UserGroupController extends Controller
             );
         }
         // Make sure the leader is parent of group ambassadors
-        if ($role->name === 'leader' && in_array($group->type->type, ['followup', 'advanced_followup', 'sophisticated_followup'])) {
+        if (in_array($role->name, ['leader', 'special_care_leader']) && in_array($group->type->type, ['followup', 'advanced_followup', 'sophisticated_followup', 'special_care'])) {
             $leaderID = $user->id;
             $groupAmbassadors = $group->userAmbassador->pluck('id');
             foreach ($groupAmbassadors as $ambassadorID) {
@@ -641,5 +645,30 @@ class UserGroupController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
+
+    public function membersByMonth($group_id, $month_filter)
+    {
+        switch ($month_filter) {
+            case 'previous':
+                $date = Carbon::now()->subMonth();
+                break;
+            default:
+                $date = Carbon::now();
+        }
+
+        $members = UserGroup::with('user')->where('group_id', $group_id)
+            ->whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->whereNull('termination_reason')
+            ->paginate(10);
+        if ($members->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'members' => $members,
+                'total' => $members->total(),
+                'last_page' => $members->lastPage(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 }

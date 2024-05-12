@@ -50,7 +50,7 @@ class Group extends Model
     }
     public function groupLeader()
     {
-        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'leader')->latest()->take(1);
+        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivotIn('user_type', ['leader', 'special_care_leader'])->latest()->take(1);
     }
 
     public function groupSupportLeader()
@@ -74,6 +74,8 @@ class Group extends Model
                 'admin', 'consultant', 'advisor', 'supervisor', 'leader', 'support_leader', 'marathon_coordinator',
                 'marathon_verification_supervisor',
                 'marathon_supervisor',
+                'special_care_coordinator',
+                'special_care_leader'
             ]);
     }
     public function leaderAndAmbassadors()
@@ -111,6 +113,10 @@ class Group extends Model
         return $this->hasMany(AuditMark::class, 'group_id');
     }
 
+    public function AmbassadorsRequests()
+    {
+        return $this->hasMany(AmbassadorsRequests::class, 'group_id');
+    }
 
     public static function boot()
     {
