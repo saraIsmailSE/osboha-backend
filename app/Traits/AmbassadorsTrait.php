@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\AmbassadorsRequests;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -75,6 +76,7 @@ trait AmbassadorsTrait
     {
         return DB::table('users')
             ->whereNotNull('leader_gender')
+            ->whereNotNull('email_verified_at')
             ->whereNull('request_id')
             ->whereBetween('created_at', $dates)
             ->count();
@@ -86,5 +88,29 @@ trait AmbassadorsTrait
             ->whereNull('email_verified_at')
             ->whereBetween('created_at', $dates)
             ->count();
+    }
+    public function distributeAmbassadors($requestID)
+    {
+        $request = AmbassadorsRequests::find($requestID);
+        $leader_gender = $request->leader_gender;
+        $ambassadors_gender = $request->ambassadors_gender;
+
+        $ambassadors = DB::table('users')
+            ->where(function ($query) use ($ambassadors_gender) {
+                $query->where('gender', $ambassadors_gender)
+                    ->orWhere('gender', 'any');
+            })
+            ->where(function ($query) use ($leader_gender) {
+                $query->where('leader_gender', $leader_gender)
+                    ->orWhere('leader_gender', 'any');
+            })
+            ->whereNull('request_id')
+            ->whereNotNull('email_verified_at')
+            ->limit($request->members_num);
+
+            foreach($ambassadors as $ambassador){
+                $ambassador->request_id;
+                $ambassador->save();
+            }
     }
 }
