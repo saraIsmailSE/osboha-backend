@@ -74,6 +74,7 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanQuestionAnswerController,
     RamadanQuestionController,
 };
+use Illuminate\Support\Facades\Broadcast;
 
 /*
 |--------------------------------------------------------------------------
@@ -125,6 +126,8 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('eligible-certificates/generate-pdf/{user_book_id}', [EligiblePDFController::class, 'generatePDF']);
 
     Route::middleware('auth:sanctum', 'verified', 'IsActiveUser')->group(function () {
+        Broadcast::routes();
+
         Route::post('/refresh', [AuthController::class, 'refresh']);
 
         Route::get('/get-roles/{id}', [AuthController::class, 'getRoles']);
