@@ -28,8 +28,8 @@ class MessageResource extends JsonResource
             "timestamp" => $this->created_at->format('h:i A'),
             "seen" => $this->status == 1 ? true : false,
             "distributed" => true,
-            "files" => $this->media()->count() > 0 ? MessageFileResource::collection($this->media) : null,
-            "replyMessage" => $this->message ? new MessageResource($this->message) : null,
+            // "files" => $this->media()->count() > 0 ? MessageFileResource::collection($this->media) : null,
+            // "replyMessage" => $this->message ? new MessageResource($this->message) : null,
         ];
     }
 }
