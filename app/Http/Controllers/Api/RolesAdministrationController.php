@@ -1086,8 +1086,8 @@ class RolesAdministrationController extends Controller
                         'is_active' => 1,
                     ]);
                     //get the followup group of new leader
-                    $newLeaderGroupId = UserGroup::where('user_type', 'leader')
-                        ->orWhere('user_type', 'special_care_leader')->whereNull('termination_reason')->where('user_id', $newLeader->id)->pluck('group_id')->first();
+                    $newLeaderGroupId = UserGroup::whereIn('user_type', ['leader', 'special_care_leader'])
+                        ->whereNull('termination_reason')->where('user_id', $newLeader->id)->pluck('group_id')->first();
                     //transfer ambassador to new followup group
                     UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'transfer_ambassador']);
                     UserGroup::create(
