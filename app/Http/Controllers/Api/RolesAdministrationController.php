@@ -21,6 +21,8 @@ use App\Notifications\MailDowngradeRole;
 use App\Notifications\MailUpgradeRole;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class RolesAdministrationController extends Controller
 {
@@ -1221,5 +1223,83 @@ class RolesAdministrationController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
+
+
+
+
+
+    /**
+     * Remove role from user by its supervisor
+     * Only for secondary roles separated from 
+     * main roles like (consultant, advisor,
+     * supervisor, leader, ambassador)
+     * 
+     * @param Request contains email, role_id
+     * @return JsonResponse
+     */
+    function removeSecondaryRole(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'role_id' => 'required|exists:roles,id'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', Response::HTTP_BAD_REQUEST);
+        }
+
+        $userRoleName = Role::where('id', $request->role_id)->pluck('name')->first();
+
+        $user = User::where('email', $request->email)
+            ->first();
+
+        if (!$user) {
+            return $this->jsonResponseWithoutMessage(
+                "المستخدم غير موجود",
+                'data',
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        //check if the user has the role
+        if (!$user->hasRole($userRoleName)) {
+            return $this->jsonResponseWithoutMessage(
+                "المستخدم ليس لديه هذا الدور",
+                'data',
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        //check if role contains `coordinator` string or role is advisor
+        $authUser = Auth::user();
+        $isAdvisor = $authUser->hasRole("advisor");
+        $coordinator = $authUser->roles()
+            ->where('name', 'LIKE', '%coordinator');
+        $isCoordinator = $coordinator->exists();
+
+        $isAuthorized = $isAdvisor || $isCoordinator;
+
+        //check if the coordinator is authorized to remove the role
+        if (!$isAdvisor && $isCoordinator) {
+            $coordinatorRoleName  = $coordinator->pluck('name')->first();
+            $isAuthorized = in_array($userRoleName, config('constants.ROLES_HIERARCHY')[$coordinatorRoleName]);
+        }
+
+        if (!$isAuthorized) {
+            return $this->jsonResponseWithoutMessage(
+                "غير مصرح لك بالقيام بهذه العملية",
+                'data',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        //remove the role
+        $user->removeRole($userRoleName);
+        return $this->jsonResponseWithoutMessage(
+            "تمت العملية بنجاح",
+            'data',
+            Response::HTTP_OK
+        );
     }
 }
