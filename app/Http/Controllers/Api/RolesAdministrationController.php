@@ -105,9 +105,9 @@ class RolesAdministrationController extends Controller
         if ($user) {
             //check if user has the role
 
-            if ($role->name == 'special_care_leader' && !$user->hasRole('leader')) {
+            if (($role->name == 'special_care_leader' || $role->name == 'special_care_supervisor') && !$user->hasRole('leader')) {
                 //special_care_leader should have a leader role first
-                return $this->jsonResponseWithoutMessage("قم بترقية العضو لـ قائد أولاًً ", 'data', 200);
+                return $this->jsonResponseWithoutMessage("يجب أن يكون العضو قائداً أولاًً ", 'data', 200);
             }
 
             if ($user->hasRole($role->name)) {
@@ -1231,10 +1231,10 @@ class RolesAdministrationController extends Controller
 
     /**
      * Remove role from user by its supervisor
-     * Only for secondary roles separated from 
+     * Only for secondary roles separated from
      * main roles like (consultant, advisor,
      * supervisor, leader, ambassador)
-     * 
+     *
      * @param Request contains email, role_id
      * @return JsonResponse
      */
