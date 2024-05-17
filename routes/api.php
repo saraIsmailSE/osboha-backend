@@ -86,6 +86,8 @@ use Illuminate\Support\Facades\Broadcast;
 
 Route::group(['prefix' => 'v1'], function () {
 
+
+
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
@@ -146,6 +148,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
+            Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
+
         });
 
         ########Start Roles########
