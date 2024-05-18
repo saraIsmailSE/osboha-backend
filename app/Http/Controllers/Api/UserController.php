@@ -9,11 +9,16 @@ use App\Models\GroupType;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserParent;
+use App\Models\Week;
+use App\Models\Mark;
+use App\Models\Thesis;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 use App\Traits\UserParentTrait;
 
@@ -230,4 +235,64 @@ class UserController extends Controller
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
+    /**
+     * Retrieve the marks and theses for an ambassador over the last four weeks.
+     *
+     * This function fetches the weekly marks for a specific ambassador based on their email address.
+     * It calculates data for the last four weeks, including the current week and the three preceding weeks.
+     * The function then gathers the ambassador's marks and related theses for these weeks.
+     * @param string $email
+     * The email address of the ambassador whose data is to be fetched.
+     * @return \Illuminate\Http\JsonResponse
+     *    A JSON response containing the ambassador's marks and theses data for the last four weeks.
+     */
+    public function getAmbassadorMarksFourWeek($email)
+    {
+        //Data for the last four weeks
+        $weeks = collect([
+            Week::latest()->first(),//current week
+            Week::latest()->skip(1)->first(),//The second previous week
+            Week::latest()->skip(2)->first(),// The third previous week
+            Week::latest()->skip(3)->first(),// The fourth  previous week
+
+        ]);
+        $weekIds = $weeks->map->id->toArray();
+
+          $user = User::where('email', $email)->first();
+
+          if ($user) {
+            // Getting the ambassador's marks for each week
+            $response['ambassadorMarks'] = Mark::where('user_id', $user->id)
+            ->whereIn('marks.week_id', $weekIds)
+            ->leftJoin('weeks', 'marks.week_id', '=', 'weeks.id')
+            ->select(
+                DB::raw('min(marks.id) as id'), 
+                'marks.week_id',
+                DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'),
+                DB::raw('sum(total_pages) as total_pages'),
+                DB::raw('sum(total_thesis) as total_thesis'),
+                DB::raw('sum(total_screenshot) as total_screenshot'),
+                DB::raw('sum(support) as support'),
+            )
+            ->groupBy('marks.week_id', 'weeks.created_at')
+            ->orderBy('weeks.created_at', 'asc') 
+            ->get();
+            $marksIds = [];
+            foreach ($response['ambassadorMarks'] as $mark) {
+                 $marksIds[] = $mark->id;
+            }
+            $response['theses'] = Thesis::whereIn('mark_id',  $marksIds)->get();
+        } else {
+            // If  ambassador  not found
+             $response['ambassadorMarks'] = [];
+             $response['theses'] =[];
+        }
+           
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+            
+
+    }
+ 
+
+
 }
