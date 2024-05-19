@@ -149,7 +149,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
             Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
-
         });
 
         ########Start Roles########
@@ -168,6 +167,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/transfer-ambassador', [RolesAdministrationController::class, 'transferAmbassador']);
             Route::post('/transfer-leader', [RolesAdministrationController::class, 'transferLeader']);
             Route::post('/remove-secondary-role', [RolesAdministrationController::class, 'removeSecondaryRole']);
+            Route::get('/secondary-roles-by-role', [RolesAdministrationController::class, 'getSecondaryRolesByRole']);
         });
         ########End Roles########
 
