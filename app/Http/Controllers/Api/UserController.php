@@ -246,28 +246,26 @@ class UserController extends Controller
      * @return \Illuminate\Http\JsonResponse
      *    A JSON response containing the ambassador's marks and theses data for the last four weeks.
      */
-    public function getAmbassadorMarksFourWeek($email )
+    public function getAmbassadorMarksFourWeek($email)
     {
 
         //Data for the last four weeks
-        $weeks = Week::latest()->take(4)->get();
-        $weekIds = $weeks->pluck('id')->toArray();
-        $user = User::where('email',$email)->first();
- 
-        
-        $response['ambassadorMarks'] = Mark::where('user_id',  $user->id)
-        ->with('thesis') 
+        $weekIds = Week::latest()->take(4)->pluck('id');
+        $userId = User::where('email',$email)->pluck('id');
+        $response['ambassadorMarks'] = Mark::where('user_id',  15)
+        ->whereIn('week_id', $weekIds)
+        ->with('thesis')
         ->select([
             'marks.*',
             DB::raw('COALESCE(marks.id, 0) as marksId'),
-            DB::raw('AVG(COALESCE(marks.reading_mark + marks.writing_mark + marks.support, 0)) as out_of_100'),
+            DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
+            DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
             DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
             DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
             DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
             DB::raw('COALESCE(marks.support, 0) as support'),
             ])
         ->orderBy('marks.created_at', 'desc') 
-        ->groupBy('marks.week_id')
         ->get();
            
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
