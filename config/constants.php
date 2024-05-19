@@ -132,6 +132,7 @@ return [
         '12' => 'ديسمبر',
     ],
     'ROLES_HIERARCHY' => [
+        'eligible_admin' => ['super_reviewer', 'super_auditer', 'user_accept', 'auditor', 'reviewer'],
         'marathon_coordinator' => ['marathon_verification_supervisor', 'marathon_supervisor', 'marathon_ambassador'],
         'ramadan_coordinator' => ['ramadan_hadith_corrector', 'ramadan_fiqh_corrector', 'ramadan_tafseer_corrector', 'ramadan_vedio_corrector'],
         'special_care_coordinator' => ['special_care_supervisor', 'special_care_leader'],
