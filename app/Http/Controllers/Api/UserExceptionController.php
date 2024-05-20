@@ -873,13 +873,14 @@ class UserExceptionController extends Controller
     {
         $thisWeekMark = Mark::where('week_id', $week->id)
             ->where('user_id', $owner_of_exception->id)->first();
+
         if ($thisWeekMark) {
             $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
                 ->select(
                     DB::raw('sum(max_length) as max_length'),
                 )->first()->max_length;
 
-            if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshots >= 2)) {
+            if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshot >= 2)) {
                 $thisWeekMark->reading_mark = config('constants.FULL_READING_MARK');
                 $thisWeekMark->writing_mark = config('constants.FULL_WRITING_MARK');
                 $thisWeekMark->save();
