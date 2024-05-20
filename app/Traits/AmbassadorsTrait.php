@@ -68,6 +68,7 @@ trait AmbassadorsTrait
     {
         return DB::table('users')
             ->whereNotNull('request_id')
+            ->where('request_id', '!=', 0)
             ->whereBetween('created_at', $dates)
             ->count();
     }
@@ -108,9 +109,9 @@ trait AmbassadorsTrait
             ->whereNotNull('email_verified_at')
             ->limit($request->members_num);
 
-            foreach($ambassadors as $ambassador){
-                $ambassador->request_id;
-                $ambassador->save();
-            }
+        foreach ($ambassadors as $ambassador) {
+            $ambassador->request_id;
+            $ambassador->save();
+        }
     }
 }
