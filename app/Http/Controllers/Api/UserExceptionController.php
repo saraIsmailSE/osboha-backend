@@ -22,6 +22,7 @@ use App\Models\UserParent;
 use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -452,7 +453,7 @@ class UserExceptionController extends Controller
      */
     public function show($exception_id)
     {
-        $userException = UserException::find($exception_id);
+        $userException = UserException::with('assignees')->find($exception_id);
 
         if ($userException) {
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
@@ -1094,6 +1095,78 @@ class UserExceptionController extends Controller
             }
         } catch (\Exception $e) {
             Log::channel('newWeek')->info('Set Mark For Exceptional Freez: ' . $e);
+        }
+    }
+
+    public function AssignExceptionToParent($exception_id)
+    {
+        $user = Auth::user();
+
+        $exception = UserException::find($exception_id);
+
+        if (!$exception) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_NOT_FOUND,
+                "الطلب غير موجود"
+            );
+        }
+
+        $parent = User::find($user->parent_id);
+
+        if (!$parent) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "المشرف غير موجود"
+            );
+        }
+
+        //check if the parent is already assigned to the exception
+        $assignee = $exception->assignees()->where('assignee_id', $parent->id)->first();
+
+        if ($assignee) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "المشرف معين بالفعل على هذا الطلب"
+            );
+        }
+
+        try {
+            DB::beginTransaction();
+
+            //set the current assignee to inactive
+            $exception->assignees()->where('assignee_id', $user->id)->update([
+                "is_active" => false
+            ]);
+
+            //create new assignee
+            $exception->assignees()->create([
+                "assigned_by" => $user->id, //the current assignee
+                "assignee_id" => $parent->id,
+            ]);
+
+            DB::commit();
+
+            $messageToNewAssignee = "لقد تم تعيينك من قبل المستخدم " . $user->name . " للإجابة على طلب المستخدم " . $exception->user->name;
+
+            //notify the assignee
+            $notification = new NotificationController();
+            $notification->sendNotification($parent->id, $messageToNewAssignee, 'USER_EXCEPTIONS', $this->getExceptionPath($exception->id));
+
+            return $this->jsonResponseWithoutMessage($exception, 'data', Response::HTTP_OK);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "حدث خطأ أثناء تعيين المشرف"
+            );
         }
     }
 }

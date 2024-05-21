@@ -351,6 +351,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
             Route::get('/list-by-advisor/{exception_type}/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
+            Route::put('/{exception_id}/assign-to-parent', [UserExceptionController::class, 'AssignExceptionToParent']);
+
         });
         ############End UserException########
 
