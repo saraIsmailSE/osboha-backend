@@ -23,6 +23,7 @@ use App\Notifications\MailAmbassadorDistribution;
 use App\Notifications\MailMemberAdd;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -633,13 +634,15 @@ class UserGroupController extends Controller
 
                 //check user mark for the last week
                 $lastWeekMark = Mark::where('week_id', $previous_week->id)
-                    ->where('user_id', $userGroup->user_id)->first();
+                    ->where('user_id', $userGroup->user_id)
+                    ->select(
+                        DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'),
+                    )
+                    ->first();
 
                 //set date to withdran [if last week mark >= 80 withdrawing ambassador current week, else withdrawing ambassador previous week]
-                if ($lastWeekMark) {
-                    if (($lastWeekMark->reading_mark + $lastWeekMark->writing_mark + $lastWeekMark->support) >= 80) {
-                        $withdrawingDate = $current_week->created_at;
-                    }
+                if ($lastWeekMark && $lastWeekMark->out_of_100 >= 80) {
+                    $withdrawingDate = $current_week->created_at;
                 }
 
                 User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
