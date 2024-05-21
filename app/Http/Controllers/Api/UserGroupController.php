@@ -627,13 +627,27 @@ class UserGroupController extends Controller
                 }
 
                 $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+                $current_week = Week::orderBy('created_at', 'desc')->first();
+
+                $withdrawingDate = $previous_week->created_at;
+
+                //check user mark for the last week
+                $lastWeekMark = Mark::where('week_id', $previous_week->id)
+                    ->where('user_id', $userGroup->user_id)->first();
+
+                //set date to withdran [if last week mark >= 80 withdrawing ambassador current week, else withdrawing ambassador previous week]
+                if ($lastWeekMark) {
+                    if (($lastWeekMark->reading_mark + $lastWeekMark->writing_mark + $lastWeekMark->support) >= 80) {
+                        $withdrawingDate = $current_week->created_at;
+                    }
+                }
 
                 User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
                 //Update User Parent
                 UserParent::where("user_id", $userGroup->user_id)->update(["is_active" => 0]);
 
                 $userGroup->termination_reason = 'withdrawn';
-                $userGroup->updated_at = $previous_week->created_at;
+                $userGroup->updated_at = $withdrawingDate;
                 $userGroup->save();
                 $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
                 Log::channel('community_edits')->info($logInfo);
