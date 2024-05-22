@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Jobs\DistributeAmbassadors;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserParent;
@@ -137,6 +138,7 @@ class AmbassadorsRequestsController extends Controller
                         'group_id' => $request->group_id,
 
                     ]);
+                    DistributeAmbassadors::dispatch($ambassadorsRequest->id);
                     return $this->jsonResponseWithoutMessage($ambassadorsRequest, 'data', 200);
                 } else {
                     return $this->jsonResponseWithoutMessage("You can not request member for this group", 'data', 406);
