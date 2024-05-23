@@ -352,7 +352,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
             Route::get('/list-by-advisor/{exception_type}/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
             Route::put('/{exception_id}/assign-to-parent', [UserExceptionController::class, 'AssignExceptionToParent']);
-
         });
         ############End UserException########
 
@@ -707,6 +706,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::group(['prefix' => 'answers'], function () {
                 Route::post('/', [GeneralConversationController::class, 'answerQuestion']);
             });
+            Route::get('/exceptional-freez', [GeneralConversationController::class, 'getMyAssignedExceptionalFreez']);
         });
         ######## End GeneralConversation ########
 

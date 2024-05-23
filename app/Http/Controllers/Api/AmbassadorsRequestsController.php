@@ -59,13 +59,16 @@ class AmbassadorsRequestsController extends Controller
     */
     public function checkAmbassador($user_id)
     {
-        $user_group = null;
+        $response = null;
         $user = User::find($user_id);
         if ($user) {
             //return last user group result as ambassador
-            $user_group = UserGroup::with('group')->where('user_id', $user->id)->where('user_type', 'ambassador')->latest()->first();
+            $response['user_group'] = UserGroup::with('group')->where('user_id', $user->id)->where('user_type', 'ambassador')->latest()->first();
+            if ($response['user_group']) {
+                $response['leader'] = UserGroup::where('group_id', $response['user_group']->group_id)->where('user_type', 'leader')->whereNull('termination_reason')->first();
+            }
         }
-        return $this->jsonResponseWithoutMessage($user_group, 'data', 200);
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
 

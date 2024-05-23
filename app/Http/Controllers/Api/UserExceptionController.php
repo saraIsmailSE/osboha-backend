@@ -221,14 +221,27 @@ class UserExceptionController extends Controller
 
             //if not admin
             if (!Auth::user()->hasRole('admin')) {
+                $assignee_id = null;
                 //if advisor or consultant, notify admin
                 $msg = "قام السفير " . Auth::user()->name . " بطلب نظام تجميد استثنائي";
-                if (Auth::user()->hasRole(['advisor', 'supervisor'])) {
+                if (Auth::user()->hasRole(['advisor', 'supervisor', 'consultant'])) {
+                    $assignee_id = $userToNotify->parent_id;
 
-                    $admin_id = $group->admin()->first()->id;
-                    (new NotificationController)->sendNotification($admin_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                    (new NotificationController)->sendNotification($userToNotify->_parent_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
                 } else {
+                    //leader or ambassador
+                    // get group advisor
+                    $assignee_id =  $group->groupAdvisor()->first()->id;
+
                     (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                }
+
+                if ($assignee_id) {
+                    //create new assignee
+                    $userException->assignees()->create([
+                        "assigned_by" => $userToNotify->id, //the current assignee
+                        "assignee_id" => $assignee_id,
+                    ]);
                 }
             }
             return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
