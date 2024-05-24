@@ -363,13 +363,16 @@ class PostController extends Controller
             //if there is no pinned announcement get the last two announcements
             if (!$announcements) {
                 $announcements = $this->selectPostsQuery('announcement', 1);
+                $announcements = PostResource::collection($announcements);
+            } else {
+                $announcements = new PostResource($announcements);
             }
         }
 
         if ($posts->isNotEmpty() || ($announcements && $announcements->isNotEmpty())) {
             return $this->jsonResponseWithoutMessage([
                 'posts' => PostResource::collection($posts),
-                'announcements' => $announcements ? PostResource::collection($announcements) : null,
+                'announcements' => $announcements ? $announcements : null,
                 'total' => $posts->total(),
                 'last_page' => $posts->lastPage(),
             ], 'data', 200);
