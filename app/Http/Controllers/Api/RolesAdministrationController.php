@@ -67,6 +67,16 @@ class RolesAdministrationController extends Controller
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
 
+    public function getWithdrawnsTeamRoles()
+    {
+        $rolesToRetrieve = [
+            'coordinator_of_withdrawns_team',
+            'member_of_withdrawns_team',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
+
 
     public function getRamadanRoles()
     {
@@ -80,8 +90,6 @@ class RolesAdministrationController extends Controller
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
-
-
 
     public function assignRoleV2(Request $request)
     {

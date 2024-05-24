@@ -149,6 +149,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
             Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
+            Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
         });
 
         ########Start Roles########
@@ -156,6 +157,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
             Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
             Route::get('/get-special-care-roles', [RolesAdministrationController::class, 'getSpecialCareRoles']);
+            Route::get('/get-withdrawns-team-roles', [RolesAdministrationController::class, 'getWithdrawnsTeamRoles']);
             Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);

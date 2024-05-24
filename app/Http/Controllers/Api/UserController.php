@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 
 
 use App\Traits\UserParentTrait;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -250,49 +251,95 @@ class UserController extends Controller
     {
         //Data for the last four weeks
         $weeks = collect([
-            Week::latest()->first(),//current week
-            Week::latest()->skip(1)->first(),//The second previous week
-            Week::latest()->skip(2)->first(),// The third previous week
-            Week::latest()->skip(3)->first(),// The fourth  previous week
+            Week::latest()->first(), //current week
+            Week::latest()->skip(1)->first(), //The second previous week
+            Week::latest()->skip(2)->first(), // The third previous week
+            Week::latest()->skip(3)->first(), // The fourth  previous week
 
         ]);
         $weekIds = $weeks->map->id->toArray();
 
-          $user = User::where('email', $email)->first();
+        $user = User::where('email', $email)->first();
 
-          if ($user) {
+        if ($user) {
             // Getting the ambassador's marks for each week
             $response['ambassadorMarks'] = Mark::where('user_id', $user->id)
-            ->whereIn('marks.week_id', $weekIds)
-            ->leftJoin('weeks', 'marks.week_id', '=', 'weeks.id')
-            ->select(
-                DB::raw('min(marks.id) as id'), 
-                'marks.week_id',
-                DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'),
-                DB::raw('sum(total_pages) as total_pages'),
-                DB::raw('sum(total_thesis) as total_thesis'),
-                DB::raw('sum(total_screenshot) as total_screenshot'),
-                DB::raw('sum(support) as support'),
-            )
-            ->groupBy('marks.week_id', 'weeks.created_at')
-            ->orderBy('weeks.created_at', 'asc') 
-            ->get();
+                ->whereIn('marks.week_id', $weekIds)
+                ->leftJoin('weeks', 'marks.week_id', '=', 'weeks.id')
+                ->select(
+                    DB::raw('min(marks.id) as id'),
+                    'marks.week_id',
+                    DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'),
+                    DB::raw('sum(total_pages) as total_pages'),
+                    DB::raw('sum(total_thesis) as total_thesis'),
+                    DB::raw('sum(total_screenshot) as total_screenshot'),
+                    DB::raw('sum(support) as support'),
+                )
+                ->groupBy('marks.week_id', 'weeks.created_at')
+                ->orderBy('weeks.created_at', 'asc')
+                ->get();
             $marksIds = [];
             foreach ($response['ambassadorMarks'] as $mark) {
-                 $marksIds[] = $mark->id;
+                $marksIds[] = $mark->id;
             }
             $response['theses'] = Thesis::whereIn('mark_id',  $marksIds)->get();
         } else {
             // If  ambassador  not found
-             $response['ambassadorMarks'] = [];
-             $response['theses'] =[];
+            $response['ambassadorMarks'] = [];
+            $response['theses'] = [];
         }
-           
+
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
-            
-
     }
- 
+
+    function getUsersOnHoldByMonthAndGender($month, $gender)
+    {
+        $year = Carbon::now()->year;
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+
+        $query = User::without('userProfile')->with(['groups' => function ($query) {
+            $query->wherePivot('user_type', 'ambassador')
+                ->wherePivot('termination_reason', 'withdrawn')
+                ->orderBy('user_groups.created_at', 'desc');
+        }, 'withdrawnExceptions', 'socialMedia'])->where('is_hold', 1)
+            ->whereBetween('updated_at', [$startDate, $endDate]);
 
 
+        if ($gender !== 'both') {
+            $query->where('gender', $gender);
+        }
+        $users = $query->paginate(30);
+
+        // Keep pagination details
+        $paginationDetails = [
+            'total' => $users->total(),
+            'last_page' => $users->lastPage(),
+            'per_page' => $users->perPage(),
+            'current_page' => $users->currentPage(),
+        ];
+
+        // Filter the users
+        $filteredUsers = $users->map(function ($user) {
+            $latestGroup = $user->groups->first();
+            $latestException = $user->withdrawnExceptions->first();
+            $user->setRelation('groups', collect([$latestGroup]));
+            $user->setRelation('latestException', collect([$latestException]));
+            return $user;
+        })->filter(function ($user) {
+            return $user->groups->isNotEmpty() && $user->withdrawnExceptions->isNotEmpty();
+        });
+
+        if ($filteredUsers->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'ambassadors' => $filteredUsers,
+                'total' => $paginationDetails['total'],
+                'last_page' => $paginationDetails['last_page'],
+                'per_page' => $paginationDetails['per_page'],
+                'current_page' => $paginationDetails['current_page'],
+            ], 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
 }

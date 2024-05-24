@@ -93,6 +93,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserException::class);
     }
+    public function withdrawnExceptions()
+    {
+        return $this->UserException()->where('type_id', 6);
+    }
 
     // public function Group(){
     //     return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type');

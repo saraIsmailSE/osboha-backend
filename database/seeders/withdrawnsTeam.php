@@ -6,7 +6,7 @@ use App\Models\GroupType;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
-class WithdrawingTeam extends Seeder
+class withdrawnsTeam extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,7 +15,7 @@ class WithdrawingTeam extends Seeder
      */
     public function run()
     {
-        Role::create(['name' => 'coordinator_of_withdrawing_team']);
-        Role::create(['name' => 'member_of_withdrawing_team']);
+        Role::create(['name' => 'coordinator_of_withdrawns_team']);
+        Role::create(['name' => 'member_of_withdrawns_team']);
     }
 }
