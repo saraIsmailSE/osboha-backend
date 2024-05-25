@@ -700,9 +700,9 @@ class GeneralConversationController extends Controller
         [$response, $weeks] = $this->getDateStats($request);
 
         //get users based on the auth user role
-        [$allUsers,, $advisors] = $this->getUsersBasedOnRole($auth, false, $auth->hasRole('admin'));
+        [$allUsers,, $advisors, $admin] = $this->getUsersBasedOnRole($auth, false, $auth->hasRole('admin'));
 
-        if ($weeks->count() === 0 || ($allUsers->count() === 0 && $advisors->count() === 0)) {
+        if ($weeks->count() === 0 || ($allUsers->count() === 0 && $advisors->count() === 0 && !$admin)) {
             return $this->jsonResponseWithoutMessage(
                 $response,
                 'data',
@@ -711,6 +711,7 @@ class GeneralConversationController extends Controller
         }
 
         $weeks = $weeks->get();
+
         //get the beginning created_at of weeks
         $startDate = $weeks->first()->created_at;
         $endDate = $weeks->last()->main_timer;
@@ -722,6 +723,11 @@ class GeneralConversationController extends Controller
 
         //in case of ADMIN, get advisors data
         $response['advisorsStatistics'] = $this->getUsersQuestionsStats($advisors, $startDate, $endDate);
+        $response['adminStatistics'] = $this->getUsersQuestionsStats(
+            collect([$admin]),
+            $startDate,
+            $endDate
+        );
 
         return $this->jsonResponseWithoutMessage(
             $response,
@@ -762,12 +768,14 @@ class GeneralConversationController extends Controller
     {
         $allUsers = [];
         $advisors = [];
+        $admin = null;
         $keyword = "المستشارين";
 
         //if the user is an admin, display all questions
         if ($user->hasRole('admin')) {
             //get all consultants
             $allUsers = User::role('consultant');
+            $admin = User::where('email', 'p92ahmed@gmail.com')->first();
 
             $keyword = "المستشارين";
 
@@ -816,7 +824,7 @@ class GeneralConversationController extends Controller
             }
         }
 
-        return [$allUsers, $keyword, $advisors];
+        return [$allUsers, $keyword, $advisors, $admin];
     }
 
     //Function to get the date related data and weeks for the statistics
@@ -871,6 +879,66 @@ class GeneralConversationController extends Controller
     //Function to get users questions statistics
     private function getUsersQuestionsStats($users, $startDate, $endDate)
     {
+        $userIds = $users->pluck('id');
+
+        // Base query for users' questions within the date range
+        $queryResults = DB::table('questions')
+            ->selectRaw('
+                questions_assignees.assignee_id as user_id,
+                COUNT(DISTINCT questions.id) as total_questions,
+                COUNT(DISTINCT CASE WHEN questions.status IN ("open", "discussion") THEN questions.id ELSE NULL END) as total_active_questions,
+                COUNT(DISTINCT CASE WHEN questions.status = "solved" or answers.user_id = questions_assignees.assignee_id THEN questions.id ELSE NULL END) as total_solved_questions,
+                COUNT(DISTINCT CASE WHEN answers.created_at > DATE_ADD(questions.created_at, INTERVAL 12 HOUR) THEN questions.id ELSE NULL END) as total_late_questions
+            ')
+            ->leftJoin('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
+            ->leftJoin('answers', function ($join) {
+                $join->on('questions.id', '=', 'answers.question_id')
+                    ->where('answers.is_discussion', false);
+            })
+            ->whereIn('questions_assignees.assignee_id', $userIds)
+            ->where('questions_assignees.is_active', true)
+            ->whereBetween('questions_assignees.created_at', [$startDate, $endDate])
+            ->whereBetween('questions.created_at', [$startDate, $endDate])
+            ->groupBy('questions_assignees.assignee_id')
+            ->get();
+
+        // Query to get total_questions_assigned_to_parent
+        $parentAssignedResults = DB::table('questions')
+            ->selectRaw('
+                questions_assignees.assigned_by as user_id,
+                COUNT(DISTINCT questions.id) as total_questions_assigned_to_parent
+            ')
+            ->join('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
+            ->where('questions.user_id', '!=', DB::raw('questions_assignees.assigned_by'))
+            ->whereIn('questions_assignees.assigned_by', $userIds)
+            ->whereBetween('questions_assignees.created_at', [$startDate, $endDate])
+            ->groupBy('questions_assignees.assigned_by')
+            ->get()
+            ->keyBy('user_id');
+
+        $questionsStats = $queryResults->map(function ($result) use ($users, $parentAssignedResults) {
+            $user = $users->where('id', $result->user_id)->first();
+            $userData = UserInfoResource::make($user);
+
+            return [
+                "user" => $userData,
+                "total_questions" => $result->total_questions,
+                "total_late_questions" => $result->total_late_questions,
+                "total_active_questions" => $result->total_active_questions,
+                "total_solved_questions" => $result->total_solved_questions,
+                "total_questions_assigned_to_parent" => $parentAssignedResults->get($result->user_id)->total_questions_assigned_to_parent ?? 0,
+            ];
+        });
+
+        // Sort the results by total_late_questions in descending order
+        $questionsStats = $questionsStats->sortByDesc('total_late_questions')->values()->all();
+
+        return $questionsStats;
+    }
+
+    //Function to get users questions statistics
+    private function getUsersQuestionsStats_old($users, $startDate, $endDate)
+    {
         $questionsStats = [];
         foreach ($users as $user) {
             $userData = UserInfoResource::make($user);
@@ -880,7 +948,7 @@ class GeneralConversationController extends Controller
             $questionsStats[] = [
                 "user" => $userData,
                 "total_questions" => $baseUserQuestions->count(),
-                "total_solved_questions_after_12_hrs" => $this->getSolvedQuestionsCount($baseUserQuestions, '12', $user, $startDate, $endDate),
+                "total_late_questions" => $this->getSolvedQuestionsCount($baseUserQuestions, '12', $user, $startDate, $endDate),
                 "total_active_questions" => $this->getActiveQuestionsCount($baseUserQuestions),
                 "total_solved_questions" => $this->getSolvedQuestionsCount($baseUserQuestions, null, $user, $startDate, $endDate),
                 "total_questions_assigned_to_parent" => $this->getQuestionsAssignedToParentCount($user, $startDate, $endDate),
