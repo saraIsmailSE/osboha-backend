@@ -20,6 +20,7 @@ use App\Notifications\MailAmbassadorDistributionToYourTeam;
 use App\Traits\SignupTrait;
 use App\Traits\AmbassadorsTrait;
 use App\Traits\PathTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -303,6 +304,7 @@ class AmbassadorsRequestsController extends Controller
                     $ambassador->request_id = $teamRequest->id;
                     $ambassador->is_excluded = 0;
                     $ambassador->is_hold = 0;
+                    $ambassador->created_at = Carbon::now();
 
                     $ambassador->save();
 
