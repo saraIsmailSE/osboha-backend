@@ -24,6 +24,7 @@ use App\Models\Thesis;
 use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\UserBook;
+use App\Models\ViolatedBook;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -33,7 +34,7 @@ class BookController extends Controller
 
     /**
      *Read all information about all books in the system
-     * 
+     *
      * @return jsonResponseWithoutMessage;
      */
     public function index()
@@ -120,7 +121,7 @@ class BookController extends Controller
 
     /**
      *Add a new book to the system (“create book” permission is required).
-     * 
+     *
      * @param  Request  $request
      * @return jsonResponse;
      */
@@ -189,7 +190,7 @@ class BookController extends Controller
                 $book->section_id = $section->id;
             }
 
-            //level_id 
+            //level_id
             if ($request->level_id) {
                 $book->level_id = $request->level_id;
             } else {
@@ -197,7 +198,7 @@ class BookController extends Controller
                 $book->level_id = $level->id;
             }
 
-            //type_id 
+            //type_id
             if ($request->type_id) {
                 $book->type_id = $request->type_id;
             } else {
@@ -378,7 +379,7 @@ class BookController extends Controller
         }
     }
     /**
-     * Delete an existing book's in the system using its id (“delete book” permission is required). 
+     * Delete an existing book's in the system using its id (“delete book” permission is required).
      *
      * @param  Int  $book_id
      * @return jsonResponseWithoutMessage;
@@ -611,5 +612,91 @@ class BookController extends Controller
         } else {
             throw new NotFound;
         }
+    }
+    public function createReport(Request $request)
+    {
+        $validatedData = $request->validate([
+            'book_id' => 'required|exists:books,id',
+            'violation_type' => 'required|string',
+            'violated_pages' => 'required|array',
+            'violated_pages.*.number' => 'required|integer',
+            'description' => 'nullable|string',
+        ]);
+
+        $violatedPages = serialize($validatedData['violated_pages']);
+
+        $report = ViolatedBook::updateOrCreate(
+            [],
+            [
+                'book_id' => $validatedData['book_id'],
+                'violation_type' => $validatedData['violation_type'],
+                'violated_pages' => $violatedPages,
+                'description' => $validatedData['description'],
+                'status' => 'pending',
+                'reporter_id' => Auth::id(),
+            ]
+        );
+        if ($request->hasFile('report_media')) {
+
+            //books/reports/
+            $folder_path = 'books/reports';
+
+            $this->createMedia($request->report_media, $report->id, 'book_report', $folder_path);
+        }
+
+        return $this->jsonResponseWithoutMessage($report, 'data', 201);
+    }
+
+    public function listReportsByStatus($status)
+    {
+        $reports = ViolatedBook::with('book')->where('status', $status)->paginate(30);
+        if ($reports->isNotEmpty()) {
+            $reports->each(function ($report) {
+                $report->violated_pages = unserialize($report->violated_pages);
+            });
+            return $this->jsonResponseWithoutMessage([
+                'reports' => $reports,
+                'total' => $reports->total(),
+                'last_page' => $reports->lastPage(),
+                'per_page' => $reports->perPage(),
+                'current_page' => $reports->currentPage(),
+            ], 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+    public function updateReportStatus(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'status' => 'required|in:pending,rejected,resolved',
+        ]);
+
+        $report = ViolatedBook::findOrFail($id);
+
+        // Ensure the authenticated user is a reviewer
+        if (!Auth::user()->hasanyrole('admin|book_quality_team_coordinator|book_quality_team')) {
+            throw new NotAuthorized;
+        }
+
+        $report->status = $validatedData['status'];
+        $report->save();
+
+        return $this->jsonResponseWithoutMessage($report->refresh(), 'data', 200);
+    }
+    public function showReport($id)
+    {
+        $report = ViolatedBook::with(['book', 'reviewer', 'reporter', 'media'])->findOrFail($id);
+        $report->violated_pages = unserialize($report->violated_pages);
+
+        return $this->jsonResponseWithoutMessage($report, 'data', 200);
+    }
+    public function listReportsForBook($book_id)
+    {
+        $reports = ViolatedBook::where('book_id', $book_id)->get();
+        $reports->each(function ($report) {
+            $report->pages = unserialize($report->pages);
+        });
+
+        return $this->jsonResponseWithoutMessage($reports, 'data', 200);
     }
 }

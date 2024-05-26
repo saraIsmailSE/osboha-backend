@@ -66,6 +66,15 @@ class RolesAdministrationController extends Controller
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
+    public function getBooksTeamRoles()
+    {
+        $rolesToRetrieve = [
+            'book_quality_team_coordinator',
+            'book_quality_team',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
 
     public function getWithdrawnsTeamRoles()
     {

@@ -72,6 +72,10 @@ class Book extends Model
     {
         return $this->belongsTo(BookLevel::class);
     }
+    public function violationReports()
+    {
+        return $this->hasMany(ViolatedBook::class);
+    }
 
     public static function boot()
     {
