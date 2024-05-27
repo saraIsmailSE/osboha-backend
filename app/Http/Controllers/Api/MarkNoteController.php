@@ -6,6 +6,8 @@ use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Traits\ResponseJson;
 use App\Models\MarkNote;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -61,15 +63,19 @@ class MarkNoteController extends Controller
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
+        if (Auth::user()->hasRole('leader')){
+            $request['mark_id'] = $request->mark_id;
+            $request['from_id'] = Auth::id();
+            $request['body'] = $request->body;
+            $request['status'] = $request->status;
+            MarkNote::create($request->all());
+            return $this->jsonResponseWithoutMessage("MarkNote Created Successfully", 'data', 200);
+        }
+        else{
+            return $this->jsonResponseWithoutMessage("لا تملك الصلاحية  لكتابة ملاحظة", 'data', 200);
+        }
 
-        $request['mark_id'] = $request->mark_id;
-        $request['from_id'] = Auth::id();
-        $request['body'] = $request->body;
-        $request['status'] = $request->status;
 
-        MarkNote::create($request->all());
-
-        return $this->jsonResponseWithoutMessage("MarkNote Created Successfully", 'data', 200);
     }
 
 
