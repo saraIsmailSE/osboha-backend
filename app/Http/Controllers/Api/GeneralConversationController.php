@@ -3,21 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\NotAuthorized;
-use App\Exports\WorkingHoursExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnswerResource;
 use App\Http\Resources\QuestionResource;
 use App\Http\Resources\UserInfoResource;
-use App\Http\Resources\UserResource;
-use App\Models\Group;
 use App\Models\Question;
-use App\Models\QuestionAssignee;
 use App\Models\User;
 use App\Models\UserException;
 use App\Models\UserGroup;
 use App\Models\Week;
-use App\Models\WorkHour;
-use App\Models\WorkingHour;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
 use App\Traits\MediaTraits;
@@ -27,9 +21,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
-use Maatwebsite\Excel\Facades\Excel;
 
 class GeneralConversationController extends Controller
 {
@@ -761,6 +755,31 @@ class GeneralConversationController extends Controller
             }, 'currentAssignee', 'media', 'user'])
             ->orderBy('questions.created_at', 'desc')
             ->paginate($this->perPage);
+    }
+
+    //Function to remove all the closed questions that are older than 1 month
+    public function removeOldQuestions()
+    {
+        Log::channel('Questions')->info("START -- Removing old questions");
+        Question::where('status', 'solved')
+            ->whereRaw('created_at < CURDATE() - INTERVAL 1 MONTH')
+            ->chunkByID(100, function ($questions) {
+                try {
+                    DB::beginTransaction();
+
+                    foreach ($questions as $question) {
+                        $question->delete();
+                    }
+
+                    DB::commit();
+                    Log::channel('Questions')->info("Questions removed successfully");
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    Log::channel('Questions')->error("Error removing questions: " . $e->getMessage());
+                }
+            });
+
+        Log::channel('Questions')->info("END -- Removing old questions");
     }
 
     // Function to get the users based on the auth user role
