@@ -35,6 +35,7 @@ class GeneralConversationController extends Controller
 {
     use ResponseJson, PathTrait, MediaTraits;
     protected $perPage;
+    protected $timer = 16;
 
     public function __construct()
     {
@@ -168,7 +169,7 @@ class GeneralConversationController extends Controller
 
     public function getMyLateQuestions()
     {
-        //late questions are the questions that are not answered for 12 hours from the moment of the assigning the question to the user
+        //late questions are the questions that are not answered for $this->timer hours from the moment of the assigning the question to the user
 
         $user = Auth::user();
 
@@ -199,13 +200,12 @@ class GeneralConversationController extends Controller
         $user = Auth::user();
 
         if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
-            $questions = Question::where("user_id", $user->id)
-                ->whereHas('assignees', function ($query) use ($user) {
-                    $query->where('assignee_id', $user->id)
-                        ->where('is_active', false);
-                })->with('answers', function ($query) {
-                    $query->where('is_discussion', false);
-                })->paginate($this->perPage);
+            $questions = Question::whereHas('assignees', function ($query) use ($user) {
+                $query->where('assignee_id', $user->id)
+                    ->where('is_active', false);
+            })->with('answers', function ($query) {
+                $query->where('is_discussion', false);
+            })->paginate($this->perPage);
 
             if ($questions->isEmpty()) {
                 return $this->jsonResponse(
@@ -654,19 +654,19 @@ class GeneralConversationController extends Controller
         if ($question->status == "solved") {
             $createdAt = Carbon::parse($question->created_at);
             $closedAt = Carbon::parse($question->closed_at);
-            $is_late = $closedAt->diffInHours($createdAt) >= 12;
+            $is_late = $closedAt->diffInHours($createdAt) >= $this->timer;
         } else {
 
             $assignee = $question->currentAssignee;
             $lastAnswer = $question->answers->where('user_id', $assignee->id)->where('is_discussion', false)->first();
             if ($lastAnswer) {
-                //question is answered late if the answer comes after 12 hours of the question
+                //question is answered late if the answer comes after $this->timer hours of the question
                 $createdAt = Carbon::parse($question->created_at);
                 $answeredAt = Carbon::parse($lastAnswer->created_at);
-                $is_late = $answeredAt->diffInHours($createdAt) >= 12;
+                $is_late = $answeredAt->diffInHours($createdAt) >= $this->timer;
             } else {
-                //check if question is late (not answered for 12 hours)
-                $is_late = Carbon::now()->diffInHours($question->created_at) >= 12;
+                //check if question is late (not answered for $this->timer hours)
+                $is_late = Carbon::now()->diffInHours($question->created_at) >= $this->timer;
             }
         }
 
@@ -684,7 +684,7 @@ class GeneralConversationController extends Controller
          (الأسبوع الحالي\ الأسبوع الماضي\الشهر الحالي\ الشهرين التي يسبقها).
         وتلزم هذه المعلومات في الاحصائيات .
         عدد مجموع التحويلات التي وصلت هذا الشخص (مراقب\موجه\مستشار).
-        ** عدد التحويلات التي تم إجابتها بعد مرور 12 ساعة عند هذا الشخص
+        ** عدد التحويلات التي تم إجابتها بعد مرور $this->timer ساعة عند هذا الشخص
         *** عدد التحويلات الفعالة حتى هذه اللحظة عند هذا الشخص
         **** عدد التحويلات التي تمت إجابتها عند هذا الشخص .
         ***** عدد التحويلات التي قام هذا الشخص برفعها لمسؤوله الأعلى
@@ -749,11 +749,11 @@ class GeneralConversationController extends Controller
                 $join->on('questions.id', '=', 'answers.question_id')
                     ->whereIn('answers.user_id', $users)
                     ->where('answers.is_discussion', '=', false)
-                    ->whereRaw('answers.created_at < DATE_ADD(questions.created_at, INTERVAL 12 HOUR)');
+                    ->whereRaw('answers.created_at < DATE_ADD(questions.created_at, INTERVAL ' . $this->timer . ' HOUR)');
             })
             ->whereIn('questions_assignees.assignee_id', $users)
             ->where('questions_assignees.is_active', true)
-            ->where('questions_assignees.created_at', '<', now()->subHours(12))
+            ->where('questions_assignees.created_at', '<', now()->subHours($this->timer))
             ->whereIn('questions.status', ['open', 'discussion'])
             ->whereNull('answers.id')
             ->with(['answers' => function ($query) {
@@ -884,16 +884,21 @@ class GeneralConversationController extends Controller
         // Base query for users' questions within the date range
         $queryResults = DB::table('questions')
             ->selectRaw('
-                questions_assignees.assignee_id as user_id,
+                users.id as user_id,
+                users.name,
                 COUNT(DISTINCT questions.id) as total_questions,
                 COUNT(DISTINCT CASE WHEN questions.status IN ("open", "discussion") THEN questions.id ELSE NULL END) as total_active_questions,
                 COUNT(DISTINCT CASE WHEN questions.status = "solved" or answers.user_id = questions_assignees.assignee_id THEN questions.id ELSE NULL END) as total_solved_questions,
-                COUNT(DISTINCT CASE WHEN answers.created_at > DATE_ADD(questions.created_at, INTERVAL 12 HOUR) THEN questions.id ELSE NULL END) as total_late_questions
+                COUNT(DISTINCT CASE WHEN answers.id IS NULL THEN questions.id ELSE NULL END) as total_late_questions
+
             ')
-            ->leftJoin('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
-            ->leftJoin('answers', function ($join) {
+            ->join('questions_assignees', 'questions.id', '=', 'questions_assignees.question_id')
+            ->join('users', 'questions_assignees.assignee_id', '=', 'users.id')
+            ->leftJoin('answers', function ($join) use ($userIds) {
                 $join->on('questions.id', '=', 'answers.question_id')
-                    ->where('answers.is_discussion', false);
+                    ->where('answers.is_discussion', false)
+                    ->whereIn('answers.user_id', $userIds)
+                    ->whereRaw('answers.created_at < DATE_ADD(questions_assignees.created_at, INTERVAL ' . $this->timer . ' HOUR)');
             })
             ->whereIn('questions_assignees.assignee_id', $userIds)
             ->where('questions_assignees.is_active', true)
@@ -917,8 +922,10 @@ class GeneralConversationController extends Controller
             ->keyBy('user_id');
 
         $questionsStats = $queryResults->map(function ($result) use ($users, $parentAssignedResults) {
-            $user = $users->where('id', $result->user_id)->first();
-            $userData = UserInfoResource::make($user);
+            $userData = [
+                'id' => $result->user_id,
+                'name' => $result->name,
+            ];
 
             return [
                 "user" => $userData,
@@ -948,7 +955,7 @@ class GeneralConversationController extends Controller
             $questionsStats[] = [
                 "user" => $userData,
                 "total_questions" => $baseUserQuestions->count(),
-                "total_late_questions" => $this->getSolvedQuestionsCount($baseUserQuestions, '12', $user, $startDate, $endDate),
+                "total_late_questions" => $this->getSolvedQuestionsCount($baseUserQuestions, $this->timer, $user, $startDate, $endDate),
                 "total_active_questions" => $this->getActiveQuestionsCount($baseUserQuestions),
                 "total_solved_questions" => $this->getSolvedQuestionsCount($baseUserQuestions, null, $user, $startDate, $endDate),
                 "total_questions_assigned_to_parent" => $this->getQuestionsAssignedToParentCount($user, $startDate, $endDate),
