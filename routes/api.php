@@ -150,6 +150,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
             Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
             Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
+            Route::post('/update-info', [UserController::class, 'updateInfo']);
         });
 
         ########Start Roles########

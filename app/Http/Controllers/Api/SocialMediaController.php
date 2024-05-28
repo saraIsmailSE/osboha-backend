@@ -26,9 +26,10 @@ class SocialMediaController extends Controller
     public function addSocialMedia(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'facebook' => 'required_without_all:whatsapp,instagram',
-            'whatsapp' => 'required_without_all:facebook,instagram',
-            'instagram' => 'required_without_all:facebook,whatsapp',
+            'facebook' => 'required_without_all:whatsapp,instagram,telegram',
+            'whatsapp' => 'required_without_all:facebook,instagram,telegram',
+            'instagram' => 'required_without_all:facebook,whatsapp,telegram',
+            'telegram' => 'required_without_all:facebook,whatsapp,instagram',
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
@@ -40,7 +41,8 @@ class SocialMediaController extends Controller
             [
                 'facebook' => $request->get('facebook'),
                 'whatsapp' => $request->get('whatsapp'),
-                'instagram' => $request->get('instagram')
+                'instagram' => $request->get('instagram'),
+                'telegram' => $request->get('telegram')
             ]
         );
         return $this->jsonResponseWithoutMessage("Your Accounts Added Successfully", 'data', 200);
