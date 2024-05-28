@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Question extends Model
 {
@@ -117,13 +118,18 @@ class Question extends Model
 
     public function getIsAnsweredLateAttribute()
     {
-        $currentAssigneeCreatedAt = $this->assignees->where('assignee_id', $this->current_assignee_id)->first()->created_at;
-        $answers = $this->answers->where('user_id', $this->current_assignee_id)
-            ->where('is_discussion', false)
-            ->where('created_at', '<', Carbon::parse($currentAssigneeCreatedAt)->addHours(12))
+        $answers = DB::table('questions_assignees')
+            ->join('answers', function ($join) {
+                $join->on('questions_assignees.question_id', '=', 'answers.question_id')
+                    ->where('answers.is_discussion', false)
+                    ->where('answers.user_id', $this->current_assignee_id)
+                    ->where('answers.question_id', $this->id)
+                    ->whereRaw('answers.created_at < DATE_ADD(questions_assignees.created_at, INTERVAL 12 HOUR)');
+            })
+            ->where('questions_assignees.is_active', true)
             ->count();
 
-        return $answers === 0;
+        return $answers <= 0;
     }
 
     public function getCurrentAssigneeCreatedAtAttribute()

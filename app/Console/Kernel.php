@@ -65,6 +65,9 @@ class Kernel extends ConsoleKernel
         //ramadan day create
         ########## 00	06	*	*	* ##########
         $schedule->command('ramadan:closeDay')->dailyAt('09:00');
+
+        //remove old questions
+        $schedule->command('questions:removeOld')->monthlyOn(1, '00:00');
     }
 
     /**
