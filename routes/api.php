@@ -149,7 +149,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
             Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
-
+            Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
         });
 
         ########Start Roles########
@@ -157,6 +157,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
             Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
             Route::get('/get-special-care-roles', [RolesAdministrationController::class, 'getSpecialCareRoles']);
+            Route::get('/get-withdrawns-team-roles', [RolesAdministrationController::class, 'getWithdrawnsTeamRoles']);
             Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
@@ -167,6 +168,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/new-leader-current-to-ambassador', [RolesAdministrationController::class, 'newLeader_currentToAmbassador']);
             Route::post('/transfer-ambassador', [RolesAdministrationController::class, 'transferAmbassador']);
             Route::post('/transfer-leader', [RolesAdministrationController::class, 'transferLeader']);
+            Route::post('/remove-secondary-role', [RolesAdministrationController::class, 'removeSecondaryRole']);
+            Route::get('/secondary-roles-by-role', [RolesAdministrationController::class, 'getSecondaryRolesByRole']);
         });
         ########End Roles########
 
@@ -350,6 +353,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
             Route::get('/list-by-advisor/{exception_type}/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
+            Route::put('/{exception_id}/assign-to-parent', [UserExceptionController::class, 'AssignExceptionToParent']);
         });
         ############End UserException########
 
@@ -704,6 +708,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::group(['prefix' => 'answers'], function () {
                 Route::post('/', [GeneralConversationController::class, 'answerQuestion']);
             });
+            Route::get('/exceptional-freez', [GeneralConversationController::class, 'getMyAssignedExceptionalFreez']);
         });
         ######## End GeneralConversation ########
 

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 
 
 use App\Traits\UserParentTrait;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -248,7 +249,6 @@ class UserController extends Controller
      */
     public function getAmbassadorMarksFourWeek($email)
     {
-
         //Data for the last four weeks
         $weekIds = Week::latest()->take(4)->pluck('id');
         $userId = User::where('email',$email)->pluck('id');
@@ -270,9 +270,57 @@ class UserController extends Controller
            
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
             
-
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
- 
+
+    function getUsersOnHoldByMonthAndGender($month, $gender)
+    {
+        $year = Carbon::now()->year;
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+
+        $query = User::without('userProfile')->with(['groups' => function ($query) {
+            $query->wherePivot('user_type', 'ambassador')
+                ->wherePivot('termination_reason', 'withdrawn')
+                ->orderBy('user_groups.created_at', 'desc');
+        }, 'withdrawnExceptions', 'socialMedia'])->where('is_hold', 1)
+            ->whereBetween('updated_at', [$startDate, $endDate]);
 
 
+        if ($gender !== 'both') {
+            $query->where('gender', $gender);
+        }
+        $users = $query->paginate(30);
+
+        // Keep pagination details
+        $paginationDetails = [
+            'total' => $users->total(),
+            'last_page' => $users->lastPage(),
+            'per_page' => $users->perPage(),
+            'current_page' => $users->currentPage(),
+        ];
+
+        // Filter the users
+        $filteredUsers = $users->map(function ($user) {
+            $latestGroup = $user->groups->first();
+            $latestException = $user->withdrawnExceptions->first();
+            $user->setRelation('groups', collect([$latestGroup]));
+            $user->setRelation('latestException', collect([$latestException]));
+            return $user;
+        })->filter(function ($user) {
+            return $user->groups->isNotEmpty() && $user->withdrawnExceptions->isNotEmpty();
+        });
+
+        if ($filteredUsers->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'ambassadors' => $filteredUsers,
+                'total' => $paginationDetails['total'],
+                'last_page' => $paginationDetails['last_page'],
+                'per_page' => $paginationDetails['per_page'],
+                'current_page' => $paginationDetails['current_page'],
+            ], 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
 }

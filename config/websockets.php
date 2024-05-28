@@ -59,7 +59,7 @@ return [
     /*
      * This path will be used to register the necessary routes for the package.
      */
-    'path' => 'laravel-websockets',
+    'path' => 'api/v1/laravel-websockets',
 
     /*
      * Dashboard Routes Middleware
@@ -70,7 +70,7 @@ return [
      */
     'middleware' => [
         'web',
-        Authorize::class,
+        // Authorize::class,
     ],
 
     'statistics' => [
@@ -128,6 +128,7 @@ return [
          * Passphrase for your local_cert file.
          */
         'passphrase' => env('LARAVEL_WEBSOCKETS_SSL_PASSPHRASE', null),
+        'verify_peer' => false,
     ],
 
     /*

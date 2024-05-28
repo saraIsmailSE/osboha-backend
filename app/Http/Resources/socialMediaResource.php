@@ -17,7 +17,7 @@ class socialMediaResource extends JsonResource
         return [
             'facebook' => $this->facebook,
             'instagram' => $this->instagram,
-            'twitter' => $this->twitter,
+            'whatsapp' => $this->whatsapp,
         ];
     }
 }

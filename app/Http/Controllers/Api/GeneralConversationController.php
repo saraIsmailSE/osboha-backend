@@ -13,6 +13,7 @@ use App\Models\Group;
 use App\Models\Question;
 use App\Models\QuestionAssignee;
 use App\Models\User;
+use App\Models\UserException;
 use App\Models\UserGroup;
 use App\Models\Week;
 use App\Models\WorkHour;
@@ -220,6 +221,36 @@ class GeneralConversationController extends Controller
                 "total" => $questions->total(),
                 "last_page" => $questions->lastPage(),
                 "has_more_pages" => $questions->hasMorePages(),
+            ], 'data', Response::HTTP_OK);
+        }
+
+        throw new NotAuthorized;
+    }
+
+    public function getMyAssignedExceptionalFreez()
+    {
+
+        if (Auth::user()->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
+            $exceptions = UserException::with('user.followupTeam.group')->whereHas('assignees', function ($query) {
+                $query->where('assignee_id', Auth::id())
+                    ->where('is_active', 1);
+            })->paginate($this->perPage);
+
+            if ($exceptions->isEmpty()) {
+                return $this->jsonResponse(
+                    [],
+                    'data',
+                    Response::HTTP_OK,
+                    "لا يوجد تجميد استثنائي مرفوع للمسؤول"
+                );
+            }
+
+            return $this->jsonResponseWithoutMessage([
+                "exceptions" => $exceptions,
+                "total" => $exceptions->total(),
+                "last_page" => $exceptions->lastPage(),
+                "has_more_pages" => $exceptions->hasMorePages(),
+                "type" => 'exceptional-freez',
             ], 'data', Response::HTTP_OK);
         }
 

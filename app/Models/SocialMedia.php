@@ -9,7 +9,7 @@ class SocialMedia extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['facebook','instagram' ,'twitter','user_id'];
+    protected $fillable = ['facebook','instagram' ,'whatsapp','user_id'];
 
     public function user()
     {
@@ -17,4 +17,3 @@ class SocialMedia extends Model
     }
 
 }
-

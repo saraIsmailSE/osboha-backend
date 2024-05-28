@@ -22,6 +22,7 @@ use App\Models\UserParent;
 use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -220,14 +221,27 @@ class UserExceptionController extends Controller
 
             //if not admin
             if (!Auth::user()->hasRole('admin')) {
+                $assignee_id = null;
                 //if advisor or consultant, notify admin
                 $msg = "قام السفير " . Auth::user()->name . " بطلب نظام تجميد استثنائي";
-                if (Auth::user()->hasRole(['advisor', 'supervisor'])) {
+                if (Auth::user()->hasRole(['advisor', 'supervisor', 'consultant'])) {
+                    $assignee_id = $userToNotify->parent_id;
 
-                    $admin_id = $group->admin()->first()->id;
-                    (new NotificationController)->sendNotification($admin_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                    (new NotificationController)->sendNotification($userToNotify->_parent_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
                 } else {
+                    //leader or ambassador
+                    // get group advisor
+                    $assignee_id =  $group->groupAdvisor()->first()->id;
+
                     (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                }
+
+                if ($assignee_id) {
+                    //create new assignee
+                    $userException->assignees()->create([
+                        "assigned_by" => $userToNotify->id, //the current assignee
+                        "assignee_id" => $assignee_id,
+                    ]);
                 }
             }
             return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
@@ -452,7 +466,7 @@ class UserExceptionController extends Controller
      */
     public function show($exception_id)
     {
-        $userException = UserException::find($exception_id);
+        $userException = UserException::with('assignees')->find($exception_id);
 
         if ($userException) {
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
@@ -873,13 +887,14 @@ class UserExceptionController extends Controller
     {
         $thisWeekMark = Mark::where('week_id', $week->id)
             ->where('user_id', $owner_of_exception->id)->first();
+
         if ($thisWeekMark) {
             $thesesLength = Thesis::where('mark_id', $thisWeekMark->id)
                 ->select(
                     DB::raw('sum(max_length) as max_length'),
                 )->first()->max_length;
 
-            if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshots >= 2)) {
+            if ($thisWeekMark->total_pages >= 10 && ($thesesLength >= config('constants.COMPLETE_THESIS_LENGTH') || $thisWeekMark->total_screenshot >= 2)) {
                 $thisWeekMark->reading_mark = config('constants.FULL_READING_MARK');
                 $thisWeekMark->writing_mark = config('constants.FULL_WRITING_MARK');
                 $thisWeekMark->save();
@@ -1081,7 +1096,7 @@ class UserExceptionController extends Controller
             $week = Week::latest()->first();
             $exceptions = UserException::where('end_at', '>=', $week->created_at)
                 ->where('status', 'accepted')
-                ->where('type_id', 5)
+                ->whereIn('type_id', [2, 5])
                 ->where('reason', '!=', 'عضو جديد')
                 ->get();
 
@@ -1093,6 +1108,78 @@ class UserExceptionController extends Controller
             }
         } catch (\Exception $e) {
             Log::channel('newWeek')->info('Set Mark For Exceptional Freez: ' . $e);
+        }
+    }
+
+    public function AssignExceptionToParent($exception_id)
+    {
+        $user = Auth::user();
+
+        $exception = UserException::find($exception_id);
+
+        if (!$exception) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_NOT_FOUND,
+                "الطلب غير موجود"
+            );
+        }
+
+        $parent = User::find($user->parent_id);
+
+        if (!$parent) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "المشرف غير موجود"
+            );
+        }
+
+        //check if the parent is already assigned to the exception
+        $assignee = $exception->assignees()->where('assignee_id', $parent->id)->first();
+
+        if ($assignee) {
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "المشرف معين بالفعل على هذا الطلب"
+            );
+        }
+
+        try {
+            DB::beginTransaction();
+
+            //set the current assignee to inactive
+            $exception->assignees()->where('assignee_id', $user->id)->update([
+                "is_active" => false
+            ]);
+
+            //create new assignee
+            $exception->assignees()->create([
+                "assigned_by" => $user->id, //the current assignee
+                "assignee_id" => $parent->id,
+            ]);
+
+            DB::commit();
+
+            $messageToNewAssignee = "لقد تم تعيينك من قبل المستخدم " . $user->name . " للإجابة على طلب المستخدم " . $exception->user->name;
+
+            //notify the assignee
+            $notification = new NotificationController();
+            $notification->sendNotification($parent->id, $messageToNewAssignee, 'USER_EXCEPTIONS', $this->getExceptionPath($exception->id));
+
+            return $this->jsonResponseWithoutMessage($exception, 'data', Response::HTTP_OK);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "حدث خطأ أثناء تعيين المشرف"
+            );
         }
     }
 }
