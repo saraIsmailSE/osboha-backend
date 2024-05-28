@@ -1145,7 +1145,11 @@ class PostController extends Controller
             ->latest();
 
         if ($pinned) {
-            return $posts->first();
+            //return the last pinned post as collection
+            $pinnedPost = $posts->first();
+            if ($pinnedPost) {
+                return collect([$pinnedPost]);
+            }
         }
 
         if ($limit) {
