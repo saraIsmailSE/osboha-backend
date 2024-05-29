@@ -33,6 +33,7 @@ class BookResource extends JsonResource
             'userBooks' => UserBookResource::collection($this->whenLoaded('userBooks')),
             'last_thesis' => $this->last_thesis ?? null,
             "allow_comments" => $this->posts->where('book_id', $this->id)->first()->allow_comments,
+            "is_active" => $this->is_active,
             'created_at' => $this->created_at,
         ];
     }

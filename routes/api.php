@@ -196,7 +196,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/ramadan', [BookController::class, 'getAllForRamadan']);
             Route::post('/report', [BookController::class, 'createReport']);
             Route::get('/reports/{status}', [BookController::class, 'listReportsByStatus']);
-            Route::patch('/report/{id}', [BookController::class, 'updateReportStatus']);
+            Route::post('/update-report', [BookController::class, 'updateReportStatus']);
             Route::get('/report/{id}', [BookController::class, 'showReport']);
             Route::get('/book/{book_id}/reports', [BookController::class, 'listReportsForBook']);
         });

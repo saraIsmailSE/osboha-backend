@@ -17,6 +17,7 @@ use App\Http\Resources\ThesisResource;
 use App\Models\BookLevel;
 use App\Models\BookType;
 use App\Models\Language;
+use App\Models\Post;
 use App\Models\PostType;
 use App\Models\RamadanDay;
 use App\Models\Section;
@@ -43,7 +44,7 @@ class BookController extends Controller
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])->paginate(9);
+        }])->where('is_active', 1)->paginate(9);
 
         if ($books->isNotEmpty()) {
             foreach ($books as $book) {
@@ -66,12 +67,12 @@ class BookController extends Controller
     public function getAllForEligible()
     {
         if (isset($_GET['name'])  && $_GET['name'] != '') {
-            $books['books']  = Book::where('name', 'like', '%' . $_GET['name'] . '%')
+            $books['books']  = Book::where('is_active', 1)->where('name', 'like', '%' . $_GET['name'] . '%')
                 ->whereHas('type', function ($q) {
                     $q->where('type', '=', 'normal');
                 })->paginate(9);
         } else {
-            $books['books']  = Book::whereHas('type', function ($q) {
+            $books['books']  = Book::where('is_active', 1)->whereHas('type', function ($q) {
                 $q->where('type', '=', 'normal');
             })->paginate(9);
         }
@@ -96,7 +97,7 @@ class BookController extends Controller
             $q->whereIn('type', ['ramadan', 'tafseer']);
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])->paginate(9);
+        }])->where('is_active', 1)->paginate(9);
         if ($books->isNotEmpty()) {
 
             foreach ($books as $book) {
@@ -414,7 +415,7 @@ class BookController extends Controller
         }])->whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
         })
-            ->get();
+            ->where('is_active', 1)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -436,7 +437,7 @@ class BookController extends Controller
             throw new NotFound;
         }
 
-        $books = Book::where('level_id', $level_id)->with(['userBooks' => function ($query) {
+        $books = Book::where('is_active', 1)->where('level_id', $level_id)->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
         }])->whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
@@ -467,7 +468,7 @@ class BookController extends Controller
     {
         $books = Book::whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
-        })->where('section_id', $section_id)->get();
+        })->where('section_id', $section_id)->where('is_active', 1)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -487,7 +488,7 @@ class BookController extends Controller
             return $this->index();
         }
 
-        $books = Book::whereHas('type', function ($q) {
+        $books = Book::where('is_active', 1)->whereHas('type', function ($q) {
             $q->where('type', 'normal')
                 ->orWhere('type', 'ramadan');
         })
@@ -528,7 +529,7 @@ class BookController extends Controller
         $language_id = Language::where('language', $language)->pluck('id')->first();
 
         if ($language_id) {
-            $books = Book::where('language_id', $language_id)
+            $books = Book::where('is_active', 1)->where('language_id', $language_id)
                 ->with(['userBooks' => function ($query) {
                     $query->where('user_id', Auth::user()->id);
                 }])->whereHas('type', function ($q) {
@@ -559,7 +560,7 @@ class BookController extends Controller
         }])->whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })
-            ->orderBy('created_at', 'desc')->take(9)->get();
+            ->where('is_active', 1)->orderBy('created_at', 'desc')->take(9)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -569,8 +570,9 @@ class BookController extends Controller
 
     public function getMostReadableBooks()
     {
-        $mostReadableBooks = DB::table('user_books')
-            ->select(
+        $mostReadableBooks = UserBook::whereHas('book', function ($q) {
+                $q->where('is_active', '=', 1);
+            })->select(
                 DB::raw('book_id, count(book_id) as user_books_count')
             )
             ->where('status', '!=', 'later')
@@ -594,7 +596,7 @@ class BookController extends Controller
         }])->whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
         })
-            ->get();
+            ->where('is_active', 1)->get();
         $randomBook = $books->random();
         if ($randomBook) {
             return $this->jsonResponseWithoutMessage(new BookResource($randomBook), 'data', 200);
@@ -606,7 +608,7 @@ class BookController extends Controller
     {
         $book = Book::whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
-        })->latest()->first();
+        })->where('is_active', 1)->latest()->first();
         if ($book) {
             return $this->jsonResponseWithoutMessage(new BookResource($book), 'data', 200);
         } else {
@@ -621,29 +623,39 @@ class BookController extends Controller
             'violated_pages' => 'required|array',
             'violated_pages.*.number' => 'required|integer',
             'description' => 'nullable|string',
+            // 'report_media.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg',
         ]);
 
         $violatedPages = serialize($validatedData['violated_pages']);
 
         $report = ViolatedBook::updateOrCreate(
-            [],
             [
+                'reporter_id' => Auth::id(),
                 'book_id' => $validatedData['book_id'],
+            ],
+            [
                 'violation_type' => $validatedData['violation_type'],
                 'violated_pages' => $violatedPages,
                 'description' => $validatedData['description'],
                 'status' => 'pending',
-                'reporter_id' => Auth::id(),
             ]
         );
-        if ($request->hasFile('report_media')) {
 
-            //books/reports/
-            $folder_path = 'books/reports';
+        // check report_media
+        if ($request->has('report_media') && count($request->report_media) > 0) {
+            //books/reports-reportID/
+            $folder_path = 'books/reports-' . $report->id;
+            //delete old media
+            $oldMedias = Media::where('book_report_id', $report->id)->get();
+            foreach ($oldMedias as $oldMedia) {
+                $this->deleteMedia($oldMedia->id);
+            }
 
-            $this->createMedia($request->report_media, $report->id, 'book_report', $folder_path);
+            $total_report_media = count($request->report_media);
+            for ($i = 0; $i < $total_report_media; $i++) {
+                $this->createMedia($request->report_media[$i], $report->id, 'book_report', $folder_path);
+            }
         }
-
         return $this->jsonResponseWithoutMessage($report, 'data', 201);
     }
 
@@ -665,23 +677,44 @@ class BookController extends Controller
 
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
-    public function updateReportStatus(Request $request, $id)
+    public function updateReportStatus(Request $request)
     {
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
+            'report_id' => 'required|exists:violated_books,id',
             'status' => 'required|in:pending,rejected,resolved',
+            'reviewer_note' => 'required|string',
         ]);
 
-        $report = ViolatedBook::findOrFail($id);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $report = ViolatedBook::with('book')->findOrFail($request->report_id);
 
         // Ensure the authenticated user is a reviewer
         if (!Auth::user()->hasanyrole('admin|book_quality_team_coordinator|book_quality_team')) {
             throw new NotAuthorized;
         }
-
-        $report->status = $validatedData['status'];
+        $report->status = $request->status;
+        $report->reviewer_note = $request->reviewer_note;
+        $report->reviewer_id = Auth::id();
         $report->save();
 
-        return $this->jsonResponseWithoutMessage($report->refresh(), 'data', 200);
+
+        if ($request->status == 'resolved') {
+            //close book
+            Book::where('id', $report->book->id)->update([
+                'is_active' => 0
+            ]);
+            //update book post
+            $bookPost = Post::where('book_id', $report->book->id)->first();
+            if ($bookPost) {
+                $bookPost->allow_comments = 0;
+                $bookPost->save();
+            }
+        }
+
+        return $this->jsonResponseWithoutMessage('تم الاعتماد', 'data', 200);
     }
     public function showReport($id)
     {

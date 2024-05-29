@@ -16,6 +16,7 @@ class ViolatedBook extends Model
         'status',
         'reviewer_id',
         'reporter_id',
+        'reviewer_note',
     ];
 
     public function book()

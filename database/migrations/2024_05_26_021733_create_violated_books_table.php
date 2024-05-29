@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'rejected', 'resolved']);
             $table->foreignId('reviewer_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('reporter_id')->constrained('users')->onDelete('cascade');
+            $table->text('reviewer_note')->nullable();
             $table->timestamps();
         });
     }

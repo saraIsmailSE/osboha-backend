@@ -21,6 +21,7 @@ class Book extends Model
         'type_id',
         'level_id',
         'language_id',
+        'is_active',
     ];
 
 
