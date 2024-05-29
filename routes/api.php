@@ -159,6 +159,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
             Route::get('/get-special-care-roles', [RolesAdministrationController::class, 'getSpecialCareRoles']);
             Route::get('/get-withdrawns-team-roles', [RolesAdministrationController::class, 'getWithdrawnsTeamRoles']);
+            Route::get('/get-books-team-roles', [RolesAdministrationController::class, 'getBooksTeamRoles']);
             Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
@@ -193,6 +194,11 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/latest', [BookController::class, 'latest']);
             Route::get('/eligible', [BookController::class, 'getAllForEligible']);
             Route::get('/ramadan', [BookController::class, 'getAllForRamadan']);
+            Route::post('/report', [BookController::class, 'createReport']);
+            Route::get('/reports/{status}', [BookController::class, 'listReportsByStatus']);
+            Route::post('/update-report', [BookController::class, 'updateReportStatus']);
+            Route::get('/report/{id}', [BookController::class, 'showReport']);
+            Route::get('/book/{book_id}/reports', [BookController::class, 'listReportsForBook']);
         });
         ########End Book########
         ########User Book########

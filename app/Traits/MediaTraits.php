@@ -70,6 +70,7 @@ trait MediaTraits
             $media->media = $folderPath ? $folderPath . '/' . $fileName : $fileName;
             $media->type = $fileType;
             $media->user_id = Auth::id();
+            Log::error($media);
 
             switch ($type) {
                 case 'comment':
@@ -110,12 +111,15 @@ trait MediaTraits
                     $media->answer_id = $type_id;
                     $media->type = $type;
                     break;
+                case 'book_report':
+                    $media->book_report_id = $type_id;
+                    $media->type = $type;
+                    break;
                 default:
                     return 'Type Not Found';
             }
 
             $media->save();
-            // dd($imageName);
             return $media;
         } catch (\Error $e) {
             report($e);

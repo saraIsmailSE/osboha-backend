@@ -213,6 +213,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Thesis::class, 'auditor_id');
     }
 
+    public function reportedViolations()
+    {
+        return $this->hasMany(ViolatedBook::class, 'reporter_id');
+    }
+
+    public function reviewedViolations()
+    {
+        return $this->hasMany(ViolatedBook::class, 'reviewer_id');
+    }
 
     public function sendPasswordResetNotification($token)
     {

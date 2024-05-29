@@ -103,8 +103,10 @@ return [
         'special_care_coordinator' => "مسؤول عام لأفرقة الرعاية الخاصة",
         'special_care_supervisor' => "مراقب رعاية خاصة",
         'special_care_leader' => "قائد رعاية خاصة",
-        'coordinator_of_withdrawns_team'=>"مسؤول فريق المنسحبين",
-        'member_of_withdrawns_team'=>"عضو في فريق المنسحبين",
+        'coordinator_of_withdrawns_team' => "مسؤول فريق المنسحبين",
+        'member_of_withdrawns_team' => "عضو في فريق المنسحبين",
+        'book_quality_team_coordinator' => "مسؤول فريق جودة الكتب",
+        'book_quality_team' => "عضو في فريق جودة الكتب",
 
 
     ],
