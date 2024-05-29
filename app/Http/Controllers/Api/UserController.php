@@ -45,6 +45,27 @@ class UserController extends Controller
             $response['in_charge_of'] = User::where('parent_id', $response['user']->id)->get();
             $response['followup_team'] = UserGroup::with('group')->where('user_id', $response['user']->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             $response['groups'] = UserGroup::with('group')->where('user_id', $response['user']->id)->get();
+            //Data for the last four weeks
+            $weekIds = Week::latest()->take(4)->pluck('id');
+            $response['ambassadorMarks'] = Mark::where('user_id',  $response['user']->id)
+                ->whereIn('week_id', $weekIds)
+                ->with('thesis')
+                ->with('thesis.book')
+                ->with('thesis.comment')
+                ->select([
+                    'marks.*',
+                    DB::raw('COALESCE(marks.id, 0) as marksId'),
+                    DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
+                    DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
+                    DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
+                    DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
+                    DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
+                    DB::raw('COALESCE(marks.support, 0) as support'),
+                ])
+                ->orderBy('marks.created_at', 'desc')
+                ->get();
+
+
             if (!Auth::user()->hasAnyRole(['admin'])) {
                 $logInfo = ' قام ' . Auth::user()->name . " بالبحث عن سفير ";
                 Log::channel('user_search')->info($logInfo);
