@@ -127,6 +127,13 @@ class UserProfileController extends Controller
                 $profile['friendship_id'] =  $friendship ?  $friendship->id : null;
             }
 
+            $user_group = UserGroup::with("group")->where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
+            $profile['groupAdministrators'] = [];
+            if ($user_group) {
+                $group = $user_group->group;
+                $profile['groupAdministrators'] = $group->groupAdministrators->pluck('id')->toArray();
+            }
+
             return $this->jsonResponseWithoutMessage($profile, 'data', 200);
         } else {
             throw new NotFound;
@@ -148,7 +155,7 @@ class UserProfileController extends Controller
 
     /**
      * Update an existing profile by the auth user in the system .
-     * 
+     *
      *  @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
@@ -188,7 +195,7 @@ class UserProfileController extends Controller
 
     /**
      * update profile picture.
-     * 
+     *
      *  @param  $request contains profile_picture
      * @return jsonResponseWithoutMessage
      */
@@ -234,7 +241,7 @@ class UserProfileController extends Controller
 
     /**
      * update profile picture.
-     * 
+     *
      *  @param  $request contains cover_picture
      * @return jsonResponseWithoutMessage
      */
@@ -269,7 +276,7 @@ class UserProfileController extends Controller
 
     /**
      * update official document.
-     * 
+     *
      *  @param  $request contains official_document
      * @return jsonResponseWithoutMessage
      */
@@ -344,7 +351,7 @@ class UserProfileController extends Controller
 
     /**
      * Get Statistics for specific user profile.
-     * 
+     *
      *  @param  $user_id
      * @return jsonResponseWithoutMessage
      */
@@ -358,7 +365,7 @@ class UserProfileController extends Controller
         //        $response['group_week_avg']=0;
         $response['week_mark'] = Mark::where('week_id', $response['week']->id)->where('user_id', $user_id)->first();
 
-        // $currentMonth = date('m');        
+        // $currentMonth = date('m');
         $currentMonth = date('m', strtotime($response['week']->created_at));
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
 

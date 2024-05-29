@@ -11,6 +11,7 @@ use App\Models\UserGroup;
 use App\Models\UserParent;
 use App\Models\Week;
 use App\Models\Mark;
+use App\Models\SocialMedia;
 use App\Models\Thesis;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
@@ -251,25 +252,23 @@ class UserController extends Controller
     {
         //Data for the last four weeks
         $weekIds = Week::latest()->take(4)->pluck('id');
-        $userId = User::where('email',$email)->pluck('id');
+        $userId = User::where('email', $email)->pluck('id');
         $response['ambassadorMarks'] = Mark::where('user_id',  15)
-        ->whereIn('week_id', $weekIds)
-        ->with('thesis')
-        ->select([
-            'marks.*',
-            DB::raw('COALESCE(marks.id, 0) as marksId'),
-            DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
-            DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
-            DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
-            DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
-            DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
-            DB::raw('COALESCE(marks.support, 0) as support'),
+            ->whereIn('week_id', $weekIds)
+            ->with('thesis')
+            ->select([
+                'marks.*',
+                DB::raw('COALESCE(marks.id, 0) as marksId'),
+                DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
+                DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
+                DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
+                DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
+                DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
+                DB::raw('COALESCE(marks.support, 0) as support'),
             ])
-        ->orderBy('marks.created_at', 'desc') 
-        ->get();
-           
-        return $this->jsonResponseWithoutMessage($response, 'data', 200);
-            
+            ->orderBy('marks.created_at', 'desc')
+            ->get();
+
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
@@ -322,5 +321,39 @@ class UserController extends Controller
         }
 
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+
+    public function updateInfo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "name" => "required|string",
+            "last_name" => "required|string",
+            'facebook' => 'required_without_all:whatsapp,instagram,telegram',
+            'whatsapp' => 'required_without_all:facebook,instagram,telegram',
+            'instagram' => 'required_without_all:facebook,whatsapp,telegram',
+            'telegram' => 'required_without_all:facebook,whatsapp,instagram',
+
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $authUser = User::find(Auth::id());
+        $authUser->name = $request->name;
+        $authUser->last_name = $request->last_name;
+        $authUser->save();
+
+        //update social media
+
+        $socialAccounts = SocialMedia::updateOrCreate(
+            ['user_id' => Auth::id()],
+            [
+                'facebook' => $request->get('facebook'),
+                'whatsapp' => $request->get('whatsapp'),
+                'instagram' => $request->get('instagram'),
+                'telegram' => $request->get('telegram')
+            ]
+        );
     }
 }
