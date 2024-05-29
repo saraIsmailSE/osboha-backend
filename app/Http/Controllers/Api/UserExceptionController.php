@@ -1096,7 +1096,7 @@ class UserExceptionController extends Controller
             $week = Week::latest()->first();
             $exceptions = UserException::where('end_at', '>=', $week->created_at)
                 ->where('status', 'accepted')
-                ->where('type_id', 5)
+                ->whereIn('type_id', [2, 5])
                 ->where('reason', '!=', 'عضو جديد')
                 ->get();
 

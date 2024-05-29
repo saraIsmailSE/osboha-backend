@@ -250,45 +250,26 @@ class UserController extends Controller
     public function getAmbassadorMarksFourWeek($email)
     {
         //Data for the last four weeks
-        $weeks = collect([
-            Week::latest()->first(), //current week
-            Week::latest()->skip(1)->first(), //The second previous week
-            Week::latest()->skip(2)->first(), // The third previous week
-            Week::latest()->skip(3)->first(), // The fourth  previous week
-
-        ]);
-        $weekIds = $weeks->map->id->toArray();
-
-        $user = User::where('email', $email)->first();
-
-        if ($user) {
-            // Getting the ambassador's marks for each week
-            $response['ambassadorMarks'] = Mark::where('user_id', $user->id)
-                ->whereIn('marks.week_id', $weekIds)
-                ->leftJoin('weeks', 'marks.week_id', '=', 'weeks.id')
-                ->select(
-                    DB::raw('min(marks.id) as id'),
-                    'marks.week_id',
-                    DB::raw('avg(reading_mark + writing_mark + support) as out_of_100'),
-                    DB::raw('sum(total_pages) as total_pages'),
-                    DB::raw('sum(total_thesis) as total_thesis'),
-                    DB::raw('sum(total_screenshot) as total_screenshot'),
-                    DB::raw('sum(support) as support'),
-                )
-                ->groupBy('marks.week_id', 'weeks.created_at')
-                ->orderBy('weeks.created_at', 'asc')
-                ->get();
-            $marksIds = [];
-            foreach ($response['ambassadorMarks'] as $mark) {
-                $marksIds[] = $mark->id;
-            }
-            $response['theses'] = Thesis::whereIn('mark_id',  $marksIds)->get();
-        } else {
-            // If  ambassador  not found
-            $response['ambassadorMarks'] = [];
-            $response['theses'] = [];
-        }
-
+        $weekIds = Week::latest()->take(4)->pluck('id');
+        $userId = User::where('email',$email)->pluck('id');
+        $response['ambassadorMarks'] = Mark::where('user_id',  15)
+        ->whereIn('week_id', $weekIds)
+        ->with('thesis')
+        ->select([
+            'marks.*',
+            DB::raw('COALESCE(marks.id, 0) as marksId'),
+            DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
+            DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
+            DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
+            DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
+            DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
+            DB::raw('COALESCE(marks.support, 0) as support'),
+            ])
+        ->orderBy('marks.created_at', 'desc') 
+        ->get();
+           
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+            
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
