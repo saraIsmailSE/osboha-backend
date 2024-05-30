@@ -56,4 +56,8 @@ class UserException extends Model
     {
         return $this->assignees->where('is_active', 1)->first();
     }
+    public function notes()
+    {
+        return $this->hasMany(UserExceptionNote::class, 'user_exception_id');
+    }
 }

@@ -18,6 +18,7 @@ use App\Exceptions\NotFound;
 use App\Models\ExceptionType;
 use App\Models\Mark;
 use App\Models\Thesis;
+use App\Models\UserExceptionNote;
 use App\Models\UserParent;
 use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
@@ -25,6 +26,7 @@ use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * UserExceptionController to create exception for user
@@ -213,7 +215,7 @@ class UserExceptionController extends Controller
             $userToNotify = User::find(Auth::id());
 
             if (Auth::user()->hasRole('admin')) {
-                $userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
+                //$userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
             } else {
 
                 $userToNotify->notify(new \App\Notifications\ExceptionalException());
@@ -1180,6 +1182,47 @@ class UserExceptionController extends Controller
                 Response::HTTP_BAD_REQUEST,
                 "حدث خطأ أثناء تعيين المشرف"
             );
+        }
+    }
+
+    /**
+     * Add audit note.
+     *
+     * @return created note;
+     */
+
+    public function addNote(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'body' => 'required',
+            'user_exception_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        try {
+            $note = UserExceptionNote::create([
+                'user_exception_id' => $request->user_exception_id,
+                'from_id' => Auth::id(),
+                'body' => $request->body
+            ]);
+
+            return $this->jsonResponseWithoutMessage($note, 'data', 200);
+        } catch (Throwable $e) {
+            report($e);
+            return $e;
+        }
+    }
+    public function getNotes($user_exception_id)
+    {
+        try {
+            $notes = UserExceptionNote::where('user_exception_id', $user_exception_id)->get();
+
+            return $this->jsonResponseWithoutMessage($notes, 'data', 200);
+        } catch (Throwable $e) {
+            report($e);
+            return false;
         }
     }
 }
