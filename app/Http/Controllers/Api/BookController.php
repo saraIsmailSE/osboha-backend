@@ -571,10 +571,10 @@ class BookController extends Controller
     public function getMostReadableBooks()
     {
         $mostReadableBooks = UserBook::whereHas('book', function ($q) {
-                $q->where('is_active', '=', 1);
-            })->select(
-                DB::raw('book_id, count(book_id) as user_books_count')
-            )
+            $q->where('is_active', '=', 1);
+        })->select(
+            DB::raw('book_id, count(book_id) as user_books_count')
+        )
             ->where('status', '!=', 'later')
             ->groupBy('book_id')
             ->orderBy('user_books_count', 'DESC')
@@ -731,5 +731,24 @@ class BookController extends Controller
         });
 
         return $this->jsonResponseWithoutMessage($reports, 'data', 200);
+    }
+
+    public function removeBookFromOsboha($book_id)
+    {
+        // Ensure the authenticated user is a admin|book_quality_team_coordinator
+        if (!Auth::user()->hasanyrole('admin|book_quality_team_coordinator')) {
+            throw new NotAuthorized;
+        }
+        Book::where('id', $book_id)->update([
+            'is_active' => 0
+        ]);
+        //update book post
+        $bookPost = Post::where('book_id', $book_id)->first();
+        if ($bookPost) {
+            $bookPost->allow_comments = 0;
+            $bookPost->save();
+        }
+
+        return $this->jsonResponseWithoutMessage('تم سحب الكتاب من المنهج', 'data', 200);
     }
 }

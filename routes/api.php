@@ -212,6 +212,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update-report', [BookController::class, 'updateReportStatus']);
             Route::get('/report/{id}', [BookController::class, 'showReport']);
             Route::get('/book/{book_id}/reports', [BookController::class, 'listReportsForBook']);
+            Route::get('/remove-book-from-osboha/{book_id}', [BookController::class, 'removeBookFromOsboha']);
         });
         ########End Book########
         ########User Book########
