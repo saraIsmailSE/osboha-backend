@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
-use App\Http\Resources\socialMediaResource ;
+use App\Http\Resources\socialMediaResource;
 use App\Models\SocialMedia;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
@@ -56,11 +56,11 @@ class SocialMediaController extends Controller
      */
     public function show($user_id)
     {
-        $socialMedia = SocialMedia::where('user_id',$user_id)->first();
-            if($socialMedia){
-                return $this->jsonResponseWithoutMessage(new socialMediaResource($socialMedia), 'data',200);
-            } else {
-                throw new NotFound;
-            }
+        $socialMedia = SocialMedia::where('user_id', $user_id)->first();
+        if ($socialMedia) {
+            return $this->jsonResponseWithoutMessage(new socialMediaResource($socialMedia), 'data', 200);
+        } else {
+            throw new NotFound;
         }
+    }
 }

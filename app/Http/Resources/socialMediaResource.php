@@ -18,6 +18,7 @@ class socialMediaResource extends JsonResource
             'facebook' => $this->facebook,
             'instagram' => $this->instagram,
             'whatsapp' => $this->whatsapp,
+            'telegram' => $this->telegram,
         ];
     }
 }

@@ -28,6 +28,17 @@ class UserController extends Controller
 {
     use ResponseJson, UserParentTrait;
 
+    /**
+     * Show user`s basic info.
+     *
+     * @param  $user_id
+     * @return App\Http\Resources\UserInfoResource ;
+     */
+    public function show($user_id)
+    {
+        $user = User::without('userProfile')->find($user_id);
+        return $this->jsonResponseWithoutMessage(new UserInfoResource($user), 'data', 200);
+    }
 
     public function searchUsers(Request $request)
     {
@@ -366,7 +377,6 @@ class UserController extends Controller
         $authUser->save();
 
         //update social media
-
         $socialAccounts = SocialMedia::updateOrCreate(
             ['user_id' => Auth::id()],
             [
@@ -376,5 +386,23 @@ class UserController extends Controller
                 'telegram' => $request->get('telegram')
             ]
         );
+        return $this->jsonResponseWithoutMessage("updated", 'data', 200);
+    }
+    public function updateUserName(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "name" => "required|string",
+            "last_name" => "required|string",
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $authUser = User::without('userProfile')->find(Auth::id());
+        $authUser->name = $request->name;
+        $authUser->last_name = $request->last_name;
+        $authUser->save();
+
+        return $this->jsonResponseWithoutMessage("updated", 'data', 200);
     }
 }

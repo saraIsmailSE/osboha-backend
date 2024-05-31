@@ -362,7 +362,8 @@ class PostController extends Controller
 
             //if there is no pinned announcement get the last two announcements
             if (!$announcements) {
-                $announcements = $this->selectPostsQuery('announcement', 1);
+                //last 3 posts
+                $announcements = $this->selectPostsQuery('announcement', 3);
             }
         }
 
@@ -1145,11 +1146,7 @@ class PostController extends Controller
             ->latest();
 
         if ($pinned) {
-            //return the last pinned post as collection
-            $pinnedPost = $posts->first();
-            if ($pinnedPost) {
-                return collect([$pinnedPost]);
-            }
+            return $posts->first();
         }
 
         if ($limit) {
@@ -1158,7 +1155,6 @@ class PostController extends Controller
 
         return $posts->paginate(25);
     }
-
     private function selectMainPosts()
     {
         //eager load
