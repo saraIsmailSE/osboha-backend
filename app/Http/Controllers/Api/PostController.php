@@ -1145,11 +1145,7 @@ class PostController extends Controller
             ->latest();
 
         if ($pinned) {
-            //return the last pinned post as collection
-            $pinnedPost = $posts->first();
-            if ($pinnedPost) {
-                return collect([$pinnedPost]);
-            }
+            return $posts->first();
         }
 
         if ($limit) {
@@ -1158,7 +1154,6 @@ class PostController extends Controller
 
         return $posts->paginate(25);
     }
-
     private function selectMainPosts()
     {
         //eager load
