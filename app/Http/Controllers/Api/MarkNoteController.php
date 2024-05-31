@@ -11,28 +11,26 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Throwable;
+
 
 class MarkNoteController extends Controller
 {
     use ResponseJson;
 
     /**
-     * Display the specified mark note.
+     * Function to show MarkNote details.
      *
-     * This function retrieves a specific mark note based on the provided mark ID.
-     * It ensures that the note belongs to the currently authenticated user.
-     * If the note is found, it returns a JSON response with the note data and a 200 HTTP status code.
-     * If the note is not found, it throws a NotFound exception.
-     *
-     * @param int $mark_id The ID of the mark note to retrieve.
-     * @return \Illuminate\Http\JsonResponse JSON response containing the mark note data.
-     * @throws NotFoundException If the mark note is not found.
+     * @param int $mark_id The ID of the mark.
+     * @return \Illuminate\Http\JsonResponse The response containing MarkNote details.
+     * @throws NotFound If no MarkNote is found for the given mark_id.
      */
+
     public function show($mark_id)
     {
         $mark_note = MarkNote::with('mark.week')
-                              ->where('from_id',Auth::id())
-                              ->find($mark_id);
+                              ->where('mark_id',$mark_id)
+                              ->get();
         if ($mark_note) {
             return $this->jsonResponseWithoutMessage($mark_note, 'data', 200);
         } else {
@@ -57,24 +55,22 @@ class MarkNoteController extends Controller
         $validator = Validator::make($request->all(), [
             'mark_id' => 'required|int',
             'body' => 'required|string',
-            'status' => 'required|int',
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if (Auth::user()->hasRole('leader')){
+        try {
             $request['mark_id'] = $request->mark_id;
             $request['from_id'] = Auth::id();
             $request['body'] = $request->body;
-            $request['status'] = $request->status;
-            MarkNote::create($request->all());
-            return $this->jsonResponseWithoutMessage("MarkNote Created Successfully", 'data', 200);
+            $mark_note = MarkNote::create($request->all());
+            return $this->jsonResponseWithoutMessage($mark_note, 'data', 200);
+            
+        } catch (Throwable $e) {
+            report($e);
+            return $e;
         }
-        else{
-            return $this->jsonResponseWithoutMessage("لا تملك الصلاحية  لكتابة ملاحظة", 'data', 200);
-        }
-
 
     }
 
