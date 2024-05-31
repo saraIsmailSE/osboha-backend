@@ -22,6 +22,7 @@ use App\Models\UserExceptionNote;
 use App\Models\UserParent;
 use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
+use App\Traits\MarkTrait;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,7 @@ use Throwable;
 
 class UserExceptionController extends Controller
 {
-    use ResponseJson, PathTrait, MediaTraits;
+    use ResponseJson, PathTrait, MediaTraits, MarkTrait;
 
     /*
         # Create Exception Request Endpoint Documentation
@@ -510,6 +511,10 @@ class UserExceptionController extends Controller
                         $query->where('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
                     })
                     ->first();
+
+                //Data for the last four weeks
+                $weekIds = Week::latest()->take(4)->pluck('id');
+                $response['ambassadorMarks'] = $this->ambassadorWeekMark($userException->user_id, $weekIds);
 
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
@@ -1208,6 +1213,41 @@ class UserExceptionController extends Controller
                 'body' => $request->body
             ]);
 
+            //notifiy group administrators
+            $userException = UserException::find($request->user_exception_id);
+
+            $userGroup = UserGroup::with(['group.groupLeader', 'group.groupSupervisor', 'group.groupAdvisor', 'group.groupAdmin'])->where('user_id', $userException->user_id)
+                ->where('user_type', 'ambassador')
+                ->whereNull('termination_reason')->first();
+
+            $msg = "لديك ملاحظة جديدة على تجميد السفير [" . $userException->user->name . "]، يرجى مراجعتها والإجابة عليها.";
+
+            $leader = $userGroup->group->groupLeader;
+            if ($leader) {
+                (new NotificationController)->sendNotification($leader[0]->id, $msg, USER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+            }
+            $supervisor = $userGroup->group->groupSupervisor;
+            if ($supervisor) {
+
+                (new NotificationController)->sendNotification($supervisor[0]->id, $msg, USER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+            }
+
+            if (Auth::user()->hasanyrole('admin|consultant|supervisor|leader')) {
+                $advisor = $userGroup->group->groupAdvisor;
+
+                if ($advisor) {
+                    (new NotificationController)->sendNotification($advisor[0]->id, $msg, USER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                }
+            }
+
+            if (Auth::user()->hasanyrole('supervisor|leader')) {
+                $admin = $userGroup->group->groupAdmin;
+
+                if ($admin) {
+                    (new NotificationController)->sendNotification($admin[0]->id, $msg, USER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                }
+            }
+
             return $this->jsonResponseWithoutMessage($note, 'data', 200);
         } catch (Throwable $e) {
             report($e);
@@ -1217,7 +1257,7 @@ class UserExceptionController extends Controller
     public function getNotes($user_exception_id)
     {
         try {
-            $notes = UserExceptionNote::where('user_exception_id', $user_exception_id)->get();
+            $notes = UserExceptionNote::with('from')->where('user_exception_id', $user_exception_id)->get();
 
             return $this->jsonResponseWithoutMessage($notes, 'data', 200);
         } catch (Throwable $e) {

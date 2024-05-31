@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserParent;
 use App\Models\Week;
-use App\Models\Mark;
+use App\Traits\MarkTrait;
 use App\Models\SocialMedia;
 use App\Models\Thesis;
 use App\Traits\ResponseJson;
@@ -26,7 +26,7 @@ use Carbon\Carbon;
 
 class UserController extends Controller
 {
-    use ResponseJson, UserParentTrait;
+    use ResponseJson, UserParentTrait, MarkTrait;
 
     /**
      * Show user`s basic info.
@@ -58,24 +58,7 @@ class UserController extends Controller
             $response['groups'] = UserGroup::with('group')->where('user_id', $response['user']->id)->get();
             //Data for the last four weeks
             $weekIds = Week::latest()->take(4)->pluck('id');
-            $response['ambassadorMarks'] = Mark::where('user_id',  $response['user']->id)
-                ->whereIn('week_id', $weekIds)
-                ->with('thesis')
-                ->with('thesis.book')
-                ->with('thesis.comment')
-                ->select([
-                    'marks.*',
-                    DB::raw('COALESCE(marks.id, 0) as marksId'),
-                    DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
-                    DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
-                    DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
-                    DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
-                    DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
-                    DB::raw('COALESCE(marks.support, 0) as support'),
-                ])
-                ->orderBy('marks.created_at', 'desc')
-                ->get();
-
+            $response['ambassadorMarks'] = $this->ambassadorWeekMark($response['user']->id, $weekIds);
 
             if (!Auth::user()->hasAnyRole(['admin'])) {
                 $logInfo = ' قام ' . Auth::user()->name . " بالبحث عن سفير ";
@@ -266,40 +249,6 @@ class UserController extends Controller
             ->whereHas('type', function ($q) {
                 $q->where('type', '=', 'supervising');
             })->count();
-
-        return $this->jsonResponseWithoutMessage($response, 'data', 200);
-    }
-    /**
-     * Retrieve the marks and theses for an ambassador over the last four weeks.
-     *
-     * This function fetches the weekly marks for a specific ambassador based on their email address.
-     * It calculates data for the last four weeks, including the current week and the three preceding weeks.
-     * The function then gathers the ambassador's marks and related theses for these weeks.
-     * @param string $email
-     * The email address of the ambassador whose data is to be fetched.
-     * @return \Illuminate\Http\JsonResponse
-     *    A JSON response containing the ambassador's marks and theses data for the last four weeks.
-     */
-    public function getAmbassadorMarksFourWeek($email)
-    {
-        //Data for the last four weeks
-        $weekIds = Week::latest()->take(4)->pluck('id');
-        $userId = User::where('email', $email)->pluck('id');
-        $response['ambassadorMarks'] = Mark::where('user_id',  15)
-            ->whereIn('week_id', $weekIds)
-            ->with('thesis')
-            ->select([
-                'marks.*',
-                DB::raw('COALESCE(marks.id, 0) as marksId'),
-                DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
-                DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
-                DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
-                DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
-                DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
-                DB::raw('COALESCE(marks.support, 0) as support'),
-            ])
-            ->orderBy('marks.created_at', 'desc')
-            ->get();
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
