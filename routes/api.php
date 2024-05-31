@@ -121,7 +121,18 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End AmbassadorsRequests########
 
-        Route::post('users/update-info', [UserController::class, 'updateInfo']);
+        ######## USER ########
+        Route::controller(UserController::class)->prefix('users')->group(function () {
+            Route::get('/show/{user_id}', 'show');
+            Route::post('/update-info', 'updateInfo');
+        });
+        ######## End USER ########
+        ########Start SocialMedia########
+        Route::group(['prefix' => 'socialMedia'], function () {
+            Route::get('/show/{user_id}', [SocialMediaController::class, 'show']);
+        });
+        ########End SocialMedia########
+
 
     });
 
@@ -152,6 +163,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
             Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
             Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
+            Route::post('/update-user-name', [UserController::class,  'updateUserName']);
         });
 
         ########Start Roles########
@@ -421,7 +433,6 @@ Route::group(['prefix' => 'v1'], function () {
         ########Start SocialMedia########
         Route::group(['prefix' => 'socialMedia'], function () {
             Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
-            Route::get('/show/{user_id}', [SocialMediaController::class, 'show']);
         });
         ########End SocialMedia########
 
