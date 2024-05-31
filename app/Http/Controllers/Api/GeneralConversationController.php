@@ -228,7 +228,7 @@ class GeneralConversationController extends Controller
             $exceptions = UserException::with('user.followupTeam.group')->whereHas('assignees', function ($query) {
                 $query->where('assignee_id', Auth::id())
                     ->where('is_active', 1);
-            })->paginate($this->perPage);
+            })->where('status', 'pending')->paginate($this->perPage);
 
             if ($exceptions->isEmpty()) {
                 return $this->jsonResponse(
