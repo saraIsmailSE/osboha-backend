@@ -700,20 +700,6 @@ class BookController extends Controller
         $report->reviewer_id = Auth::id();
         $report->save();
 
-
-        if ($request->status == 'resolved') {
-            //close book
-            Book::where('id', $report->book->id)->update([
-                'is_active' => 0
-            ]);
-            //update book post
-            $bookPost = Post::where('book_id', $report->book->id)->first();
-            if ($bookPost) {
-                $bookPost->allow_comments = 0;
-                $bookPost->save();
-            }
-        }
-
         return $this->jsonResponseWithoutMessage('تم الاعتماد', 'data', 200);
     }
     public function showReport($id)
