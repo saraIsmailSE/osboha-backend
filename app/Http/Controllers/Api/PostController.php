@@ -1147,12 +1147,10 @@ class PostController extends Controller
 
         if ($pinned) {
             $pinnedPost = $posts->first();
-            if ($pinnedPost) {
-                if ($pinnedAsCollection) {
-                    return collect([$pinnedPost]);
-                } else {
-                    return $pinnedPost;
-                }
+            if ($pinnedAsCollection) {
+                return collect($pinnedPost ? [$pinnedPost] : []);
+            } else {
+                return $pinnedPost;
             }
         }
 
