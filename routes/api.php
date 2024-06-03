@@ -52,6 +52,7 @@ use App\Http\Controllers\Api\{
     RolesAdministrationController,
     EmptyingTeamController,
     WorkingHourController,
+    MarkNoteController,
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -96,6 +97,7 @@ Route::group(['prefix' => 'v1'], function () {
     });
     ########End Media route########
 
+    
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -705,6 +707,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/statistics', [WorkingHourController::class, 'getWorkingHoursStatistics']);
         });
         ######## End WorkingHour ########
+
+        ######## MarkNote ########
+        Route::group(['prefix' => 'mark-note'], function () {
+            Route::get('/show/{mark_id}', [MarkNoteController::class, 'show']);
+            Route::post('/create', [MarkNoteController::class, 'create']);
+        });
+        ######## End MarkNote ########
+
 
         ######## GeneralConversation ########
         Route::group(['prefix' => 'general-conversations'], function () {
