@@ -289,16 +289,23 @@ class AmbassadorsRequestsController extends Controller
                     $response['leader'] = $leader;
                     $response['group'] = $teamRequest;
 
+
+
                     //create user group record
-                    UserGroup::create(
+                    UserGroup::updateOrCreate(
                         [
                             'user_type' => 'ambassador',
                             'group_id' => $teamRequest->group->id,
-                            'user_id' => $ambassador->id
-
+                            'user_id' => $ambassador->id,
+                            'termination_reason' => null
+                        ],
+                        [
+                            'user_type' => 'ambassador',
+                            'group_id' => $teamRequest->group->id,
+                            'user_id' => $ambassador->id,
+                            'termination_reason' => null
                         ]
                     );
-
                     //crete user parent relation
                     $ambassador->parent_id = $leader->user->id;
                     $ambassador->request_id = $teamRequest->id;
