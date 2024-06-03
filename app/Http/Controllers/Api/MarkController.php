@@ -346,7 +346,7 @@ class MarkController extends Controller
                     $parentGroupAdmins = $parentGroup ? $parentGroup->group->groupAdministrators->pluck('id')->toArray() : [];
                     $isAuthAdminInGroups = in_array(Auth::id(), $parentGroupAdmins);
                 }
-                
+
                 $response['can_edit'] = (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) ||
                     Auth::user()->hasRole('admin') || $isAuthAdminInGroup;
 
