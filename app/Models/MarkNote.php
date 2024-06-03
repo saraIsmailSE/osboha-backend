@@ -18,8 +18,8 @@ class MarkNote extends Model
     {
         return $this->belongsTo(Mark::class, 'mark_id');
     }
-    public function user()
+    public function from()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'from_id');
     }
 }

@@ -164,6 +164,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Mark::class, 'user_id');
     }
+    public function markNotes()
+    {
+        return $this->hasMany(MarkNote::class, 'from_id');
+    }
+
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')->wherePivot('status', 1);

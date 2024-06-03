@@ -1,22 +1,22 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
 use App\Exceptions\NotFound;
-use App\Exceptions\NotAuthorized;
+use App\Models\Mark;
 use App\Traits\ResponseJson;
 use App\Models\MarkNote;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
+use App\Traits\PathTrait;
 
 
 class MarkNoteController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, PathTrait;
 
     /**
      * Function to show MarkNote details.
@@ -26,16 +26,10 @@ class MarkNoteController extends Controller
      * @throws NotFound If no MarkNote is found for the given mark_id.
      */
 
-    public function show($mark_id)
+    public function getNotes($mark_id)
     {
-        $mark_note = MarkNote::with('mark.week')
-                              ->where('mark_id',$mark_id)
-                              ->get();
-        if ($mark_note) {
-            return $this->jsonResponseWithoutMessage($mark_note, 'data', 200);
-        } else {
-            throw new NotFound;
-        }
+        $mark_note = MarkNote::with('from')->where('mark_id', $mark_id)->get();
+        return $this->jsonResponseWithoutMessage($mark_note, 'data', 200);
     }
 
     /**
@@ -53,27 +47,30 @@ class MarkNoteController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'mark_id' => 'required|int',
-            'body' => 'required|string',
+            'body' => 'required',
+            'mark_id' => 'required'
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         try {
-            $request['mark_id'] = $request->mark_id;
-            $request['from_id'] = Auth::id();
-            $request['body'] = $request->body;
-            $mark_note = MarkNote::create($request->all());
-            return $this->jsonResponseWithoutMessage($mark_note, 'data', 200);
-            
+            $note = MarkNote::create([
+                'mark_id' => $request->mark_id,
+                'from_id' => Auth::id(),
+                'body' => $request->body
+            ]);
+
+            //notifiy user [owner of the mark]
+            $mark = Mark::find($request->mark_id);
+            $msg = "لديك ملاحظة جديدة على علامتك ✨.";
+
+            (new NotificationController)->sendNotification($mark->user_id, $msg, MARKS, $this->getMarkPath($mark->user_id, $mark->week_id));
+
+            return $this->jsonResponseWithoutMessage($note, 'data', 200);
         } catch (Throwable $e) {
             report($e);
             return $e;
         }
-
     }
-
-
-   
 }

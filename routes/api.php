@@ -97,7 +97,7 @@ Route::group(['prefix' => 'v1'], function () {
     });
     ########End Media route########
 
-    
+
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -709,8 +709,8 @@ Route::group(['prefix' => 'v1'], function () {
         ######## End WorkingHour ########
 
         ######## MarkNote ########
-        Route::group(['prefix' => 'mark-note'], function () {
-            Route::get('/show/{mark_id}', [MarkNoteController::class, 'show']);
+        Route::group(['prefix' => 'mark-notes'], function () {
+            Route::get('/get-notes/{mark_id}', [MarkNoteController::class, 'getNotes']);
             Route::post('/create', [MarkNoteController::class, 'create']);
         });
         ######## End MarkNote ########
