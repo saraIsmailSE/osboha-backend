@@ -94,8 +94,7 @@ class WorkingHourController extends Controller
             throw new NotAuthorized;
         }
 
-        //TODO: turn the value to false
-        $previousWeek = true;
+        $previousWeek = false;
 
         if (Carbon::now()->dayOfWeek <= Carbon::WEDNESDAY)
             $previousWeek = true;
