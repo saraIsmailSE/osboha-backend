@@ -95,7 +95,6 @@ class CommentController extends Controller
         }
 
         $post = Post::find($input['post_id']);
-
         //start transaction - asmaa (to be able to rollback in case of an error)
         DB::beginTransaction();
 
