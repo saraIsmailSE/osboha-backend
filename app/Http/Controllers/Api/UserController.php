@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserInfoResource;
+use App\Models\ExceptionType;
 use App\Models\Group;
 use App\Models\GroupType;
 use App\Models\User;
@@ -13,6 +14,7 @@ use App\Models\Week;
 use App\Traits\MarkTrait;
 use App\Models\SocialMedia;
 use App\Models\Thesis;
+use App\Models\UserException;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -304,6 +306,19 @@ class UserController extends Controller
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
 
+    function withdrawnAmbassadorDetails($user_id)
+    {
+
+        $response['user'] = User::with('socialMedia')->find($user_id);
+        if ($response['user']) {
+            $response['group'] = UserGroup::with('group')->where('user_id', $user_id)->where('user_type', 'ambassador')->where('termination_reason', 'withdrawn')->first();
+            $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+            $response['exception'] = UserException::where('user_id', $user_id)->where('type_id', $withdrawn->id)->where('status', 'accepted')->first();
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
 
     public function updateInfo(Request $request)
     {
