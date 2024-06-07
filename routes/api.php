@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\{
     Auth\EmailVerificationController,
     BookController,
     BookStatisticsController,
+    ContactsWithWithdrawnController,
     PostController,
     PollVoteController,
     RateController,
@@ -695,6 +696,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get("/unread-messages", [MessagesController::class, "unreadMessages"]);
         });
         ######## Messages ########
+        ######## Contact With Withdrawn ########
+        Route::controller(ContactsWithWithdrawnController::class)->prefix('Contacts-with-withdrawn')->group(function () {
+            Route::post('/send-email', 'sendEmail');
+            Route::post('/update-contact-status', 'updateContactStatus');
+            Route::get('/contact_has_been_made/{user_id}',  'showByUserID');
+        });
+        ######## End Contact With Withdrawn ########
         ######## BookStatistics ########
         Route::group(['prefix' => 'book-stat'], function () {
             Route::get('/', [BookStatisticsController::class, 'index']);
@@ -715,7 +723,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/create', [MarkNoteController::class, 'create']);
         });
         ######## End MarkNote ########
-
 
         ######## GeneralConversation ########
         Route::group(['prefix' => 'general-conversations'], function () {

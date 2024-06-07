@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->tinyInteger('contact');
             $table->tinyInteger('return');
+            $table->unsignedBigInteger('ambassador_id');
+            $table->foreign('ambassador_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('reviewer_id');
             $table->foreign('reviewer_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

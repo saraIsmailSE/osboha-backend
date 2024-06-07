@@ -293,9 +293,28 @@ class UserController extends Controller
             return $user->groups->isNotEmpty() && $user->withdrawnExceptions->isNotEmpty();
         });
 
+        $statistics['contact_done'] = DB::table('contacts_with_withdrawns')
+            ->where('contact', 1)
+            ->count();
+        // $statistics['contact_not_done'] = DB::table('contacts_with_withdrawns')
+        //     ->where('contact', 0)
+        //     ->count();
+        $statistics['consented_to_return'] = DB::table('contacts_with_withdrawns')
+            ->where('return', 1)
+            ->count();
+        $statistics['refused_to_return'] = DB::table('contacts_with_withdrawns')
+            ->where('return', 0)
+            ->count();
+        $statistics['did_not_respond'] = DB::table('contacts_with_withdrawns')
+            ->where('return', -1)
+            ->count();
+
+
+
         if ($filteredUsers->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
                 'ambassadors' => $filteredUsers,
+                'statistics' => $statistics,
                 'total' => $paginationDetails['total'],
                 'last_page' => $paginationDetails['last_page'],
                 'per_page' => $paginationDetails['per_page'],

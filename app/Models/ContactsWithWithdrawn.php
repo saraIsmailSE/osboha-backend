@@ -12,9 +12,15 @@ class ContactsWithWithdrawn extends Model
     protected $fillable = [
         'contact',
         'return',
+        'ambassador_id',
         'reviewer_id',
     ];
+    protected $with = ['reviewer'];
 
+    public function ambassador()
+    {
+        return $this->belongsTo(User::class, 'ambassador_id');
+    }
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewer_id');
