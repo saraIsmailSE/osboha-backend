@@ -86,9 +86,6 @@ use Illuminate\Support\Facades\Broadcast;
 
 
 Route::group(['prefix' => 'v1'], function () {
-
-
-
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
@@ -96,8 +93,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::delete('/old', [MediaController::class, 'removeOldMedia']);
     });
     ########End Media route########
-
-
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);

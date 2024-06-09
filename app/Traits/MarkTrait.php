@@ -9,7 +9,9 @@ trait MarkTrait
 {
     private function ambassadorWeekMark($user_id, $weekIds)
     {
-        return Mark::where('user_id',  $user_id)
+        $weekIds= $weekIds->toArray();
+
+        $response =  Mark::where('user_id',  $user_id)
             ->whereIn('week_id', $weekIds)
             ->with('thesis')
             ->with('thesis.book')
@@ -26,5 +28,23 @@ trait MarkTrait
             ])
             ->orderBy('marks.created_at', 'desc')
             ->get();
-    }
+        foreach ($weekIds as $weekId) {
+            $mark = $response->firstWhere('week_id', $weekId);
+            if (!$mark) {
+                $mark = [
+                    'week_id' => $weekId,
+                    'reading_mark' => 0,
+                    'writing_mark' => 0,
+                    'total_pages' => 0,
+                    'total_thesis' => 0,
+                    'total_screenshot' => 0,
+                    'support' => 0,
+                ];
+            }
+        
+            $results[] = $mark;
+        }
+        
+        return $results;    
+        }
 }
