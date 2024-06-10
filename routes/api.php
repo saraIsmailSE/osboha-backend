@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\{
     Auth\AuthController,
     Auth\EmailVerificationController,
     BookController,
+    BookSuggestionController,
     BookStatisticsController,
     ContactsWithWithdrawnController,
     PostController,
@@ -628,6 +629,18 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [LanguageController::class, 'update']);
         });
         ######## Book-Language ########
+
+        ######## Book-Suggestion ########
+        Route::controller(BookSuggestionController::class)->prefix('book-suggestion')->group(function () {
+            Route::post('/create', 'create');
+            Route::post('/update-status', 'updateStatus');
+            Route::get('/show/{suggestion_id}',  'show');
+            Route::get('/list-by-status/{status}',  'listByStatus');
+            Route::get('/is-allowed-to-suggest',  'isAllowedToSuggest');
+
+        });
+        ######## End Book-Suggestion ########
+
 
         ######## Exception-Type ########
         Route::group(['prefix' => 'exception-type'], function () {

@@ -27,6 +27,7 @@ class CreateBookSuggestionsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreignId('reviewer_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->text('reviewer_note')->nullable();
             $table->timestamps();
         });
     }

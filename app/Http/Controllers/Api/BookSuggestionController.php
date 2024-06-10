@@ -3,25 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Book;
 use App\Traits\ResponseJson;
-use App\Models\Media;
-use App\Traits\MediaTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\NotAuthorized;
-use App\Exceptions\NotFound;
-use App\Http\Resources\BookResource;
-use App\Http\Resources\ThesisResource;
-use App\Models\BookLevel;
 use App\Models\BookSuggestion;
-use App\Models\Language;
-use App\Models\Post;
-use App\Models\PostType;
-use App\Models\UserBook;
-use App\Models\ViolatedBook;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class BookSuggestionController extends Controller
@@ -83,12 +71,16 @@ class BookSuggestionController extends Controller
      */
     public function show($suggestion_id)
     {
-        $book = BookSuggestion::find($suggestion_id);
+        $book = BookSuggestion::with(['reviewer', 'user', 'section', 'language',])->find($suggestion_id);
         return $this->jsonResponseWithoutMessage($book, 'data', 200);
     }
     public function listByStatus($status)
     {
-        $books = BookSuggestion::with('user', 'section', 'language', 'reviewer')->where('status', $status)->paginate(30);
+        if (!Auth::user()->hasanyrole('admin|book_quality_team_coordinator|book_quality_team')) {
+            throw new NotAuthorized;
+        }
+
+        $books = BookSuggestion::with(['user', 'section', 'language', 'reviewer'])->where('status', $status)->paginate(30);
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
                 'books' => $books,
@@ -100,5 +92,44 @@ class BookSuggestionController extends Controller
         }
 
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+    public function updateStatus(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'status' => 'required',
+            'suggestion_id' => 'required',
+            'reviewer_note' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (!Auth::user()->hasanyrole('admin|book_quality_team_coordinator|book_quality_team')) {
+            throw new NotAuthorized;
+        }
+
+        $suggestionRecored = BookSuggestion::find($request->suggestion_id);
+        $suggestionRecored->status = $request->status;
+        $suggestionRecored->reviewer_id = Auth::id();
+        $suggestionRecored->reviewer_note = $request->reviewer_note;
+        $suggestionRecored->save();
+        $suggestionRecored->refresh();
+
+        return $this->jsonResponseWithoutMessage($suggestionRecored, 'data', 200);
+    }
+
+    public function isAllowedToSuggest()
+    {
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $bookSuggestionsCount = BookSuggestion::where('user_id', Auth::id())
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->count();
+
+        return $this->jsonResponseWithoutMessage($bookSuggestionsCount, 'data', 200);
     }
 }

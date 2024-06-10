@@ -18,6 +18,7 @@ class BookSuggestion extends Model
         'link',
         'user_id',
         'reviewer_id',
+        'reviewer_note',
     ];
 
     public function user()

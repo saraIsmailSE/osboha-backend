@@ -720,8 +720,6 @@ class MarkController extends Controller
     {
         $response['previous_week'] = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
 
-
-
         $response['max_total_pages'] = Cache::remember('max_total_pages_in_week', now()->addHours(24), function () use ($response) {
             return Mark::with('user')
                 ->where('is_freezed', 0)
