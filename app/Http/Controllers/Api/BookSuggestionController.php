@@ -52,8 +52,6 @@ class BookSuggestionController extends Controller
             //link
             if ($request->link) {
                 $book->link = $request->link;
-            } else {
-                $book->link = 'لا يوجد ';
             }
             $book->save();
 
