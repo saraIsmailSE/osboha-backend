@@ -66,6 +66,25 @@ class RolesAdministrationController extends Controller
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
+    public function getBooksTeamRoles()
+    {
+        $rolesToRetrieve = [
+            'book_quality_team_coordinator',
+            'book_quality_team',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
+
+    public function getWithdrawnsTeamRoles()
+    {
+        $rolesToRetrieve = [
+            'coordinator_of_withdrawns_team',
+            'member_of_withdrawns_team',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
 
 
     public function getRamadanRoles()
@@ -80,8 +99,6 @@ class RolesAdministrationController extends Controller
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
-
-
 
     public function assignRoleV2(Request $request)
     {
@@ -1225,10 +1242,6 @@ class RolesAdministrationController extends Controller
         }
     }
 
-
-
-
-
     /**
      * Remove role from user by its supervisor
      * Only for secondary roles separated from
@@ -1271,19 +1284,28 @@ class RolesAdministrationController extends Controller
             );
         }
 
+        $mainRoles = ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'ambassador'];
+
         //check if role contains `coordinator` string or role is advisor
         $authUser = Auth::user();
-        $isAdvisor = $authUser->hasRole("advisor");
-        $coordinator = $authUser->roles()
-            ->where('name', 'LIKE', '%coordinator');
-        $isCoordinator = $coordinator->exists();
+        $isSuperRole = $authUser->hasRole(['advisor', 'admin']);
+        $secondaryRoles = $authUser->getRoleNames()->filter(function ($item) use ($mainRoles) {
+            return  !in_array($item, $mainRoles);
+        });
 
-        $isAuthorized = $isAdvisor || $isCoordinator;
+
+        $isAuthorized = $isSuperRole || $secondaryRoles->count() > 0;
+
 
         //check if the coordinator is authorized to remove the role
-        if (!$isAdvisor && $isCoordinator) {
-            $coordinatorRoleName  = $coordinator->pluck('name')->first();
-            $isAuthorized = in_array($userRoleName, config('constants.ROLES_HIERARCHY')[$coordinatorRoleName]);
+        if (!$isSuperRole && $isAuthorized) {
+            //check if one of the roles exists in the ROLES_HIERARCHY
+            $isAuthorized = $secondaryRoles->contains(function ($value, $key) use ($userRoleName) {
+                if (!array_key_exists($value, config('constants.ROLES_HIERARCHY'))) {
+                    return false;
+                }
+                return in_array($userRoleName, config('constants.ROLES_HIERARCHY')[$value]);
+            });
         }
 
         if (!$isAuthorized) {
@@ -1297,9 +1319,54 @@ class RolesAdministrationController extends Controller
         //remove the role
         $user->removeRole($userRoleName);
         return $this->jsonResponseWithoutMessage(
-            "تمت العملية بنجاح",
+            "تم إزالة الدور '" . config('constants.ARABIC_ROLES')[$userRoleName] . "' من '" . $user->name . "' بنجاح",
             'data',
             Response::HTTP_OK
         );
+    }
+
+    /**
+     * Get secondary roles that are under the responsibility of the user
+     * @return JsonResponse
+     */
+    public function getSecondaryRolesByRole()
+    {
+        $authUser = Auth::user();
+        $isSuperRole = $authUser->hasRole(['advisor', 'admin']);
+        $mainRoles = ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'ambassador'];
+        $secondaryRoles = $authUser->getRoleNames()->filter(function ($item) use ($mainRoles) {
+            return  !in_array($item, $mainRoles);
+        });
+
+        $rolesToRetrieve = [];
+        //if super role, return all roles
+        if ($isSuperRole) {
+            foreach (config('constants.ROLES_HIERARCHY') as $key => $value) {
+                $rolesToRetrieve = array_merge($rolesToRetrieve, [$key], $value);
+            }
+        } else if ($secondaryRoles->count() > 0) {
+            //get roles responsible for
+            $authorizedRoles = array_intersect($secondaryRoles->toArray(), array_keys(config('constants.ROLES_HIERARCHY')));
+            foreach ($authorizedRoles as $role) {
+                if (array_key_exists($role, config('constants.ROLES_HIERARCHY'))) {
+                    $rolesToRetrieve = array_merge($rolesToRetrieve, config('constants.ROLES_HIERARCHY')[$role]);
+                }
+            }
+        } else {
+            return $this->jsonResponseWithoutMessage(
+                "غير مصرح لك بالقيام بهذه العملية",
+                'data',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        $roles = Role::whereIn(
+            'name',
+            $rolesToRetrieve
+        )
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $this->jsonResponseWithoutMessage($roles, 'data', Response::HTTP_OK);
     }
 }

@@ -50,7 +50,7 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    EmptyingTeamController,
+    EmptyingGroupController,
     WorkingHourController,
 };
 
@@ -807,12 +807,18 @@ Route::group(['prefix' => 'v1'], function () {
         });
 
         ######## Emptying ########
-        Route::group(['prefix' => 'emptying'], function () {
-            Route::post('/all/ambassadors', [EmptyingTeamController::class, 'allAmbassadorForEmptying']);
-            Route::post('/followup/team', [EmptyingTeamController::class, 'EmptyingFollowupTeam']);
-            Route::post('/move/ambassadors', [EmptyingTeamController::class, 'moveAmbassadorsForEmptying']);
+
+        Route::controller(EmptyingGroupController::class)->prefix('emptying')->group(function () {
+            Route::post('/all/members', 'allMembersForEmptyingGroup');
+            Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
+            Route::post('/move/advisors', 'moveGroupOfAdvisors');
+            Route::post('/move/advisors', 'moveGroupOfSupervisors'); 
+            Route::post('/group', 'EmptyingGroup'); 
+
+
         });
-        ######## Emptying ########
+
+        ########End Emptying ########
 
         /*
     |--------------------------------------------------------------------------|

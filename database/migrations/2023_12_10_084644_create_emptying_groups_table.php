@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('group_id');
-            $table->enum("reason",['انسحاب القائد','سحب المهام','أسباب إدارية']);
+            $table->enum("reason",['انسحاب','سحب المهام','أسباب إدارية']);
             $table->string('note')->nullable();
 
             $table->timestamps();
