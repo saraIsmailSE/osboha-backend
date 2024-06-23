@@ -327,100 +327,93 @@ class MarkController extends Controller
             $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             if ($user_group) {
                 $response['group'] = Group::where('id', $user_group->group_id)->with('groupAdministrators')->first();
+                $response['groupAdministratorsIDs'] = $response['group']->groupAdministrators->pluck('id')->toArray();
 
                 //check if the user is support leader
                 $isSupportLeader = UserGroup::where('user_id', $user->id)->where('user_type', 'support_leader')->first();
                 $supportLeaderGroupAdmins = $isSupportLeader ? $isSupportLeader->group->groupAdministrators->pluck('id')->toArray() : [];
                 $isAuthAdminInGroup = in_array(Auth::id(), $supportLeaderGroupAdmins);
 
-                if (
-                    (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) ||
-                    Auth::user()->hasRole('admin') || $isAuthAdminInGroup
-                ) {
+                $currentWeek = Week::find($week_id);
+                $response['currentWeek'] = $currentWeek;
+                $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
+                $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
 
-                    $currentWeek = Week::find($week_id);
-                    $response['currentWeek'] = $currentWeek;
-                    $response['mark'] = Mark::where('user_id', $user_id)->where('week_id', $response['currentWeek']->id)->first();
-                    $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark']->id)->get();
+                //check if the auth user can take action if the user is support leader
+                if ($isSupportLeader) {
+                    $supportLeaderParent = $isSupportLeader->user->parent;
+                    $parentGroup = UserGroup::where('user_id', $supportLeaderParent->id)->where('user_type', 'leader')->first();
+                    $parentGroupAdmins = $parentGroup ? $parentGroup->group->groupAdministrators->pluck('id')->toArray() : [];
+                    $isAuthAdminInGroups = in_array(Auth::id(), $parentGroupAdmins);
+                }
 
-                    //check if the auth user can take action if the user is support leader
-                    if ($isSupportLeader) {
-                        $supportLeaderParent = $isSupportLeader->user->parent;
-                        $parentGroup = UserGroup::where('user_id', $supportLeaderParent->id)->where('user_type', 'leader')->first();
-                        $parentGroupAdmins = $parentGroup ? $parentGroup->group->groupAdministrators->pluck('id')->toArray() : [];
-                        $isAuthAdminInGroups = in_array(Auth::id(), $parentGroupAdmins);
-                        $response['can_edit'] = $isAuthAdminInGroups;
-                    } else {
-                        $response['can_edit'] = true;
+                $response['can_edit'] = (in_array(Auth::id(), $response['group']->groupAdministrators->pluck('id')->toArray())) ||
+                    Auth::user()->hasRole('admin') || $isAuthAdminInGroup;
+
+                /*support -- asmaa*/
+                $main_timer = $currentWeek->main_timer;
+                $PostTypeSupport = PostType::where('type', 'support')->first()->id;
+                $support_post = Post::where('type_id', $PostTypeSupport)
+                    ->where('created_at', '>', $currentWeek->created_at)
+                    ->where('created_at', '<', $main_timer)
+                    ->latest()
+                    ->first();
+
+                if ($support_post) {
+                    $pollVote = null;
+
+                    if ($support_post->pollOptions->count() > 0) {
+                        $pollVote = $support_post->pollVotes->where('user_id', $user_id)->first();
                     }
 
-                    /*support -- asmaa*/
-                    $main_timer = $currentWeek->main_timer;
-                    $PostTypeSupport = PostType::where('type', 'support')->first()->id;
-                    $support_post = Post::where('type_id', $PostTypeSupport)
+                    $user_comments = Comment::where('user_id', $user_id)
+                        ->where('post_id', $support_post->id)
+                        // ->where('comment_id', 0)
                         ->where('created_at', '>', $currentWeek->created_at)
                         ->where('created_at', '<', $main_timer)
-                        ->latest()
-                        ->first();
-
-                    if ($support_post) {
-                        $pollVote = null;
-
-                        if ($support_post->pollOptions->count() > 0) {
-                            $pollVote = $support_post->pollVotes->where('user_id', $user_id)->first();
-                        }
-
-                        $user_comments = Comment::where('user_id', $user_id)
-                            ->where('post_id', $support_post->id)
-                            // ->where('comment_id', 0)
-                            ->where('created_at', '>', $currentWeek->created_at)
-                            ->where('created_at', '<', $main_timer)
-                            // ->with('replies', function ($query) use ($user_id) {
-                            //     $query->where('user_id', $user_id);
-                            // })
-                            ->get();
-
-                        $reaction = $support_post->reactions->where('user_id', $user_id)->first();
-
-                        $response['support'] = [
-                            'post_id' => $support_post->id,
-                            'comments' => CommentResource::collection($user_comments),
-                            'vote' => $pollVote ? $pollVote->pollOption : null,
-                            'reaction' => $reaction ? new ReactionTypeResource($reaction->type) : null,
-                            'supportError' => null
-                        ];
-                    } else {
-                        $response['support']['supportError'] = 'لم يتم نشر منشور اعرف مشروعك بعد!';
-                    }
-                    /*end support*/
-
-                    /*osboha activities*/
-                    $activitiesPostType = PostType::whereIn('type', ['friday-thesis', 'discussion'])->pluck('id');
-                    $activities_post = Post::with(['comments' => function ($query) use ($user_id) {
-                        $query->where('user_id', $user_id);
-                    }])
-                        ->whereIn('type_id', $activitiesPostType)
-                        ->where('created_at', '>', $currentWeek->created_at)
-                        ->where('created_at', '<', $main_timer)
-                        ->latest()
+                        // ->with('replies', function ($query) use ($user_id) {
+                        //     $query->where('user_id', $user_id);
+                        // })
                         ->get();
 
-                    if ($activities_post->isNotEmpty()) {
-                        $graded = userWeekActivities::where('user_id', $user_id)->where('week_id', $week_id)->exists();
-                        $response['activities'] = [
-                            'activities_post' => $activities_post,
-                            'activitiesError' => null,
-                            'graded' => $graded
-                        ];
-                    } else {
-                        $response['activities']['activitiesError'] = 'لا يوجد أنشطة لهذا الأسبوع';
-                    }
-                    /*end osboha activities*/
+                    $reaction = $support_post->reactions->where('user_id', $user_id)->first();
 
-                    return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                    $response['support'] = [
+                        'post_id' => $support_post->id,
+                        'comments' => CommentResource::collection($user_comments),
+                        'vote' => $pollVote ? $pollVote->pollOption : null,
+                        'reaction' => $reaction ? new ReactionTypeResource($reaction->type) : null,
+                        'supportError' => null
+                    ];
                 } else {
-                    throw new NotAuthorized;
+                    $response['support']['supportError'] = 'لم يتم نشر منشور اعرف مشروعك بعد!';
                 }
+                /*end support*/
+
+                /*osboha activities*/
+                $activitiesPostType = PostType::whereIn('type', ['friday-thesis', 'discussion'])->pluck('id');
+                $activities_post = Post::with(['comments' => function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                }])
+                    ->whereIn('type_id', $activitiesPostType)
+                    ->where('created_at', '>', $currentWeek->created_at)
+                    ->where('created_at', '<', $main_timer)
+                    ->latest()
+                    ->get();
+
+                if ($activities_post->isNotEmpty()) {
+                    $graded = userWeekActivities::where('user_id', $user_id)->where('week_id', $week_id)->exists();
+                    $response['activities'] = [
+                        'activities_post' => $activities_post,
+                        'activitiesError' => null,
+                        'graded' => $graded
+                    ];
+                } else {
+                    $response['activities']['activitiesError'] = 'لا يوجد أنشطة لهذا الأسبوع';
+                }
+                /*end osboha activities*/
+
+                return $this->jsonResponseWithoutMessage($response, 'data', 200);
             } else {
                 return $this->jsonResponseWithoutMessage('ليس سفيرا في اية مجموعة', 'data', 404);
             }
@@ -726,8 +719,6 @@ class MarkController extends Controller
     public function topUsersByWeek()
     {
         $response['previous_week'] = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
-
-
 
         $response['max_total_pages'] = Cache::remember('max_total_pages_in_week', now()->addHours(24), function () use ($response) {
             return Mark::with('user')

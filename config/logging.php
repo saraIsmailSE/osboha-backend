@@ -158,6 +158,11 @@ return [
             'path' => storage_path('logs/ramadanDay.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'Questions' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Questions.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];

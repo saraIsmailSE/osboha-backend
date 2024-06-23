@@ -11,12 +11,16 @@ class Section extends Model
 
     protected $fillable = [
         'id',
-        'section',  
+        'section',
     ];
 
     public function books()
     {
         return $this->hasMany(Book::class);
+    }
+    public function bookSuggestions()
+    {
+        return $this->hasMany(BookSuggestion::class);
     }
 
     public function infographics()
@@ -28,5 +32,4 @@ class Section extends Model
     {
         return $this->hasMany(InfographicSeries::class);
     }
-
 }

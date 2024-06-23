@@ -161,7 +161,7 @@ class EligibleUserBookController extends Controller
                 );
             } else {
                 $user->notify(
-                    (new \App\Notifications\RejectAchievement())->delay(now()->addMinutes(2))
+                    (new \App\Notifications\RejectAchievement($userBook->book->name))->delay(now()->addMinutes(2))
                 );
             }
         } catch (\Error $e) {
@@ -206,7 +206,7 @@ class EligibleUserBookController extends Controller
             $userBook->save();
             if ($userBook->status == 'rejected' || $userBook->status == 'retard')
                 $user->notify(
-                    (new \App\Notifications\RejectAchievement())->delay(now()->addMinutes(2))
+                    (new \App\Notifications\RejectAchievement($userBook->book->name))->delay(now()->addMinutes(2))
                 );
         } catch (\Error $e) {
             return $this->jsonResponseWithoutMessage('UserBook does not exist', 'data', 200);
@@ -227,14 +227,18 @@ class EligibleUserBookController extends Controller
         try {
             //REJECT OR RETARD ENTIER USER BOOK
             $userBook = EligibleUserBook::find($request->id);
-            return $userBook;
             $user = User::find($userBook->user_id);
             $userBook->status = $request->status;
             $userBook->reviews = $request->reviews;
             $userBook->save();
-            $theses = EligibleThesis::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
-            $questions = EligibleQuestion::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
-            $generalInformations = EligibleGeneralInformations::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
+
+            EligibleThesis::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
+            EligibleQuestion::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
+            EligibleGeneralInformations::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
+
+            $user->notify(
+                (new \App\Notifications\RejectAchievement($userBook->book->name))->delay(now()->addMinutes(2))
+            );
         } catch (\Error $e) {
             return $this->jsonResponseWithoutMessage('User Book does not exist', 'data', 200);
         }

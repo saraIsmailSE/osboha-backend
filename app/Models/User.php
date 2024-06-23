@@ -93,6 +93,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserException::class);
     }
+    public function withdrawnExceptions()
+    {
+        return $this->UserException()->where('type_id', 6);
+    }
 
     // public function Group(){
     //     return $this->belongsToMany(Group::class,'user_groups')->withPivot('user_type');
@@ -160,6 +164,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Mark::class, 'user_id');
     }
+    public function markNotes()
+    {
+        return $this->hasMany(MarkNote::class, 'from_id');
+    }
+
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')->wherePivot('status', 1);
@@ -209,6 +218,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Thesis::class, 'auditor_id');
     }
 
+    public function reportedViolations()
+    {
+        return $this->hasMany(ViolatedBook::class, 'reporter_id');
+    }
+
+    public function reviewedViolations()
+    {
+        return $this->hasMany(ViolatedBook::class, 'reviewer_id');
+    }
+
+    public function exceptionNotes()
+    {
+        return $this->hasMany(UserExceptionNote::class, 'from_id');
+    }
+
 
     public function sendPasswordResetNotification($token)
     {
@@ -229,5 +253,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public function parents()
     {
         return $this->belongsToMany(Parent::class, 'user_parent', 'user_id', 'parent_id');
+    }
+    public function contactsWithWithdrawns()
+    {
+        return $this->hasMany(ContactsWithWithdrawn::class, 'reviewer_id');
+    }
+    public function bookSuggestions()
+    {
+        return $this->hasMany(BookSuggestion::class);
     }
 }

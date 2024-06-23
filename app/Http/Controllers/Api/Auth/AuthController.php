@@ -314,6 +314,7 @@ class AuthController extends Controller
                 $leader = UserGroup::where('group_id', $userGroup->group_id)->where('user_type', 'leader')->whereNull('termination_reason')->first();
                 if ($leader) {
                     $user->parent_id = $leader->user_id;
+                    $user->request_id = 0;
                     $user->is_excluded = 0;
                     $user->is_hold = 0;
                     $user->save();

@@ -60,6 +60,11 @@ trait PathTrait
         return 'group/audit/mark/' . $mark_for_audit_id;
     }
 
+    function getMarkPath($ambassador_id, $week_id)
+    {
+        //group/list-ambassador-reading/:ambassador_id/week/:week_id
+        return 'group/list-ambassador-reading/' . $ambassador_id . '/week/' . $week_id;
+    }
     function getPendingPostsPath($timeline_id, $post_id = null)
     {
         $path = 'posts/pending/' . $timeline_id;
