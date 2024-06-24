@@ -403,8 +403,7 @@ class AuditMarkController extends Controller
     {
 
         if (Auth::user()->hasanyrole('admin|advisor')) {
-            // $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
-            $previous_week =  Week::where('is_vacation', 0)->orderBy('created_at', 'desc')->first();
+            $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
             // get advisor audit
             $advisorAudit = AuditMark::where('auditor_id', $advisor_id)->whereNull('group_id')->where('week_id', $previous_week)->first();
 
