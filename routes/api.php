@@ -812,7 +812,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/all/members', 'allMembersForEmptyingGroup');
             Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
             Route::post('/move/advisors', 'moveGroupOfAdvisors');
-            Route::post('/move/advisors', 'moveGroupOfSupervisors'); 
+            Route::post('/move/supervisors', 'moveGroupOfSupervisors'); 
             Route::post('/group', 'EmptyingGroup'); 
 
 

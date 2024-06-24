@@ -15,6 +15,7 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
 
 class EmptyingGroupController extends Controller
 {
@@ -101,7 +102,7 @@ class EmptyingGroupController extends Controller
                                     Log::channel('community_edits')->info($logInfo);
                                     $response['message'] = 'تم النقل';
                                 } else {
-                                    array_push($response['not_exists'], $leaderToMove);
+                                    array_push($response['not_exists'], $ambassadorToMove);
                                 }
                             }
                             return $this->jsonResponseWithoutMessage($response, 'data', 200);
@@ -122,7 +123,119 @@ class EmptyingGroupController extends Controller
     }
 
     function moveGroupOfSupervisors(Request $request) {
-        
+        $validator = Validator::make($request->all(), [
+            'supervisors' => 'required|array',
+            'supervisors.*' =>'required|email',
+            'newAdvisorEmail' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        if (Auth::user()->hasanyrole('admin|advisor|consultant|special_care_coordinator')) {
+            $response = [];
+            $response['need_promotion'] = [];
+            $response['not_exists'] = [];
+
+                //get new supervisor info
+            $newAdvisor = User::where('email', $request->newAdvisorEmail)->first();
+            if ($newAdvisor) {
+                //check if new supervisor has supervisor role
+                if ($newAdvisor->hasRole('advisor')) {
+                    //get supervising group
+                    $newAdvisingGroupId = Group::whereHas('type', function ($q) {
+                        $q->where('type', 'advising');
+                    })
+                        ->whereHas('users', function ($q) use ($newAdvisor) {
+                            $q->where('user_id', $newAdvisor->id);
+                        })
+                        ->pluck('id')
+                        ->first();
+                    if ($newAdvisingGroupId) {
+
+                            ##### START WORKING WITH Supervisors #####
+                            foreach ($request->supervisors as $index => $supervisorToMove) {
+                            $supervisor = User::where('email', $supervisorToMove)->first();
+                            if ($supervisor) {
+                                //check if supervisor has supervisor role
+                                if ($supervisor->hasRole('supervisor')) {
+
+                                    //1- get supervisor`s groups
+                                    $groupsID = UserGroup::where('user_id', $supervisor->id)->whereNull('termination_reason')->where('user_type','!=','ambassador')->pluck('group_id');
+
+                                    // 2- update advisor                                  
+                                    foreach ($groupsID as $key => $id) {
+                                        UserGroup::updateOrCreate(
+                                            [
+                                                'group_id' => $id,
+                                                'user_type' => 'advisor',
+                                            ],
+                                            [
+                                                'user_id' => $newAdvisor->id,
+                                            ]
+                                        );
+                                    }
+
+                                    // جعل المراقب سفير في غروب التوجيه الجديد
+                                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $supervisor->id)->update(['termination_reason'  => 'transfer_advisor']);
+                                    UserGroup::create(
+                                        [
+                                            'user_id' => $supervisor->id,
+                                            'user_type' => "ambassador",
+                                            'group_id' => $newAdvisingGroupId
+                                        ]
+                                    );
+
+                                        //جعل الموجه الجديد مسؤل عن المراقب
+                                        $supervisor->update(['parent_id'  => $newAdvisor->id]);
+                                        //Update User Parent
+                                        UserParent::where("user_id", $supervisor->id)->update(["is_active" => 0]);
+                                        UserParent::create([
+                                            'user_id' => $supervisor->id,
+                                            'parent_id' =>  $newAdvisor->id,
+                                            'is_active' => 1,
+                                        ]);
+
+                                    
+                                    $logInfo = ' قام ' . Auth::user()->name . " بنقل المراقب " . $supervisor->name . ' إلى الموجه ' .  $newAdvisor->name;
+                                    Log::channel('community_edits')->info($logInfo);
+
+                                    $response['message'] = 'تم النقل';
+
+                                
+                                } else {
+                                    array_push($response['need_promotion'], $leaderToMove['leader_email']);
+                                }
+                            } else {
+                                array_push($response['not_exists'], $supervisorToMove['leader_email']);
+                            }
+                        }
+                        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                        
+
+                    } else {
+                        $response['message'] = 'فريق التوجيه الجديد غير موجود ';
+
+                        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                    }
+                    
+                } else {
+                    $response['message'] = 'يجب أن يكون الموجه الجديد موجهاً أولاً';
+
+                    return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                }
+
+            } else {
+                $response['message'] = 'الموجه الجديد غير موجود';
+
+                return $this->jsonResponseWithoutMessage($response, 'data', 200);
+            }
+
+        } else {
+            throw new NotAuthorized;
+        }
+    
     }
 
     public function moveGroupOfAdvisors(Request $request)
