@@ -1108,14 +1108,14 @@ class RolesAdministrationController extends Controller
                                 $ambassador->update(['parent_id'  => $newLeader->id]);
                                 //Update User Parent
                                 UserParent::where("user_id", $ambassador->id)->update(["is_active" => 0]);
-                                UserParent::updateOrCreate([
+                                UserParent::create([
                                     'user_id' => $ambassador->id,
                                     'parent_id' =>  $newLeader->id,
                                     'is_active' => 1,
                                 ]);
                                 //move ambassador to new followup group
                                 UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'leader_withdrawn']);
-                                UserGroup::updateOrCreate(
+                                UserGroup::create(
                                     [
                                         'user_id' => $ambassador->id,
                                         'user_type' => "ambassador",

@@ -869,12 +869,21 @@ Route::group(['prefix' => 'v1'], function () {
 
         ######## Emptying ########
 
+<<<<<<< HEAD
         Route::controller(TeamsDischargeController::class)->prefix('teams-discharge')->group(function () {
             // Route::post('/all/members', 'allMembersForEmptyingGroup');
             // Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
             // Route::post('/move/advisors', 'moveGroupOfAdvisors');
             // Route::post('/move/advisors', 'moveGroupOfSupervisors');
             // Route::post('/group', 'EmptyingGroup');
+=======
+        Route::controller(EmptyingGroupController::class)->prefix('emptying')->group(function () {
+            Route::post('/all/members', 'allMembersForEmptyingGroup');
+            Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
+            Route::post('/move/advisors', 'moveGroupOfAdvisors');
+            Route::post('/move/supervisors', 'moveGroupOfSupervisors'); 
+            Route::post('/group', 'EmptyingGroup'); 
+>>>>>>> dfc6fd27f748e383388ff946c30ee24f723b1cbd
 
             Route::post('/discharge', 'discharge');
 
