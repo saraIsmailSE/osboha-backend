@@ -186,7 +186,7 @@ class EligibleThesisController extends Controller
                     $userBook->reviews = $request->reviews;
                     $userBook->save();
                     $user->notify(
-                        (new \App\Notifications\RejectAchievement())->delay(now()->addMinutes(2))
+                        (new \App\Notifications\RejectAchievement($userBook->book->name))->delay(now()->addMinutes(2))
                     );
                 }
                 $thesis->save();

@@ -176,7 +176,7 @@ class AuditMarkController extends Controller
                             $q->where('type', '=', 'followup');
                         })->pluck('group_id');
                     // get supervisors of $advisor [Based on where the advisor is advisor]
-                    $supervisors = UserGroup::where('user_type', 'supervisor')->whereIn('group_id', $groupsID)->distinct()->get(['user_id']);
+                    $supervisors = UserGroup::where('user_type', 'supervisor')->whereNull('termination_reason')->whereIn('group_id', $groupsID)->distinct()->get(['user_id']);
 
                     // get Audit [in the current week] for each $supervisor
                     foreach ($supervisors as $key => $supervisor) {
@@ -249,7 +249,7 @@ class AuditMarkController extends Controller
     public function groupAuditMarks($group_id)
     {
         $response['group'] = Group::with('leaderAndAmbassadors')->find($group_id);
-        $response['week'] = Week::where('is_vacation', 0)->orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        $response['week'] =  Week::where('is_vacation', 0)->orderBy('created_at', 'desc')->first();
 
         $response['audit_mark'] = AuditMark::where('week_id', $response['week']->id)->where('group_id', $group_id)->first();
         //Audit Marks by type [full - variant]
@@ -277,7 +277,7 @@ class AuditMarkController extends Controller
         if (Auth::user()->can('audit mark')) {
             $response['mark_for_audit'] = MarksForAudit::with('auditNotes')->find($mark_for_audit_id);
             $response['week'] = Week::where('id', $response['mark_for_audit']->auditMark->week_id)->first();
-            $group_id = UserGroup::where('user_id', $response['mark_for_audit']->mark->user_id)->where('user_type', 'ambassador')->pluck('group_id')->first();
+            $group_id = UserGroup::where('user_id', $response['mark_for_audit']->mark->user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->pluck('group_id')->first();
             $response['group'] = Group::where('id', $group_id)->with('groupAdministrators')->first();
             $response['authorized'] = Auth::user()->hasanyrole('admin|consultant|supervisor|advisor');
             $response['theses'] = Thesis::with('book')->where('mark_id',  $response['mark_for_audit']->mark_id)->get();
@@ -326,7 +326,7 @@ class AuditMarkController extends Controller
     {
         if (Auth::user()->hasanyrole('admin|supervisor|advisor')) {
             // get all groups for a supervisor
-            $groupsID = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')->pluck('group_id');
+            $groupsID = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')->whereNull('termination_reason')->pluck('group_id');
             $response['groups'] = Group::withCount('leaderAndAmbassadors')->whereHas('type', function ($q) {
                 $q->where('type', '=', 'followup');
             })->whereIn('id', $groupsID)->without('Timeline')->get();
@@ -414,12 +414,12 @@ class AuditMarkController extends Controller
                 $userMark = Mark::find($mark->mark_id);
 
                 //group where user is ambassador
-                $ambassador_group_id = UserGroup::where('user_type', 'ambassador')->where('user_id', $userMark->user_id)->first();
+                $ambassador_group_id = UserGroup::where('user_type', 'ambassador')->whereNull('termination_reason')->where('user_id', $userMark->user_id)->first();
                 if ($ambassador_group_id) {
-                    $supervisorID = UserGroup::where('user_type', 'supervisor')->where('group_id', $ambassador_group_id->group_id)->first();
+                    $supervisorID = UserGroup::where('user_type', 'supervisor')->whereNull('termination_reason')->where('group_id', $ambassador_group_id->group_id)->first();
                     if ($supervisorID) {
                         $supervisor = User::find($supervisorID->user_id);
-                        $auditInfo['supervisor_name'] = $supervisor->name;
+                        $auditInfo['supervisor_name'] = $supervisor->name . " " . $supervisor->last_name;
                         $response[$key] = $auditInfo;
                     }
                 }

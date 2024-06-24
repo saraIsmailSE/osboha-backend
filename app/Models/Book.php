@@ -21,6 +21,7 @@ class Book extends Model
         'type_id',
         'level_id',
         'language_id',
+        'is_active',
     ];
 
 
@@ -71,6 +72,10 @@ class Book extends Model
     public function level()
     {
         return $this->belongsTo(BookLevel::class);
+    }
+    public function violationReports()
+    {
+        return $this->hasMany(ViolatedBook::class);
     }
 
     public static function boot()

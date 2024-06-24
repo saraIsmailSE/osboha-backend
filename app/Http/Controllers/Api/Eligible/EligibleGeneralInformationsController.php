@@ -151,7 +151,7 @@ class EligibleGeneralInformationsController extends Controller
                     $questions = EligibleQuestion::where('eligible_user_books_id', $info->eligible_user_books_id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
                 }
                 $user->notify(
-                    (new \App\Notifications\RejectAchievement())->delay(now()->addMinutes(2))
+                    (new \App\Notifications\RejectAchievement($userBook->book->name))->delay(now()->addMinutes(2))
                 );
             }
 

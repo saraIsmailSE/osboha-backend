@@ -358,11 +358,12 @@ class PostController extends Controller
         $announcements = null;
         if ($posts->currentPage() == 1) {
             //get the last pinned announcement
-            $announcements = $this->selectPostsQuery('announcement', null, true);
+            $announcements = $this->selectPostsQuery('announcement', null, true, true);
 
             //if there is no pinned announcement get the last two announcements
             if (!$announcements) {
-                $announcements = $this->selectPostsQuery('announcement', 1);
+                //last 3 posts
+                $announcements = $this->selectPostsQuery('announcement', 3);
             }
         }
 
@@ -1122,7 +1123,7 @@ class PostController extends Controller
      * @param int $limit
      * @param bool $pinned
      */
-    private function selectPostsQuery($type, $limit = null, $pinned = false)
+    private function selectPostsQuery($type, $limit = null, $pinned = false, $pinnedAsCollection = false)
     {
         $post_type_id = PostType::where('type', $type)->first()->id;
 
@@ -1145,7 +1146,12 @@ class PostController extends Controller
             ->latest();
 
         if ($pinned) {
-            return $posts->first();
+            $pinnedPost = $posts->first();
+            if ($pinnedAsCollection) {
+                return collect($pinnedPost ? [$pinnedPost] : []);
+            } else {
+                return $pinnedPost;
+            }
         }
 
         if ($limit) {
@@ -1154,7 +1160,6 @@ class PostController extends Controller
 
         return $posts->paginate(25);
     }
-
     private function selectMainPosts()
     {
         //eager load
