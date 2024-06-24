@@ -262,4 +262,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(BookSuggestion::class);
     }
+    public function discharges()
+    {
+        return $this->hasMany(TeamsDischarge::class);
+    }
 }
