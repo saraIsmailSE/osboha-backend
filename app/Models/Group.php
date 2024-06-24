@@ -122,6 +122,12 @@ class Group extends Model
         return $this->hasMany(AmbassadorsRequests::class, 'group_id');
     }
 
+    public function discharge()
+    {
+        return $this->hasOne(TeamsDischarge::class);
+    }
+
+
     public static function boot()
     {
         parent::boot();

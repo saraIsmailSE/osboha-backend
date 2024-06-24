@@ -52,7 +52,7 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    EmptyingGroupController,
+    TeamsDischargeController,
     WorkingHourController,
     MarkNoteController,
 };
@@ -869,13 +869,14 @@ Route::group(['prefix' => 'v1'], function () {
 
         ######## Emptying ########
 
-        Route::controller(EmptyingGroupController::class)->prefix('emptying')->group(function () {
-            Route::post('/all/members', 'allMembersForEmptyingGroup');
-            Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
-            Route::post('/move/advisors', 'moveGroupOfAdvisors');
-            Route::post('/move/advisors', 'moveGroupOfSupervisors'); 
-            Route::post('/group', 'EmptyingGroup'); 
+        Route::controller(TeamsDischargeController::class)->prefix('teams-discharge')->group(function () {
+            // Route::post('/all/members', 'allMembersForEmptyingGroup');
+            // Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
+            // Route::post('/move/advisors', 'moveGroupOfAdvisors');
+            // Route::post('/move/advisors', 'moveGroupOfSupervisors');
+            // Route::post('/group', 'EmptyingGroup');
 
+            Route::post('/discharge', 'discharge');
 
         });
 

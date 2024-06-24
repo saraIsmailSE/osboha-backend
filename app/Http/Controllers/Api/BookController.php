@@ -15,6 +15,7 @@ use App\Exceptions\NotFound;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\ThesisResource;
 use App\Models\BookLevel;
+use App\Models\BookSuggestion;
 use App\Models\BookType;
 use App\Models\Language;
 use App\Models\Post;
@@ -289,6 +290,7 @@ class BookController extends Controller
 
             $isRamadanActive = RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
 
+            $isSuggested = BookSuggestion::where('user_id', Auth::id())->where('name', $book->name)->exists();
             return $this->jsonResponseWithoutMessage(
                 [
                     'book' => new BookResource($book),
@@ -298,6 +300,7 @@ class BookController extends Controller
                     'rate' => $rate,
                     'last_thesis' => $last_thesis ? new ThesisResource($last_thesis) : null,
                     'isRamadanActive' => $isRamadanActive,
+                    'isSuggested' => $isSuggested
                 ],
                 'data',
                 200
