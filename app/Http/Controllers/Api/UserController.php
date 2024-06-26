@@ -261,7 +261,7 @@ class UserController extends Controller
         $startDate = Carbon::create($year, $month, 1)->startOfMonth();
         $endDate = Carbon::create($year, $month, 1)->endOfMonth();
 
-        $query = User::without('userProfile')->with(['groups' => function ($query) {
+        $query = User::with('contactsAsAWithdrawn')->without('userProfile')->with(['groups' => function ($query) {
             $query->wherePivot('user_type', 'ambassador')
                 ->wherePivot('termination_reason', 'withdrawn')
                 ->orderBy('user_groups.created_at', 'desc');

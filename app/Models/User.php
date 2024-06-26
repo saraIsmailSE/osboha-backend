@@ -258,6 +258,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ContactsWithWithdrawn::class, 'reviewer_id');
     }
+    public function contactsAsAWithdrawn()
+    {
+        return $this->hasOne(ContactsWithWithdrawn::class, 'ambassador_id');
+    }
+
     public function bookSuggestions()
     {
         return $this->hasMany(BookSuggestion::class);

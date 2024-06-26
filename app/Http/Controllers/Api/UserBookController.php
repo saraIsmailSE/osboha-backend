@@ -107,6 +107,44 @@ class UserBookController extends Controller
     }
 
     /**
+     * Find normal and ramadan books belongs to specific user.
+     *
+     * @param user_id , page for
+     * @return jsonResponse[user books]
+     */
+    public function osbohaUserBook($user_id, $name = '')
+    {
+
+        $userBooks = UserBook::with('book')->where('user_id', $user_id)->where(function ($query) {
+            $query->Where('status', 'in progress')->orWhere('status', 'finished');
+        })->whereHas('book.type', function ($q) {
+            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
+        })->whereHas('book', function ($q) use ($name) {
+            $q->where('name', 'like', '%' . $name . '%');
+        })->paginate(6);
+
+        if ($userBooks->isNotEmpty()) {
+            $books = collect();
+            $user = User::find($user_id);
+
+            foreach ($userBooks as $userBook) {
+                $userBook->book->last_thesis = $user
+                    ->theses()
+                    ->where('book_id', $userBook->book->id)
+                    ->orderBy('end_page', 'desc')
+                    ->orderBy('updated_at', 'desc')->first();
+                $books->push($userBook->book);
+            }
+
+            return $this->jsonResponseWithoutMessage([
+                'books' => BookResource::collection($books),
+                'total' => $userBooks->total(),
+            ], 'data', 200);
+        }
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+    /**
      * Check rules for free book.
      *
      * @param user_id

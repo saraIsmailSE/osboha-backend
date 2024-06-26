@@ -55,6 +55,8 @@ class ContactsWithWithdrawnController extends Controller
             ]
         );
 
+        $contactRecored = ContactsWithWithdrawn::find($contactRecored->id);
+
         return $this->jsonResponseWithoutMessage($contactRecored, 'data', 200);
     }
 
