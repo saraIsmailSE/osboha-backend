@@ -137,6 +137,21 @@ trait AmbassadorsTrait
                 'parent_id' => $leader->user->id,
                 'is_active' => 1,
             ]);
+            //create user group record
+            UserGroup::updateOrCreate(
+                [
+                    'user_type' => 'ambassador',
+                    'group_id' => $request->group->id,
+                    'user_id' => $ambassador->id,
+                    'termination_reason' => null
+                ],
+                [
+                    'user_type' => 'ambassador',
+                    'group_id' => $request->group->id,
+                    'user_id' => $ambassador->id,
+                    'termination_reason' => null
+                ]
+            );
 
             $ambassador->notify(new MailAmbassadorDistribution($request->group->id));
         }
