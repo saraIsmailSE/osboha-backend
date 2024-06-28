@@ -120,6 +120,7 @@ trait AmbassadorsTrait
                 $query->where('leader_gender', $leader_gender)
                     ->orWhere('leader_gender', 'any');
             })
+            ->whereNull('parent_id')
             ->whereNull('request_id')
             ->whereNotNull('email_verified_at')
             ->limit($request->members_num)
