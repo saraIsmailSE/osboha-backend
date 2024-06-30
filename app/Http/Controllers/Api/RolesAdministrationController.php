@@ -62,6 +62,7 @@ class RolesAdministrationController extends Controller
             'special_care_coordinator',
             'special_care_supervisor',
             'special_care_leader',
+            'ambassador',
         ];
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
