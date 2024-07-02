@@ -274,6 +274,7 @@ class AmbassadorsRequestsController extends Controller
             }
 
             $ambassador->leader_gender = $leader_gender;
+            $ambassador->request_id = null;
             $ambassador->save();
             $ambassador->fresh();
 
