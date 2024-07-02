@@ -46,6 +46,11 @@ trait AmbassadorsTrait
                 return [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()];
             case 'month':
                 return [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
+            case 'last_month':
+                return [
+                    Carbon::now()->subMonth()->startOfMonth(),
+                    Carbon::now()->subMonth()->endOfMonth()
+                ];
             default:
                 throw new \Exception("Invalid time frame: $timeFrame");
         }
@@ -88,7 +93,7 @@ trait AmbassadorsTrait
             ->whereNotNull('leader_gender')
             ->whereNotNull('email_verified_at')
             ->whereNull('request_id')
-            ->whereBetween('created_at', $dates)
+            ->whereBetween('updated_at', $dates)
             ->count();
     }
 
