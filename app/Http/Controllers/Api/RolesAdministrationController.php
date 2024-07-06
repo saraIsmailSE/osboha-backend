@@ -62,6 +62,26 @@ class RolesAdministrationController extends Controller
             'special_care_coordinator',
             'special_care_supervisor',
             'special_care_leader',
+            'ambassador',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
+    public function getBooksTeamRoles()
+    {
+        $rolesToRetrieve = [
+            'book_quality_team_coordinator',
+            'book_quality_team',
+        ];
+        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
+        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
+    }
+
+    public function getWithdrawnsTeamRoles()
+    {
+        $rolesToRetrieve = [
+            'coordinator_of_withdrawns_team',
+            'member_of_withdrawns_team',
         ];
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
@@ -80,8 +100,6 @@ class RolesAdministrationController extends Controller
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
-
-
 
     public function assignRoleV2(Request $request)
     {
@@ -1057,7 +1075,8 @@ class RolesAdministrationController extends Controller
     public function transferAmbassador(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'ambassador_email' => 'required|email',
+            'ambassadors' => 'required|array',
+            'ambassadors.*.ambassador_email' => 'required|email',
             'leader_email' => 'required|email',
         ]);
 
@@ -1065,49 +1084,63 @@ class RolesAdministrationController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-        if (Auth::user()->hasanyrole('admin|advisor|consultant|special_care_coordinator')) {
-            $ambassador = User::where('email', $request->ambassador_email)->first();
+        if (Auth::user()->hasanyrole('admin|advisor|consultant')) {
+            //get new leader info
+            $newLeader = User::where('email', $request->leader_email)->with('roles')->first();
 
-            if ($ambassador) {
-                //get new leader info
-                $newLeader = User::where('email', $request->leader_email)->first();
-                if ($newLeader) {
-                    // check if new leader has leader role
-                    if (!$newLeader->hasRole('leader')) {
-                        return $this->jsonResponseWithoutMessage("القائد الجديد لا يحمل رتبة قائد، قم بترقيته أولاً", 'data', 200);
-                    }
-                    //update parent id for ambassador
-                    $ambassador->update(['parent_id'  => $newLeader->id]);
-                    //Update User Parent
-                    UserParent::where("user_id", $ambassador->id)->update(["is_active" => 0]);
-                    UserParent::create([
-                        'user_id' => $ambassador->id,
-                        'parent_id' =>  $newLeader->id,
-                        'is_active' => 1,
-                    ]);
-                    //get the followup group of new leader
+            if ($newLeader) {
+                // check if new leader has leader role
+                if ($newLeader->hasRole('leader')) {
+
+                    //get the followup group id of new leader
                     $newLeaderGroupId = UserGroup::whereIn('user_type', ['leader', 'special_care_leader'])
                         ->whereNull('termination_reason')->where('user_id', $newLeader->id)->pluck('group_id')->first();
-                    //transfer ambassador to new followup group
-                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'transfer_ambassador']);
-                    UserGroup::create(
-                        [
-                            'user_id' => $ambassador->id,
-                            'user_type' => "ambassador",
-                            'group_id' => $newLeaderGroupId
-                        ]
-                    );
 
+                    if ($newLeaderGroupId) {
+                        $response = [];
+                        $response['not_exists'] = [];
 
-                    $logInfo = ' قام ' . Auth::user()->name . " بنقل السفير " . $ambassador->name . ' إلى القائد ' .  $newLeader->name;
-                    Log::channel('community_edits')->info($logInfo);
+                        ##### START WORKING WITH Ambassadors #####
+                        foreach ($request->ambassadors as $index => $ambassadorToMove) {
+                            $ambassador = User::where('email', $ambassadorToMove)->first();
+                            if ($ambassador) {
 
-                    return $this->jsonResponseWithoutMessage("تم النقل", 'data', 200);
+                                //جعل القائد الجديد مسؤل عن السفير
+                                $ambassador->update(['parent_id'  => $newLeader->id]);
+                                //Update User Parent
+                                UserParent::where("user_id", $ambassador->id)->update(["is_active" => 0]);
+                                UserParent::create([
+                                    'user_id' => $ambassador->id,
+                                    'parent_id' =>  $newLeader->id,
+                                    'is_active' => 1,
+                                ]);
+                                //move ambassador to new followup group
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'leader_withdrawn']);
+                                UserGroup::create(
+                                    [
+                                        'user_id' => $ambassador->id,
+                                        'user_type' => "ambassador",
+                                        'group_id' => $newLeaderGroupId,
+                                        'termination_reason' => Null,
+                                    ]
+                                );
+
+                                $logInfo = ' قام ' . Auth::user()->name . " بنقل  " . $ambassador->name . ' إلى القائد ' .  $newLeader->name;
+                                Log::channel('community_edits')->info($logInfo);
+                                $response['message'] = 'تم النقل';
+                            } else {
+                                array_push($response['not_exists'], $ambassadorToMove);
+                            }
+                        }
+                        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+                    } else {
+                        return $this->jsonResponseWithoutMessage('فريق المتابعة الجديد غير موجود ', 'data', 200);
+                    }
                 } else {
-                    return $this->jsonResponseWithoutMessage("حساب القائد غير موجود ", 'data', 200);
+                    return $this->jsonResponseWithoutMessage('يجب أن يكون القائد الجديد قائداً أولاً', 'data', 200);
                 }
             } else {
-                return $this->jsonResponseWithoutMessage("حساب السفير غير موجود ", 'data', 200);
+                return $this->jsonResponseWithoutMessage('القائد الجديد غير موجود', 'data', 200);
             }
         } else {
             throw new NotAuthorized;
@@ -1225,10 +1258,6 @@ class RolesAdministrationController extends Controller
         }
     }
 
-
-
-
-
     /**
      * Remove role from user by its supervisor
      * Only for secondary roles separated from
@@ -1271,19 +1300,28 @@ class RolesAdministrationController extends Controller
             );
         }
 
+        $mainRoles = ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'ambassador'];
+
         //check if role contains `coordinator` string or role is advisor
         $authUser = Auth::user();
-        $isAdvisor = $authUser->hasRole("advisor");
-        $coordinator = $authUser->roles()
-            ->where('name', 'LIKE', '%coordinator');
-        $isCoordinator = $coordinator->exists();
+        $isSuperRole = $authUser->hasRole(['advisor', 'admin']);
+        $secondaryRoles = $authUser->getRoleNames()->filter(function ($item) use ($mainRoles) {
+            return  !in_array($item, $mainRoles);
+        });
 
-        $isAuthorized = $isAdvisor || $isCoordinator;
+
+        $isAuthorized = $isSuperRole || $secondaryRoles->count() > 0;
+
 
         //check if the coordinator is authorized to remove the role
-        if (!$isAdvisor && $isCoordinator) {
-            $coordinatorRoleName  = $coordinator->pluck('name')->first();
-            $isAuthorized = in_array($userRoleName, config('constants.ROLES_HIERARCHY')[$coordinatorRoleName]);
+        if (!$isSuperRole && $isAuthorized) {
+            //check if one of the roles exists in the ROLES_HIERARCHY
+            $isAuthorized = $secondaryRoles->contains(function ($value, $key) use ($userRoleName) {
+                if (!array_key_exists($value, config('constants.ROLES_HIERARCHY'))) {
+                    return false;
+                }
+                return in_array($userRoleName, config('constants.ROLES_HIERARCHY')[$value]);
+            });
         }
 
         if (!$isAuthorized) {
@@ -1297,9 +1335,54 @@ class RolesAdministrationController extends Controller
         //remove the role
         $user->removeRole($userRoleName);
         return $this->jsonResponseWithoutMessage(
-            "تمت العملية بنجاح",
+            "تم إزالة الدور '" . config('constants.ARABIC_ROLES')[$userRoleName] . "' من '" . $user->name . "' بنجاح",
             'data',
             Response::HTTP_OK
         );
+    }
+
+    /**
+     * Get secondary roles that are under the responsibility of the user
+     * @return JsonResponse
+     */
+    public function getSecondaryRolesByRole()
+    {
+        $authUser = Auth::user();
+        $isSuperRole = $authUser->hasRole(['advisor', 'admin']);
+        $mainRoles = ['admin', 'consultant', 'advisor', 'supervisor', 'leader', 'ambassador'];
+        $secondaryRoles = $authUser->getRoleNames()->filter(function ($item) use ($mainRoles) {
+            return  !in_array($item, $mainRoles);
+        });
+
+        $rolesToRetrieve = [];
+        //if super role, return all roles
+        if ($isSuperRole) {
+            foreach (config('constants.ROLES_HIERARCHY') as $key => $value) {
+                $rolesToRetrieve = array_merge($rolesToRetrieve, [$key], $value);
+            }
+        } else if ($secondaryRoles->count() > 0) {
+            //get roles responsible for
+            $authorizedRoles = array_intersect($secondaryRoles->toArray(), array_keys(config('constants.ROLES_HIERARCHY')));
+            foreach ($authorizedRoles as $role) {
+                if (array_key_exists($role, config('constants.ROLES_HIERARCHY'))) {
+                    $rolesToRetrieve = array_merge($rolesToRetrieve, config('constants.ROLES_HIERARCHY')[$role]);
+                }
+            }
+        } else {
+            return $this->jsonResponseWithoutMessage(
+                "غير مصرح لك بالقيام بهذه العملية",
+                'data',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        $roles = Role::whereIn(
+            'name',
+            $rolesToRetrieve
+        )
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $this->jsonResponseWithoutMessage($roles, 'data', Response::HTTP_OK);
     }
 }

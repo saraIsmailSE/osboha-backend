@@ -19,7 +19,8 @@ class Media extends Model
         'book_id',
         'user_exception_id',
         'reaction_type_id',
-        'group_id'
+        'group_id',
+        'book_report_id'
     ];
 
     public function user()
@@ -51,6 +52,10 @@ class Media extends Model
     public function book()
     {
         return $this->belongsTo(Book::class, 'book_id');
+    }
+    public function bookReort()
+    {
+        return $this->belongsTo(ViolatedBook::class, 'book_report_id');
     }
     public function userEexception()
     {

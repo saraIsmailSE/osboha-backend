@@ -30,9 +30,9 @@ return [
         array('title' => 'الرابع من مايو', 'date' => Carbon::parse($date)->addWeeks(20)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من يونيو', 'date' => Carbon::parse($date)->addWeeks(21)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثاني من يونيو', 'date' => Carbon::parse($date)->addWeeks(22)->format('Y-m-d'), 'is_vacation' => 0),
-        array('title' => 'الثالث من يونيو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d'), 'is_vacation' => 0),
+        array('title' => 'الثالث من يونيو', 'date' => Carbon::parse($date)->addWeeks(23)->format('Y-m-d'), 'is_vacation' => 1),
         array('title' => 'الرابع من يونيو', 'date' => Carbon::parse($date)->addWeeks(24)->format('Y-m-d'), 'is_vacation' => 1),
-        array('title' => 'الخامس من يونيو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d'), 'is_vacation' => 1),
+        array('title' => 'الخامس من يونيو', 'date' => Carbon::parse($date)->addWeeks(25)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الاول من يوليو', 'date' => Carbon::parse($date)->addWeeks(26)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثاني من يوليو', 'date' => Carbon::parse($date)->addWeeks(27)->format('Y-m-d'), 'is_vacation' => 0),
         array('title' => 'الثالث من يوليو', 'date' => Carbon::parse($date)->addWeeks(28)->format('Y-m-d'), 'is_vacation' => 0),
@@ -103,6 +103,10 @@ return [
         'special_care_coordinator' => "مسؤول عام لأفرقة الرعاية الخاصة",
         'special_care_supervisor' => "مراقب رعاية خاصة",
         'special_care_leader' => "قائد رعاية خاصة",
+        'coordinator_of_withdrawns_team' => "مسؤول فريق المنسحبين",
+        'member_of_withdrawns_team' => "عضو في فريق المنسحبين",
+        'book_quality_team_coordinator' => "مسؤول فريق جودة الكتب",
+        'book_quality_team' => "عضو في فريق جودة الكتب",
 
 
     ],
@@ -132,6 +136,7 @@ return [
         '12' => 'ديسمبر',
     ],
     'ROLES_HIERARCHY' => [
+        'eligible_admin' => ['super_reviewer', 'super_auditer', 'user_accept', 'auditor', 'reviewer'],
         'marathon_coordinator' => ['marathon_verification_supervisor', 'marathon_supervisor', 'marathon_ambassador'],
         'ramadan_coordinator' => ['ramadan_hadith_corrector', 'ramadan_fiqh_corrector', 'ramadan_tafseer_corrector', 'ramadan_vedio_corrector'],
         'special_care_coordinator' => ['special_care_supervisor', 'special_care_leader'],

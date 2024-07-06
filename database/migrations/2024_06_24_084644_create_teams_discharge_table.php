@@ -13,13 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('emptying_groups', function (Blueprint $table) {
+        Schema::create('teams_discharge', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('group_id');
-            $table->enum("reason",['انسحاب القائد','سحب المهام','أسباب إدارية']);
-            $table->string('note')->nullable();
-
+            $table->string("reason");
+            $table->text('note');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('emptying_groups');
+        Schema::dropIfExists('teams_discharge');
     }
 };

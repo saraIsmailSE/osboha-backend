@@ -196,7 +196,7 @@ class MediaController extends Controller
             Log::channel('media')->info('START');
             //get last week
             $lastWeek = Week::orderBy('id', 'desc')
-                ->skip(1)
+                ->skip(2)
                 ->take(1)
                 ->first();
 

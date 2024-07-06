@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Jobs\DistributeAmbassadors;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserParent;
@@ -19,6 +20,7 @@ use App\Notifications\MailAmbassadorDistributionToYourTeam;
 use App\Traits\SignupTrait;
 use App\Traits\AmbassadorsTrait;
 use App\Traits\PathTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -58,13 +60,16 @@ class AmbassadorsRequestsController extends Controller
     */
     public function checkAmbassador($user_id)
     {
-        $user_group = null;
+        $response = null;
         $user = User::find($user_id);
         if ($user) {
             //return last user group result as ambassador
-            $user_group = UserGroup::with('group')->where('user_id', $user->id)->where('user_type', 'ambassador')->latest()->first();
+            $response['user_group'] = UserGroup::with('group')->where('user_id', $user->id)->where('user_type', 'ambassador')->latest()->first();
+            if ($response['user_group']) {
+                $response['leader'] = UserGroup::where('group_id', $response['user_group']->group_id)->where('user_type', 'leader')->whereNull('termination_reason')->first();
+            }
         }
-        return $this->jsonResponseWithoutMessage($user_group, 'data', 200);
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
 
@@ -137,6 +142,7 @@ class AmbassadorsRequestsController extends Controller
                         'group_id' => $request->group_id,
 
                     ]);
+                    DistributeAmbassadors::dispatch($ambassadorsRequest->id);
                     return $this->jsonResponseWithoutMessage($ambassadorsRequest, 'data', 200);
                 } else {
                     return $this->jsonResponseWithoutMessage("You can not request member for this group", 'data', 406);
@@ -268,6 +274,7 @@ class AmbassadorsRequestsController extends Controller
             }
 
             $ambassador->leader_gender = $leader_gender;
+            $ambassador->request_id = null;
             $ambassador->save();
             $ambassador->fresh();
 
@@ -283,21 +290,29 @@ class AmbassadorsRequestsController extends Controller
                     $response['leader'] = $leader;
                     $response['group'] = $teamRequest;
 
+
+
                     //create user group record
-                    UserGroup::create(
+                    UserGroup::updateOrCreate(
                         [
                             'user_type' => 'ambassador',
                             'group_id' => $teamRequest->group->id,
-                            'user_id' => $ambassador->id
-
+                            'user_id' => $ambassador->id,
+                            'termination_reason' => null
+                        ],
+                        [
+                            'user_type' => 'ambassador',
+                            'group_id' => $teamRequest->group->id,
+                            'user_id' => $ambassador->id,
+                            'termination_reason' => null
                         ]
                     );
-
                     //crete user parent relation
                     $ambassador->parent_id = $leader->user->id;
                     $ambassador->request_id = $teamRequest->id;
                     $ambassador->is_excluded = 0;
                     $ambassador->is_hold = 0;
+                    $ambassador->created_at = Carbon::now();
 
                     $ambassador->save();
 

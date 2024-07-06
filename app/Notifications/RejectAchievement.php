@@ -11,14 +11,16 @@ use Illuminate\Notifications\Notification;
 class RejectAchievement extends Notification implements ShouldQueue
 {
     use Queueable;
+    protected $book;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($book)
     {
+        $this->book = $book;
     }
 
     /**
@@ -41,14 +43,13 @@ class RejectAchievement extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-        ->from('no-replay@osboha180.com', 'Osboha 180')
-        ->subject('أصبوحة || تعديل حالة انجازك')
-        ->line('تحية طيبة لحضرتك،
-        لقد قام فريق المراجعة والتقييم برفض جواب أو أكثر من الأجوبة التي تم تقديمها في طلبكم لتوثيق القراءة مع أصبوحة 180 وذلك لمخالفاتها للشروط.')
-        ->line('لطفا قم بزيارة حسابك في الموقع للتعرف على سبب الرفض والحصول على فرصة تعديل الإجابة وطلب إعادة تقييمها.')
-        ->line('لك التحية.');
-        
-}
+            ->from('no-replay@osboha180.com', 'Osboha 180')
+            ->subject('أصبوحة || تعديل حالة انجازك')
+            ->line('تحية طيبة لحضرتك،
+        لقد قام فريق المراجعة والتقييم برفض جواب أو أكثر من الأجوبة التي تم تقديمها في طلبكم لتوثيق كتاب  ' . $this->book . ' وذلك لمخالفاتها للشروط.')
+            ->line('لطفا قم بزيارة حسابك في الموقع للتعرف على سبب الرفض والحصول على فرصة تعديل الإجابة وطلب إعادة تقييمها.')
+            ->line('لك التحية.');
+    }
 
     /**
      * Get the array representation of the notification.
@@ -62,5 +63,4 @@ class RejectAchievement extends Notification implements ShouldQueue
             //
         ];
     }
-
 }

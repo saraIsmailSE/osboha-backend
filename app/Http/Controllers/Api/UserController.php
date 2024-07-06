@@ -4,23 +4,43 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserInfoResource;
+use App\Models\ExceptionType;
 use App\Models\Group;
 use App\Models\GroupType;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\UserParent;
+use App\Models\Week;
+use App\Traits\MarkTrait;
+use App\Models\SocialMedia;
+use App\Models\Thesis;
+use App\Models\UserException;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 use App\Traits\UserParentTrait;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
-    use ResponseJson, UserParentTrait;
+    use ResponseJson, UserParentTrait, MarkTrait;
 
+    /**
+     * Show user`s basic info.
+     *
+     * @param  $user_id
+     * @return App\Http\Resources\UserInfoResource ;
+     */
+    public function show($user_id)
+    {
+        $user = User::without('userProfile')->find($user_id);
+        return $this->jsonResponseWithoutMessage(new UserInfoResource($user), 'data', 200);
+    }
 
     public function searchUsers(Request $request)
     {
@@ -38,6 +58,10 @@ class UserController extends Controller
             $response['in_charge_of'] = User::where('parent_id', $response['user']->id)->get();
             $response['followup_team'] = UserGroup::with('group')->where('user_id', $response['user']->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             $response['groups'] = UserGroup::with('group')->where('user_id', $response['user']->id)->get();
+            //Data for the last four weeks
+            $weekIds = Week::latest()->take(4)->pluck('id');
+            $response['ambassadorMarks'] = $this->ambassadorWeekMark($response['user']->id, $weekIds);
+
             if (!Auth::user()->hasAnyRole(['admin'])) {
                 $logInfo = ' قام ' . Auth::user()->name . " بالبحث عن سفير ";
                 Log::channel('user_search')->info($logInfo);
@@ -229,5 +253,139 @@ class UserController extends Controller
             })->count();
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    function getUsersOnHoldByMonthAndGender($month, $gender)
+    {
+        $year = Carbon::now()->year;
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+
+        $query = User::with('contactsAsAWithdrawn')->without('userProfile')->with(['groups' => function ($query) {
+            $query->wherePivot('user_type', 'ambassador')
+                ->wherePivot('termination_reason', 'withdrawn')
+                ->orderBy('user_groups.created_at', 'desc');
+        }, 'withdrawnExceptions', 'socialMedia'])->where('is_hold', 1)
+            ->whereBetween('updated_at', [$startDate, $endDate]);
+
+
+        if ($gender !== 'both') {
+            $query->where('gender', $gender);
+        }
+        $users = $query->paginate(30);
+
+        // Keep pagination details
+        $paginationDetails = [
+            'total' => $users->total(),
+            'last_page' => $users->lastPage(),
+            'per_page' => $users->perPage(),
+            'current_page' => $users->currentPage(),
+        ];
+
+        // Filter the users
+        $filteredUsers = $users->map(function ($user) {
+            $latestGroup = $user->groups->first();
+            $latestException = $user->withdrawnExceptions->first();
+            $user->setRelation('groups', collect([$latestGroup]));
+            $user->setRelation('latestException', collect([$latestException]));
+            return $user;
+        })->filter(function ($user) {
+            return $user->groups->isNotEmpty() && $user->withdrawnExceptions->isNotEmpty();
+        });
+
+        $statistics['contact_done'] = DB::table('contacts_with_withdrawns')
+            ->where('contact', 1)
+            ->count();
+        // $statistics['contact_not_done'] = DB::table('contacts_with_withdrawns')
+        //     ->where('contact', 0)
+        //     ->count();
+        $statistics['consented_to_return'] = DB::table('contacts_with_withdrawns')
+            ->where('return', 1)
+            ->count();
+        $statistics['refused_to_return'] = DB::table('contacts_with_withdrawns')
+            ->where('return', 0)
+            ->count();
+        $statistics['did_not_respond'] = DB::table('contacts_with_withdrawns')
+            ->where('return', -1)
+            ->count();
+
+
+
+        if ($filteredUsers->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage([
+                'ambassadors' => $filteredUsers,
+                'statistics' => $statistics,
+                'total' => $paginationDetails['total'],
+                'last_page' => $paginationDetails['last_page'],
+                'per_page' => $paginationDetails['per_page'],
+                'current_page' => $paginationDetails['current_page'],
+            ], 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+    function withdrawnAmbassadorDetails($user_id)
+    {
+
+        $response['user'] = User::with('socialMedia')->find($user_id);
+        if ($response['user']) {
+            $response['group'] = UserGroup::with('group')->where('user_id', $user_id)->where('user_type', 'ambassador')->where('termination_reason', 'withdrawn')->first();
+            $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+            $response['exception'] = UserException::where('user_id', $user_id)->where('type_id', $withdrawn->id)->where('status', 'accepted')->first();
+            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+    }
+
+    public function updateInfo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "name" => "required|string",
+            "last_name" => "required|string",
+            'facebook' => 'required_without_all:whatsapp,instagram,telegram',
+            'whatsapp' => 'required_without_all:facebook,instagram,telegram',
+            'instagram' => 'required_without_all:facebook,whatsapp,telegram',
+            'telegram' => 'required_without_all:facebook,whatsapp,instagram',
+
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $authUser = User::find(Auth::id());
+        $authUser->name = $request->name;
+        $authUser->last_name = $request->last_name;
+        $authUser->save();
+
+        //update social media
+        $socialAccounts = SocialMedia::updateOrCreate(
+            ['user_id' => Auth::id()],
+            [
+                'facebook' => $request->get('facebook'),
+                'whatsapp' => $request->get('whatsapp'),
+                'instagram' => $request->get('instagram'),
+                'telegram' => $request->get('telegram')
+            ]
+        );
+        return $this->jsonResponseWithoutMessage("updated", 'data', 200);
+    }
+    public function updateUserName(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "name" => "required|string",
+            "last_name" => "required|string",
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+
+        $authUser = User::without('userProfile')->find(Auth::id());
+        $authUser->name = $request->name;
+        $authUser->last_name = $request->last_name;
+        $authUser->save();
+
+        return $this->jsonResponseWithoutMessage("updated", 'data', 200);
     }
 }

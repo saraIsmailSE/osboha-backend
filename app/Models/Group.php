@@ -67,6 +67,10 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'advisor')->latest()->take(1);
     }
+    public function groupAdmin()
+    {
+        return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')->wherePivot('user_type', 'admin')->latest()->take(1);
+    }
     public function groupAdministrators()
     {
         return $this->belongsToMany(User::class, 'user_groups')->whereNull('user_groups.termination_reason')->withPivot('user_type')
@@ -117,6 +121,12 @@ class Group extends Model
     {
         return $this->hasMany(AmbassadorsRequests::class, 'group_id');
     }
+
+    public function discharge()
+    {
+        return $this->hasOne(TeamsDischarge::class);
+    }
+
 
     public static function boot()
     {
