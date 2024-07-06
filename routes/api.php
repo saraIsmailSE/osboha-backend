@@ -218,6 +218,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/report/{id}', [BookController::class, 'showReport']);
             Route::get('/book/{book_id}/reports', [BookController::class, 'listReportsForBook']);
             Route::get('/remove-book-from-osboha/{book_id}', [BookController::class, 'removeBookFromOsboha']);
+            Route::get('/is-book-exist/{searchTerm}', [BookController::class, 'isBookExist']);
         });
         ########End Book########
         ########User Book########
@@ -638,7 +639,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/show/{suggestion_id}',  'show');
             Route::get('/list-by-status/{status}',  'listByStatus');
             Route::get('/is-allowed-to-suggest',  'isAllowedToSuggest');
-
         });
         ######## End Book-Suggestion ########
 
@@ -878,7 +878,6 @@ Route::group(['prefix' => 'v1'], function () {
             // Route::post('/group', 'EmptyingGroup');
 
             Route::post('/discharge', 'discharge');
-
         });
 
         ########End Emptying ########
