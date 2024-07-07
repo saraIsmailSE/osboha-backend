@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\{
     Auth\AuthController,
     Auth\EmailVerificationController,
     BookController,
+    BookSuggestionController,
     BookStatisticsController,
     PostController,
     PollVoteController,
@@ -50,7 +51,7 @@ use App\Http\Controllers\Api\{
     UserBookController,
     UserController,
     RolesAdministrationController,
-    EmptyingTeamController,
+    TeamsDischargeController,
     WorkingHourController,
 };
 
@@ -614,7 +615,7 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## End Book-Suggestion ########
 
-      ######## Exception-Type ########
+        ######## Exception-Type ########
         Route::group(['prefix' => 'exception-type'], function () {
             Route::get('/', [ExceptionTypeController::class, 'index']);
             Route::post('/create', [ExceptionTypeController::class, 'create']);
