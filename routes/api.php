@@ -55,6 +55,7 @@ use App\Http\Controllers\Api\{
     TeamsDischargeController,
     WorkingHourController,
     MarkNoteController,
+    MarathonWeekController
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -98,8 +99,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::delete('/old', [MediaController::class, 'removeOldMedia']);
     });
     ########End Media route########
-
-
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
@@ -385,6 +384,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/get-notes/{user_exception_id}', [UserExceptionController::class, 'getNotes']);
         });
         ############End UserException########
+        
 
         ############ Start Group ############
         Route::group(['prefix' => 'group'], function () {
@@ -764,6 +764,15 @@ Route::group(['prefix' => 'v1'], function () {
             });
             Route::get('/exceptional-freez', [GeneralConversationController::class, 'getMyAssignedExceptionalFreez']);
         });
+
+    ####################  Marathon  ####################
+        Route::post('/setWeeks', [MarathonWeekController::class, 'set_weeks']);
+        Route::get('/listMarathonWeeks', [MarathonWeekController::class, 'listMarathonWeeks']);
+        Route::get('/endMarathon', [MarathonWeekController::class, 'endMarathon']);
+        Route::post('/calculateMarkMarathon', [MarathonWeekController::class, 'calculateMarkMarathon']);
+    
+    #################### End  Marathon  ####################
+
         ######## End GeneralConversation ########
 
         /*
