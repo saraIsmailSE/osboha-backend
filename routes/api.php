@@ -186,6 +186,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/latest', [BookController::class, 'latest']);
             Route::get('/eligible', [BookController::class, 'getAllForEligible']);
             Route::get('/ramadan', [BookController::class, 'getAllForRamadan']);
+            Route::post('/report', [BookController::class, 'createReport']);
+            Route::get('/reports/{status}', [BookController::class, 'listReportsByStatus']);
+            Route::post('/update-report', [BookController::class, 'updateReportStatus']);
+            Route::get('/report/{id}', [BookController::class, 'showReport']);
+            Route::get('/book/{book_id}/reports', [BookController::class, 'listReportsForBook']);
+            Route::get('/remove-book-from-osboha/{book_id}', [BookController::class, 'removeBookFromOsboha']);
+            Route::get('/is-book-exist/{searchTerm}', [BookController::class, 'isBookExist']);
         });
         ########End Book########
         ########User Book########
@@ -597,7 +604,17 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ######## Book-Language ########
 
-        ######## Exception-Type ########
+        ######## Book-Suggestion ########
+        Route::controller(BookSuggestionController::class)->prefix('book-suggestion')->group(function () {
+            Route::post('/create', 'create');
+            Route::post('/update-status', 'updateStatus');
+            Route::get('/show/{suggestion_id}',  'show');
+            Route::get('/list-by-status/{status}',  'listByStatus');
+            Route::get('/is-allowed-to-suggest',  'isAllowedToSuggest');
+        });
+        ######## End Book-Suggestion ########
+
+      ######## Exception-Type ########
         Route::group(['prefix' => 'exception-type'], function () {
             Route::get('/', [ExceptionTypeController::class, 'index']);
             Route::post('/create', [ExceptionTypeController::class, 'create']);
@@ -808,10 +825,14 @@ Route::group(['prefix' => 'v1'], function () {
         });
 
         ######## Emptying ########
-        Route::group(['prefix' => 'emptying'], function () {
-            Route::post('/all/ambassadors', [EmptyingTeamController::class, 'allAmbassadorForEmptying']);
-            Route::post('/followup/team', [EmptyingTeamController::class, 'EmptyingFollowupTeam']);
-            Route::post('/move/ambassadors', [EmptyingTeamController::class, 'moveAmbassadorsForEmptying']);
+        Route::controller(TeamsDischargeController::class)->prefix('teams-discharge')->group(function () {
+            // Route::post('/all/members', 'allMembersForEmptyingGroup');
+            // Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
+            // Route::post('/move/advisors', 'moveGroupOfAdvisors');
+            // Route::post('/move/advisors', 'moveGroupOfSupervisors');
+            // Route::post('/group', 'EmptyingGroup');
+
+            Route::post('/discharge', 'discharge');
         });
         ######## Emptying ########
 

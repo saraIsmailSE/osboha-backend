@@ -7,6 +7,7 @@ use App\Models\Book;
 use App\Traits\ResponseJson;
 use App\Models\Media;
 use App\Traits\MediaTraits;
+use App\Traits\TextTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,7 @@ use Illuminate\Support\Facades\Log;
 
 class BookController extends Controller
 {
-    use ResponseJson, MediaTraits;
+    use ResponseJson, MediaTraits, TextTrait;
 
     /**
      *Read all information about all books in the system
@@ -739,5 +740,21 @@ class BookController extends Controller
         }
 
         return $this->jsonResponseWithoutMessage('تم سحب الكتاب من المنهج', 'data', 200);
+    }
+
+    public function isBookExist($searchTerm)
+    {
+        $normalizedSearchTerm = $this->normalizeArabicText($searchTerm);
+
+        $books = Book::where('is_active', 1)
+            ->where(function ($query) use ($normalizedSearchTerm) {
+                $query->whereRaw('REPLACE(REPLACE(REPLACE(name, "أ", "ا"), "إ", "ا"), "آ", "ا") LIKE ?', ["%$normalizedSearchTerm%"]);
+            })
+            ->whereHas('type', function ($q) {
+                $q->where('type', '=', 'normal')
+                    ->orWhere('type', '=', 'ramdan');
+            })->get();
+
+        return $this->jsonResponseWithoutMessage($books, 'data', 200);
     }
 }
