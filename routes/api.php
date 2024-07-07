@@ -10,7 +10,6 @@ use App\Http\Controllers\Api\{
     BookController,
     BookSuggestionController,
     BookStatisticsController,
-    ContactsWithWithdrawnController,
     PostController,
     PollVoteController,
     RateController,
@@ -56,6 +55,7 @@ use App\Http\Controllers\Api\{
     WorkingHourController,
     MarkNoteController,
     MarathonWeekController
+
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -90,8 +90,6 @@ use Illuminate\Support\Facades\Broadcast;
 
 Route::group(['prefix' => 'v1'], function () {
 
-
-
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
@@ -124,19 +122,6 @@ Route::group(['prefix' => 'v1'], function () {
         });
         ########End AmbassadorsRequests########
 
-        ######## USER ########
-        Route::controller(UserController::class)->prefix('users')->group(function () {
-            Route::get('/show/{user_id}', 'show');
-            Route::post('/update-info', 'updateInfo');
-        });
-        ######## End USER ########
-        ########Start SocialMedia########
-        Route::group(['prefix' => 'socialMedia'], function () {
-            Route::get('/show/{user_id}', [SocialMediaController::class, 'show']);
-        });
-        ########End SocialMedia########
-
-
     });
 
 
@@ -164,10 +149,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
-            Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
-            Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
-            Route::post('/update-user-name', [UserController::class,  'updateUserName']);
-            Route::get('/withdrawn-ambassador-details/{user_id}', [UserController::class,  'withdrawnAmbassadorDetails']);
         });
 
         ########Start Roles########
@@ -175,8 +156,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
             Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
             Route::get('/get-special-care-roles', [RolesAdministrationController::class, 'getSpecialCareRoles']);
-            Route::get('/get-withdrawns-team-roles', [RolesAdministrationController::class, 'getWithdrawnsTeamRoles']);
-            Route::get('/get-books-team-roles', [RolesAdministrationController::class, 'getBooksTeamRoles']);
             Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
@@ -188,7 +167,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/transfer-ambassador', [RolesAdministrationController::class, 'transferAmbassador']);
             Route::post('/transfer-leader', [RolesAdministrationController::class, 'transferLeader']);
             Route::post('/remove-secondary-role', [RolesAdministrationController::class, 'removeSecondaryRole']);
-            Route::get('/secondary-roles-by-role', [RolesAdministrationController::class, 'getSecondaryRolesByRole']);
         });
         ########End Roles########
 
@@ -217,6 +195,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/report/{id}', [BookController::class, 'showReport']);
             Route::get('/book/{book_id}/reports', [BookController::class, 'listReportsForBook']);
             Route::get('/remove-book-from-osboha/{book_id}', [BookController::class, 'removeBookFromOsboha']);
+            Route::get('/is-book-exist/{searchTerm}', [BookController::class, 'isBookExist']);
         });
         ########End Book########
         ########User Book########
@@ -224,12 +203,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/show/{user_id}', [UserBookController::class, 'show']);
             Route::get('/later-books/{user_id}', [UserBookController::class, 'later']);
             Route::get('/free-books/{user_id}/', [UserBookController::class, 'free']);
-            Route::get('/osboha-user-books/{user_id}/{name?}', [UserBookController::class, 'osbohaUserBook']);
             Route::get('/delete-for-later-book/{id}', [UserBookController::class, 'deleteForLater']);
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
             Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
+            Route::get('/book_quality_users_statics/{week_id?}', [UserBookController::class, 'bookQualityUsersStatics']);
         });
         ########End User Book########
         ########Start Rate########
@@ -379,9 +358,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/set-new-user', [UserExceptionController::class, 'setNewUser']);
             Route::get('/search-by-email/{email}', [UserExceptionController::class, 'searchByEmail']);
             Route::get('/list-by-advisor/{exception_type}/{advisor_id}', [UserExceptionController::class, 'listForAdvisor']);
-            Route::put('/{exception_id}/assign-to-parent', [UserExceptionController::class, 'AssignExceptionToParent']);
-            Route::post('/add-note', [UserExceptionController::class, 'addNote']);
-            Route::get('/get-notes/{user_exception_id}', [UserExceptionController::class, 'getNotes']);
         });
         ############End UserException########
         
@@ -442,6 +418,7 @@ Route::group(['prefix' => 'v1'], function () {
         ########Start SocialMedia########
         Route::group(['prefix' => 'socialMedia'], function () {
             Route::post('/add-social-media', [SocialMediaController::class, 'addSocialMedia']);
+            Route::get('/show/{user_id}', [SocialMediaController::class, 'show']);
         });
         ########End SocialMedia########
 
@@ -638,10 +615,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/show/{suggestion_id}',  'show');
             Route::get('/list-by-status/{status}',  'listByStatus');
             Route::get('/is-allowed-to-suggest',  'isAllowedToSuggest');
-
         });
         ######## End Book-Suggestion ########
-
 
         ######## Exception-Type ########
         Route::group(['prefix' => 'exception-type'], function () {
@@ -710,13 +685,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get("/unread-messages", [MessagesController::class, "unreadMessages"]);
         });
         ######## Messages ########
-        ######## Contact With Withdrawn ########
-        Route::controller(ContactsWithWithdrawnController::class)->prefix('Contacts-with-withdrawn')->group(function () {
-            Route::post('/send-email', 'sendEmail');
-            Route::post('/update-contact-status', 'updateContactStatus');
-            Route::get('/contact_has_been_made/{user_id}',  'showByUserID');
-        });
-        ######## End Contact With Withdrawn ########
         ######## BookStatistics ########
         Route::group(['prefix' => 'book-stat'], function () {
             Route::get('/', [BookStatisticsController::class, 'index']);
@@ -730,13 +698,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/statistics', [WorkingHourController::class, 'getWorkingHoursStatistics']);
         });
         ######## End WorkingHour ########
-
-        ######## MarkNote ########
-        Route::group(['prefix' => 'mark-notes'], function () {
-            Route::get('/get-notes/{mark_id}', [MarkNoteController::class, 'getNotes']);
-            Route::post('/create', [MarkNoteController::class, 'create']);
-        });
-        ######## End MarkNote ########
 
         ######## GeneralConversation ########
         Route::group(['prefix' => 'general-conversations'], function () {
@@ -762,7 +723,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::group(['prefix' => 'answers'], function () {
                 Route::post('/', [GeneralConversationController::class, 'answerQuestion']);
             });
-            Route::get('/exceptional-freez', [GeneralConversationController::class, 'getMyAssignedExceptionalFreez']);
         });
 
     ####################  Marathon  ####################
@@ -878,7 +838,6 @@ Route::group(['prefix' => 'v1'], function () {
         });
 
         ######## Emptying ########
-
         Route::controller(TeamsDischargeController::class)->prefix('teams-discharge')->group(function () {
             // Route::post('/all/members', 'allMembersForEmptyingGroup');
             // Route::post('/move/ambassadors', 'moveGroupOfAmbassadors');
@@ -887,10 +846,8 @@ Route::group(['prefix' => 'v1'], function () {
             // Route::post('/group', 'EmptyingGroup');
 
             Route::post('/discharge', 'discharge');
-
         });
-
-        ########End Emptying ########
+        ######## Emptying ########
 
         /*
     |--------------------------------------------------------------------------|

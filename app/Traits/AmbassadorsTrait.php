@@ -93,6 +93,7 @@ trait AmbassadorsTrait
             ->whereNotNull('leader_gender')
             ->whereNotNull('email_verified_at')
             ->whereNull('request_id')
+            ->whereNull('parent_id')
             ->whereBetween('updated_at', $dates)
             ->count();
     }
@@ -136,6 +137,7 @@ trait AmbassadorsTrait
             $ambassador->parent_id = $leader->user->id;
             $ambassador->is_excluded = 0;
             $ambassador->is_hold = 0;
+            $ambassador->created_at = Carbon::now();
             $ambassador->save();
 
             UserParent::create([
