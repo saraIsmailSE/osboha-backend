@@ -148,6 +148,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
+            Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
         });
 
         ########Start Roles########
