@@ -896,7 +896,7 @@ class RolesAdministrationController extends Controller
                                         $q->where('type_id', '=', $supervisingGroupTypeID);
                                     })->where('user_type', 'supervisor')->pluck('group_id')->first();
 
-                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $currentSupervisor->id)->update(['termination_reason'  => 'supervisor_withdrawn']);
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $currentSupervisor->id)->update(['termination_reason'  => 'advisor_change']);
                                 UserGroup::create(
                                     [
                                         'user_id' => $currentSupervisor->id,
@@ -1115,7 +1115,7 @@ class RolesAdministrationController extends Controller
                                     'is_active' => 1,
                                 ]);
                                 //move ambassador to new followup group
-                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'leader_withdrawn']);
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'transfer_ambassador']);
                                 UserGroup::create(
                                     [
                                         'user_id' => $ambassador->id,
