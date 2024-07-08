@@ -75,7 +75,7 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanQuestionAnswerController,
     RamadanQuestionController,
 };
-use App\Models\User;
+
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -87,13 +87,6 @@ use Illuminate\Support\Facades\Broadcast;
 
 
 Route::group(['prefix' => 'v1'], function () {
-
-    Route::get('refresh', function () {
-        $user = User::find(1);
-        $user->tokens()->delete();
-        $token = $user->createToken('sanctumAuth')->plainTextToken;
-        return $this->jsonResponseWithoutMessage($token, 'data', 200);
-    });
 
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
