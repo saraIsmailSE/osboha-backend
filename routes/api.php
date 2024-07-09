@@ -233,7 +233,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
-            Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
+            Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);       
+            Route::get('/book_quality_users_statics/{week_id?}', [UserBookController::class, 'bookQualityUsersStatics']);
         });
         ########End User Book########
         ########Start Rate########
