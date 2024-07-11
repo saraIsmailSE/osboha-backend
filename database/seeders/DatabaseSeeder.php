@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\PostType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(EligibleRoles::class);
+        // $this->call(EligibleRoles::class);
         /*
         ##### DONE ON SERVER#####
         // $this->call(PermissionsSeeder::class);
@@ -57,6 +59,14 @@ class DatabaseSeeder extends Seeder
         // $this->call(ModifiedThesesSeeder::class);
         */
 
+        // $this->call(RamadanRoles::class);
+        // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\RamadanDays']);
+        // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\HadithSeeder']);
+        // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\QuestionsSeeder']);
 
+        ##### Must run #####
+        PostType::create([
+            'type' => 'book_review'
+        ]);
     }
 }

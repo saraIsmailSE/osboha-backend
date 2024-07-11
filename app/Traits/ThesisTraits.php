@@ -101,7 +101,7 @@ trait ThesisTraits
             $week = Week::latest('id')->first();
 
             if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
-                throw new \Exception('Cannot add thesis [Current week is not available]');
+                throw new \Exception('لا يمكنك إضافة أطروحة إلا في الأسبوع المتاح');
             }
 
             $mark_record = Mark::firstOrCreate(
@@ -121,7 +121,7 @@ trait ThesisTraits
             ->first();
 
         if ($addedBefore) {
-            throw new \Exception('Thesis is added before');
+            throw new \Exception('تم إضافة الأطروحة من قبل بنفس الصفحات');
         }
 
         //get thesis type
@@ -202,10 +202,10 @@ trait ThesisTraits
             $mark_record->update($mark_data_to_update);
 
             $this->checkIfUserHasException();
-            return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
+            return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'تم إضافة الأطروحة بنجاح');
         } else {
             // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
-            throw new \Exception('Cannot add thesis');
+            throw new \Exception('حدث خطأ أثناء إضافة الأطروحة, يرجى المحاولة مرة أخرى');
         }
     }
 
@@ -232,7 +232,7 @@ trait ThesisTraits
 
             if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
                 // return $this->jsonResponseWithoutMessage('Cannot update thesis', 'data', 500);
-                throw new \Exception('Cannot update thesis');
+                throw new \Exception('لا يمكنك تعديل الأطروحة إلا في الأسبوع المتاح لها');
             }
 
             $week_id = $week->id;
@@ -323,7 +323,7 @@ trait ThesisTraits
                 $mark_record->update($mark_data_to_update);
                 $this->createOrUpdateUserBook($thesis);
 
-                return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis updated successfully!');
+                return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'تم تعديل الأطروحة بنجاح');
             } else {
                 throw new NotFound;
             }
@@ -356,7 +356,7 @@ trait ThesisTraits
 
             if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
                 // return $this->jsonResponseWithoutMessage('Cannot delete thesis', 'data', 500);
-                throw new \Exception('Cannot delete thesis');
+                throw new \Exception('لا يمكنك حذف الأطروحة إلا في الأسبوع المتاح لها');
             }
 
             $thesis->delete();
@@ -572,10 +572,10 @@ trait ThesisTraits
             ($total_pages < 10
                 || ($max_length > 0 && $max_length < COMPLETE_THESIS_LENGTH))
         ) {
-            throw new \Exception('Cannot add thesis for ramadan less than 10 pages or 400 characters');
+            throw new \Exception('أطروحة رمضان يجب أن تكون أكثر من 10 صفحات وشاملة');
         } else if ($thesis_type  === 'tafseer' && ($total_pages < 2 ||
             ($max_length < COMPLETE_THESIS_LENGTH && $total_screenshots < 1))) {
-            throw new \Exception('Cannot add thesis for tafseer less than 2 pages or 400 characters or 1 screenshot');
+            throw new \Exception('أطروحة التفسير يجب أن تكون أكثر من صفحتين وشاملة أو تحتوي اقتباس واحد على الأقل');
         }
 
         //if the thesis is within a duration of exams exception, the mark will be full if the user satisfies the conditions
@@ -683,13 +683,12 @@ trait ThesisTraits
      */
     public function createOrUpdateUserBook($thesis, $isDeleted = false)
     {
-        $book_id = $thesis->book_id;
-        $user_id = $thesis->user_id;
-        $user = User::find($user_id);
+        $book = $thesis->book;
+        $user = User::find($thesis->user_id);
 
         //get the latest user book related to the user and the book
-        $user_book = UserBook::where('user_id', $user_id)
-            ->where('book_id', $book_id)
+        $user_book = UserBook::where('user_id', $user->id)
+            ->where('book_id', $book->id)
             ->latest()
             ->first();
 
@@ -697,11 +696,13 @@ trait ThesisTraits
         if (!$user_book) {
             if (!$isDeleted) {
                 //if new thesis is added, create a new user book record
-                $book = Book::find($book_id);
+                $percentage = $this->calculate_pages_percentage_of_book($user, $thesis->book);
+                $finished = $thesis->end_page >= $thesis->book->end_page && $percentage >= 85;
                 $user_book = UserBook::create([
-                    'user_id' => $user_id,
-                    'book_id' => $book_id,
-                    'status' => $thesis->end_page >= $book->end_page ? 'finished' : 'in progress',
+                    'user_id' => $user->id,
+                    'book_id' => $book->id,
+                    'status' => $finished ? 'finished' : 'in progress',
+                    'counter' => $finished ? 1 : 0,
                 ]);
             }
         } else {
@@ -711,18 +712,28 @@ trait ThesisTraits
                 //if the user book status is finished, decrease the counter and change the status to in progress
                 if ($user_book->status == 'finished') {
                     $user_book->status = 'in progress';
-                    $user_book->counter = $user_book->counter - 1;
+                    $user_book->counter = $user_book->counter > 0 ? $user_book->counter - 1 : 0;
                     $user_book->save();
                 }
             } else {
-                //if user book exists, update the status based on the thesis end page
-                if ($thesis->end_page >= $user_book->book->end_page) {
-                    $user_book->status = 'finished';
-                    $user_book->counter = $user_book->counter + 1;
-                    $user_book->save();
-                }
+                //if user book exists, update the status
+                //mark the book as finished if the user has read 85% of the book and read the last page
+                if ($user_book->status == 'in progress') {
+                    $percentage = $this->calculate_pages_percentage_of_book($user, $user_book->book);
+                    $lastPageThesis = $user->theses()
+                        ->where('end_page', $user_book->book->end_page)
+                        ->where('book_id', $book->id)
+                        ->where('updated_at', '>=', $user_book->updated_at)
+                        ->latest()
+                        ->first();
 
-                //is status "later", uptade it to "in progress" as the user will start reading the book
+                    if ($percentage >= 85 && $lastPageThesis) {
+                        $user_book->status = 'finished';
+                        $user_book->counter = $user_book->counter + 1;
+                        $user_book->save();
+                    }
+                }
+                //is status "later" or "finished", update it to "in progress" as the user will start reading the book
                 else if ($user_book->status == 'later' || $user_book->status == 'finished') {
                     $user_book->status = 'in progress';
                     $user_book->save();
@@ -731,7 +742,7 @@ trait ThesisTraits
         }
 
         //fix counter and status (updating and deleting will cause some mistakes in the status and counter)
-        $allThesis = $user->theses()->where('book_id', $book_id)->count();
+        $allThesis = $user->theses()->where('book_id', $book->id)->count();
         if ($allThesis <= 0) {
             if ($user_book->status != 'later') {
                 $user_book->delete();
@@ -813,5 +824,17 @@ trait ThesisTraits
             $userException->status = config('constants.CANCELED_STATUS');
             $userException->save();
         }
+    }
+
+    public function calculate_pages_percentage_of_book($user, $book)
+    {
+        $allThesis = $user->theses()->where('book_id', $book->id)->get();
+        $totalPages = 0;
+        foreach ($allThesis as $thesis) {
+            $totalPages += $thesis->end_page - $thesis->start_page + 1;
+        }
+
+        $percentage = ($totalPages / $book->end_page) * 100;
+        return $percentage;
     }
 }
