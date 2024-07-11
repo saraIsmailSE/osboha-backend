@@ -58,5 +58,10 @@ class DatabaseSeeder extends Seeder
         // $this->call(ModificationReasonSeeder::class);
         // $this->call(ModifiedThesesSeeder::class);
         */
+
+        // $this->call(RamadanRoles::class);
+        // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\RamadanDays']);
+        // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\HadithSeeder']);
+        // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\QuestionsSeeder']);
     }
 }
