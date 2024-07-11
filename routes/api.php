@@ -229,15 +229,18 @@ Route::group(['prefix' => 'v1'], function () {
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
             Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
+            Route::get('/book_quality_users_statics/{week_id?}', [UserBookController::class, 'bookQualityUsersStatics']);
+            Route::post('/mark-as-finished', [UserBookController::class, 'markBookAsFinished']);
         });
         ########End User Book########
         ########Start Rate########
-        Route::group(['prefix' => 'rate'], function () {
+        Route::group(['prefix' => 'rates'], function () {
             Route::get('/', [RateController::class, 'index']);
-            Route::post('/create', [RateController::class, 'create']);
-            Route::post('/show', [RateController::class, 'show']);
-            Route::post('/update', [RateController::class, 'update']);
-            Route::post('/delete', [RateController::class, 'delete']);
+            Route::post('/', [RateController::class, 'create']);
+            Route::get('/{rate_id}', [RateController::class, 'show']);
+            Route::post('/{rate_id}', [RateController::class, 'update']);
+            Route::delete('/{rate_id}', [RateController::class, 'delete']);
+            Route::get('/book/{book_id}', [RateController::class, 'getBookRates'])->where('book_id', '[0-9]+');
         });
         ########End Rate########
         ########Reaction########

@@ -72,4 +72,16 @@ class Comment extends Model
             $comment->reactions()->detach();
         });
     }
+
+    //related rate that is defined as a comment
+    public function rate()
+    {
+        return $this->hasOne(Rate::class, 'related_comment_id');
+    }
+
+    //rates that users give to this comment
+    public function rates()
+    {
+        return $this->hasMany(Rate::class, 'comment_id');
+    }
 }

@@ -542,6 +542,12 @@ class CommentController extends Controller
                         $reply->delete();
                     });
 
+                    //delete rates (related rates)
+                    $comment->rate()->delete();
+
+                    //delete rates (rates on this comment)
+                    $comment->rates()->delete();
+
                     $comment->delete();
 
                     DB::commit();
