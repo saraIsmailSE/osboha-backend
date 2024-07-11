@@ -63,10 +63,5 @@ class DatabaseSeeder extends Seeder
         // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\RamadanDays']);
         // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\HadithSeeder']);
         // Artisan::call('db:seed', ['--class' => 'Database\Seeders\Ramadan\QuestionsSeeder']);
-
-        ##### Must run #####
-        PostType::create([
-            'type' => 'book_review'
-        ]);
     }
 }
