@@ -55,6 +55,7 @@ use App\Http\Controllers\Api\{
     TeamsDischargeController,
     WorkingHourController,
     MarkNoteController,
+    MarathonWeekController
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -591,6 +592,15 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/get-weeks/{limit}', [WeekController::class, 'getWeeks']);
         });
         ######## Week ########
+
+            ####################  Marathon  ####################
+            Route::post('/setWeeks', [MarathonWeekController::class, 'set_weeks']);
+            Route::get('/listMarathonWeeks', [MarathonWeekController::class, 'listMarathonWeeks']);
+            Route::get('/endMarathon', [MarathonWeekController::class, 'endMarathon']);
+            Route::post('/calculateMarkMarathon', [MarathonWeekController::class, 'calculateMarkMarathon']);
+        
+        #################### End  Marathon  ####################
+    
 
         ######## Section ########
         Route::group(['prefix' => 'section'], function () {
