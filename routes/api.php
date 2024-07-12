@@ -175,12 +175,7 @@ Route::group(['prefix' => 'v1'], function () {
 
         ########Start Roles########
         Route::group(["prefix" => "roles"], function () {
-            Route::get('/get-eligible-roles', [RolesAdministrationController::class, 'getEligibleRoles']);
-            Route::get('/get-marathon-roles', [RolesAdministrationController::class, 'getMarathonRoles']);
-            Route::get('/get-special-care-roles', [RolesAdministrationController::class, 'getSpecialCareRoles']);
-            Route::get('/get-withdrawns-team-roles', [RolesAdministrationController::class, 'getWithdrawnsTeamRoles']);
-            Route::get('/get-books-team-roles', [RolesAdministrationController::class, 'getBooksTeamRoles']);
-            Route::get('/get-ramadan-roles', [RolesAdministrationController::class, 'getRamadanRoles']);
+            Route::get('/get-secondary-roles/{type}', [RolesAdministrationController::class, 'getSecondaryRoles']);
             Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
             Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
             Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
@@ -233,8 +228,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/update', [UserBookController::class, 'update']);
             Route::delete('/{id}', [UserBookController::class, 'delete']);
             Route::patch('{id}/save-for-later/', [UserBookController::class, 'saveBookForLater']);
-            Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);       
-            Route::get('/book_quality_users_statics/{week_id?}', [UserBookController::class, 'bookQualityUsersStatics']);
+            Route::get('/eligible-to-write-thesis/{user_id}', [UserBookController::class, 'eligibleToWriteThesis']);
         });
         ########End User Book########
         ########Start Rate########
@@ -333,6 +327,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/top-users-by-week', [MarkController::class, 'topUsersByWeek']);
             Route::put('/set-activity-mark/{user_id}/{week_id}', [MarkController::class, 'setActivityMark']);
             Route::put('/unset-activity-mark/{user_id}/{week_id}', [MarkController::class, 'unsetActivityMark']);
+            Route::get('/quality_team_achievements/{week_id}', [MarkController::class, 'bookQualityTeamAchievements']);
         });
         ########End Mark########
 
@@ -593,6 +588,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/check-date', [WeekController::class, 'testDate']);
             Route::patch('/update-exception/{exp_id}/{status}', [WeekController::class, 'update_exception_status']);
             Route::get('/notify-users', [WeekController::class, 'notifyUsersNewWeek']);
+            Route::get('/get-weeks/{limit}', [WeekController::class, 'getWeeks']);
         });
         ######## Week ########
 

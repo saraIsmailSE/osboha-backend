@@ -28,75 +28,67 @@ class RolesAdministrationController extends Controller
 {
     use ResponseJson;
 
-
-    public function getEligibleRoles()
+    public function getSecondaryRoles($type)
     {
-        $rolesToRetrieve = [
-            'eligible_admin',
-            'reviewer',
-            'auditor',
-            'super_auditer',
-            'super_reviewer',
-            'user_accept',
-        ];
-        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
-        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
-    }
+        $rolesToRetrieve = [];
+        switch ($type) {
 
+            case 'specialCare':
+                $rolesToRetrieve = [
+                    'special_care_coordinator',
+                    'special_care_supervisor',
+                    'special_care_leader',
+                    'ambassador',
+                ];
+                break;
+            case 'marathon':
+                $rolesToRetrieve = [
+                    'marathon_coordinator',
+                    'marathon_verification_supervisor',
+                    'marathon_supervisor',
+                    'marathon_ambassador',
+                ];
+                break;
+            case 'ramadan':
+                $rolesToRetrieve = [
+                    'ramadan_coordinator',
+                    'ramadan_hadith_corrector',
+                    'ramadan_fiqh_corrector',
+                    'ramadan_tafseer_corrector',
+                    'ramadan_vedio_corrector',
+                ];
+                break;
+            case 'eligible':
+                $rolesToRetrieve = [
+                    'eligible_admin',
+                    'reviewer',
+                    'auditor',
+                    'super_auditer',
+                    'super_reviewer',
+                    'user_accept',
+                ];
+                break;
+            case 'WithdrawnsTeam':
+                $rolesToRetrieve = [
+                    'coordinator_of_withdrawns_team',
+                    'member_of_withdrawns_team',
+                ];
+                break;
+            case 'booksTeam':
+                $rolesToRetrieve = [
+                    'book_quality_team_coordinator',
+                    'book_quality_supervisor',
+                    'book_quality_team',
+                ];
+                break;
+            case 'osbohaSupport':
+                $rolesToRetrieve = [
+                    'osboha_support_coordinator',
+                    'osboha_support_member',
+                ];
+                break;
+        }
 
-    public function getMarathonRoles()
-    {
-        $rolesToRetrieve = [
-            'marathon_coordinator',
-            'marathon_verification_supervisor',
-            'marathon_supervisor',
-            'marathon_ambassador',
-        ];
-        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
-        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
-    }
-
-    public function getSpecialCareRoles()
-    {
-        $rolesToRetrieve = [
-            'special_care_coordinator',
-            'special_care_supervisor',
-            'special_care_leader',
-            'ambassador',
-        ];
-        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
-        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
-    }
-    public function getBooksTeamRoles()
-    {
-        $rolesToRetrieve = [
-            'book_quality_team_coordinator',
-            'book_quality_team',
-        ];
-        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
-        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
-    }
-
-    public function getWithdrawnsTeamRoles()
-    {
-        $rolesToRetrieve = [
-            'coordinator_of_withdrawns_team',
-            'member_of_withdrawns_team',
-        ];
-        $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
-        return $this->jsonResponseWithoutMessage($roles, 'data', 200);
-    }
-
-
-    public function getRamadanRoles()
-    {
-        $rolesToRetrieve = [
-            'ramadan_coordinator',
-            'ramadan_hadith_corrector',
-            'ramadan_fiqh_corrector',
-            'ramadan_tafseer_corrector',
-            'ramadan_vedio_corrector',
-        ];
         $roles = Role::whereIn('name', $rolesToRetrieve)->orderBy('id', 'desc')->get();
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
