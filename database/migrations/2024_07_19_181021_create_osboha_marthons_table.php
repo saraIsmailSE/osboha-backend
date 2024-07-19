@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('marathon_weeks', function (Blueprint $table) {
+        Schema::create('osboha_marthons', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('week_id')->index();
-            $table->foreign('week_id')->references('id')->on('weeks')->onDelete('cascade');
-            $table->boolean("is_active")->default(1);
+            $table->string('title');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('marathon_weeks');
+        Schema::dropIfExists('osboha_marthons');
     }
 };

@@ -594,10 +594,12 @@ Route::group(['prefix' => 'v1'], function () {
         ######## Week ########
 
             ####################  Marathon  ####################
-            Route::post('/setWeeks', [MarathonWeekController::class, 'set_weeks']);
+           // Route::post('/setWeeks', [MarathonWeekController::class, 'set_weeks']);
+            Route::post('/create_marthon', [MarathonWeekController::class, 'create_marthon']);
             Route::get('/listMarathonWeeks', [MarathonWeekController::class, 'listMarathonWeeks']);
             Route::get('/endMarathon', [MarathonWeekController::class, 'endMarathon']);
             Route::post('/calculateMarkMarathon', [MarathonWeekController::class, 'calculateMarkMarathon']);
+            Route::post('/add_bonus', [MarathonWeekController::class, 'add_bonus']);
         
         #################### End  Marathon  ####################
     
