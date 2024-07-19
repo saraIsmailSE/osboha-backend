@@ -5,20 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MarathonWeek extends Model
+class MarthonBonus extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'user_id',
         'osboha_marthon_id',
-        'week_id',
-        'is_active'
+        'activity',
+        'leading_course',
+        'eligible_book',
+        'eligible_book_less_VG',
     ];
-    public function week()
-    {
-        return $this->belongsTo(Week::class);
-    }
     public function osboha_marthon()
     {
         return $this->belongsTo(OsbohaMarthon::class);
     }
+
 }
+
+

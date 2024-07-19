@@ -11,7 +11,9 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Models\OsbohaMarthon;
 use App\Models\MarathonWeek;
+use App\Models\MarthonBonus;
 use App\Models\Mark;
 use App\Models\Thesis;
 use App\Models\Week;
@@ -19,6 +21,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\MarathonWeeksResource;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 
 
 
@@ -118,6 +122,86 @@ class MarathonWeekController extends Controller
   return $points; 
  
    }
+    function create_marthon(Request $request){
+        //validate requested data
+        $validator = Validator::make($request->all(), [
+            'title'                    => 'required_without:osboha_marthon_id',
+            'osboha_marthon_id'        => 'required_without:title',
+            'weeks_id'                 => 'required|array',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        if($request->has('title')){
+            $osboha_marthon = OsbohaMarthon::updateOrCreate(['title' => $request->title]);
+            if($osboha_marthon){
+              $osboha_marthon_id = $osboha_marthon->id;
+            }
+        }
+        else if($request->has('osboha_marthon_id')){
+            $osboha_marthon_id = $request->osboha_marthon_id;
+        }
+        if($osboha_marthon_id){
+            foreach ($request->weeks_id as $week_id) {
+                MarathonWeek::updateOrCreate(
+                ['osboha_marthon_id' =>$osboha_marthon_id,   
+                'week_id' => $week_id],
+                );
+            }
+        } 
+        return $this->jsonResponseWithoutMessage("Add Marathons Week successfully", 'data', 200);
+  
+    }
+    function add_bonus(Request $request){
+        $validator = Validator::make($request->all(), [
+            'user_id'           => 'required',
+            'osboha_marthon_id' => 'required',
+            'option'            => 'required|string',
+            'input'             => 'nullable|string',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $points_bonus =  MarthonBonus::updateOrCreate([
+            'user_id'           => $request->user_id,
+            'osboha_marthon_id' => $request->osboha_marthon_id,
+        
+        ]);
+        $options = $request->option;
+        switch ($options) {
+            case 'activity':
+                $points_bonus->activity=$request->input * 3;
+                break;
+            case 'leading_course':
+                $points_bonus->leading_course = 5;
+                break;
+            case 'eligible_book':
+                $points_bonus->eligible_book = $request->input * 10 ;
+                break;
+            case 'eligible_book_less_VG':
+                $points_bonus->eligible_book_less_VG = $request->input * 6 ;        
+                break;
+            default:
+            return $this->jsonResponse(
+                [],
+                'data',
+                Response::HTTP_BAD_REQUEST,
+                "الرجاء تحديد نوع النشاط"
+            );
+        }
+        $points_bonus->save();
+        $response['osboha_marthon_id']           = $points_bonus->osboha_marthon_id;
+        $response['activity_bonus']              = $points_bonus->activity;
+        $response['leading_course_bonus']        = $points_bonus->leading_course;
+        $response['eligible_book_bonus']         = $points_bonus->eligible_book;
+        $response['eligible_book_less_VG_bonus'] = $points_bonus->eligible_book_less_VG;
+
+
+        return $response;
+
+    }
+
+   
 }
     
 
