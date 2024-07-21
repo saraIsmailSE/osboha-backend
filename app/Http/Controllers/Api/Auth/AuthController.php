@@ -273,6 +273,9 @@ class AuthController extends Controller
             ->with('group')
             ->first();
 
+        //Parent Of Auth
+        $response['parent'] = User::find(Auth::user()->parent_id);
+
         //main timer
         $response['timer'] = Week::latest()->first();
 
