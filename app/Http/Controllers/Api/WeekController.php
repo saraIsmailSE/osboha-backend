@@ -334,4 +334,41 @@ class WeekController extends Controller
         $weeks = Week::where('is_vacation', 0)->latest('id')->limit($limit)->get();
         return $this->jsonResponseWithoutMessage($weeks, 'data', 200);
     }
+    public function getNextWeekTitles($limit)
+    {
+        $lastWeek = Week::where('is_vacation', 0)->latest('id')->first();
+
+        if (!$lastWeek) {
+            return $this->jsonResponseWithoutMessage("No weeks found in the database", 'data', 404);
+        }
+
+        $lastWeekTitle = $lastWeek->title;
+
+        // Fetch the YEAR_WEEKS array from the config
+        $yearWeeks = config('constants.YEAR_WEEKS');
+
+        // Find the index of the last week title
+        $currentWeekIndex = null;
+        foreach ($yearWeeks as $index => $week) {
+            if ($week['title'] == $lastWeekTitle) {
+                $currentWeekIndex = $index;
+                break;
+            }
+        }
+
+        // Check if the current week is found
+        if ($currentWeekIndex === null) {
+            return $this->jsonResponseWithoutMessage("Last week title not found in YEAR_WEEKS array", 'data', 404);
+        }
+
+        // Fetch the titles for the current week and the next five weeks
+        $weekTitles = [];
+        for ($i = 0; $i < $limit; $i++) {
+            $index = ($currentWeekIndex + $i) % count($yearWeeks);
+            $weekTitles[] = $yearWeeks[$index]['title'];
+        }
+
+        // Return the week titles
+        return $this->jsonResponseWithoutMessage($weekTitles, 'data', 200);
+    }
 }

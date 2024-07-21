@@ -10,6 +10,7 @@ class OsbohaMarthon extends Model
     use HasFactory;
     protected $fillable = [
         'title',
+        'is_active',
     ];
     public function marathonWeeks()
     {
