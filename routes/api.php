@@ -55,7 +55,6 @@ use App\Http\Controllers\Api\{
     TeamsDischargeController,
     WorkingHourController,
     MarkNoteController,
-    MarathonWeekController
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -77,6 +76,11 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanQuranWirdController,
     RamadanQuestionAnswerController,
     RamadanQuestionController,
+};
+
+use App\Http\Controllers\Api\Marathon\{
+    MarathonWeekController,
+    OsbohaMarathonController
 };
 
 use Illuminate\Support\Facades\Broadcast;
@@ -590,19 +594,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/update-exception/{exp_id}/{status}', [WeekController::class, 'update_exception_status']);
             Route::get('/notify-users', [WeekController::class, 'notifyUsersNewWeek']);
             Route::get('/get-weeks/{limit}', [WeekController::class, 'getWeeks']);
+            Route::get('/get-next-weeks-title/{limit}', [WeekController::class, 'getNextWeekTitles']);
+
         });
         ######## Week ########
-
-            ####################  Marathon  ####################
-           // Route::post('/setWeeks', [MarathonWeekController::class, 'set_weeks']);
-            Route::post('/create_marthon', [MarathonWeekController::class, 'create_marthon']);
-            Route::get('/listMarathonWeeks', [MarathonWeekController::class, 'listMarathonWeeks']);
-            Route::get('/endMarathon', [MarathonWeekController::class, 'endMarathon']);
-            Route::post('/calculateMarkMarathon', [MarathonWeekController::class, 'calculateMarkMarathon']);
-            Route::post('/add_bonus', [MarathonWeekController::class, 'add_bonus']);
-        
-        #################### End  Marathon  ####################
-    
 
         ######## Section ########
         Route::group(['prefix' => 'section'], function () {
@@ -947,5 +942,24 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/day/{day_id}', 'getQuestionsByDay')->where('day_id', '[0-9]+');
             Route::get('/show/{id}', 'show')->where('day_id', '[0-9]+');
         });
+
+        /*
+        |--------------------------------------------------------------------------|
+        |                       Marathon API Routes                                |
+        |--------------------------------------------------------------------------|
+        */
+        ####################  Marathon  ####################
+        Route::controller(OsbohaMarathonController::class)->prefix('osboha-marathon')->group(function () {
+            Route::get('/current-marathon', 'getCurrentMarathon');
+            Route::get('/end-marathon/marathon_id}', 'endMarathon');
+        });
+        // Route::post('/setWeeks', [MarathonWeekController::class, 'set_weeks']);
+        Route::post('/create_marthon', [MarathonWeekController::class, 'create_marthon']);
+        Route::get('/listMarathonWeeks', [MarathonWeekController::class, 'listMarathonWeeks']);
+        Route::post('/calculateMarkMarathon', [MarathonWeekController::class, 'calculateMarkMarathon']);
+        Route::post('/add_bonus', [MarathonWeekController::class, 'add_bonus']);
+
+        #################### End  Marathon  ####################
+
     });
 });
