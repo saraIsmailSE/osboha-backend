@@ -148,6 +148,24 @@ class WeekController extends Controller
         return null;
     }
 
+     /**
+     * search for week key based on the date of the week
+     * @author Sara
+     * @param Date $date (date of biginning week),
+     * @param Array $year_weeks(array of year weeks dates and titles)
+     * @return int is_vacation of the passed week date
+     * @return Null if not found
+     */
+    private function search_for_week_key($date, $year_weeks)
+    {
+        foreach ($year_weeks as $val) {
+            if ($val['date'] === $date) {
+                return $val['week_key'];
+            }
+        }
+        return null;
+    }
+
     /**
      * insert new week into weeks table
      * @author Asmaa
@@ -183,6 +201,9 @@ class WeekController extends Controller
         $week->title = $this->search_for_week_title($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
         //search is_vacation
         $week->is_vacation = $this->search_for_is_vacation($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
+       // search week_key
+        $week->week_key = $this->search_for_week_key($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
+
 
         //add hours to be at 14:00 of SUNDAYS
         $dateToAdd = $date->addHours(14);
