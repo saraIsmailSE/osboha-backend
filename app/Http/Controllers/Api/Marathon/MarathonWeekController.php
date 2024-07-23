@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api\Marathon;
-
 use App\Http\Controllers\Controller;
-
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\NotFound;
@@ -61,21 +59,38 @@ class MarathonWeekController extends Controller
         // }
 
     }
-
-    public function calculateMarkMarathon($user_id, $weekIds)
+    public function calculateMarkMarathon(Request $request)
     {
+        //validate requested data
+        $validator = Validator::make($request->all(), [
+            'user_id'             => 'required',
+            'osboha_marthon_id'   => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $user_id = $request->user_id;
+        $osboha_marthon_id = $request->osboha_marthon_id;
+
+
+        $weeks_key = MarathonWeek::where('osboha_marthon_id' , $osboha_marthon_id)
+                                  ->pluck('week_key');
         // get all weeks of marathon in ascending order
-        $week_marathon = Week::whereIn('id', $weekIds)
+        $weeks_marathon = Week::whereIn('week_key', $weeks_key)
             ->orderBy('created_at', 'ASC')
             ->get();
-        $response['point_first_week'] = $this->calculatePoint($week_marathon[0], $user_id, $maximum_total_pages = 14);
-
-        $response['point_second_week'] = $this->calculatePoint($week_marathon[1], $user_id, $maximum_total_pages = 29);
-
-        $response['point_third_week'] = $this->calculatePoint($week_marathon[2], $user_id, $maximum_total_pages = 39);
-
-        $response['point_fourth_week'] = $this->calculatePoint($week_marathon[3], $user_id, $maximum_total_pages = 49);
-
+        if(isset($weeks_marathon[0])){
+            $response['point_first_week'] = $this->calculatePoint($weeks_marathon[0], $user_id, $maximum_total_pages = 14);
+        }
+        if(isset($weeks_marathon[1])){
+            $response['point_second_week'] = $this->calculatePoint($weeks_marathon[1], $user_id, $maximum_total_pages = 29);
+        }
+        if(isset($weeks_marathon[2])){
+            $response['point_third_week'] = $this->calculatePoint($weeks_marathon[2], $user_id, $maximum_total_pages = 39);
+        }
+        if(isset($weeks_marathon[3])){
+            $response['point_fourth_week'] = $this->calculatePoint($weeks_marathon[3], $user_id, $maximum_total_pages = 49);
+        }
         return $response;
     }
 
@@ -85,15 +100,15 @@ class MarathonWeekController extends Controller
         $days  = [];
         $points = 0;
         $i = 0;
-        $day = new Carbon($week_marathon->created_at);
+       $day = new Carbon($week_marathon->created_at);
         for ($i = 0; $i < 7; $i++) {
             //get  the dates of the seven days in week one.
             $days[] = $day->copy()->addDays($i)->format('Y-m-d');
         }
+        // return  $days;
         $mark = Mark::where('user_id', $user_id)
             ->where('week_id', $week_marathon->id)
             ->first();
-
         if ($mark) {
             $theses = Thesis::where('mark_id', $mark->id)
                 ->whereIn(DB::raw('DATE(created_at)'), $days)
@@ -120,7 +135,7 @@ class MarathonWeekController extends Controller
         $validator = Validator::make($request->all(), [
             'title'                    => 'required_without:osboha_marthon_id',
             'osboha_marthon_id'        => 'required_without:title',
-            'weeks_id'                 => 'required|array',
+            'weeks_key'                 => 'required|array',
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
@@ -134,11 +149,11 @@ class MarathonWeekController extends Controller
             $osboha_marthon_id = $request->osboha_marthon_id;
         }
         if ($osboha_marthon_id) {
-            foreach ($request->weeks_id as $week_id) {
+            foreach ($request->weeks_key as $week_key) {
                 MarathonWeek::updateOrCreate(
                     [
                         'osboha_marthon_id' => $osboha_marthon_id,
-                        'week_id' => $week_id
+                        'week_key' => $week_key
                     ],
                 );
             }

@@ -10,7 +10,7 @@ class MarathonWeek extends Model
     use HasFactory;
     protected $fillable = [
         'osboha_marthon_id',
-        'week_id',
+        'week_key',
         'is_active'
     ];
     public function week()
