@@ -647,7 +647,7 @@ class UserGroupController extends Controller
 
                 User::where('id', $userGroup->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
                 //Update User Parent
-                UserParent::where("user_id", $userGroup->user_id)->update(["is_active" => 0]);
+                UserParent::where("user_id", $userGroup->user_id)->update(["is_active" => 0, "updated_at" => $withdrawingDate]);
 
                 $userGroup->termination_reason = 'withdrawn';
                 $userGroup->updated_at = $withdrawingDate;

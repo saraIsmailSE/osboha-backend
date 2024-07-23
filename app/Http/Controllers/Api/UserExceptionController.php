@@ -833,13 +833,28 @@ class UserExceptionController extends Controller
                 if ($userGroup) {
 
                     $userException->status = 'accepted';
+                    $withdrawingDate = $desired_week->created_at;
+
+                    //check user mark for the last week
+                    $desiredWeekMark = Mark::where('week_id', $desired_week->id)
+                        ->where('user_id', $userGroup->user_id)
+                        ->select(
+                            DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'),
+                        )
+                        ->first();
+
+                    //set date to withdran [if last week mark >= 80 withdrawing ambassador selected week, else withdrawing ambassador previous of selected week]
+                    if (!$desiredWeekMark || !($desiredWeekMark->out_of_100 >= 80)) {
+                        $previous_of_desired_week = Week::where('id', '<', $desired_week->id)->orderBy('id', 'desc')->first();
+                        $withdrawingDate = $previous_of_desired_week->created_at;
+                    }
 
                     User::where('id', $userException->user_id)->update(['is_hold' => 1, 'parent_id' => null]);
                     //Update User Parent
-                    UserParent::where("user_id", $userException->user_id)->update(["is_active" => 0]);
+                    UserParent::where("user_id", $userException->user_id)->update(["is_active" => 0, "updated_at" => $withdrawingDate]);
 
                     $userGroup->termination_reason = 'withdrawn';
-                    $userGroup->updated_at = $desired_week->created_at;
+                    $userGroup->updated_at = $withdrawingDate;
                     $userGroup->save();
                     $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
                     Log::channel('community_edits')->info($logInfo);
