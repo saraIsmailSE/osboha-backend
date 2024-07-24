@@ -17,9 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('osboha_marthon_id')->index();
             $table->foreign('osboha_marthon_id')->references('id')->on('osboha_marthons')->onDelete('cascade');
-            $table->unsignedBigInteger('week_id')->index();
-            $table->foreign('week_id')->references('id')->on('weeks')->onDelete('cascade');
-            $table->boolean("is_active")->default(1);
+            $table->boolean("is_active")->default(0);
+            $table->integer('week_key')->index();
             $table->timestamps();
         });
     }

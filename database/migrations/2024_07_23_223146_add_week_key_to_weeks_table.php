@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('weeks', function (Blueprint $table) {
             $table->integer('week_key')->nullable()->after('is_vacation');
-
+            $table->index(['week_key']);
         });
     }
 
@@ -28,6 +28,8 @@ return new class extends Migration
     {
         Schema::table('weeks', function (Blueprint $table) {
             $table->dropColumn('week_key');
+            $table->dropIndex('week_key');
+
         });
     }
 };
