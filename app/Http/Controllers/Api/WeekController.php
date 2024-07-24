@@ -386,7 +386,8 @@ class WeekController extends Controller
         $weekTitles = [];
         for ($i = 0; $i < $limit; $i++) {
             $index = ($currentWeekIndex + $i) % count($yearWeeks);
-            $weekTitles[] = $yearWeeks[$index]['title'];
+            $weekTitles[$i]['title'] = $yearWeeks[$index]['title'];
+            $weekTitles[$i]['week_key'] = $yearWeeks[$index]['week_key'];
         }
 
         // Return the week titles

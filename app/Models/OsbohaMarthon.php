@@ -12,6 +12,9 @@ class OsbohaMarthon extends Model
         'title',
         'is_active',
     ];
+
+    protected $with = array('marathonWeeks');
+
     public function marathonWeeks()
     {
         return $this->hasMany(MarathonWeek::class);

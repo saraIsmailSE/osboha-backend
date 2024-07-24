@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api\Marathon;
+
 use App\Http\Controllers\Controller;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
@@ -73,22 +74,22 @@ class MarathonWeekController extends Controller
         $osboha_marthon_id = $request->osboha_marthon_id;
 
 
-        $weeks_key = MarathonWeek::where('osboha_marthon_id' , $osboha_marthon_id)
-                                  ->pluck('week_key');
+        $weeks_key = MarathonWeek::where('osboha_marthon_id', $osboha_marthon_id)
+            ->pluck('week_key');
         // get all weeks of marathon in ascending order
         $weeks_marathon = Week::whereIn('week_key', $weeks_key)
             ->orderBy('created_at', 'ASC')
             ->get();
-        if(isset($weeks_marathon[0])){
+        if (isset($weeks_marathon[0])) {
             $response['point_first_week'] = $this->calculatePoint($weeks_marathon[0], $user_id, $maximum_total_pages = 14);
         }
-        if(isset($weeks_marathon[1])){
+        if (isset($weeks_marathon[1])) {
             $response['point_second_week'] = $this->calculatePoint($weeks_marathon[1], $user_id, $maximum_total_pages = 29);
         }
-        if(isset($weeks_marathon[2])){
+        if (isset($weeks_marathon[2])) {
             $response['point_third_week'] = $this->calculatePoint($weeks_marathon[2], $user_id, $maximum_total_pages = 39);
         }
-        if(isset($weeks_marathon[3])){
+        if (isset($weeks_marathon[3])) {
             $response['point_fourth_week'] = $this->calculatePoint($weeks_marathon[3], $user_id, $maximum_total_pages = 49);
         }
         return $response;
@@ -100,7 +101,7 @@ class MarathonWeekController extends Controller
         $days  = [];
         $points = 0;
         $i = 0;
-       $day = new Carbon($week_marathon->created_at);
+        $day = new Carbon($week_marathon->created_at);
         for ($i = 0; $i < 7; $i++) {
             //get  the dates of the seven days in week one.
             $days[] = $day->copy()->addDays($i)->format('Y-m-d');
@@ -129,37 +130,7 @@ class MarathonWeekController extends Controller
         }
         return $points;
     }
-    function create_marthon(Request $request)
-    {
-        //validate requested data
-        $validator = Validator::make($request->all(), [
-            'title'                    => 'required_without:osboha_marthon_id',
-            'osboha_marthon_id'        => 'required_without:title',
-            'weeks_key'                 => 'required|array',
-        ]);
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        if ($request->has('title')) {
-            $osboha_marthon = OsbohaMarthon::updateOrCreate(['title' => $request->title]);
-            if ($osboha_marthon) {
-                $osboha_marthon_id = $osboha_marthon->id;
-            }
-        } else if ($request->has('osboha_marthon_id')) {
-            $osboha_marthon_id = $request->osboha_marthon_id;
-        }
-        if ($osboha_marthon_id) {
-            foreach ($request->weeks_key as $week_key) {
-                MarathonWeek::updateOrCreate(
-                    [
-                        'osboha_marthon_id' => $osboha_marthon_id,
-                        'week_key' => $week_key
-                    ],
-                );
-            }
-        }
-        return $this->jsonResponseWithoutMessage("Add Marathons Week successfully", 'data', 200);
-    }
+
     function add_bonus(Request $request)
     {
         $validator = Validator::make($request->all(), [

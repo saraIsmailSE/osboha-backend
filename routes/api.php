@@ -80,7 +80,8 @@ use App\Http\Controllers\Api\Ramadan\{
 
 use App\Http\Controllers\Api\Marathon\{
     MarathonWeekController,
-    OsbohaMarathonController
+    OsbohaMarathonController,
+    MarathonPointsController
 };
 
 use Illuminate\Support\Facades\Broadcast;
@@ -595,7 +596,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/notify-users', [WeekController::class, 'notifyUsersNewWeek']);
             Route::get('/get-weeks/{limit}', [WeekController::class, 'getWeeks']);
             Route::get('/get-next-weeks-title/{limit}', [WeekController::class, 'getNextWeekTitles']);
-
         });
         ######## Week ########
 
@@ -951,14 +951,17 @@ Route::group(['prefix' => 'v1'], function () {
         ####################  Marathon  ####################
         Route::controller(OsbohaMarathonController::class)->prefix('osboha-marathon')->group(function () {
             Route::get('/current-marathon', 'getCurrentMarathon');
-            Route::get('/end-marathon/marathon_id}', 'endMarathon');
+            Route::get('/end-marathon/{marathon_id}', 'endMarathon');
+            Route::get('/show/{marathon_id}', 'show');
+            Route::post('/create_marthon', 'createMarthon');
         });
-        // Route::post('/setWeeks', [MarathonWeekController::class, 'set_weeks']);
-        Route::post('/create_marthon', [MarathonWeekController::class, 'create_marthon']);
-        Route::get('/listMarathonWeeks', [MarathonWeekController::class, 'listMarathonWeeks']);
-        Route::post('/calculateMarkMarathon', [MarathonWeekController::class, 'calculateMarkMarathon']);
-        Route::post('/add_bonus', [MarathonWeekController::class, 'add_bonus']);
-
+        Route::controller(MarathonPointsController::class)->prefix('marathon-points')->group(function () {
+            Route::get('/get-marathon-points/{user_id}/{osboha_marthon_id}', 'getMarathonPoints');
+            Route::get('/get-specific-marathon-week-points/{user_id}/{osboha_marthon_id}/{week_id}', 'getSpecificMarathonWeekPoints');
+            Route::post('/add-bonus', 'addBonus');
+            Route::post('/subtract-bonus', 'subtractPoints');
+            Route::get('/get-points-bonus/{user_id}/{osboha_marthon_id}', 'getBonusPoints');
+        });
         #################### End  Marathon  ####################
 
     });
