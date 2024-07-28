@@ -826,9 +826,9 @@ trait ThesisTraits
         }
     }
 
-    public function calculate_pages_percentage_of_book($user, $book)
+    public function calculate_pages_percentage_of_book($user = null, $book, $theses = null)
     {
-        $allThesis = $user->theses()->where('book_id', $book->id)->get();
+        $allThesis = $theses ? $theses : $user->theses()->where('book_id', $book->id)->get();
         $totalPages = 0;
         foreach ($allThesis as $thesis) {
             $totalPages += $thesis->end_page - $thesis->start_page + 1;

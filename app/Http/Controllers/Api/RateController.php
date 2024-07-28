@@ -59,13 +59,24 @@ class RateController extends Controller
         }
 
         $post_id = $request->post_id;
-        if ($request->has('post_id') || $request->has('book_id'))
-            $post_id = $request->post_id ?? Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book_review')->first()->id)->first()->id;
+        if ($request->has('post_id') || $request->has('book_id')) {
+            $post = $request->has('post_id') ?
+                Post::find($request->post_id) :
+                Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book_review')->first()->id)->first();
+            $post_id = $request->post_id ?? $post->id;
+
+            $userBook = $post->book->userBooks->where('user_id', Auth::id())->first();
+            if (!$userBook || ($userBook->status != 'finished' && $userBook->counter <= 0)) {
+                return $this->jsonResponseWithoutMessage("لا يمكنك تقييم الكتاب لأنك لم تنهي قراءته بعد!", 'data', 500);
+            }
+        }
 
         //check if user rated the post or the comment before
         $ratedBefore = Rate::where('user_id', Auth::id())->where(function ($q) use ($post_id, $request) {
             $q->where('post_id', $post_id)
-                ->orWhere('comment_id', $request->comment_id);
+                ->orWhere(function ($comment) use ($request) {
+                    $comment->whereNotNull('comment_id')->where('comment_id', $request->comment_id);
+                });
         })->exists();
 
         if ($ratedBefore) {

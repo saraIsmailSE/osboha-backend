@@ -19,12 +19,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
+use App\Traits\ThesisTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UserBookController extends Controller
 {
-    use ResponseJson, MediaTraits;
+    use ResponseJson, MediaTraits, ThesisTraits;
     /**
      * Find [in progress - finished ] books belongs to specific user.
      *
@@ -125,14 +126,25 @@ class UserBookController extends Controller
 
         if ($userBooks->isNotEmpty()) {
             $books = collect();
-            $user = User::find($user_id);
+            // $user = User::find($user_id);
 
             foreach ($userBooks as $userBook) {
-                $userBook->book->last_thesis = $user
-                    ->theses()
-                    ->where('book_id', $userBook->book->id)
-                    ->orderBy('end_page', 'desc')
+                $userTheses = $userBook->book->theses()->where('user_id', $user_id);
+                $userBook->book->last_thesis =
+                    //  $user
+                    //     ->theses()
+                    //     ->where('book_id', $userBook->book->id)
+                    //     ->orderBy('end_page', 'desc')
+                    //     ->orderBy('updated_at', 'desc')->first();
+
+                    $userTheses->orderBy('end_page', 'desc')
                     ->orderBy('updated_at', 'desc')->first();
+
+                $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userBook->book, $userTheses->get());
+                $canBeFinished = $finishedPercentage >= 85 && $userBook->status == 'in progress';
+
+                $userBook->book->finished_percentage = round($finishedPercentage, 2);
+                $userBook->book->can_be_finished = $canBeFinished;
                 $books->push($userBook->book);
             }
 
