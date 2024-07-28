@@ -57,7 +57,7 @@ class CommentController extends Controller
                 'string',
                 function ($attribute, $value, $fail) use ($request) {
                     if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
-                        $fail('The body field is required.');
+                        $fail('النص مطلوب في حالة عدم وجود صورة');
                     }
                 },
             ],
@@ -80,10 +80,21 @@ class CommentController extends Controller
             'screenShots.*' => [new base64OrImage(), new base64OrImageMaxSize(2 * 1024 * 1024)],
             'start_page' => 'required_if:type,thesis|numeric',
             'end_page' => 'required_if:type,thesis|numeric',
+        ], [
+            'body.string' => 'النص يجب ان يكون نص',
+            'book_id.required_without' => 'book_id مطلوب',
+            'post_id.required_without' => 'post_id مطلوب',
+            'type.required' => 'النوع مطلوب',
+            'image.required' => 'الصورة مطلوبة',
+            'screenShots.array' => 'السكرينات مطلوبة',
+            'screenShots.*.base64_or_image' => 'الصورة يجب ان تكون من نوع صورة',
+            'screenShots.*.base64_or_image_max_size' => 'الصورة يجب ان تكون اقل من 2 ميجا',
+            'start_page.required_if' => 'الصفحة الأولى مطلوبة',
+            'end_page.required_if' => 'الصفحة الأخيرة مطلوبة',
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
 
         $input = $request->all();

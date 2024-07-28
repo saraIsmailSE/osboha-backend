@@ -52,6 +52,13 @@ class RateController extends Controller
             'rate' => 'required|min:1|max:5',
             //if the rate is for the comment
             'comment_id' => 'exists:comments,id',
+        ], [
+            'post_id.exists' => 'المنشور غير موجود',
+            'book_id.exists' => 'الكتاب غير موجود',
+            'rate.required' => 'التقييم مطلوب',
+            'rate.min' => 'التقييم يجب أن يكون بين 1 و 5',
+            'rate.max' => 'التقييم يجب أن يكون بين 1 و 5',
+            'comment_id.exists' => 'التعليق غير موجود',
         ]);
 
         if ($validator->fails()) {
