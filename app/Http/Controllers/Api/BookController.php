@@ -273,11 +273,12 @@ class BookController extends Controller
     {
         $user_id = Auth::id();
 
-        $book = Book::with(['type', 'posts.comments', 'posts.rates', 'media', 'section', 'level', 'language'])
+        $book = Book::with(['type', 'media', 'section', 'level', 'language'])
             ->where('id', $book_id)
             ->with('userBooks', function ($query) {
                 $query->where('user_id', Auth::user()->id);
-            })->first();
+            })
+            ->first();
 
         if (!$book) {
             throw new NotFound;
@@ -292,7 +293,9 @@ class BookController extends Controller
 
         ### Comments ###
         $normal_book_post = $book->posts->firstWhere('type_id', $bookPostTypeId);
-        $comments_count = $normal_book_post->comments->count();
+        $comments_count =  DB::table('comments')->where('post_id', $normal_book_post->id)->count();
+        // Comment::where('post_id', $normal_book_post->id)->count();
+        // $normal_book_post->comments->count();
 
         #### Rate ####
         //get the rate average and count
@@ -314,7 +317,9 @@ class BookController extends Controller
             ]);
         }
 
-        $reviews_count = $review_book_post->comments->count();
+        $reviews_count = DB::table('comments')->where('post_id', $review_book_post->id)->count();
+        // Comment::where('post_id', $review_book_post->id)->count();
+        // $review_book_post->comments->count();
 
         //calculate rate
         /*
