@@ -369,6 +369,10 @@ class UserBookController extends Controller
         }
 
         $userBook->status = 'finished';
+<<<<<<< HEAD
+=======
+        $userBook->counter = $userBook->counter + 1;
+>>>>>>> 6851cf3d5a8c621afc853d1f3e11436b749e9304
         $userBook->save();
         return $this->jsonResponseWithoutMessage('تم الانتهاء من الكتاب', 'data', 200);
     }

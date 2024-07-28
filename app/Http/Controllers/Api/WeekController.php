@@ -328,4 +328,10 @@ class WeekController extends Controller
             Log::channel('newWeek')->info($e);
         }
     }
+
+    public function getWeeks($limit)
+    {
+        $weeks = Week::where('is_vacation', 0)->latest('id')->limit($limit)->get();
+        return $this->jsonResponseWithoutMessage($weeks, 'data', 200);
+    }
 }

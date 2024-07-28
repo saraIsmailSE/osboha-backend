@@ -132,6 +132,8 @@ trait AmbassadorsTrait
             ->limit($request->members_num)
             ->get();
 
+        $ambassadorsCount = $ambassadors->count();
+
         foreach ($ambassadors as $ambassador) {
             $ambassador->request_id = $request->id;
             $ambassador->parent_id = $leader->user->id;
@@ -171,7 +173,9 @@ trait AmbassadorsTrait
             $leaderToNotify->notify(new MailAmbassadorDistributionToYourTeam($request->group->id));
         }
 
-        $msg = "تم توزيع سفير للمجموعة: " . $request->group->name;
-        (new NotificationController)->sendNotification($leader->user->id, $msg, ROLES, $this->getGroupPath($request->group->id));
+        if($ambassadorsCount > 0){
+            $msg = "تم توزيع سفراء للمجموعة: " . $request->group->name;
+            (new NotificationController)->sendNotification($leader->user->id, $msg, ROLES, $this->getGroupPath($request->group->id));
+        }
     }
 }

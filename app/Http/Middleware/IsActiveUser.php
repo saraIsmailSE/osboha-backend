@@ -23,7 +23,12 @@ class IsActiveUser
 
         $group = UserGroup::where('user_id', $user->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
         $have_full_name = $user->name != "" && str_replace(' ', '', $user->last_name);
-        $not_have_any_social_media  = SocialMedia::where('user_id', $user->id)->whereNull('facebook')->whereNull('instagram')->whereNull('whatsapp')->whereNull('telegram')->first();;
+        $social_media_record = SocialMedia::where('user_id', $user->id)->first();
+        $have_any_social_media = false;
+        if ($social_media_record) {
+            $have_any_social_media = $social_media_record->facebook || $social_media_record->instagram || $social_media_record->whatsapp|| $social_media_record->telegram;
+        }
+
         if ($user->is_excluded == 1) {
             $response  = [
                 'success' => false,
@@ -42,7 +47,7 @@ class IsActiveUser
                 'data' => 'ambassador without group'
             ];
             return response()->json($response, 400);
-        } else if (!$have_full_name || $not_have_any_social_media) {
+        } else if (!$have_full_name || !$social_media_record || !$have_any_social_media) {
             $response  = [
                 'success' => false,
                 'data' => 'should update info'

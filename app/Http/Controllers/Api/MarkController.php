@@ -797,4 +797,70 @@ class MarkController extends Controller
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
         }
     }
+
+    function bookQualityTeamAchievements($week_id = 0)
+    {
+
+        if (Auth::user()->hasanyrole(['admin', 'book_quality_team'])) {
+
+            $week_id = Week::where('id', $week_id)->pluck('id')->firstOrFail();
+
+            $book_quality_users_statics = [];
+            $book_quality_users = User::without('userProfile')->role('book_quality_team')->get();
+
+            $book_quality_users_mark = Mark::without('week', 'user')->whereIn('user_id', $book_quality_users->pluck('id'))
+                ->where('week_id', $week_id)
+                ->with('thesis.book') // Eager load thesis and book relationships
+                ->get();
+            foreach ($book_quality_users as $user) {
+                $mark = $book_quality_users_mark->firstWhere('user_id', $user->id);
+                $key = $user->name . ' ' . $user->last_name;
+                $book_quality_users_statics[$key]['user_id'] = $user->id;
+
+                if ($mark) { // Ensure $mark is not null
+                    if ($mark->is_freezed != 0) {
+                        $book_quality_users_statics[$key]['status'] = 'السفير بحالة تجميد';
+                    } else {
+                        $theses = $mark->thesis;
+
+                        // Group the thesis data by book_name and calculate the total pages read for each book
+
+                        $groupedByBookId = $theses->groupBy(function ($thesis) {
+                            return $thesis->book->id; // Group by book ID
+                        });
+
+                        $totalPagesByBook = $groupedByBookId->map(function ($thesisGroup) {
+                            $totalPages = $thesisGroup->sum(function ($thesis) {
+                                return $thesis->end_page - $thesis->start_page + 1; // Calculate total pages read
+                            });
+
+                            // Get the book name (assuming all theses in the group have the same book)
+                            $bookName = $thesisGroup->first()->book->name;
+
+                            // Return an array with the book name and total pages
+                            return [
+                                'book_name' => $bookName,
+                                'total_pages' => $totalPages,
+                            ];
+                        });
+
+
+
+                        $book_quality_users_statics[$key]['status'] = 'active';
+                        $book_quality_users_statics[$key]['achievement'] = [
+                            'total_pages' => $mark->total_pages,
+                            'total_thesis' => $mark->total_thesis,
+                            'total_screenshot' => $mark->total_screenshot,
+                            'book' => $totalPagesByBook
+                        ];
+                    }
+                } else {
+                    $book_quality_users_statics[$key]['status'] = 'لا يوجد انجاز لهذا السفير';
+                }
+            }
+            return $this->jsonResponseWithoutMessage($book_quality_users_statics, 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
 }

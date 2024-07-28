@@ -106,7 +106,11 @@ return [
         'coordinator_of_withdrawns_team' => "مسؤول فريق المنسحبين",
         'member_of_withdrawns_team' => "عضو في فريق المنسحبين",
         'book_quality_team_coordinator' => "مسؤول فريق جودة الكتب",
+        'book_quality_supervisor' => "مشرف جودة الكتب",
         'book_quality_team' => "عضو في فريق جودة الكتب",
+        'osboha_support_coordinator' => "مسؤول دعم أصبوحة",
+        'osboha_support_member' => "دعم أصبوحة",
+
 
 
     ],
