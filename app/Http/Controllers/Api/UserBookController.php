@@ -126,19 +126,21 @@ class UserBookController extends Controller
 
         if ($userBooks->isNotEmpty()) {
             $books = collect();
-            // $user = User::find($user_id);
+            $user = User::find($user_id);
 
             foreach ($userBooks as $userBook) {
-                $userTheses = $userBook->book->theses()->where('user_id', $user_id);
                 $userBook->book->last_thesis =
-                    //  $user
-                    //     ->theses()
-                    //     ->where('book_id', $userBook->book->id)
-                    //     ->orderBy('end_page', 'desc')
-                    //     ->orderBy('updated_at', 'desc')->first();
-
-                    $userTheses->orderBy('end_page', 'desc')
+                    $user
+                    ->theses()
+                    ->where('book_id', $userBook->book->id)
+                    ->orderBy('end_page', 'desc')
                     ->orderBy('updated_at', 'desc')->first();
+
+                //if the book is finished before (counter > 0), return the theses from the last userBook update
+                $userTheses = $user->theses()->where('book_id', $userBook->book->id);
+                if ($userBook->counter > 0) {
+                    $userTheses = $userTheses->where('updated_at', '>=', $userBook->updated_at);
+                }
 
                 $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userBook->book, $userTheses->get());
                 $canBeFinished = $finishedPercentage >= 85 && $userBook->status == 'in progress';
