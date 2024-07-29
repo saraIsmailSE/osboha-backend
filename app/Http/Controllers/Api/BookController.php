@@ -284,7 +284,6 @@ class BookController extends Controller
             throw new NotFound;
         }
 
-
         $bookPostTypeId  = Cache::remember('book_post_type_id', now()->addWeek(), function () {
             return PostType::firstWhere('type', 'book')->id;
         });

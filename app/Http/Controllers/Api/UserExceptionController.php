@@ -578,12 +578,11 @@ class UserExceptionController extends Controller
             if ((Auth::id() == $userException->user_id) && ($userException->status == 'accepted' || $userException->status == 'pending')) {
                 $userException->status = 'cancelled';
                 $userException->save();
-                $current_week = Week::latest()->first();
 
                 /**
                  * @todo remove the update mark since it will no longer be there
                  */
-                Mark::where('week_id', $current_week->id)
+                Mark::where('week_id', $userException->week_id)
                     ->where('user_id', Auth::id())
                     ->update(['is_freezed' => 0]);
                 return $this->jsonResponseWithoutMessage("تم الالغاء بنجاح", 'data', 200);
