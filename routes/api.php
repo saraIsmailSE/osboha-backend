@@ -78,6 +78,12 @@ use App\Http\Controllers\Api\Ramadan\{
     RamadanQuestionController,
 };
 
+use App\Http\Controllers\Api\Marathon\{
+    MarathonWeekController,
+    OsbohaMarathonController,
+    MarathonPointsController
+};
+
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -592,6 +598,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/update-exception/{exp_id}/{status}', [WeekController::class, 'update_exception_status']);
             Route::get('/notify-users', [WeekController::class, 'notifyUsersNewWeek']);
             Route::get('/get-weeks/{limit}', [WeekController::class, 'getWeeks']);
+            Route::get('/get-next-weeks-title/{limit}', [WeekController::class, 'getNextWeekTitles']);
         });
         ######## Week ########
 
@@ -938,5 +945,27 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/day/{day_id}', 'getQuestionsByDay')->where('day_id', '[0-9]+');
             Route::get('/show/{id}', 'show')->where('day_id', '[0-9]+');
         });
+
+        /*
+        |--------------------------------------------------------------------------|
+        |                       Marathon API Routes                                |
+        |--------------------------------------------------------------------------|
+        */
+        ####################  Marathon  ####################
+        Route::controller(OsbohaMarathonController::class)->prefix('osboha-marathon')->group(function () {
+            Route::get('/current-marathon', 'getCurrentMarathon');
+            Route::get('/end-marathon/{marathon_id}', 'endMarathon');
+            Route::get('/show/{marathon_id}', 'show');
+            Route::post('/create_marthon', 'createMarthon');
+        });
+        Route::controller(MarathonPointsController::class)->prefix('marathon-points')->group(function () {
+            Route::get('/get-marathon-points/{user_id}/{osboha_marthon_id}', 'getMarathonPoints');
+            Route::get('/get-specific-marathon-week-points/{user_id}/{osboha_marthon_id}/{week_id}', 'getSpecificMarathonWeekPoints');
+            Route::post('/add-bonus', 'addBonus');
+            Route::post('/subtract-bonus', 'subtractPoints');
+            Route::get('/get-points-bonus/{user_id}/{osboha_marthon_id}', 'getBonusPoints');
+        });
+        #################### End  Marathon  ####################
+
     });
 });

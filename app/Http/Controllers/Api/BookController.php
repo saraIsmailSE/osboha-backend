@@ -29,6 +29,7 @@ use App\Models\TimelineType;
 use App\Models\UserBook;
 use App\Models\ViolatedBook;
 use App\Traits\ThesisTraits;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -270,81 +271,105 @@ class BookController extends Controller
      */
     public function show($book_id)
     {
-        $book = Book::with('type')->where('id', $book_id)->with('userBooks', function ($query) {
-            $query->where('user_id', Auth::user()->id);
-        })->first();
+        $user_id = Auth::id();
 
-        if ($book) {
-            ### Comments ###
-            $normal_book_post = $book->posts->where('type_id', PostType::where('type', 'book')->first()->id)->first();
-            $comments_count = $normal_book_post->comments ? $normal_book_post->comments->count() : 0;
+        $book = Book::with(['type', 'media', 'section', 'level', 'language'])
+            ->where('id', $book_id)
+            ->with('userBooks', function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            })
+            ->first();
 
-            #### Rate ####
-            //get the rate average and count
-            $review_book_post = $book->posts->where('type_id', PostType::where('type', 'book_review')->first()->id)->first();
-
-            //if the review post not exist create it
-            if (!$review_book_post) {
-                $review_book_post = $book->posts()->create([
-                    'user_id' => 1,
-                    'type_id' => PostType::where('type', 'book_review')->first()->id,
-                    'timeline_id' => Timeline::where('type_id', TimelineType::where('type', 'book')->first()->id)->first()->id,
-                ]);
-            }
-
-            $reviews_count = $review_book_post->comments ? $review_book_post->comments->count() : 0;
-
-            //calculate rate
-            $rateAverage = $review_book_post->rates()->avg('rate');
-            $rateAverage = $rateAverage ? round($rateAverage) : 0;
-            $rateAverage = $rateAverage > 5 ? 5 : $rateAverage;
-            $rateAverage = ($rateAverage * 100) / 5;
-
-            //check if book is rated before
-            $userRate = $review_book_post->rates()->where('user_id', Auth::id())->first();
-
-            #### Thesis ####
-            $last_thesis = Auth::user()
-                ->theses()
-                ->where('book_id', $book_id)
-                ->orderBy('created_at', 'desc')->first();
-
-            #### Ramadan ####
-            $isRamadanActive = RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
-
-            #### Suggested ####
-            $isSuggested = BookSuggestion::where('user_id', Auth::id())->where('name', $book->name)->exists();
-
-
-            #### Can Be Finished ####
-            //check how much the user finished from the book
-            $finishedPercentage = $this->calculate_pages_percentage_of_book(Auth::user(), $book);
-            $userBook = $book->userBooks->where('user_id', Auth::id())->first();
-            $userBookStatus = $userBook ? $userBook->status : null;
-            $canBeFinished = $finishedPercentage >= 85 && $userBookStatus === 'in progress' ? true : false;
-
-
-            return $this->jsonResponseWithoutMessage(
-                [
-                    'book' => new BookResource($book),
-                    'book_owner' => $normal_book_post->user_id,
-                    'theses_count' => $book->theses->count(),
-                    'comments_count' => $comments_count,
-                    'reviews_count' => $reviews_count,
-                    'reviews_sum' => $review_book_post->rates()->sum('rate'),
-                    'rate' => $rateAverage,
-                    'last_thesis' => $last_thesis ? new ThesisResource($last_thesis) : null,
-                    'isRamadanActive' => $isRamadanActive,
-                    'isSuggested' => $isSuggested,
-                    'canBeFinished' => $canBeFinished,
-                    'userRate' => $userRate,
-                ],
-                'data',
-                200
-            );
-        } else {
+        if (!$book) {
             throw new NotFound;
         }
+
+        $postTypes = Cache::remember('book_post_types', now()->addWeek(), function () {
+            return PostType::whereIn('type', ['book', 'book_review'])->pluck('id', 'type')->toArray();
+        });
+
+        $bookPostTypeId  = $postTypes['book'];
+        $reviewPostTypeId  = $postTypes['book_review'];
+
+        ### Comments ###
+        $normal_book_post = $book->posts->firstWhere('type_id', $bookPostTypeId);
+        $comments_count =  DB::table('comments')->where('post_id', $normal_book_post->id)->count();
+        // Comment::where('post_id', $normal_book_post->id)->count();
+        // $normal_book_post->comments->count();
+
+        #### Rate ####
+        //get the rate average and count
+        $review_book_post = $book->posts->firstWhere('type_id', $reviewPostTypeId);
+
+        //if the review post not exist create it
+        if (!$review_book_post) {
+            $timelineTypeId = Cache::remember('book_timeline_type_id', now()->addWeek(), function () {
+                return TimelineType::where('type', 'book')->first()->id;
+            });
+            $timelineId = Cache::remember('book_timeline_id', now()->addWeek(), function () use ($timelineTypeId) {
+                return Timeline::where('type_id', $timelineTypeId)->first()->id;
+            });
+
+            $review_book_post = $book->posts()->create([
+                'user_id' => 1,
+                'type_id' => $reviewPostTypeId,
+                'timeline_id' => $timelineId,
+            ]);
+        }
+
+        $reviews_count = DB::table('comments')->where('post_id', $review_book_post->id)->count();
+        // Comment::where('post_id', $review_book_post->id)->count();
+        // $review_book_post->comments->count();
+
+        //calculate rate
+        /*
+            1.round($rateAverage):
+                The round() function rounds the average rating to the nearest integer. If the average rating was a decimal (e.g., 3.7), it would be rounded to the nearest whole number (in this case, 4).
+
+            2.round($rateAverage) * 20:
+                After rounding the average rating, it multiplies the rounded value by 20. This is because ratings are often given on a scale of 1 to 5, and multiplying by 20 converts this to a percentage out of 100. For example, if the average rating is 4, then 4 * 20 results in 80%.
+
+            3.min(round($rateAverage) * 20, 100):
+                The min() function ensures that the calculated percentage does not exceed 100. This is a safeguard to handle any unexpected values that might result in a percentage higher than 100.
+        */
+        $rateAverage = $review_book_post->rates->avg('rate') ?? 0;
+        $rateAverage = min(round($rateAverage) * 20, 100);
+
+        //check if book is rated before
+        $userRate = $review_book_post->rates->firstWhere('user_id', $user_id);
+
+        #### Thesis ####
+        $last_thesis = Auth::user()
+            ->theses()
+            ->where('book_id', $book_id)
+            ->latest()
+            ->first();
+
+        #### Ramadan ####
+        $isRamadanActive = Cache::remember('ramadan_active_' . now()->year, now()->addMonths(6), function () {
+            return RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
+        });
+
+        #### Suggested ####
+        $isSuggested = BookSuggestion::where('user_id', $user_id)->where('name', $book->name)->exists();
+
+        return $this->jsonResponseWithoutMessage(
+            [
+                'book' => new BookResource($book),
+                'book_owner' => $normal_book_post->user_id,
+                'theses_count' => $book->theses->count(),
+                'comments_count' => $comments_count,
+                'reviews_count' => $reviews_count,
+                'reviews_sum' => $review_book_post->rates()->sum('rate'),
+                'rate' => $rateAverage,
+                'last_thesis' => $last_thesis ? new ThesisResource($last_thesis) : null,
+                'isRamadanActive' => $isRamadanActive,
+                'isSuggested' => $isSuggested,
+                'userRate' => $userRate,
+            ],
+            'data',
+            200
+        );
     }
 
     /**

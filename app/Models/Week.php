@@ -16,6 +16,7 @@ class Week extends Model
         'main_timer',
         'audit_timer',
         'modify_timer',
+        'week_key',
 
     ];
 
@@ -30,5 +31,9 @@ class Week extends Model
     public function usersActivities()
     {
         return $this->belongsToMany(userWeekActivities::class, 'user_week_activities');
+    }
+    public function marathonWeeks()
+    {
+        return $this->hasMany(MarathonWeek::class, 'week_key', 'week_key');
     }
 }

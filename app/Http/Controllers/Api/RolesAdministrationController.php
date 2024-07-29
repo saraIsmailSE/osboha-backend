@@ -1296,7 +1296,7 @@ class RolesAdministrationController extends Controller
 
         //check if role contains `coordinator` string or role is advisor
         $authUser = Auth::user();
-        $isSuperRole = $authUser->hasRole(['advisor', 'admin']);
+        $isSuperRole = $authUser->hasRole(['advisor', 'admin', 'book_quality_team_coordinator', 'special_care_coordinator', 'ramadan_coordinator', 'marathon_coordinator', 'eligible_admin']);
         $secondaryRoles = $authUser->getRoleNames()->filter(function ($item) use ($mainRoles) {
             return  !in_array($item, $mainRoles);
         });
