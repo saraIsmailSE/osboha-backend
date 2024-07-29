@@ -284,12 +284,14 @@ class BookController extends Controller
             throw new NotFound;
         }
 
-        $postTypes = Cache::remember('book_post_types', now()->addWeek(), function () {
-            return PostType::whereIn('type', ['book', 'book_review'])->pluck('id', 'type')->toArray();
+        $bookPostTypeId  = Cache::remember('book_post_type_id', now()->addWeek(), function () {
+            return PostType::firstWhere('type', 'book')->id;
         });
 
-        $bookPostTypeId  = $postTypes['book'];
-        $reviewPostTypeId  = $postTypes['book_review'];
+
+        $reviewPostTypeId  = Cache::remember('book_review_post_type_id', now()->addWeek(), function () {
+            return PostType::firstWhere('type', 'book_review')->id;
+        });
 
         ### Comments ###
         $normal_book_post = $book->posts->firstWhere('type_id', $bookPostTypeId);

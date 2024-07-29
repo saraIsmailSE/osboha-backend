@@ -18,6 +18,7 @@ use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostType;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class RateController extends Controller
@@ -52,6 +53,13 @@ class RateController extends Controller
             'rate' => 'required|min:1|max:5',
             //if the rate is for the comment
             'comment_id' => 'exists:comments,id',
+        ], [
+            'post_id.exists' => 'المنشور غير موجود',
+            'book_id.exists' => 'الكتاب غير موجود',
+            'rate.required' => 'التقييم مطلوب',
+            'rate.min' => 'التقييم يجب أن يكون بين 1 و 5',
+            'rate.max' => 'التقييم يجب أن يكون بين 1 و 5',
+            'comment_id.exists' => 'التعليق غير موجود',
         ]);
 
         if ($validator->fails()) {
@@ -59,13 +67,28 @@ class RateController extends Controller
         }
 
         $post_id = $request->post_id;
-        if ($request->has('post_id') || $request->has('book_id'))
-            $post_id = $request->post_id ?? Post::where('book_id', $request->book_id)->where('type_id', PostType::where('type', 'book_review')->first()->id)->first()->id;
+        if ($request->has('post_id') || $request->has('book_id')) {
+            $reviewPostTypeId  = Cache::remember('book_review_post_type_id', now()->addWeek(), function () {
+                return PostType::firstWhere('type', 'book_review')->id;
+            });
+
+            $post = $request->has('post_id') ?
+                Post::find($request->post_id) :
+                Post::where('book_id', $request->book_id)->where('type_id', $reviewPostTypeId)->first();
+            $post_id = $request->post_id ?? $post->id;
+
+            $userBook = $post->book->userBooks->where('user_id', Auth::id())->first();
+            if (!$userBook || ($userBook->status != 'finished' && $userBook->counter <= 0)) {
+                return $this->jsonResponseWithoutMessage("لا يمكنك تقييم الكتاب لأنك لم تنهي قراءته بعد!", 'data', 500);
+            }
+        }
 
         //check if user rated the post or the comment before
         $ratedBefore = Rate::where('user_id', Auth::id())->where(function ($q) use ($post_id, $request) {
             $q->where('post_id', $post_id)
-                ->orWhere('comment_id', $request->comment_id);
+                ->orWhere(function ($comment) use ($request) {
+                    $comment->whereNotNull('comment_id')->where('comment_id', $request->comment_id);
+                });
         })->exists();
 
         if ($ratedBefore) {
@@ -182,39 +205,41 @@ class RateController extends Controller
 
     public function getBookRates($bookId)
     {
-        $book = Book::with('posts')->where('id', $bookId)->first();
-        if ($book) {
-            $book_review_post = $book->posts->where('type_id', PostType::where('type', 'book_review')->first()->id)->first();
-            if ($book_review_post) {
-                $rates = Comment::where('post_id', $book_review_post->id)
-                    ->where('comment_id', 0)
-                    ->withCount('reactions')
-                    ->with('rate')
-                    ->orderBy('created_at', 'desc')->paginate(10);
+        $book = Book::with('posts')->firstWhere('id', $bookId);
 
-                if ($rates->isNotEmpty()) {
-                    return $this->jsonResponseWithoutMessage(
-                        [
-                            'rates' => $rates->items(),
-                            'total' => $rates->total(),
-                        ],
-                        'data',
-                        200
-                    );
-                }
-                return $this->jsonResponseWithoutMessage(
-                    [
-                        'rates' => [],
-                        'total' => 0,
-                    ],
-                    'data',
-                    200
-                );
-            } else {
-                throw new NotFound;
-            }
-        } else {
-            throw new NotFound;
+        throw_if(!$book, new NotFound);
+
+        $reviewPostTypeId  = Cache::remember('book_review_post_type_id', now()->addWeek(), function () {
+            return PostType::firstWhere('type', 'book_review')->id;
+        });
+
+        $book_review_post = $book->posts->firstWhere('type_id', $reviewPostTypeId);
+
+        throw_if(!$book_review_post, new NotFound);
+
+        $rates = Comment::where('post_id', $book_review_post->id)
+            ->where('comment_id', 0)
+            ->withCount('reactions')
+            ->with('rate')
+            ->orderBy('created_at', 'desc')->paginate(10);
+
+        if ($rates->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'rates' => $rates->items(),
+                    'total' => $rates->total(),
+                ],
+                'data',
+                200
+            );
         }
+        return $this->jsonResponseWithoutMessage(
+            [
+                'rates' => [],
+                'total' => 0,
+            ],
+            'data',
+            200
+        );
     }
 }
