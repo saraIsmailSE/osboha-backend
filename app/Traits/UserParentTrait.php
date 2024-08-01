@@ -39,13 +39,13 @@ trait UserParentTrait
 
         $query = "
             WITH RECURSIVE cte AS (
-                SELECT id, name, parent_id, 0 AS depth
+                SELECT id, name, last_name, parent_id, 0 AS depth
                 FROM users
                 WHERE parent_id = :parentId
 
                 UNION ALL
 
-                SELECT u.id, u.name, u.parent_id, cte.depth + 1
+                SELECT u.id, u.name, u.last_name , u.parent_id, cte.depth + 1
                 FROM cte
                 JOIN users u ON u.parent_id = cte.id
                 WHERE cte.depth < :depthLimit

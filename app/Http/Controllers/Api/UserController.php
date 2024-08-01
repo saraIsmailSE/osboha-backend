@@ -72,6 +72,22 @@ class UserController extends Controller
         }
     }
 
+    public function inChargeOfSearch($email)
+    {
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $in_charge_of = UserParent::with('child')->where('parent_id', $user->id)->orderBy('is_active', 'desc')
+                ->paginate(25);
+            return $this->jsonResponseWithoutMessage([
+                'user' => $user,
+                'in_charge_of' => $in_charge_of,
+                'total' => $in_charge_of->total(),
+                'last_page' => $in_charge_of->lastPage(),
+            ], 'data', 200);
+        } else {
+            return $this->jsonResponseWithoutMessage(null, "data", 200);
+        }
+    }
     public function searchByName($name)
     {
         $response['users']  = User::with(['parent', 'groups' => function ($query) {
