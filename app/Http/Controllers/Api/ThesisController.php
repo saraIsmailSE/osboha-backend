@@ -12,12 +12,14 @@ use App\Models\PostType;
 use App\Models\Thesis;
 use App\Models\Week;
 use App\Traits\ResponseJson;
+use App\Traits\ThesisTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ThesisController extends Controller
 {
-    use ResponseJson;
+    use ResponseJson, ThesisTraits;
     /**
      * Find an existing thesis in the system by its id and display it.
      * 
@@ -163,5 +165,38 @@ class ThesisController extends Controller
         } else {
             throw new NotFound;
         }
+    }
+
+    public function checkThesisOverlap(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'start_page' => 'required|numeric',
+            'end_page' => 'required|numeric',
+            'book_id' => 'required|exists:books,id',
+            'thesis_id' => 'nullable|exists:theses,id',
+        ], [
+            'start_page.required' => 'صفحة البداية مطلوبة',
+            'end_page.required' => 'صفحة النهاية مطلوبة',
+            'start_page.numeric' => 'صفحة البداية يجب ان تكون رقمية',
+            'end_page.numeric' => 'صفحة النهاية يجب ان تكون رقمية',
+            'book_id.required' => 'رقم الكتاب مطلوب',
+            'book_id.exists' => 'الكتاب غير موجود',
+            'thesis_id.exists' => 'الأطروحة غير موجودة',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'error', 400);
+        }
+
+        $user_id = Auth::id();
+        if ($this->checkOverlap($request->start_page, $request->end_page, $request->book_id, $user_id, $request->thesis_id)) {
+            return $this->jsonResponseWithoutMessage([
+                "overlap" => true,
+            ], 'data', 200);
+        }
+
+        return $this->jsonResponseWithoutMessage([
+            "overlap" => false,
+        ], 'data', 200);
     }
 }

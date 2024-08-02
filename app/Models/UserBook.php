@@ -12,7 +12,8 @@ class UserBook extends Model
         'user_id',
         'book_id',
         'status',
-        'counter'
+        'counter',
+        'finished_at'
     ];
 
     protected $with = array('user', 'book');

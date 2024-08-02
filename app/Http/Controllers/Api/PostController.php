@@ -155,7 +155,7 @@ class PostController extends Controller
             //'is_pinned' => 'required',
             'timeline_id' => 'required',
             //'post_id' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048 required_without:body'
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048|required_without:body'
         ]);
 
         if ($validator->fails()) {
