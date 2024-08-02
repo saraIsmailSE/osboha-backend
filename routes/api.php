@@ -582,6 +582,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/book/{book_id}/thesis/{thesis_id}', [ThesisController::class, 'getBookThesis'])->where('book_id', '[0-9]+')->where('thesis_id', '[0-9]+');
             Route::get('/user/{user_id}', [ThesisController::class, 'listUserThesis'])->where('user_id', '[0-9]+');
             Route::get('/week/{week_id}', [ThesisController::class, 'listWeekThesis'])->where('week_id', '[0-9]+');
+            Route::post('/check-overlap', [ThesisController::class, 'checkThesisOverlap']);
         });
         ######## End Thesis ########
 

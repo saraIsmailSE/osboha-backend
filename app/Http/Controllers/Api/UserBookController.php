@@ -81,6 +81,21 @@ class UserBookController extends Controller
                     ->where('book_id', $userFreeBook->book->id)
                     ->orderBy('end_page', 'desc')
                     ->orderBy('updated_at', 'desc')->first();
+
+                //if the book is finished before (counter > 0), return the theses from the last userBook update
+                $userTheses = $user->theses()->where('book_id', $userFreeBook->book->id);
+                if ($userFreeBook->counter > 0) {
+                    $timestamp = $userFreeBook->finished_at ?? $userFreeBook->updated_at;
+                    $userTheses = $userTheses->where('created_at', '>', $timestamp);
+                }
+
+                $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userFreeBook->book, $userTheses->get());
+                $userFreeBook->book->finished_percentage = min(round($finishedPercentage, 2), 100);
+
+                $userFreeBook->book->load(['userBooks' => function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                }]);
+
                 $books->push($userFreeBook->book);
 
                 if ($userFreeBook->status == 'in progress') {
@@ -139,14 +154,16 @@ class UserBookController extends Controller
                 //if the book is finished before (counter > 0), return the theses from the last userBook update
                 $userTheses = $user->theses()->where('book_id', $userBook->book->id);
                 if ($userBook->counter > 0) {
-                    $userTheses = $userTheses->where('updated_at', '>=', $userBook->updated_at);
+                    $timestamp = $userBook->finished_at ?? $userBook->updated_at;
+                    $userTheses = $userTheses->where('created_at', '>', $timestamp);
                 }
 
                 $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userBook->book, $userTheses->get());
-                $canBeFinished = $finishedPercentage >= 85 && $userBook->status == 'in progress';
+                $userBook->book->finished_percentage = min(round($finishedPercentage, 2), 100);
 
-                $userBook->book->finished_percentage = round($finishedPercentage, 2);
-                $userBook->book->can_be_finished = $canBeFinished;
+                $userBook->book->load(['userBooks' => function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                }]);
                 $books->push($userBook->book);
             }
 
@@ -384,6 +401,7 @@ class UserBookController extends Controller
 
         $userBook->status = 'finished';
         $userBook->counter = $userBook->counter + 1;
+        $userBook->finished_at = now();
         $userBook->save();
         return $this->jsonResponseWithoutMessage('تم الانتهاء من الكتاب', 'data', 200);
     }

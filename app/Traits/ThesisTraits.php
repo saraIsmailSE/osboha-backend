@@ -95,6 +95,7 @@ trait ThesisTraits
      */
     public function createThesis($thesis, $seeder = false)
     {
+        $user_id = $seeder ? $thesis['user_id'] : Auth::id();
         $mark_record = null;
         if (!$seeder) {
             //asmaa - check if the week is existed or not
@@ -105,11 +106,10 @@ trait ThesisTraits
             }
 
             $mark_record = Mark::firstOrCreate(
-                ['week_id' =>  $week->id, 'user_id' => Auth::id()],
-                ['week_id' =>  $week->id, 'user_id' => Auth::id()]
+                ['week_id' =>  $week->id, 'user_id' => $user_id],
+                ['week_id' =>  $week->id, 'user_id' => $user_id]
             );
         } else {
-
             $mark_record = Mark::find($thesis['mark_id']);
         }
 
@@ -136,7 +136,7 @@ trait ThesisTraits
             'comment_id'        => $thesis['comment_id'],
             'book_id'           => $thesis['book_id'],
             'mark_id'           => $mark_record->id,
-            'user_id'           => $seeder ? $thesis['user_id'] : Auth::id(),
+            'user_id'           => $user_id,
             'type_id'           => $thesis['type_id'],
             'start_page'        => $thesis['start_page'],
             'end_page'          => $thesis['end_page'],
@@ -703,16 +703,17 @@ trait ThesisTraits
                     'book_id' => $book->id,
                     'status' => $finished ? 'finished' : 'in progress',
                     'counter' => $finished ? 1 : 0,
+                    'finished_at' => $finished ? now() : null,
                 ]);
             }
         } else {
-
             //if the thesis is deleted
             if ($isDeleted) {
                 //if the user book status is finished, decrease the counter and change the status to in progress
                 if ($user_book->status == 'finished') {
                     $user_book->status = 'in progress';
                     $user_book->counter = $user_book->counter > 0 ? $user_book->counter - 1 : 0;
+                    $user_book->finished_at = $user_book->counter - 1 <= 0 ? null : $user_book->finished_at;
                     $user_book->save();
                 }
             } else {
@@ -730,6 +731,7 @@ trait ThesisTraits
                     if ($percentage >= 85 && $lastPageThesis) {
                         $user_book->status = 'finished';
                         $user_book->counter = $user_book->counter + 1;
+                        $user_book->finished_at = now();
                         $user_book->save();
                     }
                 }
@@ -831,10 +833,67 @@ trait ThesisTraits
         $allThesis = $theses ? $theses : $user->theses()->where('book_id', $book->id)->get();
         $totalPages = 0;
         foreach ($allThesis as $thesis) {
-            $totalPages += $thesis->end_page - $thesis->start_page + 1;
+            $totalPages += $thesis->end_page - $thesis->start_page;
         }
 
         $percentage = ($totalPages / $book->end_page) * 100;
         return $percentage;
+    }
+
+    public function checkOverlap($start_page, $end_page, $book_id, $user_id, $thesis_id = null)
+    {
+        $overlapThreshold = 0.5;
+        $overlapDate = Carbon::now()->subMonth();
+
+        //get user book
+        $userBook = UserBook::where('user_id', $user_id)
+            ->where('book_id', $book_id)
+            ->first();
+
+        if (!$userBook) {
+            return false;
+        }
+
+        //calculate the range of selected pages
+        $selectedRange = range($start_page, $end_page);
+
+        //calculate the minimum required overlap count
+        $requiredOverlapCount = ceil(count($selectedRange) * $overlapThreshold);
+
+        $overlapCount = Thesis::where('book_id', $book_id)
+            ->where('user_id', $user_id)
+            ->where(function ($query) use ($start_page, $end_page) {
+                $query->whereBetween('start_page', [$start_page, $end_page])
+                    ->orWhereBetween('end_page', [$start_page, $end_page]);
+            })
+            ->where('created_at', '>=', $overlapDate);
+
+        //get the theses that were added after the user book was finished
+        if ($userBook->finished_at) {
+            $overlapCount->where('created_at', '>', $userBook->finished_at);
+        }
+        //TODO: Remove this else block after releasing the new version
+        else {
+            $overlapCount->where('created_at', '>', $userBook->updated_at);
+        }
+
+        //if the thesis id is provided, exclude it from the overlap check (edit case)
+        if ($thesis_id) {
+            $overlapCount->where('id', '!=', $thesis_id);
+        }
+
+        $overlapCount = $overlapCount
+            ->get()
+            ->reduce(function ($carry, $thesis) use ($selectedRange) {
+                //calculate overlap between selected pages and previous thesis pages
+                $thesisRange = range($thesis->start_page, $thesis->end_page);
+                $overlap = array_intersect($selectedRange, $thesisRange);
+                return $carry + count($overlap);
+            }, 0);
+
+        // dd($requiredOverlapCount, $overlapCount);
+
+
+        return $overlapCount >= $requiredOverlapCount;
     }
 }

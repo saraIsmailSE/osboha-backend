@@ -35,7 +35,6 @@ class BookResource extends JsonResource
             "allow_comments" => $this->posts->where('book_id', $this->id)->first()->allow_comments,
             "is_active" => $this->is_active,
             'finished_percentage' => $this->finished_percentage,
-            'can_be_finished' => $this->can_be_finished,
             'created_at' => $this->created_at,
         ];
     }
