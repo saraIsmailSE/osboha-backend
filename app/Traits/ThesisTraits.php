@@ -97,6 +97,7 @@ trait ThesisTraits
     {
         $user_id = $seeder ? $thesis['user_id'] : Auth::id();
         $mark_record = null;
+
         if (!$seeder) {
             //asmaa - check if the week is existed or not
             $week = Week::latest('id')->first();
@@ -113,16 +114,9 @@ trait ThesisTraits
             $mark_record = Mark::find($thesis['mark_id']);
         }
 
-        //check if thesis is added before (same book and same pages)
-        $addedBefore = Thesis::where('book_id', $thesis['book_id'])
-            ->where('start_page', $thesis['start_page'])
-            ->where('end_page', $thesis['end_page'])
-            ->where('mark_id', $mark_record->id)
-            ->first();
 
-        if ($addedBefore) {
-            throw new \Exception('تم إضافة الأطروحة من قبل بنفس الصفحات');
-        }
+        //check if thesis is added before (same book and same pages)
+        $this->checkIfThesisAddedBefore($thesis, $mark_record->id, $user_id);
 
         //get thesis type
         $thesis_type = ThesisType::findOrFail($thesis['type_id'])->type;
@@ -144,6 +138,7 @@ trait ThesisTraits
             'total_screenshots' => $total_screenshots,
             'status'            => $week->is_vacation == 1 ? config('constants.ACCEPTED_STATUS') : config('constants.PENDING_STATUS'),
         );
+
 
         $thesisTotalPages = $thesis['end_page'] - $thesis['start_page'] > 0 ? $thesis['end_page'] - $thesis['start_page'] + 1 : 0;
         $mark_data_to_update = array(
@@ -167,7 +162,6 @@ trait ThesisTraits
             strtolower($thesis_type) === RAMADAN_THESIS_TYPE ||
             strtolower($thesis_type) === TAFSEER_THESIS_TYPE
         ) { ///calculate mark for ramadan or tafseer thesis
-
             $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
                 $thesisTotalPages,
                 $max_length,
@@ -176,6 +170,8 @@ trait ThesisTraits
 
             );
         }
+
+
         $reading_mark += $thesis_mark['reading_mark'];
         $writing_mark += $thesis_mark['writing_mark'];
 
@@ -189,6 +185,7 @@ trait ThesisTraits
 
         $mark_data_to_update['reading_mark'] = $reading_mark;
         $mark_data_to_update['writing_mark'] = $writing_mark;
+
 
         //update status to accepted if the thesis is read only
         if ($thesisTotalPages > 0 && $max_length == 0 && $total_screenshots == 0) {
@@ -485,6 +482,7 @@ trait ThesisTraits
     {
         //if the thesis is within a duration of exams exception, the mark will be full if the user satisfies the conditions
         $is_exams_exception = $this->check_exam_exception();
+
         if ($is_exams_exception) {
             $mark = $this->calculate_mark_for_exam_exception($total_pages, $max_length, $total_screenshots);
             if ($mark) {
@@ -860,7 +858,7 @@ trait ThesisTraits
         //calculate the minimum required overlap count
         $requiredOverlapCount = ceil(count($selectedRange) * $overlapThreshold);
 
-        $overlapCount = Thesis::where('book_id', $book_id)
+        $overlappedTheses = Thesis::where('book_id', $book_id)
             ->where('user_id', $user_id)
             ->where(function ($query) use ($start_page, $end_page) {
                 $query->whereBetween('start_page', [$start_page, $end_page])
@@ -870,19 +868,22 @@ trait ThesisTraits
 
         //get the theses that were added after the user book was finished
         if ($userBook->finished_at) {
-            $overlapCount->where('created_at', '>', $userBook->finished_at);
+            $overlappedTheses->where('created_at', '>', $userBook->finished_at);
         }
         //TODO: Remove this else block after releasing the new version
-        else {
-            $overlapCount->where('created_at', '>', $userBook->updated_at);
+        else if ($userBook->counter > 0) {
+            $overlappedTheses->where('created_at', '>', $userBook->updated_at);
         }
+
 
         //if the thesis id is provided, exclude it from the overlap check (edit case)
         if ($thesis_id) {
-            $overlapCount->where('id', '!=', $thesis_id);
+            $overlappedTheses->where('id', '!=', $thesis_id);
         }
 
-        $overlapCount = $overlapCount
+        // dd($overlappedTheses->get());
+        //reduce method
+        $overlapCount = $overlappedTheses
             ->get()
             ->reduce(function ($carry, $thesis) use ($selectedRange) {
                 //calculate overlap between selected pages and previous thesis pages
@@ -891,9 +892,48 @@ trait ThesisTraits
                 return $carry + count($overlap);
             }, 0);
 
+
         // dd($requiredOverlapCount, $overlapCount);
 
+        //foreach method
+        // $overlappedTheses = $overlappedTheses->get();
+
+        // $overlapCount = 0;
+        // foreach ($overlappedTheses as $thesis) {
+        //     //calculate overlap between selected pages and previous thesis pages
+        //     $thesisRange = range($thesis->start_page, $thesis->end_page);
+        //     $overlap = array_intersect($selectedRange, $thesisRange);
+        //     $overlapCount += count($overlap);
+        // }
 
         return $overlapCount >= $requiredOverlapCount;
+    }
+
+    private function checkIfThesisAddedBefore($thesis, $mark_id, $user_id)
+    {
+        $addedBefore = Thesis::where('book_id', $thesis['book_id'])
+            ->where('start_page', $thesis['start_page'])
+            ->where('end_page', $thesis['end_page'])
+            ->where('mark_id', $mark_id);
+
+        //if there is a thesis with same pages, check the last update on the user book
+        //this is an extra check to cover the case of re-reading the book from the start
+        //if the user has finished the book before, there is no need to prevent same pages addition
+        if ($addedBefore->exists()) {
+
+            $userBook = UserBook::where('user_id', $user_id)->where('book_id', $thesis['book_id'])->first();
+
+            if ($userBook) {
+                if ($userBook->finished_at) {
+                    $addedBefore->where('created_at', '>', $userBook->finished_at);
+                } else if ($userBook->counter > 0) {
+                    $addedBefore->where('created_at', '>', $userBook->updated_at);
+                }
+            }
+
+            if ($addedBefore->exists()) {
+                throw new \Exception('تم إضافة الأطروحة من قبل بنفس الصفحات');
+            }
+        }
     }
 }
