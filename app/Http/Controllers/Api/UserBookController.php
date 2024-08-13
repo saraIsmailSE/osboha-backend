@@ -19,12 +19,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
+use App\Traits\ThesisTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UserBookController extends Controller
 {
-    use ResponseJson, MediaTraits;
+    use ResponseJson, MediaTraits, ThesisTraits;
     /**
      * Find [in progress - finished ] books belongs to specific user.
      *
@@ -80,6 +81,21 @@ class UserBookController extends Controller
                     ->where('book_id', $userFreeBook->book->id)
                     ->orderBy('end_page', 'desc')
                     ->orderBy('updated_at', 'desc')->first();
+
+                //if the book is finished before (counter > 0), return the theses from the last userBook update
+                $userTheses = $user->theses()->where('book_id', $userFreeBook->book->id);
+                if ($userFreeBook->counter > 0) {
+                    $timestamp = $userFreeBook->finished_at ?? $userFreeBook->updated_at;
+                    $userTheses = $userTheses->where('created_at', '>', $timestamp);
+                }
+
+                $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userFreeBook->book, $userTheses->get());
+                $userFreeBook->book->finished_percentage = min(round($finishedPercentage, 2), 100);
+
+                $userFreeBook->book->load(['userBooks' => function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                }]);
+
                 $books->push($userFreeBook->book);
 
                 if ($userFreeBook->status == 'in progress') {
@@ -128,11 +144,26 @@ class UserBookController extends Controller
             $user = User::find($user_id);
 
             foreach ($userBooks as $userBook) {
-                $userBook->book->last_thesis = $user
+                $userBook->book->last_thesis =
+                    $user
                     ->theses()
                     ->where('book_id', $userBook->book->id)
                     ->orderBy('end_page', 'desc')
                     ->orderBy('updated_at', 'desc')->first();
+
+                //if the book is finished before (counter > 0), return the theses from the last userBook update
+                $userTheses = $user->theses()->where('book_id', $userBook->book->id);
+                if ($userBook->counter > 0) {
+                    $timestamp = $userBook->finished_at ?? $userBook->updated_at;
+                    $userTheses = $userTheses->where('created_at', '>', $timestamp);
+                }
+
+                $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userBook->book, $userTheses->get());
+                $userBook->book->finished_percentage = min(round($finishedPercentage, 2), 100);
+
+                $userBook->book->load(['userBooks' => function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                }]);
                 $books->push($userBook->book);
             }
 
@@ -291,5 +322,87 @@ class UserBookController extends Controller
         UserBook::where('id', $id)->where('user_id', Auth::id())->delete();
         $books = UserBook::where('status', 'later')->where('user_id', Auth::id())->get();
         return $this->jsonResponseWithoutMessage($books, 'data', 200);
+    }
+
+    function bookQualityUsersStatics($week_id = 0)
+    {
+
+        if (Auth::user()->hasanyrole(['admin', 'book_quality_team'])) {
+
+            if ($week_id == 0) {
+                // not specified week => get previous week
+                $week_id = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->pluck('id')->first();
+            } else {
+                $week_id = Week::where('id', $week_id)->pluck('id')->firstOrFail();
+            }
+
+            $book_quality_users_statics = [];
+            $book_quality_users = User::without('userProfile')->role('book_quality_team')->get();
+
+            $book_quality_users_mark = Mark::without('week', 'user')->whereIn('user_id', $book_quality_users->pluck('id'))
+                ->where('week_id', $week_id)
+                ->with('thesis.book') // Eager load thesis and book relationships
+                ->get();
+
+            foreach ($book_quality_users as $user) {
+                $mark = $book_quality_users_mark->firstWhere('user_id', $user->id);
+
+                if ($mark) { // Ensure $mark is not null
+                    if ($mark->is_freezed != 0) {
+                        $book_quality_users_statics[$user->name]['status'] = 'السفير بحالة تجميد';
+                    } else {
+                        $theses = $mark->thesis;
+
+                        // Group the thesis data by book_name and calculate the total pages read for each book
+                        $groupedByBookName = $theses->groupBy(function ($thesis) {
+                            return $thesis->book->name; // Group by book name
+                        });
+
+                        $totalPagesByBookName = $groupedByBookName->map(function ($thesisGroup, $bookName) {
+                            return $thesisGroup->sum(function ($thesis) {
+                                return $thesis->end_page - $thesis->start_page + 1; // Calculate total pages read
+                            });
+                        });
+                        $book_quality_users_statics[$user->name]['status'] = 'active';
+                        $book_quality_users_statics[$user->name]['statics'] = [
+                            'total_pages' => $mark->total_pages,
+                            'total_thesis' => $mark->total_thesis,
+                            'total_screenshot' => $mark->total_screenshot,
+                            'book' => $totalPagesByBookName
+                        ];
+                    }
+                } else {
+                    $book_quality_users_statics[$user->name]['status'] = 'لا يوجد انجاز لهذا السفير';
+                }
+            }
+            return $this->jsonResponseWithoutMessage($book_quality_users_statics, 'data', 200);
+        } else {
+            throw new NotAuthorized;
+        }
+    }
+
+    public function markBookAsFinished(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'book_id' => 'required|exists:books,id',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
+        }
+
+        $userBook = UserBook::where('user_id', Auth::id())
+            ->where('book_id', $request->book_id)
+            ->firstOrFail();
+
+        if ($userBook->status == 'finished') {
+            return $this->jsonResponseWithoutMessage('الكتاب مكتمل بالفعل', 'data', 200);
+        }
+
+        $userBook->status = 'finished';
+        $userBook->counter = $userBook->counter + 1;
+        $userBook->finished_at = now();
+        $userBook->save();
+        return $this->jsonResponseWithoutMessage('تم الانتهاء من الكتاب', 'data', 200);
     }
 }

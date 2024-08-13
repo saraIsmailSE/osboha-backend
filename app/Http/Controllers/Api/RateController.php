@@ -14,6 +14,12 @@ use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
 use Spatie\Permission\PermissionRegistrar;
 use App\Http\Resources\RateResource;
+use App\Models\Book;
+use App\Models\Comment;
+use App\Models\Post;
+use App\Models\PostType;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class RateController extends Controller
 {
@@ -26,34 +32,99 @@ class RateController extends Controller
     public function index()
     {
         $rates = Rate::where('user_id', Auth::id())->get();
-        if($rates){
-            return $this->jsonResponseWithoutMessage(RateResource::collection($rates), 'data',200);
-        }
-        else{
+        if ($rates) {
+            return $this->jsonResponseWithoutMessage(RateResource::collection($rates), 'data', 200);
+        } else {
             throw new NotFound;
         }
     }
-     /**
+    /**
      * Add new rate to the system.
      * 
      * @param  Request  $request
      * @return jsonResponse;
      */
-    public function create(Request $request){
+    public function create(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-            'post_id' => 'required_without:comment_id',
-            'comment_id' => 'required_without:post_id',
-            'rate' => 'required',
-
+            //if the rate is for the post
+            'post_id' => 'exists:posts,id',
+            'book_id' => 'exists:books,id',
+            'rate' => 'required|min:1|max:5',
+            //if the rate is for the comment
+            'comment_id' => 'exists:comments,id',
+        ], [
+            'post_id.exists' => 'المنشور غير موجود',
+            'book_id.exists' => 'الكتاب غير موجود',
+            'rate.required' => 'التقييم مطلوب',
+            'rate.min' => 'التقييم يجب أن يكون بين 1 و 5',
+            'rate.max' => 'التقييم يجب أن يكون بين 1 و 5',
+            'comment_id.exists' => 'التعليق غير موجود',
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
-            $request['user_id']= Auth::id();    
-            Rate::create($request->all());
-            return $this->jsonResponseWithoutMessage("Rate Craeted Successfully", 'data', 200);
 
+        $post_id = $request->post_id;
+        if ($request->has('post_id') || $request->has('book_id')) {
+            $reviewPostTypeId  = Cache::remember('book_review_post_type_id', now()->addWeek(), function () {
+                return PostType::firstWhere('type', 'book_review')->id;
+            });
+
+            $post = $request->has('post_id') ?
+                Post::find($request->post_id) :
+                Post::where('book_id', $request->book_id)->where('type_id', $reviewPostTypeId)->first();
+            $post_id = $request->post_id ?? $post->id;
+
+            $userBook = $post->book->userBooks->where('user_id', Auth::id())->first();
+            if (!$userBook || ($userBook->status != 'finished' && $userBook->counter <= 0)) {
+                return $this->jsonResponseWithoutMessage("لا يمكنك تقييم الكتاب لأنك لم تنهي قراءته بعد!", 'data', 500);
+            }
+        }
+
+        //check if user rated the post or the comment before
+        $ratedBefore = Rate::where('user_id', Auth::id())->where(function ($q) use ($post_id, $request) {
+            $q->where('post_id', $post_id)
+                ->orWhere(function ($comment) use ($request) {
+                    $comment->whereNotNull('comment_id')->where('comment_id', $request->comment_id);
+                });
+        })->exists();
+
+        if ($ratedBefore) {
+            return $this->jsonResponseWithoutMessage("تم التقييم مسبقاً!", 'data', 500);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $comment = Comment::create([
+                'user_id' => Auth::id(),
+                'post_id' => $post_id,
+                'body' => $request->body,
+                'type' => 'review',
+            ]);
+
+            // dd($comment->id);
+            Rate::create([
+                'user_id' => Auth::id(),
+                'post_id' => $post_id,
+                'comment_id' => $request->comment_id,
+                'related_comment_id' => $comment->id,
+                'rate' => $request->rate,
+            ]);
+
+            DB::commit();
+
+            $comment = $comment->fresh();
+            $comment->load(['rate']);
+
+            return $this->jsonResponseWithoutMessage($comment, 'data', 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
     }
     /**
      * Find an existing rate in the system by comment id or post id and display it.
@@ -61,56 +132,49 @@ class RateController extends Controller
      * @param  Request  $request
      * @return jsonResponse;
      */
-    public function show(Request $request)
-    { 
-        $validator = Validator::make($request->all(), [
-            'comment_id' => 'required_without:post_id',
-            'post_id' => 'required_without:comment_id',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }
-        if($request->has('comment_id'))
-         $rate = Rate::where('comment_id', $request->comment_id)->get();
-        else if($request->has('post_id'))
-         $rate = Rate::where('post_id', $request->post_id)->get();
-        if($rate->isNotEmpty()){
-            return $this->jsonResponseWithoutMessage(RateResource::collection($rate), 'data',200);
-        }
-        else{
+    public function show($rateId)
+    {
+        $rate = Rate::find($rateId);
+        if ($rate) {
+            $comment = $rate->relatedComment()->with('rate')->first();
+            return $this->jsonResponseWithoutMessage($comment, 'data', 200);
+        } else {
             throw new NotFound;
         }
     }
-     /**
+    /**
      * Update an existing rate in the system by the auth user.
      * 
      * @param  Request  $request
      * @return jsonResponse;
      */
-    public function update(Request $request)
+    public function update(Request $request, $rateId)
     {
         $validator = Validator::make($request->all(), [
-            'rate' => 'required',
-            'comment_id' => 'required_without:post_id',
-            'post_id' => 'required_without:comment_id',
+            'rate' => 'required|required|min:1|max:5',
         ]);
+
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
-        if($request->has('comment_id'))
-         $rate = Rate::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
-        else if($request->has('post_id'))
-         $rate = Rate::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
-        if($rate){
-            $rate->update($request->all());
-            return $this->jsonResponseWithoutMessage("Rate Updated Successfully", 'data', 200);
-        }
-        else{
-            throw new NotFound;  
+
+        $rate = Rate::find($rateId);
+
+        if ($rate) {
+            $rate->update(['rate' => $request->rate]);
+
+            if ($request->has('body')) {
+                $rate->relatedComment()->update(['body' => $request->body]);
+            }
+
+            $comment = $rate->relatedComment()->with('rate')->first();
+
+            return $this->jsonResponseWithoutMessage($comment, 'data', 200);
+        } else {
+            throw new NotFound;
         }
     }
-     /**
+    /**
      * Delete an existing rate in the system by the auth user.
      * 
      * @param  Request  $request
@@ -125,18 +189,57 @@ class RateController extends Controller
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        }  
+        }
 
-        if($request->has('comment_id'))
-         $rate = Rate::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
-        else if($request->has('post_id'))
-         $rate = Rate::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
-        if($rate){
+        if ($request->has('comment_id'))
+            $rate = Rate::where('user_id', Auth::id())->where('comment_id', $request->comment_id)->first();
+        else if ($request->has('post_id'))
+            $rate = Rate::where('user_id', Auth::id())->where('post_id', $request->post_id)->first();
+        if ($rate) {
             $rate->delete();
             return $this->jsonResponseWithoutMessage("Rate Deleted Successfully", 'data', 200);
-        }
-        else{
+        } else {
             throw new NotFound;
         }
+    }
+
+    public function getBookRates($bookId)
+    {
+        $book = Book::with('posts')->firstWhere('id', $bookId);
+
+        throw_if(!$book, new NotFound);
+
+        $reviewPostTypeId  = Cache::remember('book_review_post_type_id', now()->addWeek(), function () {
+            return PostType::firstWhere('type', 'book_review')->id;
+        });
+
+        $book_review_post = $book->posts->firstWhere('type_id', $reviewPostTypeId);
+
+        throw_if(!$book_review_post, new NotFound);
+
+        $rates = Comment::where('post_id', $book_review_post->id)
+            ->where('comment_id', 0)
+            ->withCount('reactions')
+            ->with('rate')
+            ->orderBy('created_at', 'desc')->paginate(10);
+
+        if ($rates->isNotEmpty()) {
+            return $this->jsonResponseWithoutMessage(
+                [
+                    'rates' => $rates->items(),
+                    'total' => $rates->total(),
+                ],
+                'data',
+                200
+            );
+        }
+        return $this->jsonResponseWithoutMessage(
+            [
+                'rates' => [],
+                'total' => 0,
+            ],
+            'data',
+            200
+        );
     }
 }

@@ -28,13 +28,14 @@ use App\Models\Timeline;
 use App\Models\TimelineType;
 use App\Models\UserBook;
 use App\Models\ViolatedBook;
+use App\Traits\ThesisTraits;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class BookController extends Controller
 {
-    use ResponseJson, MediaTraits, TextTrait;
+    use ResponseJson, MediaTraits, TextTrait, ThesisTraits;
 
     /**
      *Read all information about all books in the system
@@ -283,12 +284,14 @@ class BookController extends Controller
             throw new NotFound;
         }
 
-        $postTypes = Cache::remember('book_post_types', now()->addWeek(), function () {
-            return PostType::whereIn('type', ['book', 'book_review'])->pluck('id', 'type')->toArray();
+        $bookPostTypeId  = Cache::remember('book_post_type_id', now()->addWeek(), function () {
+            return PostType::firstWhere('type', 'book')->id;
         });
 
-        $bookPostTypeId  = $postTypes['book'];
-        $reviewPostTypeId  = $postTypes['book_review'];
+
+        $reviewPostTypeId  = Cache::remember('book_review_post_type_id', now()->addWeek(), function () {
+            return PostType::firstWhere('type', 'book_review')->id;
+        });
 
         ### Comments ###
         $normal_book_post = $book->posts->firstWhere('type_id', $bookPostTypeId);
@@ -324,10 +327,10 @@ class BookController extends Controller
         /*
             1.round($rateAverage):
                 The round() function rounds the average rating to the nearest integer. If the average rating was a decimal (e.g., 3.7), it would be rounded to the nearest whole number (in this case, 4).
-        
+
             2.round($rateAverage) * 20:
                 After rounding the average rating, it multiplies the rounded value by 20. This is because ratings are often given on a scale of 1 to 5, and multiplying by 20 converts this to a percentage out of 100. For example, if the average rating is 4, then 4 * 20 results in 80%.
-        
+
             3.min(round($rateAverage) * 20, 100):
                 The min() function ensures that the calculated percentage does not exceed 100. This is a safeguard to handle any unexpected values that might result in a percentage higher than 100.
         */

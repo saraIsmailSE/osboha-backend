@@ -95,34 +95,28 @@ trait ThesisTraits
      */
     public function createThesis($thesis, $seeder = false)
     {
+        $user_id = $seeder ? $thesis['user_id'] : Auth::id();
         $mark_record = null;
+
         if (!$seeder) {
             //asmaa - check if the week is existed or not
             $week = Week::latest('id')->first();
 
             if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
-                throw new \Exception('Cannot add thesis [Current week is not available]');
+                throw new \Exception('لا يمكنك إضافة أطروحة إلا في الأسبوع المتاح');
             }
 
             $mark_record = Mark::firstOrCreate(
-                ['week_id' =>  $week->id, 'user_id' => Auth::id()],
-                ['week_id' =>  $week->id, 'user_id' => Auth::id()]
+                ['week_id' =>  $week->id, 'user_id' => $user_id],
+                ['week_id' =>  $week->id, 'user_id' => $user_id]
             );
         } else {
-
             $mark_record = Mark::find($thesis['mark_id']);
         }
 
-        //check if thesis is added before (same book and same pages)
-        $addedBefore = Thesis::where('book_id', $thesis['book_id'])
-            ->where('start_page', $thesis['start_page'])
-            ->where('end_page', $thesis['end_page'])
-            ->where('mark_id', $mark_record->id)
-            ->first();
 
-        if ($addedBefore) {
-            throw new \Exception('Thesis is added before');
-        }
+        //check if thesis is added before (same book and same pages)
+        $this->checkIfThesisAddedBefore($thesis, $mark_record->id, $user_id);
 
         //get thesis type
         $thesis_type = ThesisType::findOrFail($thesis['type_id'])->type;
@@ -136,7 +130,7 @@ trait ThesisTraits
             'comment_id'        => $thesis['comment_id'],
             'book_id'           => $thesis['book_id'],
             'mark_id'           => $mark_record->id,
-            'user_id'           => $seeder ? $thesis['user_id'] : Auth::id(),
+            'user_id'           => $user_id,
             'type_id'           => $thesis['type_id'],
             'start_page'        => $thesis['start_page'],
             'end_page'          => $thesis['end_page'],
@@ -144,6 +138,7 @@ trait ThesisTraits
             'total_screenshots' => $total_screenshots,
             'status'            => $week->is_vacation == 1 ? config('constants.ACCEPTED_STATUS') : config('constants.PENDING_STATUS'),
         );
+
 
         $thesisTotalPages = $thesis['end_page'] - $thesis['start_page'] > 0 ? $thesis['end_page'] - $thesis['start_page'] + 1 : 0;
         $mark_data_to_update = array(
@@ -167,7 +162,6 @@ trait ThesisTraits
             strtolower($thesis_type) === RAMADAN_THESIS_TYPE ||
             strtolower($thesis_type) === TAFSEER_THESIS_TYPE
         ) { ///calculate mark for ramadan or tafseer thesis
-
             $thesis_mark = $this->calculate_mark_for_ramadan_thesis(
                 $thesisTotalPages,
                 $max_length,
@@ -176,6 +170,8 @@ trait ThesisTraits
 
             );
         }
+
+
         $reading_mark += $thesis_mark['reading_mark'];
         $writing_mark += $thesis_mark['writing_mark'];
 
@@ -190,6 +186,7 @@ trait ThesisTraits
         $mark_data_to_update['reading_mark'] = $reading_mark;
         $mark_data_to_update['writing_mark'] = $writing_mark;
 
+
         //update status to accepted if the thesis is read only
         if ($thesisTotalPages > 0 && $max_length == 0 && $total_screenshots == 0) {
             $thesis_data_to_insert['status'] = config('constants.ACCEPTED_STATUS');
@@ -202,10 +199,10 @@ trait ThesisTraits
             $mark_record->update($mark_data_to_update);
 
             $this->checkIfUserHasException();
-            return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis added successfully!');
+            return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'تم إضافة الأطروحة بنجاح');
         } else {
             // return $this->jsonResponseWithoutMessage('Cannot add thesis', 'data', 500);
-            throw new \Exception('Cannot add thesis');
+            throw new \Exception('حدث خطأ أثناء إضافة الأطروحة, يرجى المحاولة مرة أخرى');
         }
     }
 
@@ -232,7 +229,7 @@ trait ThesisTraits
 
             if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
                 // return $this->jsonResponseWithoutMessage('Cannot update thesis', 'data', 500);
-                throw new \Exception('Cannot update thesis');
+                throw new \Exception('لا يمكنك تعديل الأطروحة إلا في الأسبوع المتاح لها');
             }
 
             $week_id = $week->id;
@@ -323,7 +320,7 @@ trait ThesisTraits
                 $mark_record->update($mark_data_to_update);
                 $this->createOrUpdateUserBook($thesis);
 
-                return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis updated successfully!');
+                return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'تم تعديل الأطروحة بنجاح');
             } else {
                 throw new NotFound;
             }
@@ -356,7 +353,7 @@ trait ThesisTraits
 
             if (!$this->checkDateBelongsToCurrentWeek($week->main_timer)) {
                 // return $this->jsonResponseWithoutMessage('Cannot delete thesis', 'data', 500);
-                throw new \Exception('Cannot delete thesis');
+                throw new \Exception('لا يمكنك حذف الأطروحة إلا في الأسبوع المتاح لها');
             }
 
             $thesis->delete();
@@ -485,6 +482,7 @@ trait ThesisTraits
     {
         //if the thesis is within a duration of exams exception, the mark will be full if the user satisfies the conditions
         $is_exams_exception = $this->check_exam_exception();
+
         if ($is_exams_exception) {
             $mark = $this->calculate_mark_for_exam_exception($total_pages, $max_length, $total_screenshots);
             if ($mark) {
@@ -572,10 +570,10 @@ trait ThesisTraits
             ($total_pages < 10
                 || ($max_length > 0 && $max_length < COMPLETE_THESIS_LENGTH))
         ) {
-            throw new \Exception('Cannot add thesis for ramadan less than 10 pages or 400 characters');
+            throw new \Exception('أطروحة رمضان يجب أن تكون أكثر من 10 صفحات وشاملة');
         } else if ($thesis_type  === 'tafseer' && ($total_pages < 2 ||
             ($max_length < COMPLETE_THESIS_LENGTH && $total_screenshots < 1))) {
-            throw new \Exception('Cannot add thesis for tafseer less than 2 pages or 400 characters or 1 screenshot');
+            throw new \Exception('أطروحة التفسير يجب أن تكون أكثر من صفحتين وشاملة أو تحتوي اقتباس واحد على الأقل');
         }
 
         //if the thesis is within a duration of exams exception, the mark will be full if the user satisfies the conditions
@@ -683,13 +681,12 @@ trait ThesisTraits
      */
     public function createOrUpdateUserBook($thesis, $isDeleted = false)
     {
-        $book_id = $thesis->book_id;
-        $user_id = $thesis->user_id;
-        $user = User::find($user_id);
+        $book = $thesis->book;
+        $user = User::find($thesis->user_id);
 
         //get the latest user book related to the user and the book
-        $user_book = UserBook::where('user_id', $user_id)
-            ->where('book_id', $book_id)
+        $user_book = UserBook::where('user_id', $user->id)
+            ->where('book_id', $book->id)
             ->latest()
             ->first();
 
@@ -697,32 +694,46 @@ trait ThesisTraits
         if (!$user_book) {
             if (!$isDeleted) {
                 //if new thesis is added, create a new user book record
-                $book = Book::find($book_id);
+                $percentage = $this->calculate_pages_percentage_of_book($user, $thesis->book);
+                $finished = $thesis->end_page >= $thesis->book->end_page && $percentage >= 85;
                 $user_book = UserBook::create([
-                    'user_id' => $user_id,
-                    'book_id' => $book_id,
-                    'status' => $thesis->end_page >= $book->end_page ? 'finished' : 'in progress',
+                    'user_id' => $user->id,
+                    'book_id' => $book->id,
+                    'status' => $finished ? 'finished' : 'in progress',
+                    'counter' => $finished ? 1 : 0,
+                    'finished_at' => $finished ? now() : null,
                 ]);
             }
         } else {
-
             //if the thesis is deleted
             if ($isDeleted) {
                 //if the user book status is finished, decrease the counter and change the status to in progress
                 if ($user_book->status == 'finished') {
                     $user_book->status = 'in progress';
-                    $user_book->counter = $user_book->counter - 1;
+                    $user_book->counter = $user_book->counter > 0 ? $user_book->counter - 1 : 0;
+                    $user_book->finished_at = $user_book->counter - 1 <= 0 ? null : $user_book->finished_at;
                     $user_book->save();
                 }
             } else {
-                //if user book exists, update the status based on the thesis end page
-                if ($thesis->end_page >= $user_book->book->end_page) {
-                    $user_book->status = 'finished';
-                    $user_book->counter = $user_book->counter + 1;
-                    $user_book->save();
-                }
+                //if user book exists, update the status
+                //mark the book as finished if the user has read 85% of the book and read the last page
+                if ($user_book->status == 'in progress') {
+                    $percentage = $this->calculate_pages_percentage_of_book($user, $user_book->book);
+                    $lastPageThesis = $user->theses()
+                        ->where('end_page', $user_book->book->end_page)
+                        ->where('book_id', $book->id)
+                        ->where('updated_at', '>=', $user_book->updated_at)
+                        ->latest()
+                        ->first();
 
-                //is status "later", uptade it to "in progress" as the user will start reading the book
+                    if ($percentage >= 85 && $lastPageThesis) {
+                        $user_book->status = 'finished';
+                        $user_book->counter = $user_book->counter + 1;
+                        $user_book->finished_at = now();
+                        $user_book->save();
+                    }
+                }
+                //is status "later" or "finished", update it to "in progress" as the user will start reading the book
                 else if ($user_book->status == 'later' || $user_book->status == 'finished') {
                     $user_book->status = 'in progress';
                     $user_book->save();
@@ -731,7 +742,7 @@ trait ThesisTraits
         }
 
         //fix counter and status (updating and deleting will cause some mistakes in the status and counter)
-        $allThesis = $user->theses()->where('book_id', $book_id)->count();
+        $allThesis = $user->theses()->where('book_id', $book->id)->count();
         if ($allThesis <= 0) {
             if ($user_book->status != 'later') {
                 $user_book->delete();
@@ -812,6 +823,117 @@ trait ThesisTraits
         if ($userException) {
             $userException->status = config('constants.CANCELED_STATUS');
             $userException->save();
+        }
+    }
+
+    public function calculate_pages_percentage_of_book($user = null, $book, $theses = null)
+    {
+        $allThesis = $theses ? $theses : $user->theses()->where('book_id', $book->id)->get();
+        $totalPages = 0;
+        foreach ($allThesis as $thesis) {
+            $totalPages += $thesis->end_page - $thesis->start_page;
+        }
+
+        $percentage = ($totalPages / $book->end_page) * 100;
+        return $percentage;
+    }
+
+    public function checkOverlap($start_page, $end_page, $book_id, $user_id, $thesis_id = null)
+    {
+        $overlapThreshold = 0.5;
+        $overlapDate = Carbon::now()->subMonth();
+
+        //get user book
+        $userBook = UserBook::where('user_id', $user_id)
+            ->where('book_id', $book_id)
+            ->first();
+
+        if (!$userBook) {
+            return false;
+        }
+
+        //calculate the range of selected pages
+        $selectedRange = range($start_page, $end_page);
+
+        //calculate the minimum required overlap count
+        $requiredOverlapCount = ceil(count($selectedRange) * $overlapThreshold);
+
+        $overlappedTheses = Thesis::where('book_id', $book_id)
+            ->where('user_id', $user_id)
+            ->where(function ($query) use ($start_page, $end_page) {
+                $query->whereBetween('start_page', [$start_page, $end_page])
+                    ->orWhereBetween('end_page', [$start_page, $end_page]);
+            })
+            ->where('created_at', '>=', $overlapDate);
+
+        //get the theses that were added after the user book was finished
+        if ($userBook->finished_at) {
+            $overlappedTheses->where('created_at', '>', $userBook->finished_at);
+        }
+        //TODO: Remove this else block after releasing the new version
+        else if ($userBook->counter > 0) {
+            $overlappedTheses->where('created_at', '>', $userBook->updated_at);
+        }
+
+
+        //if the thesis id is provided, exclude it from the overlap check (edit case)
+        if ($thesis_id) {
+            $overlappedTheses->where('id', '!=', $thesis_id);
+        }
+
+        // dd($overlappedTheses->get());
+        //reduce method
+        $overlapCount = $overlappedTheses
+            ->get()
+            ->reduce(function ($carry, $thesis) use ($selectedRange) {
+                //calculate overlap between selected pages and previous thesis pages
+                $thesisRange = range($thesis->start_page, $thesis->end_page);
+                $overlap = array_intersect($selectedRange, $thesisRange);
+                return $carry + count($overlap);
+            }, 0);
+
+
+        // dd($requiredOverlapCount, $overlapCount);
+
+        //foreach method
+        // $overlappedTheses = $overlappedTheses->get();
+
+        // $overlapCount = 0;
+        // foreach ($overlappedTheses as $thesis) {
+        //     //calculate overlap between selected pages and previous thesis pages
+        //     $thesisRange = range($thesis->start_page, $thesis->end_page);
+        //     $overlap = array_intersect($selectedRange, $thesisRange);
+        //     $overlapCount += count($overlap);
+        // }
+
+        return $overlapCount >= $requiredOverlapCount;
+    }
+
+    private function checkIfThesisAddedBefore($thesis, $mark_id, $user_id)
+    {
+        $addedBefore = Thesis::where('book_id', $thesis['book_id'])
+            ->where('start_page', $thesis['start_page'])
+            ->where('end_page', $thesis['end_page'])
+            ->where('mark_id', $mark_id);
+
+        //if there is a thesis with same pages, check the last update on the user book
+        //this is an extra check to cover the case of re-reading the book from the start
+        //if the user has finished the book before, there is no need to prevent same pages addition
+        if ($addedBefore->exists()) {
+
+            $userBook = UserBook::where('user_id', $user_id)->where('book_id', $thesis['book_id'])->first();
+
+            if ($userBook) {
+                if ($userBook->finished_at) {
+                    $addedBefore->where('created_at', '>', $userBook->finished_at);
+                } else if ($userBook->counter > 0) {
+                    $addedBefore->where('created_at', '>', $userBook->updated_at);
+                }
+            }
+
+            if ($addedBefore->exists()) {
+                throw new \Exception('تم إضافة الأطروحة من قبل بنفس الصفحات');
+            }
         }
     }
 }
