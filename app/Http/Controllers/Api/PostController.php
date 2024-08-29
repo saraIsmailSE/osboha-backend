@@ -951,7 +951,7 @@ class PostController extends Controller
             ['group_id', $group->id],
             ['user_id', $user_id]
         ])->pluck('user_type')->toArray();
-        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin'];
+        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin','special_care_leader'];
         $pending_msg = '';
         $pending_userId = null;
         $pending_type = null;
@@ -962,7 +962,7 @@ class PostController extends Controller
             $leader = Auth::user()->parent;
             $pending_msg = "لقد نشر " . Auth::user()->name . " منشور في المجموعة " . $group->name . " يحتاج موافقة";
             $pending_userId = $leader->user_id;
-            $pending_type = GROUP_POSTS;
+            $pending_type = 'GROUP_POSTS';
         }
 
         return [
@@ -1100,7 +1100,7 @@ class PostController extends Controller
 
         //send notifications about pending posts
         if ($notificationData['pending_msg']) {
-            if ($notificationData['pending_type'] === GROUP_POSTS) {
+            if ($notificationData['pending_type'] === 'GROUP_POSTS') {
                 $notificationData['pending_path'] = $this->getPendingPostsPath($timeline->id, $post->id);
             }
             $notification->sendNotification($notificationData['pending_userId'], $notificationData['pending_msg'], $notificationData['pending_type'], $notificationData['pending_path']);

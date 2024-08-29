@@ -137,7 +137,7 @@ class UserBookController extends Controller
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })->whereHas('book', function ($q) use ($name) {
             $q->where('name', 'like', '%' . $name . '%');
-        })->paginate(6);
+        })->paginate(9);
 
         if ($userBooks->isNotEmpty()) {
             $books = collect();
