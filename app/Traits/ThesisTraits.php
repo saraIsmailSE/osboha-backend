@@ -85,6 +85,8 @@ trait ThesisTraits
         $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id);
         $markData = $this->calculateMarks($allTheses, $thesisData);
 
+        // dd("All Theses", $allTheses, "Mark Data", $markData, "Thesis Data", $thesisDataToInsert);
+
         $thesis = Thesis::create($thesisDataToInsert);
 
         // dd("All Theses", $allTheses, "Mark Data", $markData, "Thesis Data", $thesisDataToInsert);
@@ -148,7 +150,7 @@ trait ThesisTraits
         $userMark = $this->getUserMark(null, $mark_id);
         $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id);
 
-        $markData = $this->calculateMarks($allTheses, null, true);
+        $markData = $this->calculateMarks($allTheses, null, false);
 
         if ($update) {
             $userMark->update($markData);
@@ -363,15 +365,20 @@ trait ThesisTraits
         ];
     }
 
-    private function calculateMarks(Collection $allTheses, array|Thesis|null $thesis, bool $resetFreeze = true, bool $removeRejectedParts = false): array
+    private function calculateMarks(Collection $allTheses, array|Thesis|null $thesis, bool $resetFreeze = true): array
     {
         $isRamadanActive = $this->checkRamadanStatus();
         $normalThesisMark = $ramadanThesisMark = null;
-        $finalTotalPages = $finalTotalTheses = $finalTotalScreenshots = 0;
         $thesisType = $thesis ? ThesisType::findOrFail($thesis['type_id'])->type : null;
 
         //convert thesis to array
         $thesisArray = $thesis ? (is_array($thesis) ? $thesis : $thesis->toArray()) : null;
+
+        $finalActualTotals = [
+            'total_pages' => 0,
+            'total_theses' => 0,
+            'total_screenshots' => 0,
+        ];
 
         //if allTheses is empty, calculate the mark for the provided thesis only
         if ($allTheses->isEmpty() && $thesis) {
@@ -379,88 +386,84 @@ trait ThesisTraits
         }
 
         foreach ($allTheses as $type => $theses) {
-            list($totalPagesAll, $totalThesesAll, $totalScreenshotsAll, $completeThesesCount) = $this->aggregateTheses($theses, $removeRejectedParts);
+            list($actualTotals, $filteredTotals) = $this->aggregateTheses($theses);
 
             if ($thesis && strcasecmp($type, $thesisType) === 0) {
-                $this->aggregateCurrentThesis($thesisArray, $totalPagesAll, $totalThesesAll, $totalScreenshotsAll, $completeThesesCount);
+                $this->aggregateCurrentThesis($thesisArray, $actualTotals, $filteredTotals);
             }
 
-            $finalTotalPages += $totalPagesAll;
-            $finalTotalTheses += $totalThesesAll;
-            $finalTotalScreenshots += $totalScreenshotsAll;
+            $finalActualTotals['total_pages'] += $actualTotals['total_pages'];
+            $finalActualTotals['total_theses'] += $actualTotals['total_theses'];
+            $finalActualTotals['total_screenshots'] += $actualTotals['total_screenshots'];
 
             if (strcasecmp($type, NORMAL_THESIS_TYPE) === 0) {
-                $normalThesisMark = $this->calculateNormalThesisMark($totalPagesAll, $totalScreenshotsAll, $totalThesesAll, $completeThesesCount);
+                $normalThesisMark = $this->calculateNormalThesisMark($filteredTotals);
             } elseif (strcasecmp($type, RAMADAN_THESIS_TYPE) === 0 || strcasecmp($type, TAFSEER_THESIS_TYPE) === 0) {
                 $ramadanThesisMark = $isRamadanActive
-                    ? $this->calculateRamadanThesisMark($totalPagesAll, $totalScreenshotsAll, $totalThesesAll, $completeThesesCount, $type)
-                    : $this->calculateNormalThesisMark($totalPagesAll, $totalScreenshotsAll, $totalThesesAll, $completeThesesCount);
+                    ? $this->calculateRamadanThesisMark($filteredTotals, $type)
+                    : $this->calculateNormalThesisMark($filteredTotals);
             }
         }
 
-        return $this->mergeMarks($normalThesisMark, $ramadanThesisMark, $finalTotalPages, $finalTotalTheses, $finalTotalScreenshots, $resetFreeze);
+        return $this->mergeMarks($normalThesisMark, $ramadanThesisMark, $finalActualTotals, $resetFreeze);
     }
 
     private function calculateSingleThesisMarks(array $thesisArray, ?string $thesisType, bool $isRamadanActive, bool $resetFreeze): array
     {
-        [$totalPages, $totalTheses, $totalScreenshots, $completeThesesCount] = $this->getThesisTotals($thesisArray);
+        [$actual, $filtered] = $this->getThesisTotals($thesisArray);
 
         $normalThesisMark = $ramadanThesisMark = null;
 
         if (strcasecmp($thesisType, NORMAL_THESIS_TYPE) === 0) {
-            $normalThesisMark = $this->calculateNormalThesisMark($totalPages, $totalScreenshots, $totalTheses, $completeThesesCount);
+            $normalThesisMark = $this->calculateNormalThesisMark($filtered);
         } elseif (in_array($thesisType, [RAMADAN_THESIS_TYPE, TAFSEER_THESIS_TYPE])) {
             $ramadanThesisMark = $isRamadanActive
-                ? $this->calculateRamadanThesisMark($totalPages, $totalScreenshots, $totalTheses, $completeThesesCount, $thesisType)
-                : $this->calculateNormalThesisMark($totalPages, $totalScreenshots, $totalTheses, $completeThesesCount);
+                ? $this->calculateRamadanThesisMark($filtered, $thesisType)
+                : $this->calculateNormalThesisMark($filtered);
         }
 
-        return $this->mergeMarks($normalThesisMark, $ramadanThesisMark, $totalPages, $totalTheses, $totalScreenshots, $resetFreeze);
+        return $this->mergeMarks($normalThesisMark, $ramadanThesisMark, $actual, $resetFreeze);
     }
 
-    private function aggregateCurrentThesis(array $thesisArray, int &$totalPages, int &$totalTheses, int &$totalScreenshots, int &$completeThesesCount): void
+    private function aggregateCurrentThesis(array $thesisArray, array &$actualTotals, array &$filteredTotals): void
     {
-        [$thesisTotalPages, $thesisTotalTheses, $thesisTotalScreenshots, $thesisCompleteThesesCount] = $this->getThesisTotals($thesisArray);
+        [$actual, $filtered] = $this->getThesisTotals($thesisArray);
 
-        $totalPages += $thesisTotalPages;
-        $totalTheses += $thesisTotalTheses;
-        $totalScreenshots += $thesisTotalScreenshots;
-        $completeThesesCount += $thesisCompleteThesesCount;
+        //add the actual values to the total values
+        $actualTotals['total_pages'] += $actual['total_pages'];
+        $actualTotals['total_theses'] += $actual['total_theses'];
+        $actualTotals['total_screenshots'] += $actual['total_screenshots'];
+
+        //add the filtered values to the total values
+        $filteredTotals['total_pages'] += $filtered['total_pages'];
+        $filteredTotals['total_theses'] += $filtered['total_theses'];
+        $filteredTotals['total_screenshots'] += $filtered['total_screenshots'];
+        $filteredTotals['complete_theses_count'] += $filtered['complete_theses_count'];
     }
 
-    private function aggregateTheses(Collection | Thesis $theses, bool $removeRejectedParts = false): array
+    private function aggregateTheses(Collection | Thesis $theses): array
     {
-        $totalPages = $totalTheses = $totalScreenshots = $completeCount = 0;
+        $actualTotals = [
+            'total_pages' => 0,
+            'total_theses' => 0,
+            'total_screenshots' => 0,
+        ];
+
+        $filteredTotals = [
+            'total_pages' => 0,
+            'total_theses' => 0,
+            'total_screenshots' => 0,
+            'complete_theses_count' => 0,
+        ];
 
         foreach ($theses as $thesis) {
-            $totalPages += $this->getTotalThesisPages($thesis->start_page, $thesis->end_page);
-
-            if ($thesis->max_length > 0) {
-                $totalTheses += INCREMENT_VALUE;
-                if ($removeRejectedParts && $thesis->status === 'rejected_parts') {
-                    // Remove thesis if rejected parts exceed 5
-                    if ($thesis->rejected_parts >= 5) {
-                        $totalTheses -= INCREMENT_VALUE;
-                    }
-                }
-            }
-
-            $totalScreenshots += $thesis->total_screenshots;
-            if ($removeRejectedParts && $thesis->status === 'rejected_parts' && $thesis->rejected_parts >= 5) {
-                $totalScreenshots -= $thesis->total_screenshots;
-            }
-
-            if ($thesis->max_length >= COMPLETE_THESIS_LENGTH) {
-                if (!$removeRejectedParts || $thesis->status !== 'rejected_parts') {
-                    $completeCount++;
-                }
-            }
+            $this->aggregateCurrentThesis($thesis->toArray(), $actualTotals, $filteredTotals);
         }
 
-        return [$totalPages, $totalTheses, $totalScreenshots, $completeCount];
+        return [$actualTotals, $filteredTotals];
     }
 
-    private function mergeMarks(?array $normalMark, ?array $ramadanMark, int $totalPages, int $totalTheses, int $totalScreenshots, bool $resetFreeze = true): array
+    private function mergeMarks(?array $normalMark, ?array $ramadanMark, array $actualTotals, bool $resetFreeze = true): array
     {
         $readingMark = ($normalMark ? $normalMark['reading_mark'] : 0) + ($ramadanMark ? $ramadanMark['reading_mark'] : 0);
         $writingMark = ($normalMark ? $normalMark['writing_mark'] : 0) + ($ramadanMark ? $ramadanMark['writing_mark'] : 0);
@@ -469,9 +472,9 @@ trait ThesisTraits
         $writingMark = min($writingMark, config('constants.FULL_WRITING_MARK'));
 
         $data = [
-            'total_pages' => $totalPages,
-            'total_thesis' => $totalTheses,
-            'total_screenshot' => $totalScreenshots,
+            'total_pages' => $actualTotals['total_pages'],
+            'total_thesis' => $actualTotals['total_theses'],
+            'total_screenshot' => $actualTotals['total_screenshots'],
             'reading_mark' => $readingMark,
             'writing_mark' => $writingMark,
         ];
@@ -496,8 +499,13 @@ trait ThesisTraits
         ] : null;
     }
 
-    private function calculateNormalThesisMark(int $totalPages, int $totalScreenshots, int $totalTheses, int $completeThesesCount): array
+    private function calculateNormalThesisMark(array $filteredTotals): array
     {
+        $totalPages = $filteredTotals['total_pages'];
+        $totalTheses = $filteredTotals['total_theses'];
+        $totalScreenshots = $filteredTotals['total_screenshots'];
+        $completeThesesCount = $filteredTotals['complete_theses_count'];
+
         // Check if there is an exam exception and calculate mark accordingly
         if ($this->checkExamException()) {
             $examMark = $this->calculateExamThesisMark($totalPages, $totalScreenshots, $totalTheses, $completeThesesCount);
@@ -548,8 +556,13 @@ trait ThesisTraits
         ];
     }
 
-    private function calculateRamadanThesisMark(int $totalPages, int $totalScreenshots, int $totalTheses, int $completeThesesCount, string $type): array
+    private function calculateRamadanThesisMark(array $filteredTotals, string $type): array
     {
+        $totalPages = $filteredTotals['total_pages'];
+        $totalTheses = $filteredTotals['total_theses'];
+        $totalScreenshots = $filteredTotals['total_screenshots'];
+        $completeThesesCount = $filteredTotals['complete_theses_count'];
+
         // Validate Ramadan thesis conditions
         if (strcasecmp($type, RAMADAN_THESIS_TYPE) === 0) {
             if ($totalPages < 10 || ($totalTheses > 0 && $completeThesesCount === 0)) {
@@ -662,15 +675,15 @@ trait ThesisTraits
 
     private function ensureValidWeek($mainTimer)
     {
-        if (!$this->isValidWeekForThesis($mainTimer)) {
+        if (!$this->isValidDate($mainTimer)) {
             throw new \Exception('لا يمكنك تعديل الأطروحة إلا في الأسبوع المتاح لها');
         }
     }
 
-    private function isValidWeekForThesis($mainTimer): bool
+    private function isValidDate($date): bool
     {
         //check if now is less than the main timer of the week
-        return Carbon::now()->lessThan($mainTimer) ? true : false;
+        return Carbon::now()->lessThan($date) ? true : false;
     }
 
     private function checkRamadanStatus(): bool
@@ -690,12 +703,61 @@ trait ThesisTraits
 
     private function getThesisTotals(array $thesis): array
     {
-        $totalPages = $this->getTotalThesisPages($thesis['start_page'], $thesis['end_page']);
-        $totalTheses = array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0;
-        $totalScreenshots = array_key_exists('total_screenshots', $thesis) ? $thesis['total_screenshots'] : 0;
-        $completeThesesCount = array_key_exists('max_length', $thesis) && $thesis['max_length'] >= COMPLETE_THESIS_LENGTH ? 1 : 0;
+        $actualTotals = [
+            'total_pages' => 0,
+            'total_theses' => 0,
+            'total_screenshots' => 0,
+        ];
 
-        return [$totalPages, $totalTheses, $totalScreenshots, $completeThesesCount];
+        $filteredTotals = [
+            'total_pages' => 0,
+            'total_theses' => 0,
+            'total_screenshots' => 0,
+            'complete_theses_count' => 0,
+        ];
+
+        $actualTotals['total_pages'] = $this->getTotalThesisPages($thesis['start_page'], $thesis['end_page']);
+        $actualTotals['total_theses'] = array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0;
+        $actualTotals['total_screenshots'] = array_key_exists('total_screenshots', $thesis) ? $thesis['total_screenshots'] : 0;
+
+        if (!array_key_exists('status', $thesis)) {
+            $filteredTotals['total_pages'] = $actualTotals['total_pages'];
+            $filteredTotals['total_theses'] = $actualTotals['total_theses'];
+            $filteredTotals['total_screenshots'] = $actualTotals['total_screenshots'];
+
+            if ($filteredTotals['total_theses'] > 0 && $thesis['max_length'] >= COMPLETE_THESIS_LENGTH) {
+                $filteredTotals['complete_theses_count']++;
+            }
+
+            return [$actualTotals, $filteredTotals];
+        }
+
+        if (strcasecmp($thesis['status'], config('constants.REJECTED_STATUS')) === 0) {
+            return [$actualTotals, $filteredTotals];
+        }
+
+        $filteredTotals['total_pages'] = $actualTotals['total_pages'];
+
+        if (strcasecmp($thesis['status'], config('constants.REJECTED_WRITING_STATUS')) === 0) {
+            return [$actualTotals, $filteredTotals];
+        }
+
+        if ($actualTotals['total_theses'] > 0 || $actualTotals['total_screenshots'] > 0) {
+            if (strcasecmp($thesis['status'], config('constants.ACCEPTED_ONE_THESIS_STATUS')) === 0) {
+                if ($actualTotals['total_theses'] > 0 && $actualTotals['total_screenshots'] > 0) {
+                    $filteredTotals['total_theses'] = $actualTotals['total_theses'];
+                }
+            } else {
+                $filteredTotals['total_theses'] = $actualTotals['total_theses'];
+                $filteredTotals['total_screenshots'] = $actualTotals['total_screenshots'];
+
+                if ($filteredTotals['total_theses'] > 0 && $thesis['max_length'] >= COMPLETE_THESIS_LENGTH) {
+                    $filteredTotals['complete_theses_count'] = INCREMENT_VALUE;
+                }
+            }
+        }
+
+        return [$actualTotals, $filteredTotals];
     }
 
     private function getUserMark(?int $weekId, ?int $markId = null): Mark

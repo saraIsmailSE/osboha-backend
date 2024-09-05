@@ -85,9 +85,9 @@ class CommentController extends Controller
 
             return $this->jsonResponseWithoutMessage($comment, 'data', 200);
         } catch (\Exception $e) {
-            Log::channel('books')->error($e->getMessage());
+            Log::channel('books')->error($e->getMessage() . ' ' . $e->getTraceAsString());
             DB::rollback();
-            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($e->getMessage() . ':' . $e->getLine(), 'data', 500);
         }
     }
     /**
