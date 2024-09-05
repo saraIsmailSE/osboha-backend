@@ -94,7 +94,7 @@ class ModifiedThesesController extends Controller
                     $modified_theses = ModifiedTheses::create($input);
 
                 $thesis = $thesis->fresh();
-                $this->updateMark($thesis);
+                $this->calculateAllThesesMark($thesis->mark_id, true);
 
                 $user = User::findOrFail($thesis->user_id);
                 $reason = ModificationReason::findOrFail($request->modifier_reason_id);
@@ -108,7 +108,7 @@ class ModifiedThesesController extends Controller
                     $thesis->rejected_parts = null;
                     $thesis->save();
 
-                    $this->updateMark($thesis);
+                    $this->calculateAllThesesMark($thesis->mark_id, true);
                 }
             }
 

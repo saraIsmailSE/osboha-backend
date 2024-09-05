@@ -544,11 +544,8 @@ class MarkController extends Controller
                     $mark = Mark::where('week_id', $week_id)->where('user_id', $user_id)->first();
                     if ($mark) {
                         // calculate mark
-                        $theses_mark = $this->calculate_mark_for_all_thesis($mark->id);
+                        $theses_mark = $this->calculateAllThesesMark($mark->id);
                         $writing_mark = $theses_mark['writing_mark'];
-                        if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
-                            $writing_mark = config('constants.FULL_WRITING_MARK');
-                        }
 
                         $mark->update(['writing_mark' => $writing_mark]);
                         $graded->delete();

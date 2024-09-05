@@ -26,6 +26,7 @@ use App\Models\Week;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
 use App\Traits\PathTrait;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -33,65 +34,16 @@ use Illuminate\Support\Str;
 class CommentController extends Controller
 {
     use ResponseJson, MediaTraits, ThesisTraits, PathTrait;
+
     /**
-     * Add a new comment or reply to the system.
-     * Detailed Steps:
-     *  1- Validate required data and the image format.
-     *  2- Add a new comment or reply to the system.
-     *  3- Add the image to the system using MediaTraits if the request has an image.
-     *  4- There is two type for thesis :
-     *      - Thesis has a body.
-     *      - Thesis has an image.
-     * If the thesis has an image (Add the image to the system using MediaTraits).
-     *  5- Add a new thesis to the system if the comment type is “thesis”.
-     *  6- Return a success or error message.
-     * @param  Request  $request
-     * @return jsonResponseWithoutMessage;
+     * Add a new comment to the system.
+     * Two types of comments can be added:
+     * 1- Normal comment: a comment that has a body and an image. (for posts mainly)
+     * 2- Thesis comment: a comment that has a body or/and screenshots. (for books mainly)
      */
     public function create(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            //body is required only if the comment is not a thesis and has no image
-            //in case of read only, body and screenshot are not required
-            'body' => [
-                'string',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
-                        $fail('النص مطلوب في حالة عدم وجود صورة');
-                    }
-                },
-            ],
-            'book_id' => 'required_without:post_id|numeric',
-            'post_id' => 'required_without:book_id|numeric',
-            'comment_id' => 'numeric',
-            'type' => 'required',
-            //image is required only if the comment is not a thesis and has no body
-            'image' => [
-                new base64OrImage(),
-                new base64OrImageMaxSize(2 * 1024 * 1024),
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
-                        $fail('The image field is required.');
-                    }
-                },
-            ],
-            //screenshots have to be an array of images
-            'screenShots' => 'array',
-            'screenShots.*' => [new base64OrImage(), new base64OrImageMaxSize(2 * 1024 * 1024)],
-            'start_page' => 'required_if:type,thesis|numeric',
-            'end_page' => 'required_if:type,thesis|numeric',
-        ], [
-            'body.string' => 'النص يجب ان يكون نص',
-            'book_id.required_without' => 'book_id مطلوب',
-            'post_id.required_without' => 'post_id مطلوب',
-            'type.required' => 'النوع مطلوب',
-            'image.required' => 'الصورة مطلوبة',
-            'screenShots.array' => 'السكرينات مطلوبة',
-            'screenShots.*.base64_or_image' => 'الصورة يجب ان تكون من نوع صورة',
-            'screenShots.*.base64_or_image_max_size' => 'الصورة يجب ان تكون اقل من 2 ميجا',
-            'start_page.required_if' => 'الصفحة الأولى مطلوبة',
-            'end_page.required_if' => 'الصفحة الأخيرة مطلوبة',
-        ]);
+        $validator = Validator::make($request->all(), $this->getCreateValidationRules($request), $this->getCreateValidationMessages());
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
@@ -99,118 +51,41 @@ class CommentController extends Controller
 
         $input = $request->all();
         $input['user_id'] = Auth::id();
-        if (!$request->has('post_id')) {
-            $bookPostTypeId = PostType::where('type', 'book')->value('id');
-            $input['post_id'] = Post::where('book_id', $request->book_id)
-                ->where('type_id', $bookPostTypeId)->first()->id;
-        }
+        $input['post_id'] = $this->getPostId($request);
 
-        $post = Post::find($input['post_id']);
-        //start transaction - asmaa (to be able to rollback in case of an error)
+        $post = Post::findOrFail($input['post_id']);
+
         DB::beginTransaction();
-
         try {
             $comment = Comment::create($input);
 
             if ($request->type == "thesis") {
-                // $book = Post::find($request->post_id)->book;
-                $book = Book::find($request->book_id);
-                $thesis['comment_id'] = $comment->id;
-                $thesis['book_id'] = $book->id;
-                $thesis['start_page'] = $request->start_page;
-                $thesis['end_page'] = $request->end_page;
-                if ($book->type->type == 'free') {
-                    $thesis['type_id'] = ThesisType::where('type', "normal")->first()->id;
-                } else {
-                    $thesis['type_id'] = ThesisType::where('type', $book->type->type)->first()->id;
-                }
-                if ($request->has('body')) {
-                    // $thesis['max_length'] = strlen(trim($request->body)); //getting the length wrong
-                    $thesis['max_length'] = Str::length(trim($request->body));
-                }
-                /**asmaa **/
-                if ($request->has('screenShots') && count($request->screenShots) > 0) {
-                    $total_screenshots = count($request->screenShots);
-                    $thesis['total_screenshots'] = $total_screenshots;
-
-                    //if the comment has no body, the first screenshot will be added as a comment
-                    //the rest will be added as replies with new comment created for each of them
-
-                    //theses/book_id/user_id/
-                    $folder_path = 'theses/' . $book->id . '/' . Auth::id();
-
-                    if (!$request->has('body')) {
-                        $this->createMedia($request->screenShots[0], $comment->id, 'comment', $folder_path);
-                        $comment->type = 'screenshot';
-                        $comment->save();
-                        for ($i = 1; $i < $total_screenshots; $i++) {
-                            $media_comment = Comment::create([
-                                'user_id' => Auth::id(),
-                                'post_id' => $input['post_id'],
-                                'comment_id' => $comment->id,
-                                'type' => 'screenshot',
-                            ]);
-                            $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment', $folder_path);
-                        }
-                    } else {
-
-                        //if the comment has a body, the screenshots will be added as replies with new comment created for each of them
-                        for ($i = 0; $i < $total_screenshots; $i++) {
-                            $media_comment = Comment::create([
-                                'user_id' => Auth::id(),
-                                'post_id' => $input['post_id'],
-                                'comment_id' => $comment->id,
-                                'type' => 'screenshot',
-                            ]);
-                            $this->createMedia($request->screenShots[$i], $media_comment->id, 'comment', $folder_path);
-                        }
-                    }
-                }
-                /**asmaa **/
-                $this->createThesis($thesis);
+                $this->handleThesisComment($request, $comment, $input['post_id']);
             }
 
             if ($request->has('image')) {
-                // if comment has media
-                // upload media
                 $folder_path = 'comments/' . Auth::id();
                 $this->createMedia($request->image, $comment->id, 'comment', $folder_path);
             }
 
             DB::commit();
 
-            $message = null;
-            $reciever_id = null;
-            if ($comment->type === 'normal' &&  Auth::id() !== $post->user_id) {
-                $message = 'لقد قام ' . Auth::user()->name . " بالتعليق على منشورك";
-                $reciever_id = $post->user_id;
-            } else if ($comment->type === 'reply') {
-                $parentComment = Comment::find($request->comment_id);
-                if ($parentComment && $parentComment->user_id !== Auth::id()) {
-
-                    $message = 'لقد قام ' . Auth::user()->name . " بالرد على تعليقك";
-                    $reciever_id = $parentComment->user_id;
-                }
-            }
-
-
-            //notify the creator
-            if ($message && $reciever_id) {
-                (new NotificationController)->sendNotification($reciever_id, $message, USER_POSTS, $this->getPostPath($post->id));
-            }
+            $this->notifyIfNeeded($comment, $post, $request);
 
             $comment = $comment->fresh();
 
-            if ($comment->type == 'thesis' || $comment->type == 'screenshot') {
-                $comment->load(['thesis', 'user.userBooks' => function ($query) use ($book) {
-                    $query->where('book_id', $book->id);
-                }]);
+            if (in_array($comment->type, ['thesis', 'screenshot'])) {
+                $comment->load([
+                    'thesis',
+                    'user.userBooks' => function ($query) use ($request) {
+                        $query->where('book_id', $request->book_id);
+                    }
+                ]);
             }
 
             return $this->jsonResponseWithoutMessage($comment, 'data', 200);
         } catch (\Exception $e) {
-            Log::channel('books')->info($e);
-
+            Log::channel('books')->error($e->getMessage());
             DB::rollback();
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
         }
@@ -487,11 +362,8 @@ class CommentController extends Controller
                             $mark = Mark::where('week_id', $currentWeek->id)->where('user_id', $comment->user_id)->first();
                             if ($mark) {
                                 // calculate mark
-                                $theses_mark = $this->calculate_mark_for_all_thesis($mark->id);
+                                $theses_mark = $this->calculateAllThesesMark($mark->id);
                                 $writing_mark = $theses_mark['writing_mark'];
-                                if ($writing_mark > config('constants.FULL_WRITING_MARK')) {
-                                    $writing_mark = config('constants.FULL_WRITING_MARK');
-                                }
                                 $mark->update(['writing_mark' => $writing_mark]);
                                 $graded->delete();
                             }
@@ -572,6 +444,146 @@ class CommentController extends Controller
             }
         } else {
             throw new NotFound;
+        }
+    }
+
+    private function getCreateValidationRules(Request $request): array
+    {
+        return [
+            'body' => [
+                'string',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type != "thesis" && !$request->has('image') && !$request->has('body')) {
+                        $fail('النص مطلوب في حالة عدم وجود صورة');
+                    }
+                },
+            ],
+            'book_id' => 'required_without:post_id|numeric',
+            'post_id' => 'required_without:book_id|numeric',
+            'comment_id' => 'numeric',
+            'type' => 'required',
+            'image' => [
+                new base64OrImage(),
+                new base64OrImageMaxSize(2 * 1024 * 1024),
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type != "thesis" && !$request->has('body') && !$request->has('image')) {
+                        $fail('The image field is required.');
+                    }
+                },
+            ],
+            'screenShots' => 'array',
+            'screenShots.*' => [new base64OrImage(), new base64OrImageMaxSize(2 * 1024 * 1024)],
+            'start_page' => 'required_if:type,thesis|numeric',
+            'end_page' => 'required_if:type,thesis|numeric',
+        ];
+    }
+
+    private function getCreateValidationMessages(): array
+    {
+        return [
+            'body.string' => 'النص يجب ان يكون نص',
+            'book_id.required_without' => 'book_id مطلوب',
+            'post_id.required_without' => 'post_id مطلوب',
+            'type.required' => 'النوع مطلوب',
+            'image.required' => 'الصورة مطلوبة',
+            'screenShots.array' => 'السكرينات مطلوبة',
+            'screenShots.*.base64_or_image' => 'الصورة يجب ان تكون من نوع صورة',
+            'screenShots.*.base64_or_image_max_size' => 'الصورة يجب ان تكون اقل من 2 ميجا',
+            'start_page.required_if' => 'الصفحة الأولى مطلوبة',
+            'end_page.required_if' => 'الصفحة الأخيرة مطلوبة',
+        ];
+    }
+
+    private function getPostId(Request $request): int
+    {
+        if (!$request->has('post_id')) {
+            $bookPostTypeId  = Cache::remember('book_post_type_id', now()->addWeek(), function () {
+                return PostType::firstWhere('type', 'book')->id;
+            });
+
+            return Post::where('book_id', $request->book_id)
+                ->where('type_id', $bookPostTypeId)
+                ->firstOrFail()
+                ->id;
+        }
+
+        return $request->post_id;
+    }
+
+    private function handleThesisComment(Request $request, Comment $comment, int $postId): void
+    {
+        $book = Book::findOrFail($request->book_id);
+        $thesis = [
+            'comment_id' => $comment->id,
+            'book_id' => $book->id,
+            'start_page' => $request->start_page,
+            'end_page' => $request->end_page,
+            'type_id' => $this->getThesisTypeId($book)
+        ];
+
+        if ($request->has('body')) {
+            $thesis['max_length'] = Str::length(trim($request->body));
+        }
+
+        if ($request->has('screenShots')) {
+            $thesis['total_screenshots'] = count($request->screenShots);
+            $this->handleScreenshots($request, $comment, $postId, $book);
+        }
+
+        $this->createThesis($thesis);
+    }
+
+    private function getThesisTypeId(Book $book): int
+    {
+        return ThesisType::where('type', $book->type->type == 'free' ? "normal" : $book->type->type)
+            ->firstOrFail()
+            ->id;
+    }
+
+    private function handleScreenshots(Request $request, Comment $comment, int $postId, Book $book): void
+    {
+        $folderPath = 'theses/' . $book->id . '/' . Auth::id();
+        foreach ($request->screenShots as $index => $screenshot) {
+            if ($index === 0 && !$request->has('body')) {
+                $comment->type = 'screenshot';
+                $comment->save();
+
+                $mediaComment = $comment;
+            } else {
+                $mediaComment = $this->createScreenshotComment($comment->id, $postId);
+            }
+
+            $this->createMedia($screenshot, $mediaComment->id, 'comment', $folderPath);
+        }
+    }
+
+    private function createScreenshotComment(int $commentId, int $postId): Comment
+    {
+        return Comment::create([
+            'user_id' => Auth::id(),
+            'post_id' => $postId,
+            'comment_id' => $commentId,
+            'type' => 'screenshot',
+        ]);
+    }
+
+    private function notifyIfNeeded(Comment $comment, Post $post, Request $request): void
+    {
+        $message = $receiverId = null;
+
+        if ($comment->type === 'normal' && Auth::id() !== $post->user_id) {
+            $message = 'لقد قام ' . Auth::user()->name . " بالتعليق على منشورك";
+            $receiverId = $post->user_id;
+        } elseif ($comment->type === 'reply') {
+            $parentComment = Comment::find($request->comment_id);
+            if ($parentComment && $parentComment->user_id !== Auth::id()) {
+                $message = 'لقد قام ' . Auth::user()->name . " بالرد على تعليقك";
+                $receiverId = $parentComment->user_id;
+            }
+        }
+
+        if ($message && $receiverId) {
+            (new NotificationController)->sendNotification($receiverId, $message, USER_POSTS, $this->getPostPath($post->id));
         }
     }
 }
