@@ -359,4 +359,63 @@ class MarathonPointsController extends Controller
         }
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
+
+    function addMarathonPointsDeductionReasons(Request $request){
+        $validator = Validator::make($request->all(), [
+            'user_id'           => 'required',
+            'osboha_marthon_id' => 'required',
+            'week_key'          => 'required',
+            'reason'            => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+        }
+        $marathon_point_deduction = MarathonPointDeduction::updateOrCreate(
+        [
+            'osboha_marthon_id' => $request->osboha_marthon_id, 
+            'week_key' => $request->week_key, 
+            'user_id' => $request->user_id,
+        ],
+        [
+            'reviewer_id' => Auth::id(),
+            'reason' => $request->reason,           
+        ]
+        ); 
+        return $this->jsonResponseWithoutMessage($marathon_point_deduction, 'data', 200);
+    }
+    function showMarathonPointsDeductionReasons($user_id ,$osboha_marthon_id){
+        $deductionPoints = 1;
+        $outFromMarathon = false;
+        $osboha_marathon = OsbohaMarthon::find($osboha_marthon_id);
+        if ($osboha_marathon) {
+            $weeks_key = MarathonWeek::where('osboha_marthon_id', $osboha_marathon->id)
+                ->pluck('week_key');
+             $deduction = MarathonPointDeduction::whereIn('week_key', $weeks_key)
+                ->select('week_key',
+                    DB::raw("
+                        SUM(
+                            CASE 
+                                WHEN reason = '1' THEN 5
+                                WHEN reason = '2' THEN 5
+                                WHEN reason = '3' THEN 50
+                                WHEN reason = '4' THEN 50
+                                ELSE 0
+                            END
+                        ) as total_deductionPoints,
+                        MAX(CASE
+                            WHEN reason = '4' THEN 1
+                            ELSE 0
+                        END) as outFromMarathon
+                    "))
+                ->groupBy('week_key')
+                ->get();
+        }
+        if($deduction){
+            return $this->jsonResponseWithoutMessage($deduction, 'data', 200);
+        }
+        else{
+            throw new NotFound;
+        }
+             
+    }
 }

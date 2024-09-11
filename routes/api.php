@@ -966,6 +966,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/add-bonus', 'addBonus');
             Route::post('/subtract-bonus', 'subtractPoints');
             Route::get('/get-points-bonus/{user_id}/{osboha_marthon_id}', 'getBonusPoints');
+            Route::post('/add-deduction-reasons', 'addMarathonPointsDeductionReasons');
+            Route::get('/show-deduction-reasons/{user_id}/{osboha_marthon_id}', 'showMarathonPointsDeductionReasons');
         });
         #################### End  Marathon  ####################
 
