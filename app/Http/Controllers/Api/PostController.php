@@ -899,11 +899,11 @@ class PostController extends Controller
                         }
                     }
 
-                    //if image, check if it is less than 2MB
+                    //if image, check if it is less than 4MB
                     if ($is_image) {
                         $validator = Validator::make(
                             ['image' => $value],
-                            ['image' => new base64OrImageMaxSize(2 * 1024 * 1024)] //size in bytes
+                            ['image' => new base64OrImageMaxSize(4 * 1024 * 1024)] //size in bytes
                         );
                         if ($validator->fails()) {
                             $fail(":attribute must be two megabytes or less.");
