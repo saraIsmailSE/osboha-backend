@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
-
+use App\Events\NotificationsEvent;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -58,7 +59,7 @@ class NotificationController extends Controller
     }
     /**
      * Send notification to a specific user by its id with a message and insert it to the database.
-     * 
+     *
      * @param  $reciver_id , $message
      */
     public function sendNotification($reciver_id, $message, $type, $path = null, $delay = null)
@@ -73,10 +74,15 @@ class NotificationController extends Controller
         } else {
             $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
         }
+        try {
+            event(new NotificationsEvent($message, $reciver_id));
+        } catch (\Exception $e) {
+            Log::channel('NotificationBroadcasting')->error('Broadcasting failed: ' . $e->getMessage());
+        }
     }
     /**
      * To show all notifications for auth user.
-     * 
+     *
      * @return jsonResponseWithoutMessage
      */
     public function listAllNotification()
@@ -91,7 +97,7 @@ class NotificationController extends Controller
     }
     /**
      * To show unread notifications for auth user.
-     * 
+     *
      * @return jsonResponseWithoutMessage
      */
     public function listUnreadNotification()
@@ -102,16 +108,16 @@ class NotificationController extends Controller
     }
     /**
      * Make all notifications as read for the auth user.
-     * 
+     *
      * @return jsonResponseWithoutMessage
-     
+
      */
     public function markAllAsRead()
     {
         $user = User::find(Auth::id());
 
         /**
-         * @todo: slow query - asmaa         
+         * @todo: slow query - asmaa
          */
         $user->unreadNotifications()->update(['read_at' => now()]);
 
