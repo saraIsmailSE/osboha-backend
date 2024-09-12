@@ -21,6 +21,7 @@ use App\Http\Resources\RoomUserResource;
 use App\Models\Room;
 use App\Models\User;
 use App\Traits\MediaTraits;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MessagesController extends Controller
@@ -87,7 +88,6 @@ class MessagesController extends Controller
             }
         }
 
-        event(new MessageEvent(new MessageResource($message)));
         $receiver = User::find($request->receiver_id);
 
         $rooms = Room::where("type", "private")
@@ -103,7 +103,13 @@ class MessagesController extends Controller
         }
 
         $unreadMessages = $this->unreadMessages($receiver->id);
-        event(new RoomsEvent($rooms, $unreadMessages, $receiver));
+
+        try {
+            event(new MessageEvent(new MessageResource($message)));
+            event(new RoomsEvent($rooms, $unreadMessages, $receiver));
+        } catch (\Exception $e) {
+            Log::channel('MessigiongBroadcasting')->error('Broadcasting failed: ' . $e->getMessage());
+        }
 
         return $this->jsonResponseWithoutMessage(
             [
