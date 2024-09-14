@@ -1105,7 +1105,12 @@ class UserExceptionController extends Controller
             // Set Pending exceptions to rejected
             UserException::where('end_at', '<=', $week->created_at)
                 ->where('status', 'pending')
-                ->update(['status' => 'rejected', 'note' => '-', 'reviewer_id' => 1]);
+                ->update(['status' => 'rejected', 'note' => 'تم رفض الطلب تلقائياً دون إجراء مراجعة', 'reviewer_id' => 1]);
+
+            // Set Pending withdrawn exceptions to rejected
+            UserException::where('type_id', 6)
+                ->where('status', 'pending')
+                ->update(['status' => 'rejected', 'note' => 'تم رفض الطلب تلقائياً دون إجراء مراجعة', 'reviewer_id' => 1]);
         } catch (\Exception $e) {
             Log::channel('newWeek')->info('End Exceptions: ' . $e);
         }

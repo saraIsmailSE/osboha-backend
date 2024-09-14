@@ -127,8 +127,14 @@ class UserController extends Controller
                 //check head_user exists
                 $head_user = User::where('email', $request->head_user)->first();
                 if ($head_user) {
+
+                    if ($head_user->id == $user->id) {
+                        return $this->jsonResponseWithoutMessage("لا يمكن أن يكون الشخص مسؤولاً عن نفسه", 'data', 200);
+                    }
+
                     $user_last_role = $user->roles->first();
                     $head_user_last_role = $head_user->roles->first();
+
                     //check if head user role is greater that user role
                     if ($head_user_last_role->id < $user_last_role->id) {
                         //if last role less than the new role => assign ew role
