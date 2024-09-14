@@ -124,7 +124,9 @@ trait ThesisTraits
 
     public function deleteThesis(Thesis $thesisToDelete)
     {
-        $thesis = Thesis::where('comment_id', $thesisToDelete['comment_id'])->firstOrFail();
+        $thesis = Thesis::where('comment_id', $thesisToDelete['comment_id'])
+            ->with('modifiedTheses')
+            ->firstOrFail();
 
         $week = $this->getCurrentWeek();
 
@@ -135,6 +137,12 @@ trait ThesisTraits
         $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id, $thesis->id);
 
         $markData = $this->calculateMarks($allTheses, null, false);
+
+        //delete modified thesis if exists
+        $modifiedThesis = $thesis->modifiedTheses;
+        if ($modifiedThesis) {
+            $modifiedThesis->delete();
+        }
 
         $thesis->delete();
         $userMark->update($markData);
@@ -373,7 +381,7 @@ trait ThesisTraits
         //convert thesis to array
         $thesisArray = $thesis ? (is_array($thesis) ? $thesis : $thesis->toArray()) : null;
 
-        $finalActualTotals = [
+        $finalTotals = [
             'total_pages' => 0,
             'total_theses' => 0,
             'total_screenshots' => 0,
@@ -391,9 +399,9 @@ trait ThesisTraits
                 $this->aggregateSingleThesis($thesisArray, $actualTotals, $filteredTotals);
             }
 
-            $finalActualTotals['total_pages'] += $actualTotals['total_pages'];
-            $finalActualTotals['total_theses'] += $actualTotals['total_theses'];
-            $finalActualTotals['total_screenshots'] += $actualTotals['total_screenshots'];
+            $finalTotals['total_pages'] += $filteredTotals['total_pages'];
+            $finalTotals['total_theses'] += $filteredTotals['total_theses'];
+            $finalTotals['total_screenshots'] += $filteredTotals['total_screenshots'];
 
             if (strcasecmp($type, NORMAL_THESIS_TYPE) === 0) {
                 $normalThesesMark = $this->calculateNormalThesesMark($filteredTotals);
@@ -404,24 +412,24 @@ trait ThesisTraits
             }
         }
 
-        return $this->mergeMarks($normalThesesMark, $ramadanThesesMark, $finalActualTotals, $resetFreeze);
+        return $this->mergeMarks($normalThesesMark, $ramadanThesesMark, $finalTotals, $resetFreeze);
     }
 
     private function calculateSingleThesisMarks(array $thesisArray, ?string $thesisType, bool $isRamadanActive, bool $resetFreeze): array
     {
-        [$actual, $filtered] = $this->getThesisTotals($thesisArray);
+        [$actualTotals, $filteredTotals] = $this->getThesisTotals($thesisArray);
 
         $normalThesesMark = $ramadanThesesMark = null;
 
         if (strcasecmp($thesisType, NORMAL_THESIS_TYPE) === 0) {
-            $normalThesesMark = $this->calculateNormalThesesMark($filtered);
+            $normalThesesMark = $this->calculateNormalThesesMark($filteredTotals);
         } elseif (in_array($thesisType, [RAMADAN_THESIS_TYPE, TAFSEER_THESIS_TYPE])) {
             $ramadanThesesMark = $isRamadanActive
-                ? $this->calculateRamadanThesesMark($filtered, $thesisType)
-                : $this->calculateNormalThesesMark($filtered);
+                ? $this->calculateRamadanThesesMark($filteredTotals, $thesisType)
+                : $this->calculateNormalThesesMark($filteredTotals);
         }
 
-        return $this->mergeMarks($normalThesesMark, $ramadanThesesMark, $actual, $resetFreeze);
+        return $this->mergeMarks($normalThesesMark, $ramadanThesesMark, $filteredTotals, $resetFreeze);
     }
 
     private function aggregateSingleThesis(array $thesisArray, array &$actualTotals, array &$filteredTotals): void
@@ -462,7 +470,7 @@ trait ThesisTraits
         return [$actualTotals, $filteredTotals];
     }
 
-    private function mergeMarks(?array $normalMark, ?array $ramadanMark, array $actualTotals, bool $resetFreeze = true): array
+    private function mergeMarks(?array $normalMark, ?array $ramadanMark, array $totals, bool $resetFreeze = true): array
     {
         $readingMark = ($normalMark ? $normalMark['reading_mark'] : 0) + ($ramadanMark ? $ramadanMark['reading_mark'] : 0);
         $writingMark = ($normalMark ? $normalMark['writing_mark'] : 0) + ($ramadanMark ? $ramadanMark['writing_mark'] : 0);
@@ -471,9 +479,9 @@ trait ThesisTraits
         $writingMark = min($writingMark, config('constants.FULL_WRITING_MARK'));
 
         $data = [
-            'total_pages' => $actualTotals['total_pages'],
-            'total_thesis' => $actualTotals['total_theses'],
-            'total_screenshot' => $actualTotals['total_screenshots'],
+            'total_pages' => $totals['total_pages'],
+            'total_thesis' => $totals['total_theses'],
+            'total_screenshot' => $totals['total_screenshots'],
             'reading_mark' => $readingMark,
             'writing_mark' => $writingMark,
         ];
@@ -660,7 +668,7 @@ trait ThesisTraits
     {
         return Thesis::where('user_id', $userId)
             ->where('mark_id', $markId)
-            // ->where('status', '!=', 'rejected')
+            ->where('status', '!=', 'rejected')
             ->where('id', '!=', $excludeThesisId)
             ->get()
             ->groupBy('type.type');
@@ -744,7 +752,11 @@ trait ThesisTraits
         if ($actualTotals['total_theses'] > 0 || $actualTotals['total_screenshots'] > 0) {
             if (strcasecmp($thesis['status'], config('constants.ACCEPTED_ONE_THESIS_STATUS')) === 0) {
                 if ($actualTotals['total_theses'] > 0 && $actualTotals['total_screenshots'] > 0) {
-                    $filteredTotals['total_theses'] = $actualTotals['total_theses'];
+                    $filteredTotals['total_theses'] = 1;
+                } elseif ($actualTotals['total_theses'] > 0) {
+                    $filteredTotals['total_theses'] = 1;
+                } else {
+                    $filteredTotals['total_screenshots'] = 1;
                 }
             } else {
                 $filteredTotals['total_theses'] = $actualTotals['total_theses'];

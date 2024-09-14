@@ -85,7 +85,7 @@ class CommentController extends Controller
 
             return $this->jsonResponseWithoutMessage($comment, 'data', 200);
         } catch (\Exception $e) {
-            Log::channel('books')->error($e->getMessage() . ' ' . $e->getTraceAsString());
+            Log::channel('Comments')->error($e->getMessage() . ' ' . $e->getTraceAsString());
             DB::rollback();
             return $this->jsonResponseWithoutMessage($e->getMessage() . ':' . $e->getLine(), 'data', 500);
         }
@@ -437,6 +437,7 @@ class CommentController extends Controller
                     return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
                 } catch (\Exception $e) {
                     DB::rollback();
+                    Log::channel('Comments')->error($e->getMessage() . ' ' . $e->getTraceAsString());
                     return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
                 }
             } else {

@@ -173,9 +173,11 @@ return [
             'path' => storage_path('logs/MessagingBroadcasting.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
-
-
-
+        'Comments' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/MessagingBroadcasting.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];
