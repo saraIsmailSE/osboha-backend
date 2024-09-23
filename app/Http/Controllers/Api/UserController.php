@@ -277,19 +277,34 @@ class UserController extends Controller
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
-    function getUsersOnHoldByMonthAndGender($month, $gender)
+    function getUsersOnHoldByMonthAndGender($contact_status, $month, $gender)
     {
         $year = Carbon::now()->year;
         $startDate = Carbon::create($year, $month, 1)->startOfMonth();
         $endDate = Carbon::create($year, $month, 1)->endOfMonth();
 
-        $query = User::with('contactsAsAWithdrawn')->without('userProfile')->with(['groups' => function ($query) {
-            $query->wherePivot('user_type', 'ambassador')
-                ->wherePivot('termination_reason', 'withdrawn')
-                ->orderBy('user_groups.created_at', 'desc');
-        }, 'withdrawnExceptions', 'socialMedia'])->where('is_hold', 1)
-            ->whereBetween('updated_at', [$startDate, $endDate]);
-
+        $query = User::without('userProfile')
+            ->with(['groups' => function ($query) {
+                $query->wherePivot('user_type', 'ambassador')
+                    ->wherePivot('termination_reason', 'withdrawn');
+            }, 'withdrawnExceptions', 'socialMedia', 'contactsAsAWithdrawn'])
+            ->where('is_hold', 1)
+            ->where(function ($query) use ($contact_status) {
+                if ($contact_status == 0) {
+                    // If contact_status is 0, we want to include users with null contactsAsAWithdrawn
+                    $query->whereDoesntHave('contactsAsAWithdrawn')
+                        ->orWhereHas('contactsAsAWithdrawn', function ($query) use ($contact_status) {
+                            $query->where('contact', $contact_status);
+                        });
+                } else {
+                    // Otherwise, only include users where contactsAsAWithdrawn.contact matches contact_status
+                    $query->whereHas('contactsAsAWithdrawn', function ($query) use ($contact_status) {
+                        $query->where('contact', $contact_status);
+                    });
+                }
+            })
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->orderBy('updated_at');
 
         if ($gender !== 'both') {
             $query->where('gender', $gender);
@@ -315,6 +330,9 @@ class UserController extends Controller
             return $user->groups->isNotEmpty() && $user->withdrawnExceptions->isNotEmpty();
         });
 
+        $statistics['total_holds'] = DB::table('users')
+            ->where('is_hold', 1)
+            ->count();
         $statistics['contact_done'] = DB::table('contacts_with_withdrawns')
             ->where('contact', 1)
             ->count();
