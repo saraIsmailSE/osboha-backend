@@ -54,47 +54,46 @@ class ModifiedThesesController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'week_id' => 'required_if:status,rejected,rejected_parts|numeric',
+            'week_id' => 'required_if:status,rejected|numeric',
             'modifier_reason_id' => 'required_if:status,rejected,rejected_parts|numeric',
             'thesis_id' => 'required|numeric',
-            'status' => 'required|string|in:accepted,rejected,rejected_parts',
-            "rejected_parts" => "required_if:status,rejected_parts|numeric|in:1,2,3,4,5|nullable",
+            'status' => 'required|string|in:accepted,rejected,rejected_writing,accepted_one_thesis',
             "modified_thesis_id" => "exists:modified_theses,id|nullable"
         ]);
 
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
-        if (Auth::user()->can('audit mark') && Auth::user()->hasRole(['advisor', 'supervisor', 'leader', "consultant", "admin", 'support_leader'])) {
-            //get lastest week
+        if (Auth::user()->can('audit mark') && Auth::user()->hasRole([...config('constants.ALL_SUPPER_ROLES'), 'support_leader'])) {
             $week = Week::find($request->week_id);
             $modify_timer = $week->modify_timer;
 
-            //check if current date(full) greater than main timer
-            if (date('Y-m-d H:i:s') > $modify_timer) {
+            if (!$this->isValidDate($modify_timer)) {
                 return $this->jsonResponseWithoutMessage("لا يمكنك تدقيق الأطروحة, لقد انتهى الأسبوع", 'data', Response::HTTP_NOT_ACCEPTABLE);
             }
 
             $thesis = Thesis::find($request->thesis_id);
             $thesis->status = $request->status;
-            $thesis->rejected_parts = $request->rejected_parts;
             $thesis->save();
 
             if ($request->status !== 'accepted') {
-                $input['modifier_reason_id'] = $request->modifier_reason_id;
-                $input['thesis_id'] = $request->thesis_id;
-                $input['modifier_id'] = Auth::id();
-                $input['user_id'] = $thesis->user_id;
-                $input['week_id'] = $thesis->mark->week_id;
+                $input = [
+                    'modifier_reason_id' => $request->modifier_reason_id,
+                    'thesis_id' => $request->thesis_id,
+                    'modifier_id' => Auth::id(),
+                    'user_id' => $thesis->user_id,
+                    'week_id' => $thesis->mark->week_id
+                ];
 
                 if ($request->modified_thesis_id) {
                     $modified_theses = ModifiedTheses::find($request->modified_thesis_id);
                     $modified_theses->update($input);
-                } else
+                } else {
                     $modified_theses = ModifiedTheses::create($input);
+                }
 
                 $thesis = $thesis->fresh();
-                $this->updateMark($thesis);
+                $this->calculateAllThesesMark($thesis->mark_id, true);
 
                 $user = User::findOrFail($thesis->user_id);
                 $reason = ModificationReason::findOrFail($request->modifier_reason_id);
@@ -105,10 +104,9 @@ class ModifiedThesesController extends Controller
                     $modified_theses->delete();
 
                     $thesis->status = 'accepted';
-                    $thesis->rejected_parts = null;
                     $thesis->save();
 
-                    $this->updateMark($thesis);
+                    $this->calculateAllThesesMark($thesis->mark_id, true);
                 }
             }
 
@@ -118,9 +116,11 @@ class ModifiedThesesController extends Controller
             if ($request->status === 'accepted') {
                 $message = 'تم قبول أطروحتك من قِبَل ' . Auth::user()->name;
             } else if ($request->status === 'rejected') {
-                $message = 'تم رفض أطروحتك من قِبَل ' . Auth::user()->name;
-            } else if ($request->status === 'rejected_parts') {
-                $message = 'تم رفض أطروحتك من قِبَل ' . $request->rejected_parts . ' ورد من الأطروحة من قِبَل ' . Auth::user()->name;
+                $message = 'تم رفض أطروحتك كاملة مع القراءة من قِبَل ' . Auth::user()->name;
+            } else if ($request->status === 'rejected_writing') {
+                $message = 'تم رفض أطروحتك كاملة بدون القراءة من قِبَل ' . Auth::user()->name;
+            } else if ($request->status === 'accepted_one_thesis') {
+                $message = 'تم قبول ورد واحد فقط من أطروحتك من قِبَل ' . Auth::user()->name;
             }
 
             (new NotificationController)->sendNotification($thesis->user_id, $message, ACHIEVEMENTS, $this->getThesesPath($thesis->book_id, $thesis->id));
@@ -168,11 +168,11 @@ class ModifiedThesesController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
         $user = Auth::user();
-        if ($user->can('audit mark') && ($user->hasRole('advisor') || $user->hasRole('supervisor') || $user->hasRole('admin'))) {
+        if ($user->can('audit mark') && ($user->hasRole(['advisor', 'supervisor', 'admin']))) {
             $modified_theses = ModifiedTheses::find($request->rejected_theses_id);
             if ($modified_theses) {
                 $input = [
-                    ...$request->all(),
+                    ...$request->only('head_modifier_reason_id', 'status'),
                     'head_modifier_id' => $user->id
                 ];
                 $modified_theses->update($input);

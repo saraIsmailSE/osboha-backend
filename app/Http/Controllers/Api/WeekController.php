@@ -12,7 +12,6 @@ use App\Traits\ResponseJson;
 use App\Models\Post;
 use App\Models\PostType;
 use App\Traits\PathTrait;
-use App\Traits\ThesisTraits;
 use App\Traits\WeekTrait;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -25,7 +24,7 @@ use Illuminate\Support\Str;
 
 class WeekController extends Controller
 {
-    use ResponseJson, ThesisTraits, PathTrait, WeekTrait;
+    use ResponseJson, PathTrait, WeekTrait;
 
     /**
      * Add new week to the system
@@ -148,7 +147,7 @@ class WeekController extends Controller
         return null;
     }
 
-     /**
+    /**
      * search for week key based on the date of the week
      * @author Sara
      * @param Date $date (date of biginning week),
@@ -201,7 +200,7 @@ class WeekController extends Controller
         $week->title = $this->search_for_week_title($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
         //search is_vacation
         $week->is_vacation = $this->search_for_is_vacation($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
-       // search week_key
+        // search week_key
         $week->week_key = $this->search_for_week_key($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
 

@@ -89,7 +89,7 @@ class UserBookController extends Controller
                     $userTheses = $userTheses->where('created_at', '>', $timestamp);
                 }
 
-                $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userFreeBook->book, $userTheses->get());
+                $finishedPercentage = $this->calculateBookPagesPercentage(null, $userFreeBook->book, $userTheses->get());
                 $userFreeBook->book->finished_percentage = min(round($finishedPercentage, 2), 100);
 
                 $userFreeBook->book->load(['userBooks' => function ($query) use ($user_id) {
@@ -158,7 +158,7 @@ class UserBookController extends Controller
                     $userTheses = $userTheses->where('created_at', '>', $timestamp);
                 }
 
-                $finishedPercentage = $this->calculate_pages_percentage_of_book(null, $userBook->book, $userTheses->get());
+                $finishedPercentage = $this->calculateBookPagesPercentage(null, $userBook->book, $userTheses->get());
                 $userBook->book->finished_percentage = min(round($finishedPercentage, 2), 100);
 
                 $userBook->book->load(['userBooks' => function ($query) use ($user_id) {
