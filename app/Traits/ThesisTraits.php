@@ -277,8 +277,10 @@ trait ThesisTraits
             return $thesis->end_page - $thesis->start_page;
         });
 
+        $bookTotalPages = $book->end_page - $book->start_page;
+
         // Ensure we avoid division by zero
-        return $book->end_page > 0 ? ($totalPages / $book->end_page) * 100 : 0.0;
+        return $bookTotalPages > 0 ? ($totalPages / $bookTotalPages) * 100 : 0.0;
     }
 
     public function checkOverlap($start_page, $end_page, $book_id, $user_id, $thesis_id = null)
