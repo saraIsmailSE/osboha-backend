@@ -88,14 +88,36 @@ class UserController extends Controller
             return $this->jsonResponseWithoutMessage(null, "data", 200);
         }
     }
-    public function searchByName($name)
+    public function searchByName($fullName)
     {
-        $response['users']  = User::with(['parent', 'groups' => function ($query) {
-            $query->wherePivot('user_type', 'ambassador')
-                ->whereNull('termination_reason')->get();
-        }])
-            ->where('name', 'LIKE', "%{$name}%")
-            ->withCount('children')->get();
+        // Split the full name into name and last name
+        $names = explode(' ', $fullName);
+
+        if (count($names) > 1) {
+            $firstName = $names[0];
+            $lastName = $names[1];
+
+            // Perform the query using both first and last names
+            $response['users'] = User::with(['parent', 'groups' => function ($query) {
+                $query->wherePivot('user_type', 'ambassador')
+                    ->whereNull('termination_reason');
+            }])
+                ->where('name', 'LIKE', "%{$firstName}%")
+                ->where('last_name', 'LIKE', "%{$lastName}%")
+                ->withCount('children')
+                ->get();
+        } else {
+            // If the input doesn't contain a space, search by the first name only
+            $response['users'] = User::with(['parent', 'groups' => function ($query) {
+                $query->wherePivot('user_type', 'ambassador')
+                    ->whereNull('termination_reason');
+            }])
+                ->where('name', 'LIKE', "%{$fullName}%")
+                ->withCount('children')
+                ->get();
+        }
+
+
         if ($response['users']) {
             return $this->jsonResponseWithoutMessage($response, "data", 200);
         } else {
