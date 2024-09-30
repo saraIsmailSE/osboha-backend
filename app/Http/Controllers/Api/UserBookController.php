@@ -69,7 +69,7 @@ class UserBookController extends Controller
         $can_add_books = true;
         $user = User::find($user_id);
 
-        $userFreeBooks = UserBook::with('book')->where('user_id', $user_id)->whereHas('book.type', function ($q) {
+        $userFreeBooks = UserBook::with('book')->where('user_id', $user_id)->where('status','!=', 'later')->whereHas('book.type', function ($q) {
             $q->where('type', '=', 'free');
         })->paginate(9);
 
