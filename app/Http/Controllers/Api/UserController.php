@@ -299,9 +299,9 @@ class UserController extends Controller
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
-    function getUsersOnHoldByMonthAndGender($contact_status, $month, $gender)
+    function getUsersOnHoldByMonthAndGender($contact_status, $month, $year, $gender)
     {
-        $year = Carbon::now()->year;
+        $year = $year;
         $startDate = Carbon::create($year, $month, 1)->startOfMonth();
         $endDate = Carbon::create($year, $month, 1)->endOfMonth();
 
@@ -313,15 +313,12 @@ class UserController extends Controller
             ->where('is_hold', 1)
             ->where(function ($query) use ($contact_status) {
                 if ($contact_status == 0) {
-                    // If contact_status is 0, we want to include users with null contactsAsAWithdrawn
-                    $query->whereDoesntHave('contactsAsAWithdrawn')
-                        ->orWhereHas('contactsAsAWithdrawn', function ($query) use ($contact_status) {
-                            $query->where('contact', $contact_status);
-                        });
+                    // Users with no record in contacts_with_withdrawns
+                    $query->whereDoesntHave('contactsAsAWithdrawn');
                 } else {
-                    // Otherwise, only include users where contactsAsAWithdrawn.contact matches contact_status
-                    $query->whereHas('contactsAsAWithdrawn', function ($query) use ($contact_status) {
-                        $query->where('contact', $contact_status);
+                    // Users who have a record in contacts_with_withdrawns with contact = 1
+                    $query->whereHas('contactsAsAWithdrawn', function ($query) {
+                        $query->where('contact', 1);
                     });
                 }
             })
@@ -332,6 +329,7 @@ class UserController extends Controller
             $query->where('gender', $gender);
         }
         $users = $query->paginate(30);
+        Log::channel('community_edits')->info($users);
 
         // Keep pagination details
         $paginationDetails = [
@@ -340,17 +338,6 @@ class UserController extends Controller
             'per_page' => $users->perPage(),
             'current_page' => $users->currentPage(),
         ];
-
-        // Filter the users
-        $filteredUsers = $users->map(function ($user) {
-            $latestGroup = $user->groups->first();
-            $latestException = $user->withdrawnExceptions->first();
-            $user->setRelation('groups', collect([$latestGroup]));
-            $user->setRelation('latestException', collect([$latestException]));
-            return $user;
-        })->filter(function ($user) {
-            return $user->groups->isNotEmpty() && $user->withdrawnExceptions->isNotEmpty();
-        });
 
         $statistics['total_holds'] = DB::table('users')
             ->where('is_hold', 1)
@@ -373,9 +360,9 @@ class UserController extends Controller
 
 
 
-        if ($filteredUsers->isNotEmpty()) {
+        if ($users->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
-                'ambassadors' => $filteredUsers,
+                'ambassadors' => $users,
                 'statistics' => $statistics,
                 'total' => $paginationDetails['total'],
                 'last_page' => $paginationDetails['last_page'],

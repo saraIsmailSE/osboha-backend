@@ -173,9 +173,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
-            Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
             Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
-            Route::get('/get-users-on-hold/{contact_status}/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
+            Route::get('/get-users-on-hold/{contact_status}/{month}/{year}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
             Route::post('/update-user-name', [UserController::class,  'updateUserName']);
             Route::get('/withdrawn-ambassador-details/{user_id}', [UserController::class,  'withdrawnAmbassadorDetails']);
         });
