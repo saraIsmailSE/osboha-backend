@@ -112,7 +112,7 @@ class BookController extends Controller
                     ->orderBy('updated_at', 'desc')->first();
             }
 
-            $isRamadanActive = RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
+            $isRamadanActive = $this->checkRamadanStatus();
             return $this->jsonResponseWithoutMessage([
                 'books' => BookResource::collection($books),
                 'total' => $books->total(),
@@ -348,9 +348,7 @@ class BookController extends Controller
             ->first();
 
         #### Ramadan ####
-        $isRamadanActive = Cache::remember('ramadan_active_' . now()->year, now()->addMonths(6), function () {
-            return RamadanDay::whereYear('created_at', now()->year)->where('is_active', 1)->exists();
-        });
+        $isRamadanActive = $this->checkRamadanStatus();
 
         #### Suggested ####
         $isSuggested = BookSuggestion::where('user_id', $user_id)->where('name', $book->name)->exists();

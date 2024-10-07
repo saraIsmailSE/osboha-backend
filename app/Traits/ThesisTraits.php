@@ -18,6 +18,7 @@ use App\Models\Week;
 use App\Traits\ResponseJson;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -274,13 +275,14 @@ trait ThesisTraits
 
         // Use a collection sum method for efficiency
         $totalPages = $theses->sum(function ($thesis) {
-            return $thesis->end_page - $thesis->start_page;
+            return $thesis->end_page - $thesis->start_page + 1;
         });
 
         $bookTotalPages = $book->end_page - $book->start_page;
+        $totalPages = $totalPages > $bookTotalPages ? $bookTotalPages : $totalPages;
 
         // Ensure we avoid division by zero
-        return $bookTotalPages > 0 ? ($totalPages / $bookTotalPages) * 100 : 0.0;
+        return $bookTotalPages > 0 ? round(($totalPages / $bookTotalPages) * 100) : 0;
     }
 
     public function checkOverlap($start_page, $end_page, $book_id, $user_id, $thesis_id = null)
@@ -394,12 +396,17 @@ trait ThesisTraits
             return $this->calculateSingleThesisMarks($thesisArray, $thesisType, $isRamadanActive, $resetFreeze);
         }
 
+        //add the current thesis to the allTheses collection based on its type
+        if ($thesisArray && $thesisType) {
+            if ($allTheses->has($thesisType)) {
+                $allTheses[$thesisType]->push(new Thesis($thesisArray));
+            } else {
+                $allTheses[$thesisType] = collect([new Thesis($thesisArray)]);
+            }
+        }
+
         foreach ($allTheses as $type => $theses) {
             list($actualTotals, $filteredTotals) = $this->aggregateTheses($theses);
-
-            if ($thesis && strcasecmp($type, $thesisType) === 0) {
-                $this->aggregateSingleThesis($thesisArray, $actualTotals, $filteredTotals);
-            }
 
             $finalTotals['total_pages'] += $filteredTotals['total_pages'];
             $finalTotals['total_theses'] += $filteredTotals['total_theses'];
@@ -450,7 +457,7 @@ trait ThesisTraits
         $filteredTotals['complete_theses_count'] += $filtered['complete_theses_count'];
     }
 
-    private function aggregateTheses(Collection | Thesis $theses): array
+    private function aggregateTheses(Collection | SupportCollection | Thesis $theses): array
     {
         $actualTotals = [
             'total_pages' => 0,
@@ -695,10 +702,10 @@ trait ThesisTraits
         return Carbon::now()->lessThan($date) ? true : false;
     }
 
-    private function checkRamadanStatus(): bool
+    protected function checkRamadanStatus(): bool
     {
         $currentYear = now()->year;
-        return Cache::remember("ramadan_active_$currentYear", now()->addMonths(6), function () use ($currentYear) {
+        return Cache::remember("ramadan_active_$currentYear", now()->addMonths(4), function () use ($currentYear) {
             return RamadanDay::whereYear('created_at', $currentYear)
                 ->where('is_active', 1)
                 ->exists();

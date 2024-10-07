@@ -79,10 +79,10 @@ class ThesisTestsHelper extends TestCase
         ];
     }
 
-    protected function getThesisRequest(int $startPage, int $endPage, ?string $body = null, ?array $screenshots = null): array
+    protected function getThesisRequest(int $startPage, int $endPage, ?string $body = null, ?array $screenshots = null, ?int $book_id = null): array
     {
         $data = [
-            'book_id' => 17,
+            'book_id' => $book_id ?? 17,
             'start_page' => $startPage,
             'end_page' => $endPage,
             'type' => 'thesis',
