@@ -536,7 +536,16 @@ class CommentController extends Controller
 
     private function getThesisTypeId(Book $book): int
     {
-        return ThesisType::where('type', $book->type->type == 'free' ? "normal" : $book->type->type)
+        $type = $book->type->type == 'free' ? "normal" : $book->type->type;
+        //if type is ramadan check if ramadan is active
+        if ($type == 'ramadan') {
+            $isRamadanActive = $this->checkRamadanStatus();
+            if (!$isRamadanActive) {
+                $type = 'normal';
+            }
+        }
+
+        return ThesisType::where('type', $type)
             ->firstOrFail()
             ->id;
     }
