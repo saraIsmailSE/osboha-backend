@@ -795,4 +795,30 @@ class NormalThesesTest extends ThesisTestsHelper
             throw $e;
         }
     }
+
+    public function test_normal_with_ramadan_theses_with_inactive_ramadan_mark()
+    {
+        $this->actingAs($this->user, 'web');
+
+        $requestData = $this->getThesisRequest(1, 18, null, $this->createScreenshots(3), 11); //normal
+        $requestData2 = $this->getThesisRequest(1, 12, null, $this->createScreenshots(2), 160); //ramadan
+
+        DB::beginTransaction();
+
+        try {
+            $response = $this->postJson('api/v1/comments', $requestData)->assertOk();
+            $response2 = $this->postJson('api/v1/comments', $requestData2)->assertOk();
+
+            $userMark = $this->getMark($this->user->id, $this->week->id);
+
+            $this->assertMark($userMark, $this->getExpectedMark(30, 0, 5, 50, 40));
+
+            $this->deleteThesis($response->json('data.id'), $response2->json('data.id'));
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
 }
