@@ -96,8 +96,6 @@ use Illuminate\Support\Facades\Broadcast;
 
 Route::group(['prefix' => 'v1'], function () {
 
-
-
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
         Route::get('/show/{id}', [MediaController::class, 'show']);
@@ -107,10 +105,10 @@ Route::group(['prefix' => 'v1'], function () {
     ########End Media route########
 
 
-
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'signUp']);
     Route::post('/new_register', [AuthController::class, 'signUp_v2']);
+
 
     Route::get('/profile-image/{profile_id}/{file_name}', [UserProfileController::class, 'getImages'])->where('file_name', '.*');
     Route::get('/official_document/{user_id}', [UserProfileController::class, 'getOfficialDocument'])->where('file_name', '.*');
@@ -173,8 +171,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/deactive-user', [UserController::class, 'deActiveUser']);
             Route::get('/list-in-charge-of', [UserController::class, 'listInChargeOf']);
             Route::get('/retrieve-nested-users/{parentId}', [UserController::class, 'retrieveNestedUsers']);
+            Route::get('/get-users-on-hold/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
             Route::post('/get_ambassador_marks_four_week/{email}', [UserController::class, 'getAmbassadorMarksFourWeek']);
-            Route::get('/get-users-on-hold/{contact_status}/{month}/{year}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
+            Route::get('/get-users-on-hold/{contact_status}/{month}/{gender}', [UserController::class, 'getUsersOnHoldByMonthAndGender']);
             Route::post('/update-user-name', [UserController::class,  'updateUserName']);
             Route::get('/withdrawn-ambassador-details/{user_id}', [UserController::class,  'withdrawnAmbassadorDetails']);
         });
@@ -953,19 +952,19 @@ Route::group(['prefix' => 'v1'], function () {
         |--------------------------------------------------------------------------|
         */
         ####################  Marathon  ####################
-        Route::controller(OsbohaMarathonController::class)->prefix('osboha-marathon')->group(function () {
-            Route::get('/current-marathon', 'getCurrentMarathon');
-            Route::get('/end-marathon/{marathon_id}', 'endMarathon');
-            Route::get('/show/{marathon_id}', 'show');
-            Route::post('/create_marthon', 'createMarthon');
-        });
-        Route::controller(MarathonPointsController::class)->prefix('marathon-points')->group(function () {
-            Route::get('/get-marathon-points/{user_id}/{osboha_marthon_id}', 'getMarathonPoints');
-            Route::get('/get-specific-marathon-week-points/{user_id}/{osboha_marthon_id}/{week_id}', 'getSpecificMarathonWeekPoints');
-            Route::post('/add-bonus', 'addBonus');
-            Route::post('/subtract-bonus', 'subtractPoints');
-            Route::get('/get-points-bonus/{user_id}/{osboha_marthon_id}', 'getBonusPoints');
-        });
+        // Route::controller(OsbohaMarathonController::class)->prefix('osboha-marathon')->group(function () {
+        //     Route::get('/current-marathon', 'getCurrentMarathon');
+        //     Route::get('/end-marathon/{marathon_id}', 'endMarathon');
+        //     Route::get('/show/{marathon_id}', 'show');
+        //     Route::post('/create_marthon', 'createMarthon');
+        // });
+        // Route::controller(MarathonPointsController::class)->prefix('marathon-points')->group(function () {
+        //     Route::get('/get-marathon-points/{user_id}/{osboha_marthon_id}', 'getMarathonPoints');
+        //     Route::get('/get-specific-marathon-week-points/{user_id}/{osboha_marthon_id}/{week_id}', 'getSpecificMarathonWeekPoints');
+        //     Route::post('/add-bonus', 'addBonus');
+        //     Route::post('/subtract-bonus', 'subtractPoints');
+        //     Route::get('/get-points-bonus/{user_id}/{osboha_marthon_id}', 'getBonusPoints');
+        // });
         #################### End  Marathon  ####################
 
     });
