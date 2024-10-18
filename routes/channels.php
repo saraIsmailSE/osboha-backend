@@ -18,18 +18,14 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
-// Broadcast::channel('notifications-channel', function () {
-//     return Auth::check();
-// });
+Broadcast::channel('notifications-channel.{reciver_id}', function (User $user, int $userId) {
+    return Auth::check();
+});
 
 Broadcast::channel('single-room-channel.{room_id}', function (User $user, int $userId) {
-return Auth::check();
-    //return $user->id === $userId;
+    return Auth::check();
 });
 
 Broadcast::channel('rooms-channel.{user_id}', function (User $user, int $userId) {
     return Auth::check();
-        //return $user->id === $userId;
-    });
-    
-
+});

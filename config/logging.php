@@ -163,6 +163,21 @@ return [
             'path' => storage_path('logs/Questions.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'NotificationBroadcasting' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/NotificationBroadcasting.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+        'MessagingBroadcasting' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/MessagingBroadcasting.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+        'Comments' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/MessagingBroadcasting.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];

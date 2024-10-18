@@ -88,14 +88,36 @@ class UserController extends Controller
             return $this->jsonResponseWithoutMessage(null, "data", 200);
         }
     }
-    public function searchByName($name)
+    public function searchByName($fullName)
     {
-        $response['users']  = User::with(['parent', 'groups' => function ($query) {
-            $query->wherePivot('user_type', 'ambassador')
-                ->whereNull('termination_reason')->get();
-        }])
-            ->where('name', 'LIKE', "%{$name}%")
-            ->withCount('children')->get();
+        // Split the full name into name and last name
+        $names = explode(' ', $fullName);
+
+        if (count($names) > 1) {
+            $firstName = $names[0];
+            $lastName = $names[1];
+
+            // Perform the query using both first and last names
+            $response['users'] = User::with(['parent', 'groups' => function ($query) {
+                $query->wherePivot('user_type', 'ambassador')
+                    ->whereNull('termination_reason');
+            }])
+                ->where('name', 'LIKE', "%{$firstName}%")
+                ->where('last_name', 'LIKE', "%{$lastName}%")
+                ->withCount('children')
+                ->get();
+        } else {
+            // If the input doesn't contain a space, search by the first name only
+            $response['users'] = User::with(['parent', 'groups' => function ($query) {
+                $query->wherePivot('user_type', 'ambassador')
+                    ->whereNull('termination_reason');
+            }])
+                ->where('name', 'LIKE', "%{$fullName}%")
+                ->withCount('children')
+                ->get();
+        }
+
+
         if ($response['users']) {
             return $this->jsonResponseWithoutMessage($response, "data", 200);
         } else {
@@ -127,8 +149,14 @@ class UserController extends Controller
                 //check head_user exists
                 $head_user = User::where('email', $request->head_user)->first();
                 if ($head_user) {
+
+                    if ($head_user->id == $user->id) {
+                        return $this->jsonResponseWithoutMessage("لا يمكن أن يكون الشخص مسؤولاً عن نفسه", 'data', 200);
+                    }
+
                     $user_last_role = $user->roles->first();
                     $head_user_last_role = $head_user->roles->first();
+
                     //check if head user role is greater that user role
                     if ($head_user_last_role->id < $user_last_role->id) {
                         //if last role less than the new role => assign ew role
@@ -271,24 +299,37 @@ class UserController extends Controller
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
-    function getUsersOnHoldByMonthAndGender($month, $gender)
+    function getUsersOnHoldByMonthAndGender($contact_status, $month, $year, $gender)
     {
-        $year = Carbon::now()->year;
+        $year = $year;
         $startDate = Carbon::create($year, $month, 1)->startOfMonth();
         $endDate = Carbon::create($year, $month, 1)->endOfMonth();
 
-        $query = User::with('contactsAsAWithdrawn')->without('userProfile')->with(['groups' => function ($query) {
-            $query->wherePivot('user_type', 'ambassador')
-                ->wherePivot('termination_reason', 'withdrawn')
-                ->orderBy('user_groups.created_at', 'desc');
-        }, 'withdrawnExceptions', 'socialMedia'])->where('is_hold', 1)
-            ->whereBetween('updated_at', [$startDate, $endDate]);
-
+        $query = User::without('userProfile')
+            ->with(['groups' => function ($query) {
+                $query->wherePivot('user_type', 'ambassador')
+                    ->wherePivot('termination_reason', 'withdrawn');
+            }, 'withdrawnExceptions', 'socialMedia', 'contactsAsAWithdrawn'])
+            ->where('is_hold', 1)
+            ->where(function ($query) use ($contact_status) {
+                if ($contact_status == 0) {
+                    // Users with no record in contacts_with_withdrawns
+                    $query->whereDoesntHave('contactsAsAWithdrawn');
+                } else {
+                    // Users who have a record in contacts_with_withdrawns with contact = 1
+                    $query->whereHas('contactsAsAWithdrawn', function ($query) {
+                        $query->where('contact', 1);
+                    });
+                }
+            })
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->orderBy('updated_at');
 
         if ($gender !== 'both') {
             $query->where('gender', $gender);
         }
         $users = $query->paginate(30);
+        Log::channel('community_edits')->info($users);
 
         // Keep pagination details
         $paginationDetails = [
@@ -298,17 +339,9 @@ class UserController extends Controller
             'current_page' => $users->currentPage(),
         ];
 
-        // Filter the users
-        $filteredUsers = $users->map(function ($user) {
-            $latestGroup = $user->groups->first();
-            $latestException = $user->withdrawnExceptions->first();
-            $user->setRelation('groups', collect([$latestGroup]));
-            $user->setRelation('latestException', collect([$latestException]));
-            return $user;
-        })->filter(function ($user) {
-            return $user->groups->isNotEmpty() && $user->withdrawnExceptions->isNotEmpty();
-        });
-
+        $statistics['total_holds'] = DB::table('users')
+            ->where('is_hold', 1)
+            ->count();
         $statistics['contact_done'] = DB::table('contacts_with_withdrawns')
             ->where('contact', 1)
             ->count();
@@ -327,9 +360,9 @@ class UserController extends Controller
 
 
 
-        if ($filteredUsers->isNotEmpty()) {
+        if ($users->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage([
-                'ambassadors' => $filteredUsers,
+                'ambassadors' => $users,
                 'statistics' => $statistics,
                 'total' => $paginationDetails['total'],
                 'last_page' => $paginationDetails['last_page'],

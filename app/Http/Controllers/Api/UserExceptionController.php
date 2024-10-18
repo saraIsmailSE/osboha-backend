@@ -154,11 +154,23 @@ class UserExceptionController extends Controller
 
                     $exception['week_id'] =  $current_week->id;
                     $exception['start_at'] = $current_week->created_at;
-                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(8))->format('Y-m-d');
+                    $exception['end_at'] = Carbon::parse($current_week->created_at)
+                        ->setTime(0, 0)
+                        ->addDays(7)
+                        ->addHours(12)
+                        ->format('Y-m-d H:i:s');
                 } else {
                     $exception['week_id'] =  $current_week->id;
-                    $exception['start_at'] = Carbon::parse($current_week->created_at->addDays(8))->format('Y-m-d');
-                    $exception['end_at'] = Carbon::parse($current_week->created_at->addDays(15))->format('Y-m-d');
+                    $exception['start_at'] = Carbon::parse($current_week->created_at)
+                        ->setTime(0, 0)
+                        ->addDays(7)
+                        ->addHours(12)
+                        ->format('Y-m-d H:i:s');
+                    $exception['end_at'] = Carbon::parse($current_week->created_at)
+                        ->setTime(0, 0)
+                        ->addDays(14)
+                        ->addHours(12)
+                        ->format('Y-m-d H:i:s');
                 }
 
                 $userException = UserException::create($exception);
@@ -202,7 +214,9 @@ class UserExceptionController extends Controller
             $successMessage = "";
             if (Auth::user()->hasRole('admin')) {
                 $exception['status'] = 'accepted';
-                $exception['end_at'] = Carbon::parse($request->end_at)->format('Y-m-d');
+                $exception['end_at'] = Carbon::parse($request->end_at)
+                    ->setTime(0, 0)
+                    ->format('Y-m-d H:i:s');
                 $successMessage = "تم تجميدك لغاية " . $exception['end_at'];
             } else {
                 $exception['status'] = 'pending';
@@ -334,7 +348,12 @@ class UserExceptionController extends Controller
             $exception['status'] = 'pending';
             $exception['week_id'] =  $week->id;
             $exception['start_at'] = $week->created_at;
-            $exception['end_at'] = Carbon::parse($week->created_at->addDays(8))->format('Y-m-d');
+            $exception['end_at'] = Carbon::parse($week->created_at)
+                ->setTime(0, 0)
+                ->addDays(7)
+                ->addHours(12)
+                ->format('Y-m-d H:i:s');
+
 
             $userException = UserException::updateOrCreate(
                 ['user_id' => $request->user_id, 'week_id' => $week->id],
@@ -427,7 +446,12 @@ class UserExceptionController extends Controller
             $exception['status'] = 'accepted';
             $exception['week_id'] =  $week->id;
             $exception['start_at'] = $week->created_at;
-            $exception['end_at'] = Carbon::parse($week->created_at->addDays(8))->format('Y-m-d');
+            $exception['end_at'] = Carbon::parse($week->created_at)
+                ->setTime(0, 0)
+                ->addDays(7)
+                ->addHours(12)
+                ->format('Y-m-d H:i:s');
+
 
             $userException = UserException::updateOrCreate(
                 ['user_id' => $request->user_id, 'week_id' => $week->id],
@@ -551,6 +575,10 @@ class UserExceptionController extends Controller
             if (Auth::id() == $userException->user_id && $userException->status == 'pending') {
                 $input['reason'] = $request->reason;
                 $input['end_at'] = Carbon::parse($request->end_at)->format('Y-m-d');
+                $exception['end_at'] = Carbon::parse($request->end_at)
+                    ->setTime(0, 0)
+                    ->format('Y-m-d H:i:s');
+
                 $userException->update($input);
                 return $this->jsonResponseWithoutMessage("User Exception Updated", 'data', 200);
             } else {
@@ -707,23 +735,44 @@ class UserExceptionController extends Controller
                         //اعفاء الأسبوع الحالي
                     case 1:
                         $userException->start_at = $desired_week->created_at;
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
+                        $userException->end_at = Carbon::parse($desired_week->created_at)
+                            ->setTime(0, 0)
+                            ->addDays(7)
+                            ->addHours(12)
+                            ->format('Y-m-d H:i:s');
                         break;
                         //اعفاء الأسبوع القادم
                     case 2:
-                        $userException->start_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
+                        $userException->start_at = Carbon::parse($desired_week->created_at)
+                            ->setTime(0, 0)
+                            ->addDays(7)
+                            ->addHours(12)
+                            ->format('Y-m-d H:i:s');
+                        $userException->end_at = Carbon::parse($desired_week->created_at)
+                            ->setTime(0, 0)
+                            ->addDays(14)
+                            ->addHours(12)
+                            ->format('Y-m-d H:i:s');
                         break;
                         //اعفاء لأسبوعين الحالي و القادم
                     case 3:
                         $userException->start_at = $desired_week->created_at;
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
+                        $userException->end_at = Carbon::parse($desired_week->created_at)
+                            ->setTime(0, 0)
+                            ->addDays(14)
+                            ->addHours(12)
+                            ->format('Y-m-d H:i:s');
 
                         break;
                         //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
                     case 4:
                         $userException->start_at = $desired_week->created_at;
-                        $userException->end_at = Carbon::parse($desired_week->created_at->addDays(22))->format('Y-m-d');
+                        $userException->end_at = Carbon::parse($desired_week->created_at)
+                            ->setTime(0, 0)
+                            ->addDays(21)
+                            ->addHours(12)
+                            ->format('Y-m-d H:i:s');
+
                         break;
                 }
 
@@ -773,18 +822,34 @@ class UserExceptionController extends Controller
                     //اعفاء الأسبوع الحالي
                 case 1:
                     $userException->start_at = $desired_week->created_at;
-                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
-
+                    $userException->end_at = Carbon::parse($desired_week->created_at)
+                        ->setTime(0, 0)
+                        ->addDays(7)
+                        ->addHours(12)
+                        ->format('Y-m-d H:i:s');
                     break;
                     //اعفاء الأسبوع القادم
                 case 2:
-                    $userException->start_at = Carbon::parse($desired_week->created_at->addDays(8))->format('Y-m-d');
-                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
+                    $userException->start_at = Carbon::parse($desired_week->created_at)
+                        ->setTime(0, 0)
+                        ->addDays(7)
+                        ->addHours(12)
+                        ->format('Y-m-d H:i:s');
+                    $userException->end_at = Carbon::parse($desired_week->created_at)
+                        ->setTime(0, 0)
+                        ->addDays(14)
+                        ->addHours(12)
+                        ->format('Y-m-d H:i:s');
                     break;
                     //اعفاء لأسبوعين الحالي و القادم
                 case 3:
                     $userException->start_at = $desired_week->created_at;
-                    $userException->end_at = Carbon::parse($desired_week->created_at->addDays(15))->format('Y-m-d');
+                    $userException->end_at = Carbon::parse($desired_week->created_at)
+                        ->setTime(0, 0)
+                        ->addDays(14)
+                        ->addHours(12)
+                        ->format('Y-m-d H:i:s');
+
                     break;
             }
             $this->calculate_mark_for_exam($owner_of_exception, $desired_week);
@@ -960,7 +1025,9 @@ class UserExceptionController extends Controller
                 $input['user_id'] = $user;
                 $input['status'] = 'accepted';
                 $input['reviewer_id'] = Auth::id();
-                $input['end_at'] = Carbon::parse($request->end_at)->format('Y-m-d');
+                $input['end_at'] = Carbon::parse($request->end_at)
+                ->setTime(0, 0)
+                ->format('Y-m-d H:i:s');
 
                 $userException = UserException::create($input);
 
@@ -1105,7 +1172,12 @@ class UserExceptionController extends Controller
             // Set Pending exceptions to rejected
             UserException::where('end_at', '<=', $week->created_at)
                 ->where('status', 'pending')
-                ->update(['status' => 'rejected', 'note' => '-', 'reviewer_id' => 1]);
+                ->update(['status' => 'rejected', 'note' => 'تم رفض الطلب تلقائياً دون إجراء مراجعة', 'reviewer_id' => 1]);
+
+            // Set Pending withdrawn exceptions to rejected
+            UserException::where('type_id', 6)
+                ->where('status', 'pending')
+                ->update(['status' => 'rejected', 'note' => 'تم رفض الطلب تلقائياً دون إجراء مراجعة', 'reviewer_id' => 1]);
         } catch (\Exception $e) {
             Log::channel('newWeek')->info('End Exceptions: ' . $e);
         }

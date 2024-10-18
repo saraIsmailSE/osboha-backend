@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ThesisFactory extends Factory
 {
-    // use ThesisTraits;
     /**
      * Define the model's default state.
      *

@@ -174,7 +174,7 @@ class StatisticsController extends Controller
 
             return $this->jsonResponseWithoutMessage('لا يوجد فريق توجيه', 'data', 200);
         }
-        $advisorGroup = Group::without('type', 'Timeline')->with('userAmbassador')->find($advisingGroup->group_id);
+        $advisorGroup = Group::without('type', 'Timeline')->find($advisingGroup->group_id);
 
         if (!$advisorGroup) {
             throw new NotFound;
@@ -421,7 +421,7 @@ class StatisticsController extends Controller
         $supervisingGroup = UserGroup::where('user_id', $superviser->id)->where('user_type', 'supervisor')
             ->whereHas('group.type', function ($q) {
                 $q->where('type', '=', 'supervising');
-            })->first();
+            })->whereNull('termination_reason')->first();
 
         if (!$supervisingGroup) {
             $teamStatistics['team'] = null;

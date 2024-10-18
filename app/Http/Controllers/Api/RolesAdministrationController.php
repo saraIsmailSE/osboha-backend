@@ -191,6 +191,10 @@ class RolesAdministrationController extends Controller
             //check head_user exists
             $head_user = User::where('email', $request->head_user)->first();
             if ($head_user) {
+                if ($head_user->id == $user->id) {
+                    return $this->jsonResponseWithoutMessage("لا يمكن أن يكون الشخص مسؤولاً عن نفسه", 'data', 200);
+                }
+
                 $head_user_last_role = $head_user->roles->first();
                 //check if head user role is greater that user role
                 if ($head_user_last_role->id < $role->id) {

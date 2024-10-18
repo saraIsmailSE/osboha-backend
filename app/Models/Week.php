@@ -17,6 +17,7 @@ class Week extends Model
         'audit_timer',
         'modify_timer',
         'week_key',
+        'created_at',
 
     ];
 

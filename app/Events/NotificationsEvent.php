@@ -3,30 +3,31 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class NotificationsEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
+    public $reciver_id;
 
-    public function __construct($message)
+    public function __construct($message, $reciver_id)
     {
         $this->message = $message;
+        $this->reciver_id = $reciver_id;
     }
 
     public function broadcastOn()
     {
-        return new Channel('notifications-channel.'. $this->message->room_id );
+        return new Channel('notifications-channel.' . $this->reciver_id);
     }
 
     public function broadcastAs()
     {
-        return 'my-event';
+        return 'new-notifications';
     }
 }
