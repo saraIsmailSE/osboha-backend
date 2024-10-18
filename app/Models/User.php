@@ -271,4 +271,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(TeamsDischarge::class);
     }
+    public function MarathonViolations()
+    {
+        return $this->hasMany(OsbohaMarthon::class);
+    }
+    public function MarathonViolationReview()
+    {
+        return $this->hasMany(OsbohaMarthon::class);
+    }
+
 }

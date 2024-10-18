@@ -19,4 +19,8 @@ class OsbohaMarthon extends Model
     {
         return $this->hasMany(MarathonWeek::class);
     }
+    public function MarathonViolations()
+    {
+        return $this->hasMany(MarathonViolation::class);
+    }
 }

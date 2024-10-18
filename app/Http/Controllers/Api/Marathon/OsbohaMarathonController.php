@@ -4,25 +4,13 @@ namespace App\Http\Controllers\Api\Marathon;
 
 use App\Exceptions\NotAuthorized;
 use App\Http\Controllers\Controller;
-
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
-use App\Exceptions\NotFound;
 use App\Models\OsbohaMarthon;
 use App\Models\MarathonWeek;
-use App\Models\MarthonBonus;
-use App\Models\Mark;
-use App\Models\Thesis;
 use App\Models\Week;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use App\Http\Resources\MarathonWeeksResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
-
-
-
 
 class OsbohaMarathonController extends Controller
 {
