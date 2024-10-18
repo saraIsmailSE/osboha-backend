@@ -6,7 +6,8 @@ use App\Exceptions\NotAuthorized;
 use App\Http\Controllers\Controller;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Validator;
-use App\Exceptions\NotFound;
+use App\Models\MarathonViolation;
+use App\Models\MarathonViolationReason;
 use App\Models\OsbohaMarthon;
 use App\Models\MarathonWeek;
 use App\Models\MarthonBonus;
@@ -18,7 +19,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class MarathonPointsController extends Controller
@@ -28,7 +28,6 @@ class MarathonPointsController extends Controller
     public function calculatePoint($week, $user_id, $maximum_total_pages)
     {
         $points = 0;
-        $day = new Carbon($week->created_at);
         $weekPlusSevenDays = $week->created_at->addDays(7);
 
 
@@ -74,9 +73,17 @@ class MarathonPointsController extends Controller
                 }
             }
         }
+        $violations = MarathonViolation::with('reason')
+            ->where('user_id', $user_id)
+            ->where('week_key', $week->week_key)
+            ->get();
+        $violations_points =   $violations->sum(function ($violation) {
+            return $violation->reason ? $violation->reason->points : 0;
+        });
 
         return [
             'points' => $points,
+            'violations_points' => $violations_points,
             'daily_totals' => $daily_totals,
         ];
     }
@@ -105,6 +112,7 @@ class MarathonPointsController extends Controller
 
             $basic_points = [];
             $point_details = [];
+            $week_violations = [];
 
             // Maximum total pages for each week
             $maximum_total_pages = [
@@ -118,9 +126,8 @@ class MarathonPointsController extends Controller
             for ($i = 0; $i < count($maximum_total_pages); $i++) {
                 $basic_points["point_week_" . ($i + 1)] = 0;
                 $point_details["point_week_" . ($i + 1)] = [];
+                $week_violations["week_violations_" . ($i + 1)] = 0;
             }
-
-            Log::channel('auditMarks')->info("test: " . count($maximum_total_pages));
 
             $week_index = 0;
             $total_basic_points = 0;
@@ -129,7 +136,11 @@ class MarathonPointsController extends Controller
                     $result = $this->calculatePoint($week, $user_id, $maximum_total_pages[$week_index]);
                     $basic_points["point_week_" . ($week_index + 1)] =  $result['points'];
                     $point_details["point_week_" . ($week_index + 1)] =  $result['daily_totals'];
-                    $total_basic_points += $result['points'];
+                    $week_violations["week_violations_" . ($week_index + 1)] = $result['violations_points'];
+
+                    $total_basic_points += max($result['points'] - $result['violations_points'], 0);
+
+                    // $total_basic_points += $result['points'];
                     $week_index++;
                 } else {
                     break; // Exit the loop if there are more weeks than defined maximum_total_pages
@@ -149,6 +160,7 @@ class MarathonPointsController extends Controller
             }
 
             $response['point_details'] = $point_details;
+            $response['week_violations'] = $week_violations;
             $response['basic_points'] = $basic_points;
             $response['bonus_points'] = $bonus_points;
             $response['total_points'] = $total_basic_points + $bonus_points;
@@ -162,7 +174,7 @@ class MarathonPointsController extends Controller
 
         $osboha_marathon = OsbohaMarthon::find($osboha_marthon_id);
         $week = Week::find($week_id);
-        $points = 0;
+        $response = null;
 
         if ($osboha_marathon && $week) {
 
@@ -180,8 +192,6 @@ class MarathonPointsController extends Controller
 
                 // Find the position of the specific week_key in the ordered array
                 $order = array_search($marathon_week->week_key, $marathon_week_keys);
-                $points = 0;
-
                 if ($order !== false) {
                     $maximum_total_pages = [
                         15, // First week
@@ -192,12 +202,13 @@ class MarathonPointsController extends Controller
                     $total_pages = $maximum_total_pages[$order];
                     $result =  $this->calculatePoint($week, $user_id, $total_pages);
 
-                    $points = $result['points'];
+                    $response['points'] = $result['points'];
+                    $response['violations_points'] = $result['violations_points'];
                 }
             }
         }
 
-        return $this->jsonResponseWithoutMessage($points, 'data', 200);
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
 
@@ -296,126 +307,101 @@ class MarathonPointsController extends Controller
         }
         return $this->jsonResponseWithoutMessage($points_bonus, 'data', 200);
     }
-    public function getMarathonPointsDetails($user_id, $osboha_marthon_id)
+
+    function getViolationsReasons()
     {
-
-        $osboha_marathon = OsbohaMarthon::find($osboha_marthon_id);
-
-        if ($osboha_marathon) {
-            $marathonYear = $osboha_marathon->created_at->year;
-
-            $weeks_key = MarathonWeek::where('osboha_marthon_id', $osboha_marathon->id)
-                ->pluck('week_key');
-
-            $marathon_weeks = Week::whereIn('week_key', $weeks_key)
-                ->whereYear('created_at', $marathonYear) // Filter by the same year
-                ->get();
-
-            $basic_points = [];
-
-            // Maximum total pages for each week
-            $maximum_total_pages = [
-                14, // First week
-                29, // Second week
-                39, // Third week
-                49  // Fourth week
-            ];
-
-            // Initialize response with 0 points for each week
-            for ($i = 0; $i < count($maximum_total_pages); $i++) {
-                $basic_points["point_week_" . ($i + 1)] = 0;
-            }
-
-            $week_index = 0;
-            $points = 0;
-            foreach ($marathon_weeks as $week) {
-                if ($week_index < count($maximum_total_pages)) {
-                    $result =  $this->calculatePoint($week, $user_id, $maximum_total_pages[$week_index]);
-                    $basic_points["point_week_" . ($week_index + 1)]['points'] = $result['points'];
-                    $basic_points["point_week_" . ($week_index + 1)]['daily_totals'] = $result['daily_totals'];
-                    $week_index++;
-                } else {
-                    break; // Exit the loop if there are more weeks than defined maximum_total_pages
-                }
-            }
-
-            $bonus_points = DB::table('marathon_bonuses')
-                ->where('user_id', $user_id)
-                ->where('osboha_marthon_id',  $osboha_marathon->id)
-                ->select(DB::raw('COALESCE(SUM(activity), 0) +
-                    COALESCE(SUM(leading_course), 0) +
-                    COALESCE(SUM(eligible_book), 0) +
-                    COALESCE(SUM(eligible_book_less_VG), 0) AS bonus_points'))
-                ->value('bonus_points');
-
-            if (is_null($bonus_points)) {
-                $bonus_points = 0;
-            }
-
-            $response['basic_points'] = $basic_points;
-            $response['bonus_points'] = $bonus_points;
-            $response['total'] = $points + $bonus_points;
-            return $this->jsonResponseWithoutMessage($response, 'data', 200);
-        }
-        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        $reasons = MarathonViolationReason::where('is_active', 1)->get();
+        return $this->jsonResponseWithoutMessage($reasons, 'data', 200);
+    }
+    function getMarathonUserViolations($user_id, $osboha_marthon_id)
+    {
+        $violations = MarathonViolation::with([
+            'week' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+            'user' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+            'reviewer' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+            'reason'
+        ])
+            ->where('user_id', $user_id)
+            ->where('osboha_marthon_id', $osboha_marthon_id)
+            ->get();
+        return $this->jsonResponseWithoutMessage($violations, 'data', 200);
     }
 
-    function addMarathonPointsDeductionReasons(Request $request){
+    function pointsDeduction(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-            'user_id'           => 'required',
-            'osboha_marthon_id' => 'required',
+            'user_id'           => 'required|exists:users,id',
+            'osboha_marthon_id' => 'required|exists:osboha_marthons,id',
             'week_key'          => 'required',
-            'reason'            => 'required',
+            'reason_id'            => 'required|exists:marathon_violations_reasons,id',
+            'reviewer_note'            => 'required',
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        $marathon_point_deduction = MarathonPointDeduction::updateOrCreate(
-        [
-            'osboha_marthon_id' => $request->osboha_marthon_id, 
-            'week_key' => $request->week_key, 
-            'user_id' => $request->user_id,
-        ],
-        [
-            'reviewer_id' => Auth::id(),
-            'reason' => $request->reason,           
-        ]
-        ); 
-        return $this->jsonResponseWithoutMessage($marathon_point_deduction, 'data', 200);
+        $marathon_point_deduction = MarathonViolation::create(
+            [
+                'osboha_marthon_id' => $request->osboha_marthon_id,
+                'week_key' => $request->week_key,
+                'user_id' => $request->user_id,
+                'reviewer_id' => Auth::id(),
+                'reason_id' => $request->reason_id,
+                'reviewer_note' => $request->reviewer_note,
+            ]
+        );
+
+        $violations = MarathonViolation::with([
+            'week' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+            'user' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+            'reviewer' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+            'reason'
+        ])
+            ->where('user_id', $request->user_id)
+            ->where('osboha_marthon_id', $request->osboha_marthon_id)
+            ->get();
+        return $this->jsonResponseWithoutMessage($violations, 'data', 200);
     }
-    function showMarathonPointsDeductionReasons($user_id ,$osboha_marthon_id){
-        $deductionPoints = 1;
-        $outFromMarathon = false;
-        $osboha_marathon = OsbohaMarthon::find($osboha_marthon_id);
-        if ($osboha_marathon) {
-            $weeks_key = MarathonWeek::where('osboha_marthon_id', $osboha_marathon->id)
-                ->pluck('week_key');
-             $deduction = MarathonPointDeduction::whereIn('week_key', $weeks_key)
-                ->select('week_key',
-                    DB::raw("
-                        SUM(
-                            CASE 
-                                WHEN reason = '1' THEN 5
-                                WHEN reason = '2' THEN 5
-                                WHEN reason = '3' THEN 50
-                                WHEN reason = '4' THEN 50
-                                ELSE 0
-                            END
-                        ) as total_deductionPoints,
-                        MAX(CASE
-                            WHEN reason = '4' THEN 1
-                            ELSE 0
-                        END) as outFromMarathon
-                    "))
-                ->groupBy('week_key')
+
+    function deleteViolation($violation_id)
+    {
+        if (Auth::user()->hasanyrole('admin|marathon_coordinator|marathon_verification_supervisor')) {
+
+            $violation = MarathonViolation::findOrFail($violation_id);
+            $user_id = $violation->user_id;
+            $osboha_marthon_id = $violation->osboha_marthon_id;
+            $violation->delete();
+
+            $violations = MarathonViolation::with([
+                'week' => function ($query) {
+                    $query->setEagerLoads([]);
+                },
+                'user' => function ($query) {
+                    $query->setEagerLoads([]);
+                },
+                'reviewer' => function ($query) {
+                    $query->setEagerLoads([]);
+                },
+                'reason'
+            ])
+                ->where('user_id', $user_id)
+                ->where('osboha_marthon_id', $osboha_marthon_id)
                 ->get();
+
+            return $this->jsonResponseWithoutMessage($violations, 'data', 200);
+        } else {
+            throw new NotAuthorized;
         }
-        if($deduction){
-            return $this->jsonResponseWithoutMessage($deduction, 'data', 200);
-        }
-        else{
-            throw new NotFound;
-        }
-             
     }
 }

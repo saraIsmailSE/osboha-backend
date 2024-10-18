@@ -79,7 +79,6 @@ use App\Http\Controllers\Api\Ramadan\{
 };
 
 use App\Http\Controllers\Api\Marathon\{
-    MarathonWeekController,
     OsbohaMarathonController,
     MarathonPointsController
 };
@@ -965,8 +964,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/add-bonus', 'addBonus');
             Route::post('/subtract-bonus', 'subtractPoints');
             Route::get('/get-points-bonus/{user_id}/{osboha_marthon_id}', 'getBonusPoints');
-            Route::post('/add-deduction-reasons', 'addMarathonPointsDeductionReasons');
-            Route::get('/show-deduction-reasons/{user_id}/{osboha_marthon_id}', 'showMarathonPointsDeductionReasons');
+            Route::post('/points-deduction', 'pointsDeduction');
+            Route::get('/get-violations-reasons', 'getViolationsReasons');
+            Route::get('/get-violations/{user_id}/{osboha_marthon_id}', 'getMarathonUserViolations');
+            Route::delete('/user-violation/{violation_id}', 'deleteViolation');
         });
         #################### End  Marathon  ####################
 

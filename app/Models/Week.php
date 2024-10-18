@@ -37,4 +37,8 @@ class Week extends Model
     {
         return $this->hasMany(MarathonWeek::class, 'week_key', 'week_key');
     }
+    public function marathonViolations()
+    {
+        return $this->hasMany(MarathonViolation::class, 'week_key', 'week_key');
+    }
 }

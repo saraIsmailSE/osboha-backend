@@ -13,17 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('marathon_point_deduction', function (Blueprint $table) {
+        Schema::create('marathon_violations_reasons', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('osboha_marthon_id')->constrained('osboha_marthons')->onDelete('cascade');
-            $table->integer('week_key')->index();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('reviewer_id')->constrained('users')->onDelete('cascade');
             $table->string('reason');
+            $table->integer('points');
+            $table->boolean("is_active")->default(1);
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.
@@ -32,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('marathon_point_deduction');
+        Schema::dropIfExists('marathon_violations_reasons');
     }
 };
