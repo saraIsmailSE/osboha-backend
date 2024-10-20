@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class WeekController extends Controller
 {
@@ -48,7 +47,7 @@ class WeekController extends Controller
             $new_week = Week::find($newWeekId);
 
             $dateToAdd = new Carbon($new_week->main_timer);
-            $new_week->modify_timer = $dateToAdd->addHours(23);
+            $new_week->modify_timer = $dateToAdd->addHours(10);
             $new_week->save();
 
             DB::commit();
@@ -64,8 +63,6 @@ class WeekController extends Controller
             $this->openBooksComments();
             Log::channel('newWeek')->info($e);
             Log::error($e);
-
-            // echo $e->getMessage();
             DB::rollBack();
             return $this->jsonResponseWithoutMessage($e->getMessage() . ' at line ' . $e->getLine(), 'data', 500);
         }
@@ -204,12 +201,12 @@ class WeekController extends Controller
         $week->week_key = $this->search_for_week_key($dateToSearch->format('Y-m-d'), config('constants.YEAR_WEEKS'));
 
 
-        //add hours to be at 14:00 of SUNDAYS
-        $dateToAdd = $date->addHours(14);
+        //add hours to be at 12:00 of SUNDAYS
+        $dateToAdd = $date->addHours(12);
         $week->created_at = $dateToAdd;
         $week->updated_at = $dateToAdd;
 
-        //add 7 days to the date to get the end of the week at 13:59
+        //add 7 days to the date to get the end of the week at 11:59
         $week->main_timer = $dateToAdd->addDays(7)->subMinute();
         if ($week->save()) { //insert new week
             return $week->id;
