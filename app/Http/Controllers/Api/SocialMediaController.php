@@ -11,7 +11,7 @@ use App\Http\Resources\socialMediaResource;
 use App\Models\SocialMedia;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
-
+use Illuminate\Support\Facades\Cache;
 
 class SocialMediaController extends Controller
 {
@@ -35,9 +35,9 @@ class SocialMediaController extends Controller
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
 
-
+        $authID=Auth::id();
         $socialAccounts = SocialMedia::updateOrCreate(
-            ['user_id' => Auth::id()],
+            ['user_id' => $authID],
             [
                 'facebook' => $request->get('facebook'),
                 'whatsapp' => $request->get('whatsapp'),
@@ -45,6 +45,10 @@ class SocialMediaController extends Controller
                 'telegram' => $request->get('telegram')
             ]
         );
+
+        $socialMediaCacheKey = 'social_media_' . $authID;
+        Cache::forget($socialMediaCacheKey);
+
         return $this->jsonResponseWithoutMessage("Your Accounts Added Successfully", 'data', 200);
     }
 

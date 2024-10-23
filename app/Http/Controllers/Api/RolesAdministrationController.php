@@ -19,6 +19,7 @@ use App\Models\UserGroup;
 use App\Models\UserParent;
 use App\Notifications\MailDowngradeRole;
 use App\Notifications\MailUpgradeRole;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -352,6 +353,9 @@ class RolesAdministrationController extends Controller
                                     'user_type' => 'ambassador',
                                 ]
                             );
+                            $userGroupCacheKey = 'user_group_' .  $supervisor->id;
+                            Cache::forget($userGroupCacheKey);
+
                         } else {
                             return $this->jsonResponseWithoutMessage("الموجه ليس موجهاً في أي مجموعة", 'data', 200);
                         }
@@ -667,6 +671,8 @@ class RolesAdministrationController extends Controller
                                                 'group_id' => $currentSupervisor_followupGroup->group_id
                                             ]
                                         );
+                                        $userGroupCacheKey = 'user_group_' .  $newSupervisor->id;
+                                        Cache::forget($userGroupCacheKey);
 
                                         //* نقل قادة المراقب الحالي إلى المراقب الجديد
                                         $supervisorLeaders = User::where("parent_id", $currentSupervisor->id)->whereHas('roles', function ($q) {

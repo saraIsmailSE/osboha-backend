@@ -23,6 +23,7 @@ use App\Notifications\MailAmbassadorDistribution;
 use App\Notifications\MailMemberAdd;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -279,6 +280,7 @@ class UserGroupController extends Controller
                     ]
                 );
 
+
                 // if user is not admin|consultant|advisor make leader parent
                 if (!$user->hasanyrole('admin|consultant|advisor|supervisor|leader')) {
                     $user->parent_id = $group->groupLeader[0]->id;
@@ -302,6 +304,9 @@ class UserGroupController extends Controller
                 ]
             );
         }
+        
+        $userGroupCacheKey = 'user_group_' .  $user->id;
+        Cache::forget($userGroupCacheKey);
 
         return $this->notifyAddToGroup($user, $group, $arabicRole);
     }
@@ -457,7 +462,7 @@ class UserGroupController extends Controller
                 'group_id' => 'required',
                 'user_id' => [
                     'required',
-                    Rule::unique('user_groups')->where(fn ($query) => $query->where('group_id', $request->group_id))
+                    Rule::unique('user_groups')->where(fn($query) => $query->where('group_id', $request->group_id))
                 ],
                 'user_type' => 'required',
             ]
@@ -507,7 +512,7 @@ class UserGroupController extends Controller
                 'termination_reason' => 'required',
                 'user_id' => [
                     'required',
-                    Rule::unique('user_groups')->where(fn ($query) => $query->where('group_id', $request->group_id))->ignore(request('user_id'), 'user_id')
+                    Rule::unique('user_groups')->where(fn($query) => $query->where('group_id', $request->group_id))->ignore(request('user_id'), 'user_id')
                 ],
             ]
         );

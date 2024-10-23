@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\SignupTrait;
 use App\Traits\PathTrait;
+use Illuminate\Support\Facades\Cache;
 
 trait AmbassadorsTrait
 {
@@ -162,6 +163,9 @@ trait AmbassadorsTrait
                     'termination_reason' => null
                 ]
             );
+            $userGroupCacheKey = 'user_group_' .  $ambassador->id;
+            Cache::forget($userGroupCacheKey);
+
 
             $ambassador->notify(new MailAmbassadorDistribution($request->group->id));
         }
