@@ -21,6 +21,7 @@ use App\Traits\SignupTrait;
 use App\Traits\AmbassadorsTrait;
 use App\Traits\PathTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -307,6 +308,10 @@ class AmbassadorsRequestsController extends Controller
                             'termination_reason' => null
                         ]
                     );
+
+                    $userGroupCacheKey = 'user_group_' .  $ambassador->id;
+                    Cache::forget($userGroupCacheKey);
+
                     //crete user parent relation
                     $ambassador->parent_id = $leader->user->id;
                     $ambassador->request_id = $teamRequest->id;

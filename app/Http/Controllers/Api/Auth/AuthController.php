@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -341,6 +342,10 @@ class AuthController extends Controller
                         ]
                     );
                     DB::commit();
+
+                    $userGroupCacheKey = 'user_group_' . $user->id;
+                    Cache::forget($userGroupCacheKey);
+
 
                     $notification = new NotificationController();
                     $msg = 'قام السفير ' . $user->name . ' بالعودة إلى الفريق';

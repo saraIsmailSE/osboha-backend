@@ -24,6 +24,7 @@ use App\Traits\MediaTraits;
 use App\Traits\PathTrait;
 use App\Traits\MarkTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -107,12 +108,29 @@ class UserExceptionController extends Controller
 
 
         //get types of exceptions
-        $freezCurrentWeek = ExceptionType::where('type', config("constants.FREEZE_THIS_WEEK_TYPE"))->first();
-        $freezNextWeek = ExceptionType::where('type', config("constants.FREEZE_NEXT_WEEK_TYPE"))->first();
-        $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
-        $monthlyExam = ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
-        $FinalExam = ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
-        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+        $freezCurrentWeek = Cache::remember('freez_current_week', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.FREEZE_THIS_WEEK_TYPE"))->first();
+        });
+
+        $freezNextWeek = Cache::remember('freez_next_week', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.FREEZE_NEXT_WEEK_TYPE"))->first();
+        });
+
+        $exceptionalFreez = Cache::remember('exceptional_freez', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+        });
+
+        $monthlyExam = Cache::remember('monthly_exam', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
+        });
+
+        $FinalExam = Cache::remember('final_exam', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
+        });
+
+        $withdrawn = Cache::remember('withdrawn', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+        });
 
         $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->whereNull('termination_reason')->first()->group;
         $leader_id = Auth::user()->parent_id;
@@ -335,7 +353,9 @@ class UserExceptionController extends Controller
             DB::beginTransaction();
 
             //get exceptional freez type id
-            $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+            $exceptionalFreez = Cache::remember('exceptional_freez', now()->addMinutes(120), function () {
+                return ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+            });
 
             $week = Week::find($request->week_id);
             $exception['reason'] = $request->reason;
@@ -433,7 +453,9 @@ class UserExceptionController extends Controller
             DB::beginTransaction();
 
             //get exceptional freez type id
-            $exceptionalFreez = ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+            $exceptionalFreez = Cache::remember('exceptional_freez', now()->addMinutes(120), function () {
+                return ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+            });
 
             $week = Week::find($request->week_id);
             $exception['reason'] = $request->reason;
@@ -681,10 +703,21 @@ class UserExceptionController extends Controller
         if ($userException && $userException->status == 'pending') {
 
             //get types of exceptions
-            $exceptionalFreez = ExceptionType::where('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'))->first();
-            $monthlyExam = ExceptionType::where('type', config('constants.EXAMS_MONTHLY_TYPE'))->first();
-            $FinalExam = ExceptionType::where('type', config('constants.EXAMS_SEASONAL_TYPE'))->first();
-            $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+            $exceptionalFreez = Cache::remember('exceptional_freez', now()->addMinutes(120), function () {
+                return ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
+            });
+
+            $monthlyExam = Cache::remember('monthly_exam', now()->addMinutes(120), function () {
+                return ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
+            });
+
+            $FinalExam = Cache::remember('final_exam', now()->addMinutes(120), function () {
+                return ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
+            });
+
+            $withdrawn = Cache::remember('withdrawn', now()->addMinutes(120), function () {
+                return ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+            });
 
             $owner_of_exception = User::find($userException->user_id);
             $user_group = UserGroup::with("group")->where('user_id', $userException->user_id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
@@ -1026,8 +1059,8 @@ class UserExceptionController extends Controller
                 $input['status'] = 'accepted';
                 $input['reviewer_id'] = Auth::id();
                 $input['end_at'] = Carbon::parse($request->end_at)
-                ->setTime(0, 0)
-                ->format('Y-m-d H:i:s');
+                    ->setTime(0, 0)
+                    ->format('Y-m-d H:i:s');
 
                 $userException = UserException::create($input);
 
@@ -1068,7 +1101,8 @@ class UserExceptionController extends Controller
     {
 
         $response['week'] = Week::latest()->first();
-        $response['exceptions'] = UserException::where('user_id', $user_id)->latest()->get();
+        $response['exceptions'] = UserException::where('user_id', $user_id)->without(['reviewer','user'])->latest()->get()->makeHidden(['current_assignee']);
+
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
@@ -1082,31 +1116,31 @@ class UserExceptionController extends Controller
     {
 
         if ($filter == 'oldest') {
-            $exceptions = UserException::where('user_id', $user_id)->get();
+            $exceptions = UserException::without(['reviewer','user'])->where('user_id', $user_id)->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'latest') {
-            $exceptions = UserException::where('user_id', $user_id)->latest()->get();
+            $exceptions = UserException::without(['reviewer','user'])->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'freez') {
-            $exceptions = UserException::whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer','user'])->whereHas('type', function ($query) {
                 $query->where('type', 'تجميد الأسبوع الحالي')
                     ->orWhere('type', 'تجميد الأسبوع القادم');
-            })->where('user_id', $user_id)->latest()->get();
+            })->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'exceptional_freez') {
-            $exceptions = UserException::whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer','user'])->whereHas('type', function ($query) {
                 $query->where('type', 'تجميد استثنائي');
-            })->where('user_id', $user_id)->latest()->get();
+            })->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'exams') {
-            $exceptions = UserException::whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer','user'])->whereHas('type', function ($query) {
                 $query->where('type', 'نظام امتحانات - شهري')
                     ->orWhere('type', 'نظام امتحانات - فصلي');
-            })->where('user_id', $user_id)->latest()->get();
+            })->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'accepted') {
-            $exceptions = UserException::where('status', 'accepted')->where('user_id', $user_id)->latest()->get();
+            $exceptions = UserException::without(['reviewer','user'])->where('status', 'accepted')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'pending') {
-            $exceptions = UserException::where('status', 'pending')->where('user_id', $user_id)->latest()->get();
+            $exceptions = UserException::without(['reviewer','user'])->where('status', 'pending')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'rejected') {
-            $exceptions = UserException::where('status', 'rejected')->where('user_id', $user_id)->latest()->get();
+            $exceptions = UserException::without(['reviewer','user'])->where('status', 'rejected')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'finished') {
-            $exceptions = UserException::where('status', 'finished')->where('user_id', $user_id)->latest()->get();
+            $exceptions = UserException::without(['reviewer','user'])->where('status', 'finished')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         }
 
         return $this->jsonResponseWithoutMessage($exceptions, 'data', 200);

@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Traits\UserParentTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
@@ -418,6 +419,10 @@ class UserController extends Controller
                 'telegram' => $request->get('telegram')
             ]
         );
+
+        $socialMediaCacheKey = 'social_media_' . $authUser->id;
+        Cache::forget($socialMediaCacheKey);
+
         return $this->jsonResponseWithoutMessage("updated", 'data', 200);
     }
     public function updateUserName(Request $request)

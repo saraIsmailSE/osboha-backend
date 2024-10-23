@@ -29,6 +29,7 @@ use App\Models\TimelineType;
 use App\Models\UserParent;
 use App\Traits\GroupTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -342,7 +343,9 @@ class GroupController extends Controller
     public function groupExceptions($group_id)
     {
 
-        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+        $withdrawn = Cache::remember('withdrawn', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+        });
         $userInGroup = UserGroup::where('group_id', $group_id)
             ->where('user_id', Auth::id())
             ->where('user_type', '!=', 'ambassador')
@@ -352,8 +355,9 @@ class GroupController extends Controller
         //if no records, then the user is only an ambassador
         if ($userInGroup || Auth::user()->hasRole(['admin'])) {
             $response['week'] = Week::latest()->first();
-            $response['group'] = Group::with('userAmbassador')->where('id', $group_id)->first();
-            $response['exceptions'] = UserException::whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
+            $response['group'] = Group::with('userAmbassador')->without(['Timeline','type'])
+            ->where('id', $group_id)->first();
+            $response['exceptions'] = UserException::without(['reviewer'])->whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get()->makeHidden(['current_assignee']);
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
             throw new NotAuthorized;
@@ -369,35 +373,37 @@ class GroupController extends Controller
     public function exceptionsFilter($filter, $group_id)
     {
 
-        $group = Group::with('users')->where('id', $group_id)->first();
-        $withdrawn = ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+        $group = Group::with('userAmbassador')->without(['Timeline','type'])->where('id', $group_id)->first();
+        $withdrawn = Cache::remember('withdrawn', now()->addMinutes(120), function () {
+            return ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
+        });
 
         if ($filter == 'oldest') {
-            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->get();
+            $exceptions = UserException::without(['reviewer'])->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'latest') {
-            $exceptions = UserException::whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
+            $exceptions = UserException::without(['reviewer'])->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'freez') {
-            $exceptions = UserException::whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer'])->whereHas('type', function ($query) {
                 $query->where('type', 'تجميد الأسبوع الحالي')
                     ->orWhere('type', 'تجميد الأسبوع القادم');
-            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'exceptional_freez') {
-            $exceptions = UserException::whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer'])->whereHas('type', function ($query) {
                 $query->where('type', 'تجميد استثنائي');
-            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'exams') {
-            $exceptions = UserException::whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer'])->whereHas('type', function ($query) {
                 $query->where('type', 'نظام امتحانات - شهري')
                     ->orWhere('type', 'نظام امتحانات - فصلي');
-            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get();
+            })->whereIn('user_id', $group->users->pluck('id'))->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'accepted') {
-            $exceptions = UserException::where('status', 'accepted')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
+            $exceptions = UserException::without(['reviewer'])->where('status', 'accepted')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'pending') {
-            $exceptions = UserException::where('status', 'pending')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
+            $exceptions = UserException::without(['reviewer'])->where('status', 'pending')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'rejected') {
-            $exceptions = UserException::where('status', 'rejected')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
+            $exceptions = UserException::without(['reviewer'])->where('status', 'rejected')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'finished') {
-            $exceptions = UserException::where('status', 'finished')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get();
+            $exceptions = UserException::without(['reviewer'])->where('status', 'finished')->whereIn('user_id', $group->users->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get()->makeHidden(['current_assignee']);
         }
 
         return $this->jsonResponseWithoutMessage($exceptions, 'data', 200);
