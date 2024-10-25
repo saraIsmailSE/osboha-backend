@@ -9,22 +9,46 @@ trait MarkTrait
 {
     private function ambassadorWeekMark($user_id, $weekIds)
     {
-        return Mark::where('user_id',  $user_id)
-            ->whereIn('week_id', $weekIds)
-            ->with('thesis')
-            ->with('thesis.book')
-            ->with('thesis.comment')
-            ->select([
-                'marks.*',
-                DB::raw('COALESCE(marks.id, 0) as marksId'),
-                DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
-                DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
-                DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
-                DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
-                DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
-                DB::raw('COALESCE(marks.support, 0) as support'),
-            ])
-            ->orderBy('marks.created_at', 'desc')
-            ->get();
+        // return Mark::where('user_id',  $user_id)
+        //     ->whereIn('week_id', $weekIds)
+        //     ->with('thesis')
+        //     ->with('thesis.book')
+        //     ->with('thesis.comment')
+        //     ->select([
+        //         'marks.*',
+        //         DB::raw('COALESCE(marks.id, 0) as marksId'),
+        //         DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
+        //         DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
+        //         DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
+        //         DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
+        //         DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
+        //         DB::raw('COALESCE(marks.support, 0) as support'),
+        //     ])
+        //     ->orderBy('marks.created_at', 'desc')
+        //     ->get();
+
+        return $weeks = DB::table('weeks')
+                        ->leftJoin('marks', function($join) use ($user_id) {
+                            $join->on('weeks.id', '=', 'marks.week_id')
+                                    ->where('marks.user_id', '=', $user_id);
+                        })
+                        ->leftJoin('theses', 'marks.id', '=', 'theses.mark_id') 
+                        ->whereIn('weeks.id', $weekIds)
+                        ->select(
+                            'weeks.id as week_id', 
+                            'weeks.title', 
+                            DB::raw('COALESCE(marks.id, 0) as marksId'),
+                            DB::raw('COALESCE(marks.reading_mark, 0) as reading_mark'),
+                            DB::raw('COALESCE(marks.writing_mark, 0) as writing_mark'),
+                            DB::raw('COALESCE(marks.total_pages, 0) as total_pages'),
+                            DB::raw('COALESCE(marks.total_thesis, 0) as total_thesis'),
+                            DB::raw('COALESCE(marks.total_screenshot, 0) as total_screenshot'),
+                            DB::raw('COALESCE(marks.support, 0) as support'),
+                            'theses.id', 
+                            'theses.total_screenshots'
+                        )
+                        ->orderBy('weeks.created_at', 'desc')
+                        ->get();
+
     }
 }
