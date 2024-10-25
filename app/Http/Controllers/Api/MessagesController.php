@@ -108,7 +108,7 @@ class MessagesController extends Controller
             event(new MessageEvent(new MessageResource($message)));
             event(new RoomsEvent($rooms, $unreadMessages, $receiver));
         } catch (\Exception $e) {
-            Log::channel('MessigiongBroadcasting')->error('Broadcasting failed: ' . $e->getMessage());
+            Log::channel('MessigingBroadcasting')->error('Broadcasting failed: ' . $e->getMessage());
         }
 
         return $this->jsonResponseWithoutMessage(

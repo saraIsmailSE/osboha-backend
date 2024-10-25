@@ -161,32 +161,40 @@ class UserProfileController extends Controller
      */
     public function update(Request $request)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'first_name_ar' => 'required',
-        //     'last_name_ar' => 'required',
-        // ]);
+        $authID=Auth::id();
+        $profile = UserProfile::where('user_id', $authID)->first();
 
-        // if ($validator->fails()) {
-        //     return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
-        // }
-        $profile = UserProfile::where('user_id', Auth::id())->first();
         if ($profile) {
-            $profile->update(
-                $request->only(
-                    'first_name_ar',
-                    'middle_name_ar',
-                    'last_name_ar',
-                    'country',
-                    'resident',
-                    'birthdate',
-                    'bio',
-                    'fav_book',
-                    'fav_writer',
-                    'fav_quote',
-                    'fav_section'
-                )
+            $data = $request->only(
+                'first_name_ar',
+                'middle_name_ar',
+                'last_name_ar',
+                'country',
+                'resident',
+                'birthdate',
+                'bio',
+                'fav_book',
+                'fav_writer',
+                'fav_quote',
+                'fav_section'
             );
+
+            // Check if any of user name parfieldsts have changed
+            $nameFieldsChanged = (
+                $data['first_name_ar'] !== $profile->first_name_ar ||
+                $data['middle_name_ar'] !== $profile->middle_name_ar ||
+                $data['last_name_ar'] !== $profile->last_name_ar
+            );
+
+            // Update profile
+            $profile->update($data);
             $profile->refresh();
+
+            // Update the User record if name fields have changed
+            if ($nameFieldsChanged) {
+                User::where('id', $authID)->update(['allowed_to_eligible' => 2]);
+            }
+
             return $this->jsonResponseWithoutMessage($profile, 'data', 200);
         } else {
             throw new NotFound;

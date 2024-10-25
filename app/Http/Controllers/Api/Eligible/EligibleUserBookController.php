@@ -140,7 +140,6 @@ class EligibleUserBookController extends Controller
     //need test
     public function update(Request $request, $id)
     {
-        $input = $request->all();
         $validator = Validator::make($request->all(), [
             'status' => 'required',
         ]);
