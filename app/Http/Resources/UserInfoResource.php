@@ -19,6 +19,7 @@ class UserInfoResource extends JsonResource
             'name' => $this->name,
             'last_name' => $this->last_name,
             'gender' => $this->gender,
+            'allowed_to_eligible'=> $this->allowed_to_eligible,
             'profile' => new ProfilePictureResource($this->userProfile),
             'roles' => $this->getRoleNames(),
             'gender' => $this->gender,
