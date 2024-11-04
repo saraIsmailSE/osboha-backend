@@ -86,6 +86,11 @@ trait ThesisTraits
         $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id);
         $markData = $this->calculateMarks($allTheses, $thesisData);
 
+        //check if the thesis is readonly then accept it
+        if ($markData['total_pages'] > 0 && $markData['total_thesis'] == 0 && $markData['total_screenshot'] == 0) {
+            $thesisDataToInsert['status'] = config('constants.ACCEPTED_STATUS');
+        }
+
         // dd("All Theses", $allTheses, "Mark Data", $markData, "Thesis Data", $thesisDataToInsert);
 
         $thesis = Thesis::create($thesisDataToInsert);
