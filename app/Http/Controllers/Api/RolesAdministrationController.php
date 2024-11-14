@@ -443,7 +443,6 @@ class RolesAdministrationController extends Controller
                 if ($currentSupervisor->hasRole('supervisor') && $newSupervisor->hasRole('supervisor')) {
 
                     //supervising group and its leaders [leaders here are ambassadors] for  supervisor 1
-
                     try {
                         DB::beginTransaction();
 
