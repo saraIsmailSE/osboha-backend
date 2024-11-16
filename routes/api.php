@@ -968,6 +968,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/get-violations-reasons', 'getViolationsReasons');
             Route::get('/get-violations/{user_id}/{osboha_marthon_id}', 'getMarathonUserViolations');
             Route::delete('/user-violation/{violation_id}', 'deleteViolation');
+            Route::get('/group-marathon-points-export/{user_id}/{osboha_marthon_id}', 'GroupMarathonPointsExport');
         });
         #################### End  Marathon  ####################
 
