@@ -35,6 +35,9 @@ class Kernel extends ConsoleKernel
         ##########  00	19	*	*	7 ##########
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
 
+        //Finish Exceptions
+        ##########  30	19	*	*	7 ##########
+        $schedule->command('userException:finished')->weekly()->sundays()->at('22:30');
 
         //Set Mark For Exceptional Freeze
         ##########  00	20	*	*	7 ##########
@@ -56,10 +59,6 @@ class Kernel extends ConsoleKernel
         //exclude users
         ########## 15	19	*	*	5 ##########
         $schedule->command('users:exclude')->weekly()->fridays()->at('22:15');
-
-        //Finish Exceptions
-        ##########  30	19	*	*	5 ##########
-        $schedule->command('userException:finished')->weekly()->fridays()->at('22:30');
 
 
         //ramadan day create
