@@ -105,7 +105,9 @@ class EligiblePDFController extends Controller
         PDF::SetAutoPageBreak(false, 0);
 
         // set bacground image
-        $img_file = "https://platform.osboha180.com/backend/public/asset/images/certTempWthiSign.jpg";
+        //$img_file = "https://platform.osboha180.com/backend/public/asset/images/certTempWthiSign.jpg";
+        $img_file = public_path('asset/images/certTempWthiSign.jpg');
+
         // Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false)
         PDF::Image($img_file, 210, 0, 210, 297, '', '', '', false, 300, '', false, false, 0);
 
@@ -125,10 +127,10 @@ class EligiblePDFController extends Controller
         ###################### START PAGE 3 ######################
         $this->addPage();
         PDF::writeHTML(view('certificate.page3')->render(), true, false, true, false, '');
-        ###################### END PAGE 3 ###################### 
+        ###################### END PAGE 3 ######################
 
 
-        ###################### START GRNRRAL INFORMATION ###################### 
+        ###################### START GRNRRAL INFORMATION ######################
         foreach ($fullCertificate as $part) {
             if (strlen($part['generalInformation']->summary) > 1700) {
                 $summaryWords = explode(' ', $part['generalInformation']->summary);
@@ -149,11 +151,11 @@ class EligiblePDFController extends Controller
                 }
             }
         }
-        ###################### END GRNRRAL INFORMATION ###################### 
+        ###################### END GRNRRAL INFORMATION ######################
 
 
 
-        ###################### START THESIS ###################### 
+        ###################### START THESIS ######################
         foreach ($fullCertificate as $key => $part) {
             foreach ($part['thesises'] as $key => $thesis) {
 
@@ -180,16 +182,16 @@ class EligiblePDFController extends Controller
                 }
             }
         }
-        ###################### END THESIS ###################### 
+        ###################### END THESIS ######################
 
-        ###################### START THESIS ###################### 
+        ###################### START THESIS ######################
         foreach ($fullCertificate as $key => $part) {
             foreach ($part['questions'] as $key => $question) {
                 $this->addPage();
                 PDF::writeHTML(view('certificate.achevment', ['mainTitle' => 'الأسئلة المعرفية', 'subTitle' => 'سؤال', 'index' => $key + 1, 'achevmentText' => $question->question, 'textDegree' => $this->textDegree($question->degree), 'quotes' => $question->quotation])->render(), true, false, true, false, '');
             }
         }
-        ###################### END THESIS ###################### 
+        ###################### END THESIS ######################
 
 
         //        $pdf->lastPage();
