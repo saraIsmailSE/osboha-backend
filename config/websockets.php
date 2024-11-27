@@ -28,7 +28,7 @@ return [
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
             'path' => env('PUSHER_APP_PATH'),
-            'capacity' => null,
+            'capacity' => 1000,
             'enable_client_messages' => false,
             'enable_statistics' => true,
         ],
@@ -90,7 +90,7 @@ return [
         /*
          * Here you can specify the interval in seconds at which statistics should be logged.
          */
-        'interval_in_seconds' => 60,
+        'interval_in_seconds' => 120,
 
         /*
          * When the clean-command is executed, all recorded statistics older than
