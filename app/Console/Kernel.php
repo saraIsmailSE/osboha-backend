@@ -35,20 +35,25 @@ class Kernel extends ConsoleKernel
         ##########  00	19	*	*	7 ##########
         $schedule->command('generate:auditMark')->weekly()->sundays()->at('22:00');
 
-        //Finish Exceptions
-        ##########  30	19	*	*	7 ##########
-        $schedule->command('userException:finished')->weekly()->sundays()->at('22:30');
-
-        //Set Mark For Exceptional Freeze
-        ##########  00	20	*	*	7 ##########
-        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->sundays()->at('23:00');
-
         //delete old media
         ##########  30	20	*	*	7 ##########
         $schedule->command('media:deleteOld')->weekly()->sundays()->at('23:30');
 
         ########## 05	19	*	*	3	 ##########
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
+
+
+
+
+        ########## mondays ##########
+
+        //Finish Exceptions
+        ##########  30	19	*	*	1 ##########
+        $schedule->command('userException:finished')->weekly()->mondays()->at('22:30');
+
+        //Set Mark For Exceptional Freeze
+        ##########  00	20	*	*	1 ##########
+        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->mondays()->at('23:00');
 
 
         ########## fridays ##########
