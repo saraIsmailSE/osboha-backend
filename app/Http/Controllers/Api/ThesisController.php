@@ -31,7 +31,11 @@ class ThesisController extends Controller
 
         $thesis = Thesis::with('book')->with('comment')->with('mark.week')->with('modifiedTheses')->find($thesis_id);
 
+
         if ($thesis) {
+            $totalPages = $this->getTotalThesisPages($thesis->start_page, $thesis->end_page);
+            $thesis->max_allowed_parts = $this->getMaxAllowedThesisWritingParts($totalPages, $thesis->max_length, $thesis->total_screenshots);
+
             return $this->jsonResponseWithoutMessage($thesis, 'data', 200);
         } else {
             throw new NotFound;

@@ -2,6 +2,9 @@
 
 namespace App\Traits;
 
+use App\Constants\MarkConstants;
+use App\Constants\StatusConstants;
+use App\Constants\ThesisConstants;
 use App\Exceptions\NotFound;
 use App\Http\Resources\ThesisResource;
 use App\Models\Book;
@@ -21,53 +24,13 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use PHPUnit\Framework\Error\Deprecated;
 
 trait ThesisTraits
 {
     use ResponseJson;
 
     ##########ASMAA##########
-    public function __construct()
-    {
-        if (!defined('MAX_PARTS'))
-            define('MAX_PARTS', 5);
-
-        if (!defined('MAX_SCREENSHOTS'))
-            define('MAX_SCREENSHOTS', 5);
-
-        if (!defined('MAX_AYAT'))
-            define('MAX_AYAT', 5);
-
-        if (!defined('COMPLETE_THESIS_LENGTH'))
-            define('COMPLETE_THESIS_LENGTH', 400);
-
-        if (!defined('PART_PAGES'))
-            define('PART_PAGES', 6);
-
-        if (!defined('RAMADAN_PART_PAGES'))
-            define('RAMADAN_PART_PAGES', 3);
-
-        if (!defined('MIN_VALID_REMAINING'))
-            define('MIN_VALID_REMAINING', 3);
-
-        if (!defined('INCREMENT_VALUE'))
-            define('INCREMENT_VALUE', 1);
-
-        if (!defined('NORMAL_THESIS_TYPE'))
-            define('NORMAL_THESIS_TYPE', 'normal');
-
-        if (!defined('RAMADAN_THESIS_TYPE'))
-            define('RAMADAN_THESIS_TYPE', 'ramadan');
-
-        if (!defined('TAFSEER_THESIS_TYPE'))
-            define('TAFSEER_THESIS_TYPE', 'tafseer');
-
-        /*
-        * Full mark out of 100 = reading_mark + writing mark + support
-        * Full mark out of 90 = reading_mark + writing mark
-        */
-    }
-
 
     public function createThesis(array $thesisData)
     {
@@ -88,7 +51,7 @@ trait ThesisTraits
 
         //check if the thesis is readonly then accept it
         if ($markData['total_pages'] > 0 && $markData['total_thesis'] == 0 && $markData['total_screenshot'] == 0) {
-            $thesisDataToInsert['status'] = config('constants.ACCEPTED_STATUS');
+            $thesisDataToInsert['status'] = StatusConstants::ACCEPTED_STATUS;
         }
 
         // dd("All Theses", $allTheses, "Mark Data", $markData, "Thesis Data", $thesisDataToInsert);
@@ -242,11 +205,11 @@ trait ThesisTraits
 
         return  Cache::remember("user_exam_exception_$userId", 600, function () use ($userId) {
             return UserException::where('user_id', $userId)
-                ->where('status', config('constants.ACCEPTED_STATUS'))
+                ->where('status', StatusConstants::ACCEPTED_STATUS)
                 ->whereHas('type', function ($query) {
                     $query->whereIn('type', [
-                        config('constants.EXAMS_MONTHLY_TYPE'),
-                        config('constants.EXAMS_SEASONAL_TYPE')
+                        StatusConstants::EXAMS_MONTHLY_TYPE,
+                        StatusConstants::EXAMS_SEASONAL_TYPE
                     ]);
                 })
                 ->exists();
@@ -257,23 +220,31 @@ trait ThesisTraits
     {
         //check if the user has an exception and cancel the exception if the thesis is added
         $userException = UserException::where('user_id', Auth::id())
-            ->whereIn('status', [config('constants.ACCEPTED_STATUS'), config('constants.PENDING_STATUS')])
+            ->whereIn('status', [StatusConstants::ACCEPTED_STATUS, StatusConstants::PENDING_STATUS])
             ->whereHas('type', function ($query) {
                 $query->whereIn('type', [
-                    config('constants.FREEZE_THIS_WEEK_TYPE'),
-                    config('constants.FREEZE_NEXT_WEEK_TYPE'),
-                    config('constants.EXCEPTIONAL_FREEZING_TYPE')
+                    StatusConstants::FREEZE_THIS_WEEK_TYPE,
+                    StatusConstants::FREEZE_NEXT_WEEK_TYPE,
+                    StatusConstants::EXCEPTIONAL_FREEZING_TYPE
                 ]);
             })
             ->latest('id')
             ->first();
 
         if ($userException) {
-            $userException->status = config('constants.CANCELED_STATUS');
+            $userException->status = StatusConstants::CANCELED_STATUS;
             $userException->save();
         }
     }
 
+    /**
+     * Calculates the percentage of a book's pages that a user has read.
+     *
+     * @param  \App\Models\User|null  $user
+     * @param  \App\Models\Book  $book
+     * @param  \Illuminate\Support\Collection|null  $theses
+     * @return float
+     */
     public function calculateBookPagesPercentage(?User $user, Book $book, ?Collection $theses = null): float
     {
         $theses = $theses ?? $user->theses()->where('book_id', $book->id)->get();
@@ -290,6 +261,17 @@ trait ThesisTraits
         return $bookTotalPages > 0 ? round(($totalPages / $bookTotalPages) * 100) : 0;
     }
 
+    /**
+     * Checks if the given page range overlaps with previous theses
+     * added by the user in the last month.
+     *
+     * @param int $start_page
+     * @param int $end_page
+     * @param int $book_id
+     * @param int $user_id
+     * @param int|null $thesis_id
+     * @return bool
+     */
     public function checkOverlap($start_page, $end_page, $book_id, $user_id, $thesis_id = null)
     {
         $overlapThreshold = 0.5;
@@ -361,7 +343,7 @@ trait ThesisTraits
             'end_page' => $thesisData['end_page'],
             'max_length' => $maxLength,
             'total_screenshots' => $totalScreenshots,
-            'status' => $isVacation ? config('constants.ACCEPTED_STATUS') : config('constants.PENDING_STATUS'),
+            'status' => $isVacation ? StatusConstants::ACCEPTED_STATUS : StatusConstants::PENDING_STATUS,
         ];
     }
 
@@ -394,12 +376,14 @@ trait ThesisTraits
             'total_pages' => 0,
             'total_theses' => 0,
             'total_screenshots' => 0,
+            'total_freezes' => 0,
+            'total_rejected_parts' => 0,
         ];
 
         //if allTheses is empty, calculate the mark for the provided thesis only
-        if ($allTheses->isEmpty() && $thesis) {
-            return $this->calculateSingleThesisMarks($thesisArray, $thesisType, $isRamadanActive, $resetFreeze);
-        }
+        // if ($allTheses->isEmpty() && $thesis) {
+        //     return $this->calculateSingleThesisMarks($thesisArray, $thesisType, $isRamadanActive, $resetFreeze);
+        // }
 
         //add the current thesis to the allTheses collection based on its type
         if ($thesisArray && $thesisType) {
@@ -416,10 +400,11 @@ trait ThesisTraits
             $finalTotals['total_pages'] += $filteredTotals['total_pages'];
             $finalTotals['total_theses'] += $filteredTotals['total_theses'];
             $finalTotals['total_screenshots'] += $filteredTotals['total_screenshots'];
+            $finalTotals['total_rejected_parts'] += $filteredTotals['total_rejected_parts'];
 
-            if (strcasecmp($type, NORMAL_THESIS_TYPE) === 0) {
+            if (strcasecmp($type, ThesisConstants::NORMAL_THESIS_TYPE) === 0) {
                 $normalThesesMark = $this->calculateNormalThesesMark($filteredTotals);
-            } elseif (strcasecmp($type, RAMADAN_THESIS_TYPE) === 0 || strcasecmp($type, TAFSEER_THESIS_TYPE) === 0) {
+            } elseif (strcasecmp($type, ThesisConstants::RAMADAN_THESIS_TYPE) === 0 || strcasecmp($type, ThesisConstants::TAFSEER_THESIS_TYPE) === 0) {
                 $ramadanThesesMark = $isRamadanActive
                     ? $this->calculateRamadanThesesMark($filteredTotals, $type)
                     : $this->calculateNormalThesesMark($filteredTotals);
@@ -435,9 +420,9 @@ trait ThesisTraits
 
         $normalThesesMark = $ramadanThesesMark = null;
 
-        if (strcasecmp($thesisType, NORMAL_THESIS_TYPE) === 0) {
+        if (strcasecmp($thesisType, ThesisConstants::NORMAL_THESIS_TYPE) === 0) {
             $normalThesesMark = $this->calculateNormalThesesMark($filteredTotals);
-        } elseif (in_array($thesisType, [RAMADAN_THESIS_TYPE, TAFSEER_THESIS_TYPE])) {
+        } elseif (in_array($thesisType, [ThesisConstants::RAMADAN_THESIS_TYPE, ThesisConstants::TAFSEER_THESIS_TYPE])) {
             $ramadanThesesMark = $isRamadanActive
                 ? $this->calculateRamadanThesesMark($filteredTotals, $thesisType)
                 : $this->calculateNormalThesesMark($filteredTotals);
@@ -454,13 +439,16 @@ trait ThesisTraits
         $actualTotals['total_pages'] += $actual['total_pages'];
         $actualTotals['total_theses'] += $actual['total_theses'];
         $actualTotals['total_screenshots'] += $actual['total_screenshots'];
+        $actualTotals['total_rejected_parts'] += $actual['total_rejected_parts'];
 
         //add the filtered values to the total values
         $filteredTotals['total_pages'] += $filtered['total_pages'];
         $filteredTotals['total_theses'] += $filtered['total_theses'];
         $filteredTotals['total_screenshots'] += $filtered['total_screenshots'];
         $filteredTotals['complete_theses_count'] += $filtered['complete_theses_count'];
+        $filteredTotals['total_rejected_parts'] += $filtered['total_rejected_parts'];
     }
+
 
     private function aggregateTheses(Collection | SupportCollection | Thesis $theses): array
     {
@@ -468,6 +456,7 @@ trait ThesisTraits
             'total_pages' => 0,
             'total_theses' => 0,
             'total_screenshots' => 0,
+            'total_rejected_parts' => 0,
         ];
 
         $filteredTotals = [
@@ -475,6 +464,7 @@ trait ThesisTraits
             'total_theses' => 0,
             'total_screenshots' => 0,
             'complete_theses_count' => 0,
+            'total_rejected_parts' => 0,
         ];
 
         foreach ($theses as $thesis) {
@@ -489,8 +479,9 @@ trait ThesisTraits
         $readingMark = ($normalMark ? $normalMark['reading_mark'] : 0) + ($ramadanMark ? $ramadanMark['reading_mark'] : 0);
         $writingMark = ($normalMark ? $normalMark['writing_mark'] : 0) + ($ramadanMark ? $ramadanMark['writing_mark'] : 0);
 
-        $readingMark = min($readingMark, config('constants.FULL_READING_MARK'));
-        $writingMark = min($writingMark, config('constants.FULL_WRITING_MARK'));
+        $readingMark = min($readingMark, MarkConstants::FULL_READING_MARK);
+        $writingMark = max(0, $writingMark - ($totals['total_rejected_parts'] * MarkConstants::PART_WRITING_MARK));
+        $writingMark = min($writingMark, MarkConstants::FULL_WRITING_MARK);
 
         $data = [
             'total_pages' => $totals['total_pages'],
@@ -515,8 +506,8 @@ trait ThesisTraits
 
         // Return the mark if criteria are met, otherwise return null
         return $meetsCriteria ? [
-            'reading_mark' => config('constants.FULL_READING_MARK'),
-            'writing_mark' => config('constants.FULL_WRITING_MARK'),
+            'reading_mark' => MarkConstants::FULL_READING_MARK,
+            'writing_mark' => MarkConstants::FULL_WRITING_MARK,
         ] : null;
     }
 
@@ -536,17 +527,17 @@ trait ThesisTraits
         }
 
         // Calculate the number of parts and the remaining pages
-        $parts = (int) ($totalPages / PART_PAGES);
-        $remainingPagesOutOfPart = $totalPages % PART_PAGES;
+        $parts = (int) ($totalPages / MarkConstants::PART_PAGES);
+        $remainingPagesOutOfPart = $totalPages % MarkConstants::PART_PAGES;
 
         // Adjust the number of parts based on the remaining pages
-        if ($parts < MAX_PARTS && $remainingPagesOutOfPart >= MIN_VALID_REMAINING) {
-            $parts += INCREMENT_VALUE;
+        if ($parts < MarkConstants::MAX_PARTS && $remainingPagesOutOfPart >= MarkConstants::MIN_VALID_REMAINING) {
+            $parts += MarkConstants::INCREMENT_THESIS_VALUE;
         }
-        $parts = min($parts, MAX_PARTS);
+        $parts = min($parts, MarkConstants::MAX_PARTS);
 
         // Calculate the reading mark
-        $readingMark = $parts * config('constants.PART_READING_MARK');
+        $readingMark = $parts * MarkConstants::PART_READING_MARK;
 
         // Initialize thesis mark
         $thesisMark = 0;
@@ -554,21 +545,21 @@ trait ThesisTraits
         // Calculate the thesis mark based on the number of theses and their status
         if ($totalTheses > 0) {
             $thesisMark = $completeThesesCount > 0
-                ? $parts * config('constants.PART_WRITING_MARK')
-                : $totalTheses * config('constants.PART_WRITING_MARK');
+                ? $parts * MarkConstants::PART_WRITING_MARK
+                : $totalTheses * MarkConstants::PART_WRITING_MARK;
 
             // Add marks for screenshots if applicable
-            if ($thesisMark < config('constants.FULL_WRITING_MARK') && $totalScreenshots > 0 && $completeThesesCount === 0) {
+            if ($thesisMark < MarkConstants::FULL_WRITING_MARK && $totalScreenshots > 0 && $completeThesesCount === 0) {
                 // Adjust parts if they have already been used for thesis mark calculation
                 $parts -= min($totalTheses, $parts);
                 if ($parts > 0) {
                     $screenshots = $this->getMaxTotalScreenshots($totalScreenshots, $parts);
-                    $thesisMark += $screenshots * config('constants.PART_WRITING_MARK');
+                    $thesisMark += $screenshots * MarkConstants::PART_WRITING_MARK;
                 }
             }
         } elseif ($totalScreenshots > 0) {
             $screenshots = $this->getMaxTotalScreenshots($totalScreenshots, $parts);
-            $thesisMark += $screenshots * config('constants.PART_WRITING_MARK');
+            $thesisMark += $screenshots * MarkConstants::PART_WRITING_MARK;
         }
 
         return [
@@ -585,7 +576,7 @@ trait ThesisTraits
         $completeThesesCount = $filteredTotals['complete_theses_count'];
 
         // Validate Ramadan thesis conditions
-        if (strcasecmp($type, RAMADAN_THESIS_TYPE) === 0) {
+        if (strcasecmp($type, ThesisConstants::RAMADAN_THESIS_TYPE) === 0) {
             if ($totalPages < 10 || ($totalTheses > 0 && $completeThesesCount === 0)) {
                 throw new \Exception('أطروحة رمضان يجب أن تكون أكثر من 10 صفحات وشاملة');
             }
@@ -593,7 +584,7 @@ trait ThesisTraits
         }
 
         // Validate Tafseer thesis conditions
-        if (strcasecmp($type, TAFSEER_THESIS_TYPE) === 0) {
+        if (strcasecmp($type, ThesisConstants::TAFSEER_THESIS_TYPE) === 0) {
             if ($totalPages < 2 || ($completeThesesCount === 0 && $totalScreenshots < 1)) {
                 throw new \Exception('أطروحة التفسير يجب أن تكون أكثر من صفحتين وشاملة أو تحتوي اقتباس واحد على الأقل');
             }
@@ -613,8 +604,8 @@ trait ThesisTraits
         */
 
         // Define constants for marks based on the description
-        $fullReadingMark = config('constants.FULL_READING_MARK');
-        $fullWritingMark = config('constants.FULL_WRITING_MARK');
+        $fullReadingMark = MarkConstants::FULL_READING_MARK;
+        $fullWritingMark = MarkConstants::FULL_WRITING_MARK;
         $writingMarkThreshold = 15; // The threshold for writing mark consideration
 
         // Determine reading and writing marks based on conditions
@@ -657,8 +648,8 @@ trait ThesisTraits
         */
 
         // Define constants for marks based on the provided rules
-        $fullReadingMark = config('constants.FULL_READING_MARK');
-        $fullWritingMark = config('constants.FULL_WRITING_MARK');
+        $fullReadingMark = MarkConstants::FULL_READING_MARK;
+        $fullWritingMark = MarkConstants::FULL_WRITING_MARK;
 
         // Define thresholds and corresponding writing marks
         $thresholds = [
@@ -710,7 +701,7 @@ trait ThesisTraits
     protected function checkRamadanStatus(): bool
     {
         $currentYear = now()->year;
-        return Cache::remember("ramadan_active_$currentYear", now()->addMonths(4), function () use ($currentYear) {
+        return Cache::remember("ramadan_active_$currentYear", now()->addMonth(), function () use ($currentYear) {
             return RamadanDay::whereYear('created_at', $currentYear)
                 ->where('is_active', 1)
                 ->exists();
@@ -728,6 +719,8 @@ trait ThesisTraits
             'total_pages' => 0,
             'total_theses' => 0,
             'total_screenshots' => 0,
+            // 'total_rejected_parts_from_complete' => 0, //this will be filled in one case: when there are remaining rejected parts which are less than the max parts and the theses are complete 
+            'total_rejected_parts' => 0,
         ];
 
         $filteredTotals = [
@@ -735,36 +728,40 @@ trait ThesisTraits
             'total_theses' => 0,
             'total_screenshots' => 0,
             'complete_theses_count' => 0,
+            'total_rejected_parts' => 0,
         ];
 
         $actualTotals['total_pages'] = $this->getTotalThesisPages($thesis['start_page'], $thesis['end_page']);
-        $actualTotals['total_theses'] = array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? INCREMENT_VALUE : 0) : 0;
+        $actualTotals['total_theses'] = array_key_exists('max_length', $thesis) ? ($thesis['max_length'] > 0 ? MarkConstants::INCREMENT_THESIS_VALUE : 0) : 0;
         $actualTotals['total_screenshots'] = array_key_exists('total_screenshots', $thesis) ? $thesis['total_screenshots'] : 0;
+        $actualTotals['total_rejected_parts'] = array_key_exists('rejected_parts', $thesis) ? $thesis['rejected_parts'] ?? 0 : 0;
 
         if (!array_key_exists('status', $thesis)) {
             $filteredTotals['total_pages'] = $actualTotals['total_pages'];
             $filteredTotals['total_theses'] = $actualTotals['total_theses'];
             $filteredTotals['total_screenshots'] = $actualTotals['total_screenshots'];
 
-            if ($filteredTotals['total_theses'] > 0 && $thesis['max_length'] >= COMPLETE_THESIS_LENGTH) {
+            if ($filteredTotals['total_theses'] > 0 && $thesis['max_length'] >= MarkConstants::COMPLETE_THESIS_LENGTH) {
                 $filteredTotals['complete_theses_count']++;
             }
 
             return [$actualTotals, $filteredTotals];
         }
 
-        if (strcasecmp($thesis['status'], config('constants.REJECTED_STATUS')) === 0) {
+        if (strcasecmp($thesis['status'], StatusConstants::REJECTED_STATUS) === 0) {
             return [$actualTotals, $filteredTotals];
         }
 
         $filteredTotals['total_pages'] = $actualTotals['total_pages'];
 
-        if (strcasecmp($thesis['status'], config('constants.REJECTED_WRITING_STATUS')) === 0) {
+        // ! Deprecated status 
+        if (strcasecmp($thesis['status'], StatusConstants::REJECTED_WRITING_STATUS) === 0) {
             return [$actualTotals, $filteredTotals];
         }
 
         if ($actualTotals['total_theses'] > 0 || $actualTotals['total_screenshots'] > 0) {
-            if (strcasecmp($thesis['status'], config('constants.ACCEPTED_ONE_THESIS_STATUS')) === 0) {
+            // ! Deprecated status
+            if (strcasecmp($thesis['status'], StatusConstants::ACCEPTED_ONE_THESIS_STATUS) === 0) {
                 if ($actualTotals['total_theses'] > 0 && $actualTotals['total_screenshots'] > 0) {
                     $filteredTotals['total_theses'] = 1;
                 } elseif ($actualTotals['total_theses'] > 0) {
@@ -773,11 +770,19 @@ trait ThesisTraits
                     $filteredTotals['total_screenshots'] = 1;
                 }
             } else {
+
+                if (strcasecmp($thesis['status'], StatusConstants::REJECTED_PARTS_STATUS) === 0) {
+                    $maxRejectedParts = $this->getMaxAllowedThesisWritingParts($filteredTotals['total_pages'], $thesis['max_length'], $actualTotals['total_screenshots']);
+                    $maxRejectedParts = min($maxRejectedParts, $actualTotals['total_rejected_parts']);
+
+                    $filteredTotals['total_rejected_parts'] = $maxRejectedParts;
+                }
+
                 $filteredTotals['total_theses'] = $actualTotals['total_theses'];
                 $filteredTotals['total_screenshots'] = $actualTotals['total_screenshots'];
 
-                if ($filteredTotals['total_theses'] > 0 && $thesis['max_length'] >= COMPLETE_THESIS_LENGTH) {
-                    $filteredTotals['complete_theses_count'] = INCREMENT_VALUE;
+                if ($filteredTotals['total_theses'] > 0 && $thesis['max_length'] >= MarkConstants::COMPLETE_THESIS_LENGTH) {
+                    $filteredTotals['complete_theses_count'] = MarkConstants::INCREMENT_THESIS_VALUE;
                 }
             }
         }
@@ -837,7 +842,38 @@ trait ThesisTraits
 
     private function getMaxTotalScreenshots(int $totalScreenshots, int $numberOfParts): int
     {
-        $maxScreenshots = min(MAX_SCREENSHOTS, $numberOfParts);
+        $maxScreenshots = min(MarkConstants::MAX_SCREENSHOTS, $numberOfParts);
         return min($totalScreenshots, $maxScreenshots);
+    }
+
+    /**
+     * Calculates the maximum allowed writing parts for a thesis based on the total pages, max length, and total screenshots.
+     * @param int $totalPages 
+     * @param int $maxLength 
+     * @param int $totalScreenshots
+     * @return int
+     */
+    public function getMaxAllowedThesisWritingParts(int $totalPages, int $maxLength, int $totalScreenshots): int
+    {
+        $readingParts = (int) ($totalPages / MarkConstants::PART_PAGES);
+        $remainingPagesOutOfPart = $totalPages % MarkConstants::PART_PAGES;
+
+        if ($readingParts < MarkConstants::MAX_PARTS && $remainingPagesOutOfPart >= MarkConstants::MIN_VALID_REMAINING) {
+            $readingParts += MarkConstants::INCREMENT_THESIS_VALUE;
+        }
+        $readingParts = min($readingParts, MarkConstants::MAX_PARTS);
+
+        $isFullThesis = $maxLength >= MarkConstants::COMPLETE_THESIS_LENGTH;
+        $writingParts = $isFullThesis ? $readingParts : MarkConstants::INCREMENT_THESIS_VALUE;
+
+        if ($totalScreenshots > 0 && $writingParts < $readingParts) {
+            //get the maximum number of screenshots based on the remaining parts of reading
+            $screenshots = $this->getMaxTotalScreenshots($totalScreenshots, ($readingParts - $writingParts));
+            $writingParts = $writingParts + $screenshots;
+        }
+
+        $writingParts = min($writingParts, $readingParts);
+
+        return $writingParts;
     }
 }

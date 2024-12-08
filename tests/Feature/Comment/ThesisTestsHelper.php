@@ -69,13 +69,14 @@ class ThesisTestsHelper extends TestCase
         }
     }
 
-    protected function getAuditThesisRequest(int $thesisId, string $status): array
+    protected function getAuditThesisRequest(int $thesisId, string $status, ?int $rejected_parts = null): array
     {
         return [
             'week_id' => $this->week->id,
             'modifier_reason_id' => 1,
             'thesis_id' => $thesisId,
             'status' => $status,
+            'rejected_parts' => $rejected_parts
         ];
     }
 

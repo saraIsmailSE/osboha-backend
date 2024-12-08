@@ -73,6 +73,7 @@ return [
     'CANCELED_STATUS' => 'cancelled',
     'REJECTED_WRITING_STATUS' => 'rejected_writing',
     'ACCEPTED_ONE_THESIS_STATUS' => 'accepted_one_thesis',
+    'REJECTED_PARTS_STATUS' => 'rejected_parts',
     'FREEZE_THIS_WEEK_TYPE' => 'تجميد الأسبوع الحالي',
     'FREEZE_NEXT_WEEK_TYPE' => 'تجميد الأسبوع القادم',
     'EXCEPTIONAL_FREEZING_TYPE' => 'تجميد استثنائي',

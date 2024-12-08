@@ -57,7 +57,8 @@ class ModifiedThesesController extends Controller
             'week_id' => 'required_if:status,rejected|numeric',
             'modifier_reason_id' => 'required_if:status,rejected,rejected_parts|numeric',
             'thesis_id' => 'required|numeric',
-            'status' => 'required|string|in:accepted,rejected,rejected_writing,accepted_one_thesis',
+            'status' => 'required|string|in:accepted,rejected,rejected_writing,accepted_one_thesis,rejected_parts',
+            "rejected_parts" => "required_if:status,rejected_parts|numeric|in:1,2,3,4,5|nullable",
             "modified_thesis_id" => "exists:modified_theses,id|nullable"
         ]);
 
@@ -74,6 +75,7 @@ class ModifiedThesesController extends Controller
 
             $thesis = Thesis::find($request->thesis_id);
             $thesis->status = $request->status;
+            $thesis->rejected_parts = $request->rejected_parts;
             $thesis->save();
 
             if ($request->status !== 'accepted') {
@@ -104,6 +106,7 @@ class ModifiedThesesController extends Controller
                     $modified_theses->delete();
 
                     $thesis->status = 'accepted';
+                    $thesis->rejected_parts = null;
                     $thesis->save();
 
                     $this->calculateAllThesesMark($thesis->mark_id, true);

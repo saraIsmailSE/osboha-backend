@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class AuditedThesesTest extends ThesisTestsHelper
 {
+
     public function test_accepted_thesis_mark()
     {
         $this->actingAs($this->user, 'web');
@@ -205,6 +206,93 @@ class AuditedThesesTest extends ThesisTestsHelper
             $userMark = $this->getMark($this->user->id, $this->week->id);
 
             $this->assertMark($userMark, $this->getExpectedMark(21, 1, 0, 40, 8));
+
+            $this->deleteThesis($response->json('data.id'));
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function test_rejected_parts_thesis_with_complete_thesis_mark()
+    {
+        $this->actingAs($this->user, 'web');
+
+        $requestData = $this->getCompleteThesisRequest(1, 21);
+
+        DB::beginTransaction();
+
+        try {
+            $response = $this->postJson('api/v1/comments', $requestData)->assertOk();
+
+            $selectedResponse = $response;
+            $auditThesisRequest = $this->getAuditThesisRequest($selectedResponse->json('data.thesis.id'), 'rejected_parts', 1);
+
+            $this->postJson('api/v1/modified-theses', $auditThesisRequest)->assertOk();
+
+            $userMark = $this->getMark($this->user->id, $this->week->id);
+
+            $this->assertMark($userMark, $this->getExpectedMark(21, 1, 0, 40, 24));
+
+            $this->deleteThesis($response->json('data.id'));
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function test_rejected_parts_thesis_with_incomplete_thesis_and_screenshots_mark()
+    {
+        $this->actingAs($this->user, 'web');
+
+        $requestData = $this->getScreenshotsWithIncompleteThesisRequest(1, 21, 2);
+
+        DB::beginTransaction();
+
+        try {
+            $response = $this->postJson('api/v1/comments', $requestData)->assertOk();
+
+            $selectedResponse = $response;
+            $auditThesisRequest = $this->getAuditThesisRequest($selectedResponse->json('data.thesis.id'), 'rejected_parts', 2);
+
+            $this->postJson('api/v1/modified-theses', $auditThesisRequest)->assertOk();
+
+            $userMark = $this->getMark($this->user->id, $this->week->id);
+
+            $this->assertMark($userMark, $this->getExpectedMark(21, 1, 2, 40, 8));
+
+            $this->deleteThesis($response->json('data.id'));
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function test_rejected_parts_thesis_with_complete_thesis_and_exceeding_parts_mark()
+    {
+        $this->actingAs($this->user, 'web');
+
+        $requestData = $this->getCompleteThesisRequest(1, 12);
+
+        DB::beginTransaction();
+
+        try {
+            $response = $this->postJson('api/v1/comments', $requestData)->assertOk();
+
+            $selectedResponse = $response;
+            $auditThesisRequest = $this->getAuditThesisRequest($selectedResponse->json('data.thesis.id'), 'rejected_parts', 5);
+
+            $this->postJson('api/v1/modified-theses', $auditThesisRequest)->assertOk();
+
+            $userMark = $this->getMark($this->user->id, $this->week->id);
+
+            $this->assertMark($userMark, $this->getExpectedMark(12, 1, 0, 20, 0));
 
             $this->deleteThesis($response->json('data.id'));
 
