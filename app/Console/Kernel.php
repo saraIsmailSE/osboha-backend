@@ -48,12 +48,14 @@ class Kernel extends ConsoleKernel
         ########## mondays ##########
 
         //Finish Exceptions
-        ##########  30	19	*	*	1 ##########
-        $schedule->command('userException:finished')->weekly()->mondays()->at('22:30');
+        ##########  00	21	*	*	2 ##########
+        // wed 00:00
+        $schedule->command('userException:finished')->weekly()->wednesdays()->at('00:00');
 
+        // wed 00:30
         //Set Mark For Exceptional Freeze
-        ##########  00	20	*	*	1 ##########
-        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->mondays()->at('23:00');
+        ##########  30	21	*	*	2 ##########
+        $schedule->command('exceptions:setMarkForExceptionalFreeze')->weekly()->wednesdays()->at('00:30');
 
 
         ########## fridays ##########
