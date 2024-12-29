@@ -59,6 +59,7 @@ return [
         array('title' => 'الثاني من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(49)->format('Y-m-d'), 'is_vacation' => 0, 'week_key' => 49),
         array('title' => 'الثالث من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(50)->format('Y-m-d'), 'is_vacation' => 0, 'week_key' => 50),
         array('title' => 'الرابع من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(51)->format('Y-m-d'), 'is_vacation' => 0, 'week_key' => 51),
+        array('title' => 'الخامس من ديسمبر', 'date' => Carbon::parse($date)->addWeeks(52)->format('Y-m-d'), 'is_vacation' => 0, 'week_key' => 52),
     ),
     'SUPPORT_MARK' => 10,
     'PART_READING_MARK' => $part_reading_mark,
