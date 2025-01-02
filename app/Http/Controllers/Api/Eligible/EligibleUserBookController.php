@@ -108,7 +108,7 @@ class EligibleUserBookController extends Controller
 
     public function show($id)
     {
-        $userBook = EligibleUserBook::find($id);
+        $userBook = EligibleUserBook::with('certificates')->find($id);
 
         if ($userBook) {
             return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
