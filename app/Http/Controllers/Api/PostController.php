@@ -903,7 +903,7 @@ class PostController extends Controller
                     if ($is_image) {
                         $validator = Validator::make(
                             ['image' => $value],
-                            ['image' => new base64OrImageMaxSize(4 * 1024 * 1024)] //size in bytes
+                            ['image' => new base64OrImageMaxSize(5 * 1024 * 1024)] // size in bytes
                         );
                         if ($validator->fails()) {
                             $fail(":attribute must be two megabytes or less.");
@@ -951,7 +951,7 @@ class PostController extends Controller
             ['group_id', $group->id],
             ['user_id', $user_id]
         ])->pluck('user_type')->toArray();
-        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin','special_care_leader'];
+        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin', 'special_care_leader'];
         $pending_msg = '';
         $pending_userId = null;
         $pending_type = null;
