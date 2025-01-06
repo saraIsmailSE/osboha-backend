@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use App\Exports\MarathonPointsExport; 
+use App\Exports\MarathonPointsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MarathonPointsController extends Controller
@@ -172,10 +172,8 @@ class MarathonPointsController extends Controller
             $response['bonus_points'] = $bonus_points;
             $response['total_points'] = $total_basic_points + $bonus_points;
             return $response;
-            
         }
         return null;
-       
     }
 
     public function getSpecificMarathonWeekPoints($user_id, $osboha_marthon_id, $week_id)
@@ -413,21 +411,25 @@ class MarathonPointsController extends Controller
             throw new NotAuthorized;
         }
     }
-    
-    function GroupMarathonPointsExport ($group_id, $osboha_marthon_id)  {
 
-        $marathonUserIDs = UserGroup::where('group_id',$group_id)->where('user_type','marathon_ambassador')->pluck('user_id');
-        $usersData = [];
+    function GroupMarathonPointsExport($group_id, $osboha_marthon_id)
+    {
 
-        foreach ($marathonUserIDs as $userID) {
-            $userPoints = $this->getMarathonPointsCalculate($userID, $osboha_marthon_id); 
-    
-            if ($userPoints) {
-                $usersData[] = $userPoints ?? null;
+        $marathonUserIDs = UserGroup::where('group_id', $group_id)->where('user_type', 'marathon_ambassador')->pluck('user_id');
+
+        if ($marathonUserIDs) {
+            $usersData = [];
+
+            foreach ($marathonUserIDs as $userID) {
+                $userPoints = $this->getMarathonPointsCalculate($userID, $osboha_marthon_id);
+
+                if ($userPoints) {
+                    $usersData[] = $userPoints ?? null;
+                }
             }
-        }
 
-        return Excel::download(new MarathonPointsExport($usersData), 'MarathonPointsExport.xlsx');
-        
+            return Excel::download(new MarathonPointsExport($usersData), 'MarathonPointsExport.xlsx');
+        }
+        return $this->jsonResponseWithoutMessage("لا يوجد سفراء في المجموعة", 'data', 200);
     }
 }

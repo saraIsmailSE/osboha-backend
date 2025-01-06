@@ -8,14 +8,16 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 
-class MarathonPointsExport implements FromArray , WithHeadings, WithStyles
+class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
 {
     protected $users;
+    protected $groupName;
+    protected $marathonTitle;
 
-    public function __construct( $users)
-    {     
+    public function __construct($users)
+    {
         $this->users = $users;
-        $this->groupName = $users[0]['group_name'] ;
+        $this->groupName = $users[0]['group_name'];
         $this->marathonTitle = $users[0]['osboha_marathon']['title'];
     }
 
@@ -26,30 +28,30 @@ class MarathonPointsExport implements FromArray , WithHeadings, WithStyles
         // Loop through each user and add their data to the rows
         foreach ($this->users as $user) {
             $rows[] = [
-                $user['user_name'],                             
-                $user['group_name'],                            
-                $user['osboha_marathon']['title'],             
-                $user['total_points'],                         
-                $user['basic_points']['point_week_1'] ?? 0,    
-                $user['basic_points']['point_week_2'] ?? 0,     
-                $user['basic_points']['point_week_3'] ?? 0,    
-                $user['basic_points']['point_week_4'] ?? 0,     
-                $user['bonus_points'],                          
+                $user['user_name'],
+                // $user['group_name'],
+                // $user['osboha_marathon']['title'],
+                $user['total_points'],
+                $user['basic_points']['point_week_1'] ?? 0,
+                $user['basic_points']['point_week_2'] ?? 0,
+                $user['basic_points']['point_week_3'] ?? 0,
+                $user['basic_points']['point_week_4'] ?? 0,
+                $user['bonus_points'],
                 $user['week_violations']['week_violations_1'] ?? 0,
-                $user['week_violations']['week_violations_2'] ?? 0, 
-                $user['week_violations']['week_violations_3'] ?? 0, 
-                $user['week_violations']['week_violations_4'] ?? 0,                     
+                $user['week_violations']['week_violations_2'] ?? 0,
+                $user['week_violations']['week_violations_3'] ?? 0,
+                $user['week_violations']['week_violations_4'] ?? 0,
             ];
         }
 
         return $rows;
-    
     }
-    
-    public function headings(): array {
+
+    public function headings(): array
+    {
         return [
             ['اسم المجموعة: ' . $this->groupName],               // Group Name title
-            ['عنوان الماراثون: ' . $this->marathonTitle],        // Marathon Title
+            [' الماراثون: ' . $this->marathonTitle],        // Marathon Title
             [
                 'اسم المستخدم',          // User Name
                 'إجمالي النقاط',         // Total Points
@@ -88,7 +90,7 @@ class MarathonPointsExport implements FromArray , WithHeadings, WithStyles
             'alignment' => [
                 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
             ],
-           
+
         ]);
 
         // Style the header row
@@ -120,7 +122,4 @@ class MarathonPointsExport implements FromArray , WithHeadings, WithStyles
 
         return [];
     }
-    
 }
-
-
