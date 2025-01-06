@@ -176,9 +176,9 @@ return [
         App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
+        App\Providers\TelescopeServiceProvider::class,
+        // Maatwebsite\Excel\ExcelServiceProvider::class,
         Elibyy\TCPDF\ServiceProvider::class,
-
 
     ],
 
@@ -236,7 +236,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Image' => Intervention\Image\ImageManagerStatic::class,
         'PDF' => Elibyy\TCPDF\Facades\TCPDF::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        // 'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];
