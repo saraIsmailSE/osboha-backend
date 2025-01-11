@@ -44,6 +44,25 @@ class UserExceptionController extends Controller
 {
     use ResponseJson, PathTrait, MediaTraits, MarkTrait;
 
+    private function generateDatesForFreeze($startDate, $days)
+    {
+        return [
+            'start_at' => $startDate,
+            'end_at' => Carbon::parse($startDate)->addDays($days)->addHours(12)->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    private function getExceptionTypeId($typeName)
+    {
+        return Cache::remember("exception_{$typeName}", now()->addMinutes(120), function () use ($typeName) {
+            $exceptionType = ExceptionType::where('type', $typeName)->first();
+            if (!$exceptionType) {
+                throw new \Exception("Exception type '{$typeName}' not found");
+            }
+            return $exceptionType->id;
+        });
+    }
+
     /*
         # Create Exception Request Endpoint Documentation
 
@@ -107,199 +126,217 @@ class UserExceptionController extends Controller
         }
 
 
-        //get types of exceptions
-        $freezCurrentWeek = Cache::remember('freez_current_week', now()->addMinutes(120), function () {
-            return ExceptionType::where('type', config("constants.FREEZE_THIS_WEEK_TYPE"))->first();
-        });
+        $typeId = $request->type_id;
+        switch ($typeId) {
+                // تجميد عادي - الاسبوع الحالي أو القادم
+            case $this->getExceptionTypeId(config("constants.FREEZE_THIS_WEEK_TYPE")):
+            case $this->getExceptionTypeId(config("constants.FREEZE_NEXT_WEEK_TYPE")):
+                return $this->createFreezingRequest($exception, $typeId, $current_week);
 
-        $freezNextWeek = Cache::remember('freez_next_week', now()->addMinutes(120), function () {
-            return ExceptionType::where('type', config("constants.FREEZE_NEXT_WEEK_TYPE"))->first();
-        });
-
-        $exceptionalFreez = Cache::remember('exceptional_freez', now()->addMinutes(120), function () {
-            return ExceptionType::where('type', config("constants.EXCEPTIONAL_FREEZING_TYPE"))->first();
-        });
-
-        $monthlyExam = Cache::remember('monthly_exam', now()->addMinutes(120), function () {
-            return ExceptionType::where('type', config("constants.EXAMS_MONTHLY_TYPE"))->first();
-        });
-
-        $FinalExam = Cache::remember('final_exam', now()->addMinutes(120), function () {
-            return ExceptionType::where('type', config("constants.EXAMS_SEASONAL_TYPE"))->first();
-        });
-
-        $withdrawn = Cache::remember('withdrawn', now()->addMinutes(120), function () {
-            return ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
-        });
-
-        $group = UserGroup::where('user_id', Auth::id())->where('user_type', 'ambassador')->whereNull('termination_reason')->first()->group;
-        $leader_id = Auth::user()->parent_id;
-        $authID = Auth::id();
-
-        if ($request->type_id == $freezCurrentWeek->id || $request->type_id == $freezNextWeek->id) { // تجميد عادي - الاسبوع الحالي أو القادم
-            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
-
-
-                // check if user is within his first month
-                if (Auth::user()->created_at >=  Carbon::now()->subMonth()) {
-                    return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا بعد 4 أسابيع من انضمامك للمشروع", 'data', 200);
+            case $this->getExceptionTypeId(config("constants.EXAMS_SEASONAL_TYPE")):
+            case $this->getExceptionTypeId(config("constants.EXAMS_MONTHLY_TYPE")):
+                $media = null;
+                if ($request->hasFile('exam_media')) {
+                    $media = $request->exam_media;
                 }
+                return $this->createExamRequest($exception, $media);
 
-                $currentDate = Carbon::now()->format('Y-m-d');
+            case $this->getExceptionTypeId(config("constants.EXCEPTIONAL_FREEZING_TYPE")):
+                return $this->createExceptionalFreezing($exception, $request->end_at);
 
-                $laseFreezing = UserException::where('user_id', $authID)
-                    ->whereIn('status', ['finished', 'accepted'])
-                    ->whereHas('type', function ($query) {
-                        $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
-                            ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));
-                    })->latest()->pluck('updated_at')->first();
+            case $this->getExceptionTypeId(config("constants.WITHDRAWN_TYPE")):
+                return $this->createWithdrawalRequest($exception);
 
-                $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
-
-                //check if user freezed in last 4 weeks
-                if ($laseFreezing && ($dateAfter4Weeks > $currentDate)) {
-                    return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا مرة كل 4 أسابيع", 'data', 200);
-                }
-
-                $exception['status'] = 'accepted';
-                $exception['desired_duration'] =  'أسبوع واحد';
-
-                if ($request->type_id == $freezCurrentWeek->id) {
-                    /**
-                     * @todo: slow query - asmaa
-                     */
-                    $this->updateUserMarksToFreez($current_week->id, $authID);
-
-                    $exception['week_id'] =  $current_week->id;
-                    $exception['start_at'] = $current_week->created_at;
-                    $exception['end_at'] = Carbon::parse($current_week->created_at)
-                        ->setTime(0, 0)
-                        ->addDays(7)
-                        ->addHours(12)
-                        ->format('Y-m-d H:i:s');
-                } else {
-                    $exception['week_id'] =  $current_week->id;
-                    $exception['start_at'] = Carbon::parse($current_week->created_at)
-                        ->setTime(0, 0)
-                        ->addDays(7)
-                        ->addHours(12)
-                        ->format('Y-m-d H:i:s');
-                    $exception['end_at'] = Carbon::parse($current_week->created_at)
-                        ->setTime(0, 0)
-                        ->addDays(14)
-                        ->addHours(12)
-                        ->format('Y-m-d H:i:s');
-                }
-
-                $userException = UserException::create($exception);
-
-                //Notify User
-                $userToNotify = User::find($authID);
-                $userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
-
-                //Notify Leader
-                $msg = "قام السفير " . Auth::user()->name . " باستخدام نظام التجميد";
-                (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
-
-                return $this->jsonResponseWithoutMessage("تم قبول طلب التجميد", 'data', 200);
-            } else {
-                return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد", 'data', 200);
-            }
-        } elseif ($request->type_id == $monthlyExam->id || $request->type_id == $FinalExam->id) { // نظام امتحانات - شهري أو فصلي
-            $exception['status'] = 'pending';
-            $userException = UserException::create($exception);
-
-            //if there is Media
-            if ($request->hasFile('exam_media')) {
-                //exam_media/user_id/
-                $folder_path = 'exam_media/' . $authID;
-
-                $this->createMedia($request->exam_media, $userException->id, 'user_exception', $folder_path);
-            }
-
-
-            //Notify User
-            $userToNotify = User::find(Auth::id());
-            $userToNotify->notify(new \App\Notifications\ExamException());
-
-            //Notify Leader
-            $msg = "قام السفير " . Auth::user()->name . " بطلب نظام امتحانات";
-            (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
-
-            return $this->jsonResponseWithoutMessage("تم رفع طلبك لنظام الامتحانات، انتظر موافقة القائد", 'data', 200);
-        } elseif ($request->type_id == $exceptionalFreez->id) { // تجميد استثنائي
-
-            $successMessage = "";
-            if (Auth::user()->hasRole('admin')) {
-                $exception['status'] = 'accepted';
-                $exception['end_at'] = Carbon::parse($request->end_at)
-                    ->setTime(0, 0)
-                    ->format('Y-m-d H:i:s');
-                $successMessage = "تم تجميدك لغاية " . $exception['end_at'];
-            } else {
-                $exception['status'] = 'pending';
-                $successMessage = "تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة";
-            }
-
-            $userException = UserException::create($exception);
-            $userException->fresh();
-
-            //Notify User
-            $userToNotify = User::find(Auth::id());
-
-            if (Auth::user()->hasRole('admin')) {
-                //$userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
-            } else {
-
-                $userToNotify->notify(new \App\Notifications\ExceptionalException());
-            }
-
-            //if not admin
-            if (!Auth::user()->hasRole('admin')) {
-                $assignee_id = null;
-                //if advisor or consultant, notify admin
-                $msg = "قام السفير " . Auth::user()->name . " بطلب نظام تجميد استثنائي";
-                if (Auth::user()->hasRole(['advisor', 'supervisor', 'consultant'])) {
-                    $assignee_id = $userToNotify->parent_id;
-
-                    (new NotificationController)->sendNotification($userToNotify->_parent_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
-                } else {
-                    //leader or ambassador
-                    // get group advisor
-                    $assignee_id =  $group->groupAdvisor()->first()->id;
-
-                    (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
-                }
-
-                if ($assignee_id) {
-                    //create new assignee
-                    $userException->assignees()->create([
-                        "assigned_by" => $userToNotify->id, //the current assignee
-                        "assignee_id" => $assignee_id,
-                    ]);
-                }
-            }
-            return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
-        } elseif ($request->type_id == $withdrawn->id) { // انسحاب
-
-            $successMessage = "";
-
-            if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
-
-                $exception['status'] = 'pending';
-                $successMessage = "تم رفع طلبك للانسحاب انتظر الموافقة";
-                $exception['desired_duration'] =  'مؤقت';
-                $userException = UserException::create($exception);
-                return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
-            } else {
-                return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
-            }
-            return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
-        } else {
-            throw new NotFound;
+            default:
+                throw new NotFound;
         }
     }
 
+
+
+    private function createFreezingRequest($exception, $typeId, $current_week)
+    {
+        if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
+
+            $authID = Auth::id();
+            // check if user is within his first month
+            if (Auth::user()->created_at >=  Carbon::now()->subMonth()) {
+                return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا بعد 4 أسابيع من انضمامك للمشروع", 'data', 200);
+            }
+
+            $currentDate = Carbon::now()->format('Y-m-d');
+
+            $laseFreezing = UserException::where('user_id', $authID)
+                ->whereIn('status', ['finished', 'accepted'])
+                ->whereHas('type', function ($query) {
+                    $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
+                        ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));
+                })->latest()->pluck('updated_at')->first();
+
+            $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
+
+            //check if user freezed in last 4 weeks
+            if ($laseFreezing && ($dateAfter4Weeks > $currentDate)) {
+                return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد إلا مرة كل 4 أسابيع", 'data', 200);
+            }
+
+            $exception['status'] = 'accepted';
+            $exception['desired_duration'] =  'أسبوع واحد';
+
+            $freezCurrentWeek = $this->getExceptionTypeId(config("constants.FREEZE_THIS_WEEK_TYPE"));
+            $exception['week_id'] =  $current_week->id;
+
+            if ($typeId == $freezCurrentWeek) {
+
+                $this->updateUserMarksToFreez($current_week->id, $authID);
+                $exception['start_at'] = $current_week->created_at;
+                $exception['end_at'] = Carbon::parse($current_week->created_at)
+                    ->setTime(0, 0)
+                    ->addDays(7)
+                    ->addHours(12)
+                    ->format('Y-m-d H:i:s');
+            } else {
+                $exception['start_at'] = Carbon::parse($current_week->created_at)
+                    ->setTime(0, 0)
+                    ->addDays(7)
+                    ->addHours(12)
+                    ->format('Y-m-d H:i:s');
+                $exception['end_at'] = Carbon::parse($current_week->created_at)
+                    ->setTime(0, 0)
+                    ->addDays(14)
+                    ->addHours(12)
+                    ->format('Y-m-d H:i:s');
+            }
+
+            $userException = UserException::create($exception);
+
+            //Notify User
+            $userToNotify = User::without('userProfile')->find($authID);
+            $userToNotify->notify(
+                (new \App\Notifications\FreezException($userException->start_at, $userException->end_at))->delay(now()->addMinutes(2))
+            );
+
+
+            //Notify Leader
+            $msg = "قام السفير " . Auth::user()->name . " باستخدام نظام التجميد";
+            (new NotificationController)->sendNotification(
+                $userToNotify->parent_id,
+                $msg,
+                LEADER_EXCEPTIONS,
+                $this->getExceptionPath($userException->id)
+            );
+
+            return $this->jsonResponseWithoutMessage("تم قبول طلب التجميد", 'data', 200);
+        } else {
+            return $this->jsonResponseWithoutMessage("عذرًا لا يمكنك استخدام نظام التجميد", 'data', 200);
+        }
+    }
+
+
+    private function createExamRequest($exception, $media)
+    {
+
+        $exception['status'] = 'pending';
+        $userException = UserException::create($exception);
+        $authID = Auth::id();
+
+        //if there is Media
+        if ($media) {
+            //exam_media/user_id/
+            $folder_path = 'exam_media/' . $authID;
+
+            $this->createMedia($media, $userException->id, 'user_exception', $folder_path);
+        }
+
+
+        //Notify User
+        $userToNotify = User::without('userProfile')->find($authID);
+        $userToNotify->notify(
+            (new \App\Notifications\ExamException())->delay(now()->addMinutes(2))
+        );
+
+        //Notify Leader
+        $msg = "قام السفير " . Auth::user()->name . " بطلب نظام امتحانات";
+        (new NotificationController)->sendNotification($userToNotify->parent_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+
+        return $this->jsonResponseWithoutMessage("تم رفع طلبك لنظام الامتحانات، انتظر موافقة القائد", 'data', 200);
+    }
+
+
+    private function createExceptionalFreezing($exception, $end_at)
+    {
+        $successMessage = "";
+        $authID = Auth::id();
+
+        if (Auth::user()->hasRole('admin')) {
+            $exception['status'] = 'accepted';
+            $exception['end_at'] = Carbon::parse($end_at)
+                ->setTime(0, 0)
+                ->format('Y-m-d H:i:s');
+            $successMessage = "تم تجميدك لغاية " . $exception['end_at'];
+        } else {
+            $exception['status'] = 'pending';
+            $successMessage = "تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة";
+        }
+
+        $userException = UserException::create($exception);
+        $userException->fresh();
+
+        //Notify User
+        $userToNotify = User::without('userProfile')->find($authID);
+
+        if (Auth::user()->hasRole('admin')) {
+            //$userToNotify->notify(new \App\Notifications\FreezException($userException->start_at, $userException->end_at));
+        } else {
+            $userToNotify->notify(
+                (new \App\Notifications\ExceptionalException())->delay(now()->addMinutes(2))
+            );
+        }
+
+        //if not admin
+        if (!Auth::user()->hasRole('admin')) {
+            $assignee_id = null;
+            //if advisor or consultant, notify admin
+            $msg = "قام السفير " . Auth::user()->name . " بطلب نظام تجميد استثنائي";
+            if (Auth::user()->hasRole(['advisor', 'supervisor', 'consultant'])) {
+                $assignee_id = $userToNotify->parent_id;
+
+                (new NotificationController)->sendNotification($userToNotify->_parent_id, $msg, ADMIN_EXCEPTIONS, $this->getExceptionPath($userException->id));
+            } else {
+                //leader or ambassador
+                // get group advisor
+                $group = UserGroup::without(['user', 'group.Timeline','group.type'])->where('user_id', Auth::id())->where('user_type', 'ambassador')->whereNull('termination_reason')->first()->group;
+                $assignee_id =  $group->groupAdvisor()->first()->id;
+                $leader_id = Auth::user()->parent_id;
+
+                (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+            }
+
+            if ($assignee_id) {
+                //create new assignee
+                $userException->assignees()->create([
+                    "assigned_by" => $userToNotify->id, //the current assignee
+                    "assignee_id" => $assignee_id,
+                ]);
+            }
+        }
+        return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
+    }
+
+    private function createWithdrawalRequest($exception)
+    {
+        $successMessage = "";
+
+        if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
+            $exception['status'] = 'pending';
+            $successMessage = "تم رفع طلبك للانسحاب انتظر الموافقة";
+            $exception['desired_duration'] =  'مؤقت';
+            UserException::create($exception);
+            return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
+        } else {
+            return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
+        }
+    }
 
     /*
         # Set Exceptional Freezing Request Endpoint Documentation
@@ -1101,7 +1138,7 @@ class UserExceptionController extends Controller
     {
 
         $response['week'] = Week::latest()->first();
-        $response['exceptions'] = UserException::where('user_id', $user_id)->without(['reviewer','user'])->latest()->get()->makeHidden(['current_assignee']);
+        $response['exceptions'] = UserException::where('user_id', $user_id)->without(['reviewer', 'user'])->latest()->get()->makeHidden(['current_assignee']);
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
@@ -1116,31 +1153,31 @@ class UserExceptionController extends Controller
     {
 
         if ($filter == 'oldest') {
-            $exceptions = UserException::without(['reviewer','user'])->where('user_id', $user_id)->get()->makeHidden(['current_assignee']);
+            $exceptions = UserException::without(['reviewer', 'user'])->where('user_id', $user_id)->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'latest') {
-            $exceptions = UserException::without(['reviewer','user'])->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
+            $exceptions = UserException::without(['reviewer', 'user'])->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'freez') {
-            $exceptions = UserException::without(['reviewer','user'])->whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer', 'user'])->whereHas('type', function ($query) {
                 $query->where('type', 'تجميد الأسبوع الحالي')
                     ->orWhere('type', 'تجميد الأسبوع القادم');
             })->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'exceptional_freez') {
-            $exceptions = UserException::without(['reviewer','user'])->whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer', 'user'])->whereHas('type', function ($query) {
                 $query->where('type', 'تجميد استثنائي');
             })->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'exams') {
-            $exceptions = UserException::without(['reviewer','user'])->whereHas('type', function ($query) {
+            $exceptions = UserException::without(['reviewer', 'user'])->whereHas('type', function ($query) {
                 $query->where('type', 'نظام امتحانات - شهري')
                     ->orWhere('type', 'نظام امتحانات - فصلي');
             })->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'accepted') {
-            $exceptions = UserException::without(['reviewer','user'])->where('status', 'accepted')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
+            $exceptions = UserException::without(['reviewer', 'user'])->where('status', 'accepted')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'pending') {
-            $exceptions = UserException::without(['reviewer','user'])->where('status', 'pending')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
+            $exceptions = UserException::without(['reviewer', 'user'])->where('status', 'pending')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'rejected') {
-            $exceptions = UserException::without(['reviewer','user'])->where('status', 'rejected')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
+            $exceptions = UserException::without(['reviewer', 'user'])->where('status', 'rejected')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         } else if ($filter == 'finished') {
-            $exceptions = UserException::without(['reviewer','user'])->where('status', 'finished')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
+            $exceptions = UserException::without(['reviewer', 'user'])->where('status', 'finished')->where('user_id', $user_id)->latest()->get()->makeHidden(['current_assignee']);
         }
 
         return $this->jsonResponseWithoutMessage($exceptions, 'data', 200);

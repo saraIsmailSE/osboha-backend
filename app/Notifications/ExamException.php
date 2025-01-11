@@ -41,11 +41,11 @@ class ExamException extends Notification implements ShouldQueue
     {
         return (new MailMessage)
         ->from('no-replay@osboha180.com', 'Osboha 180')
-        ->subject('أصبوحة || طلب تجميد')
+        ->subject('أصبوحة || طلب امتحانات')
         ->line('تحية طيبة لحضرتك،')
         ->line('تم رفع طلبك لنظام الامتحانات، انتظر موافقة القائد')
         ->line('لك التحية.');
-        
+
 }
 
     /**
