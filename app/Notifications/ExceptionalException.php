@@ -41,7 +41,7 @@ class ExceptionalException extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->from('no-replay@osboha180.com', 'Osboha 180')
-            ->subject('أصبوحة || طلب تجميد')
+            ->subject('أصبوحة || طلب تجميد استثنائي')
             ->line('تحية طيبة لحضرتك،')
             ->line('تم رفع طلبك للتجميد الاستثنائي انتظر الموافقة')
             ->line('لك التحية.');
