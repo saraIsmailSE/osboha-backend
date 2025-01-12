@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Exports\MarathonPointsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MarathonPointsController extends Controller
 {
@@ -91,6 +93,12 @@ class MarathonPointsController extends Controller
 
     public function getMarathonPoints($user_id, $osboha_marthon_id)
     {
+        $response = $this->getMarathonPointsCalculate($user_id, $osboha_marthon_id);
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
+    public function getMarathonPointsCalculate($user_id, $osboha_marthon_id)
+    {
 
         $osboha_marathon = OsbohaMarthon::find($osboha_marthon_id);
 
@@ -98,7 +106,6 @@ class MarathonPointsController extends Controller
 
             $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'marathon_ambassador')->whereNull('termination_reason')->first();
             $marathonYear = $osboha_marathon->created_at->year;
-
             $response['osboha_marathon'] = $osboha_marathon;
             $response['group_name'] = $user_group->group->name;
             $response['user_name'] = $user_group->user->name . " " . $user_group->user->last_name;
@@ -164,11 +171,11 @@ class MarathonPointsController extends Controller
             $response['basic_points'] = $basic_points;
             $response['bonus_points'] = $bonus_points;
             $response['total_points'] = $total_basic_points + $bonus_points;
-
-            return $this->jsonResponseWithoutMessage($response, 'data', 200);
+            return $response;
         }
-        return $this->jsonResponseWithoutMessage(null, 'data', 200);
+        return null;
     }
+
     public function getSpecificMarathonWeekPoints($user_id, $osboha_marthon_id, $week_id)
     {
 
@@ -403,5 +410,26 @@ class MarathonPointsController extends Controller
         } else {
             throw new NotAuthorized;
         }
+    }
+
+    function GroupMarathonPointsExport($group_id, $osboha_marthon_id)
+    {
+
+        $marathonUserIDs = UserGroup::where('group_id', $group_id)->where('user_type', 'marathon_ambassador')->pluck('user_id');
+
+        if ($marathonUserIDs) {
+            $usersData = [];
+
+            foreach ($marathonUserIDs as $userID) {
+                $userPoints = $this->getMarathonPointsCalculate($userID, $osboha_marthon_id);
+
+                if ($userPoints) {
+                    $usersData[] = $userPoints ?? null;
+                }
+            }
+
+            return Excel::download(new MarathonPointsExport($usersData), 'MarathonPointsExport.xlsx');
+        }
+        return $this->jsonResponseWithoutMessage("لا يوجد سفراء في المجموعة", 'data', 200);
     }
 }
