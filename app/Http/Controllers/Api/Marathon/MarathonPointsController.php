@@ -51,6 +51,10 @@ class MarathonPointsController extends Controller
 
             // Calculate points based on the total pages
             foreach ($theses as $thesis) {
+                // Stop if points = 50
+                if ($points >= 50) {
+                    break;
+                }
                 $date = $thesis->date;
                 $dayName = Carbon::parse($date)->format('l'); // Get the day name
                 $daily_points = 0;
@@ -69,10 +73,6 @@ class MarathonPointsController extends Controller
                     'total_theses' => $thesis->total_theses,
                     'daily_points' => $daily_points,
                 ];
-                // Stop if points = 50
-                if ($points >= 50) {
-                    break;
-                }
             }
         }
         $violations = MarathonViolation::with('reason')
