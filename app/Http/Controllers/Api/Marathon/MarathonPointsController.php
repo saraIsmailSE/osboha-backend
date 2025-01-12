@@ -109,7 +109,7 @@ class MarathonPointsController extends Controller
             $user_group = UserGroup::where('user_id', $user_id)->where('user_type', 'marathon_ambassador')->whereNull('termination_reason')->first();
             $marathonYear = $osboha_marathon->created_at->year;
             $response['osboha_marathon'] = $osboha_marathon;
-            $response['group_name'] = $user_group->group->name;
+            $response['group_name'] = $user_group->group? $user_group->group->name : "لا يوجد فريق";
             $response['user_name'] = $user_group->user->name . " " . $user_group->user->last_name;
 
             $weeks_key = MarathonWeek::where('osboha_marthon_id', $osboha_marathon->id)
