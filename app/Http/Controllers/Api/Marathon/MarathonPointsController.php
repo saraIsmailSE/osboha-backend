@@ -417,7 +417,7 @@ class MarathonPointsController extends Controller
     function GroupMarathonPointsExport($group_id, $osboha_marthon_id)
     {
 
-        $marathonUserIDs = UserGroup::where('group_id', $group_id)->where('user_type', 'marathon_ambassador')->pluck('user_id');
+        $marathonUserIDs = UserGroup::where('group_id', $group_id)->where('user_type', 'marathon_ambassador')->whereNull('termination_reason')->pluck('user_id');
 
         if ($marathonUserIDs) {
             $usersData = [];
