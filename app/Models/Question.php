@@ -68,7 +68,7 @@ class Question extends Model
             return [
                 [
                     "role" => "المسؤول",
-                    "name" => $this->user->parent->name
+                    "name" => $this->user->parent->name . ($this->user->parent->last_name ? ' ' . $this->user->parent->last_name : '')
                 ]
             ];
         }
@@ -77,7 +77,7 @@ class Question extends Model
             return [
                 [
                     "role" => "المستشار",
-                    "name" => $this->user->parent->name
+                    "name" => $this->user->parent->name . ($this->user->parent->last_name ? ' ' . $this->user->parent->last_name : '')
                 ],
             ];
         }
@@ -87,11 +87,11 @@ class Question extends Model
             return [
                 [
                     "role" => "الموجه",
-                    "name" => $parent->name
+                    "name" => $parent->name . ($parent->last_name ? ' ' . $parent->last_name : '')
                 ],
                 [
                     "role" => "المستشار",
-                    "name" => $parent->parent->name
+                    "name" => $parent->parent->name . ($parent->parent->last_name ? ' ' . $parent->parent->last_name : '')
                 ]
 
             ];
@@ -102,15 +102,15 @@ class Question extends Model
             return [
                 [
                     "role" => "المراقب",
-                    "name" => $parent->name
+                    "name" => $parent->name . ($parent->last_name ? ' ' . $parent->last_name : '')
                 ],
                 [
                     "role" => "الموجه",
-                    "name" => $parent->parent->name
+                    "name" => $parent->parent->name . ($parent->parent->last_name ? ' ' . $parent->parent->last_name : '')
                 ],
                 [
                     "role" => "المستشار",
-                    "name" => $parent->parent->parent->name
+                    "name" => $parent->parent->parent->name . ($parent->parent->parent->last_name ? ' ' . $parent->parent->parent->last_name : '')
                 ]
             ];
         }

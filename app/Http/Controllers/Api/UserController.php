@@ -45,8 +45,12 @@ class UserController extends Controller
 
     public function searchUsers(Request $request)
     {
-        $searchQuery = $request->query('search');
-        $users = User::where('name', 'LIKE', '%' . $searchQuery . '%')
+        $searchQuery = $request->query('search') ?? '';
+        // $users = User::where('name', 'LIKE', '%' . $searchQuery . '%')
+        //     ->whereNotNull('parent_id')
+        //     ->get();
+
+        $users = User::searchName($searchQuery)
             ->whereNotNull('parent_id')
             ->get();
         return $this->jsonResponseWithoutMessage(UserInfoResource::collection($users), "data", 200);

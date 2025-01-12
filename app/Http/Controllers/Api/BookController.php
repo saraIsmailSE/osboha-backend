@@ -48,15 +48,17 @@ class BookController extends Controller
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])->where('is_active', 1)->paginate(9);
+        }])->where('is_active', 1)
+            // ->whereNotIn('section_id', [5, 7, 10, 11])
+            ->orderByDesc('created_at')->paginate(9);
 
         if ($books->isNotEmpty()) {
             foreach ($books as $book) {
                 $book->last_thesis = Auth::user()
                     ->theses()
                     ->where('book_id', $book->id)
-                    ->orderBy('end_page', 'desc')
-                    ->orderBy('updated_at', 'desc')->first();
+                    ->orderByDesc('end_page')
+                    ->orderByDesc('updated_at')->first();
             }
 
             return $this->jsonResponseWithoutMessage([
@@ -74,11 +76,15 @@ class BookController extends Controller
             $books['books']  = Book::where('is_active', 1)->where('name', 'like', '%' . $_GET['name'] . '%')
                 ->whereHas('type', function ($q) {
                     $q->where('type', '=', 'normal');
-                })->paginate(9);
+                })
+                ->orderByDesc('created_at')
+                ->paginate(9);
         } else {
             $books['books']  = Book::where('is_active', 1)->whereHas('type', function ($q) {
                 $q->where('type', '=', 'normal');
-            })->paginate(9);
+            })
+                ->orderByDesc('created_at')
+                ->paginate(9);
         }
 
         // SELECT * FROM `user_book` WHERE user_id =1 and (status != 'finished' || status is null )
@@ -101,7 +107,10 @@ class BookController extends Controller
             $q->whereIn('type', ['ramadan', 'tafseer']);
         })->with(['userBooks' => function ($query) {
             $query->where('user_id', Auth::user()->id);
-        }])->where('is_active', 1)->paginate(9);
+        }])->where('is_active', 1)
+            ->orderByDesc('created_at')
+            ->paginate(9);
+
         if ($books->isNotEmpty()) {
 
             foreach ($books as $book) {
@@ -502,11 +511,16 @@ class BookController extends Controller
             throw new NotFound;
         }
 
-        $books = Book::where('is_active', 1)->where('level_id', $level_id)->with(['userBooks' => function ($query) {
-            $query->where('user_id', Auth::user()->id);
-        }])->whereHas('type', function ($q) {
-            $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
-        })
+        $books = Book::where('is_active', 1)
+            ->where('level_id', $level_id)
+            ->with(['userBooks' => function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            }])
+            ->whereHas('type', function ($q) {
+                $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+            })
+            ->where('is_active', 1)
+            ->orderByDesc('created_at')
             ->paginate(9);
 
         if ($books->isNotEmpty()) {
@@ -533,7 +547,14 @@ class BookController extends Controller
     {
         $books = Book::whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
-        })->where('section_id', $section_id)->where('is_active', 1)->get();
+        })->where('section_id', $section_id)
+            ->with(['userBooks' => function ($query) {
+                $query->where('user_id', Auth::user()->id);
+            }])
+            ->where('is_active', 1)
+            ->orderByDesc('created_at')
+            ->paginate(9);
+
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {
@@ -557,10 +578,11 @@ class BookController extends Controller
             $q->where('type', 'normal')
                 ->orWhere('type', 'ramadan');
         })
-            ->where('name', 'LIKE', '%' . $request->name . '%')
             ->with(['userBooks' => function ($query) {
                 $query->where('user_id', Auth::user()->id);
             }])
+            ->where('name', 'LIKE', '%' . $request->name . '%')
+            ->orderByDesc('created_at')
             ->paginate(9);
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(
@@ -600,6 +622,7 @@ class BookController extends Controller
                 }])->whereHas('type', function ($q) {
                     $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
                 })
+                ->orderByDesc('created_at')
                 ->paginate(9);
             if ($books->isNotEmpty()) {
                 return $this->jsonResponseWithoutMessage(
@@ -625,7 +648,7 @@ class BookController extends Controller
         }])->whereHas('type', function ($q) {
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })
-            ->where('is_active', 1)->orderBy('created_at', 'desc')->take(9)->get();
+            ->where('is_active', 1)->orderByDesc('created_at')->take(9)->get();
         if ($books->isNotEmpty()) {
             return $this->jsonResponseWithoutMessage(BookResource::collection($books), 'data', 200);
         } else {

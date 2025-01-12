@@ -50,7 +50,9 @@ class UserBookController extends Controller
      */
     public function later($user_id)
     {
-        $books = UserBook::where('status', 'later')->where('user_id', $user_id)->get();
+        $books = UserBook::where('status', 'later')->where('user_id', $user_id)
+            ->orderByDesc('updated_at')
+            ->get();
         return $this->jsonResponseWithoutMessage($books, 'data', 200);
     }
 
@@ -69,9 +71,11 @@ class UserBookController extends Controller
         $can_add_books = true;
         $user = User::find($user_id);
 
-        $userFreeBooks = UserBook::with('book')->where('user_id', $user_id)->where('status','!=', 'later')->whereHas('book.type', function ($q) {
+        $userFreeBooks = UserBook::with('book')->where('user_id', $user_id)->where('status', '!=', 'later')->whereHas('book.type', function ($q) {
             $q->where('type', '=', 'free');
-        })->paginate(9);
+        })
+            ->orderByDesc('updated_at')
+            ->paginate(9);
 
         if ($userFreeBooks->isNotEmpty()) {
             $books = collect();
@@ -137,7 +141,9 @@ class UserBookController extends Controller
             $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramadan');
         })->whereHas('book', function ($q) use ($name) {
             $q->where('name', 'like', '%' . $name . '%');
-        })->paginate(9);
+        })
+            ->orderByDesc('updated_at')
+            ->paginate(9);
 
         if ($userBooks->isNotEmpty()) {
             $books = collect();
