@@ -53,6 +53,8 @@ class MarathonPointsController extends Controller
             foreach ($theses as $thesis) {
                 // Stop if points = 50
                 if ($points >= 50) {
+                    $points = 50;
+                    $daily_points =50;
                     break;
                 }
                 $date = $thesis->date;
