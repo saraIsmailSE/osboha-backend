@@ -110,7 +110,7 @@ class MarathonPointsController extends Controller
             $marathonYear = $osboha_marathon->created_at->year;
             $response['osboha_marathon'] = $osboha_marathon;
             $response['group_name'] = $user_group ? $user_group->group->name : "لا يوجد فريق";
-            $response['user_name'] = $user_group->user->name . " " . $user_group->user->last_name;
+            $response['user_name'] = $user_group ? ($user_group->user->name . " " . $user_group->user->last_name) : ("Not Found _ " . $user_id);
 
             $weeks_key = MarathonWeek::where('osboha_marthon_id', $osboha_marathon->id)
                 ->pluck('week_key');
