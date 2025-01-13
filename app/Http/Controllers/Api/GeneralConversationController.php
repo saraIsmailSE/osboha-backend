@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Models\UserException;
 use App\Models\UserGroup;
 use App\Models\Week;
+use App\Notifications\GeneralNotification;
+use App\Notifications\QuestionAnswerNotification;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
 use App\Traits\MediaTraits;
@@ -22,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -412,7 +415,7 @@ class GeneralConversationController extends Controller
 
         $user = Auth::user();
         if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
-            $question = Question::find($request->question_id);
+            $question = Question::with('user', 'assignees')->find($request->question_id);
 
             $answer = $question->answers()->create([
                 "answer" => $request->answer,
@@ -431,20 +434,29 @@ class GeneralConversationController extends Controller
 
             $message = "لقد قام " . $user->name . " بالإجابة على سؤالك";
 
-            $messageToPrents = "لقد قام " . $user->name . " بالإجابة على سؤال المستخدم " . $question->user->name;
+            $messageToParents = "لقد قام " . $user->name . " بالإجابة على سؤال المستخدم " . $question->user->name;
+
+            $path = $this->getGeneralConversationPath($question->id);
 
             //notify the owner
-            $notification = new NotificationController();
-            $notification->sendNotification($question->user_id, $message, 'Questions', $this->getGeneralConversationPath($question->id));
+            // $notification = new NotificationController();
+            // $notification->sendNotification($question->user_id, $message, 'Questions', $path);
 
+            Notification::send($question->user, new QuestionAnswerNotification($user, $message, $path));
             //notify parents (get the parents from the question's assignees)
             $parents = $question->assignees()
                 ->where('assignee_id', '!=', $user->id)
-                ->pluck('assignee_id')->unique();
+                // ->pluck('assignee_id')->unique();            
+                ->with('assignee')
+                ->get();
+            $parents = $parents->map(function ($q) {
+                return $q->assignee;
+            });
 
-            foreach ($parents as $parent) {
-                $notification->sendNotification($parent, $messageToPrents, 'Questions', $this->getGeneralConversationPath($question->id));
-            }
+            // foreach ($parents as $parent) {
+            //     $notification->sendNotification($parent, $messageToParents, 'Questions', $path);
+            // }
+            Notification::send($parents, new QuestionAnswerNotification($user, $messageToParents, $path));
 
             return $this->jsonResponseWithoutMessage(AnswerResource::make($answer), 'data', Response::HTTP_OK);
         }
@@ -905,6 +917,7 @@ class GeneralConversationController extends Controller
             ->selectRaw('
                 users.id as user_id,
                 users.name,
+                users.last_name,
                 COUNT(DISTINCT questions.id) as total_questions,
                 COUNT(DISTINCT CASE WHEN questions.status IN ("open", "discussion") THEN questions.id ELSE NULL END) as total_active_questions,
                 COUNT(DISTINCT CASE WHEN questions.status = "solved" or answers.user_id = questions_assignees.assignee_id THEN questions.id ELSE NULL END) as total_solved_questions,
@@ -943,7 +956,7 @@ class GeneralConversationController extends Controller
         $questionsStats = $queryResults->map(function ($result) use ($users, $parentAssignedResults) {
             $userData = [
                 'id' => $result->user_id,
-                'name' => $result->name,
+                'name' => $result->name . ($result->last_name ? " " . $result->last_name : ""),
             ];
 
             return [

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -280,4 +281,24 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(OsbohaMarthon::class);
     }
 
+
+    /** Scopes */
+    public function scopeSearchName(Builder $query, string $term): Builder
+    {
+        $searchableFields = [
+            'name',
+            'last_name',
+        ];
+        return $query->where(function ($q) use ($term, $searchableFields) {
+            foreach ($searchableFields as $field) {
+                $q->orWhere($field, 'like', "%$term%");
+            }
+        });
+    }
+
+    // protected $searchableFields = [
+    //     'name',
+    //     'email',
+    //     'last_name',
+    // ];
 }

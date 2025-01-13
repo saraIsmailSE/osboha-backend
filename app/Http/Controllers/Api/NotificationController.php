@@ -60,22 +60,22 @@ class NotificationController extends Controller
     /**
      * Send notification to a specific user by its id with a message and insert it to the database.
      *
-     * @param  $reciver_id , $message
+     * @param  $receiver_id , $message
      */
-    public function sendNotification($reciver_id, $message, $type, $path = null, $delay = null)
+    public function sendNotification($receiver_id, $message, $type, $path = null, $delay = null)
     {
         $sender = User::find(Auth::id()) ?? User::find(1);
-        $reciver = User::where('id', $reciver_id)->first();
-        // $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
+        $receiver = User::where('id', $receiver_id)->first();
+        // $receiver->notify(new GeneralNotification($sender, $message, $type, $path));
 
 
         if ($delay) {
-            $reciver->notify((new GeneralNotification($sender, $message, $type, $path))->delay($delay));
+            $receiver->notify((new GeneralNotification($sender, $message, $type, $path))->delay($delay));
         } else {
-            $reciver->notify(new GeneralNotification($sender, $message, $type, $path));
+            $receiver->notify(new GeneralNotification($sender, $message, $type, $path));
         }
         try {
-            event(new NotificationsEvent($message, $reciver_id));
+            event(new NotificationsEvent($message, $receiver_id));
         } catch (\Exception $e) {
             Log::channel('NotificationBroadcasting')->error('Broadcasting failed: ' . $e->getMessage());
         }

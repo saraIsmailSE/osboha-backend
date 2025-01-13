@@ -16,10 +16,10 @@ class UserInfoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => $this->name . ($this->last_name ? ' ' . $this->last_name : ''),
             'last_name' => $this->last_name,
             'gender' => $this->gender,
-            'allowed_to_eligible'=> $this->allowed_to_eligible,
+            'allowed_to_eligible' => $this->allowed_to_eligible,
             'profile' => new ProfilePictureResource($this->userProfile),
             'roles' => $this->getRoleNames(),
             'gender' => $this->gender,
