@@ -13,14 +13,13 @@ use App\Exceptions\NotAuthorized;
 use App\Http\Resources\RoomResource;
 use App\Models\Participant;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class RoomController extends Controller
 {
     use ResponseJson;
 
-    public function index()
-    {
-    }
+    public function index() {}
 
     /**
      * Add a new room to the system (“create room” permission is required)
@@ -31,23 +30,28 @@ class RoomController extends Controller
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'type' => 'required',
-            'messages_status' => 'required',
+            // 'name' => 'required',
+            // 'type' => 'required',
+            // 'messages_status' => 'required',
+            'receiver_id' => "exists:users,id|required"
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
 
-        if (Auth::user()->can('create room')) {
-            $input = $request->all();
-            $input['creator_id'] = Auth::id();
-            Room::create($input);
-            return $this->jsonResponseWithoutMessage("Room Craeted Successfully", 'data', 200);
-        } else {
-            throw new NotAuthorized;
-        }
+        $room = Room::create([
+            "name" => Str::random(10),
+            "creator_id" => Auth::id(),
+            "type" => "private",
+        ]);
+
+        //attach participants
+        $room->users()->attach(Auth::id(), ['type' => 'user']);
+        $room->users()->attach($request->receiver_id, ['type' => 'user']);
+
+        $room->fresh();
+        return $this->jsonResponseWithoutMessage(new RoomResource($room), 'data', 200);
     }
 
     public function show(Request $request)

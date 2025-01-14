@@ -20,7 +20,7 @@ class RoomResource extends JsonResource
         $latestMessage = $this->messages()->latest()->first();
         return [
             "roomId" => (string) $this->id,
-            "roomName" => $contactedUser->name,
+            "roomName" => $contactedUser->name . ($contactedUser->last_name ? " " . $contactedUser->last_name : ""),
             "avatar" => asset('assets/images/' . $contactedUser->userProfile->profile_picture),
             "unreadCount" => $this->messages->where("status", 0)->where("receiver_id", Auth::id())->count() ?? 0,
             "index" => $latestMessage ? $latestMessage->created_at : $this->created_at,

@@ -16,7 +16,7 @@ class RoomUserResource extends JsonResource
     {
         return [
             "_id" => $this->id,
-            "username" => $this->name,
+            "username" => $this->name . ($this->last_name ? " " . $this->last_name : ""),
             "avatar" => asset('assets/images/' . $this->userProfile->profile_picture),
         ];
     }
