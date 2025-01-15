@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use App\Exports\MarathonPointsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Constants\MarkConstants;
 
 class MarathonPointsController extends Controller
 {
@@ -54,7 +55,7 @@ class MarathonPointsController extends Controller
                 // Stop if points = 50
                 if ($points >= 50) {
                     $points = 50;
-                    $daily_points =50;
+                    $daily_points = 50;
                     break;
                 }
                 $date = $thesis->date;
@@ -63,7 +64,7 @@ class MarathonPointsController extends Controller
                 if ($thesis->total_pages >= $maximum_total_pages) {
                     $points += 5;
                     $daily_points += 5;
-                    if ($thesis->theses_length > 0) {
+                    if ($thesis->theses_length  >= MarkConstants::COMPLETE_THESIS_LENGTH) {
                         $points += 5;
                         $daily_points += 5;
                     }
@@ -226,6 +227,7 @@ class MarathonPointsController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id'           => 'required',
             'osboha_marthon_id' => 'required',
+            'week_key'           => 'required',
             'bonus_type'            => 'required|string',
             'amount'             => 'required',
             'eligible_book_avg' => 'required_if:bonus_type,eligible_book',
@@ -236,13 +238,14 @@ class MarathonPointsController extends Controller
         $points_bonus =  MarthonBonus::updateOrCreate([
             'user_id'           => $request->user_id,
             'osboha_marthon_id' => $request->osboha_marthon_id,
-
+            'week_key' => $request->week_key,
         ]);
-        if (!Auth::user()->hasanyrole(['admin', 'marathon_coordinator'])) {
+        if (!Auth::user()->hasanyrole(['admin', 'marathon_coordinator', 'marathon_verification_supervisor', 'marathon_supervisor'])) {
             throw new NotAuthorized;
         }
 
         $bonus_type = $request->bonus_type;
+
         switch ($bonus_type) {
             case 'activity':
                 if ($points_bonus->activity < 6) {
@@ -272,12 +275,22 @@ class MarathonPointsController extends Controller
                 );
         }
         $points_bonus->save();
+        $all_points_bonus = MarthonBonus::with([
+            'week' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+        ])->where('user_id', $request->user_id)->where('osboha_marthon_id', $request->osboha_marthon_id)->orderBy('week_key', 'desc')
+            ->get();
 
-        return $this->jsonResponseWithoutMessage($points_bonus, 'data', 200);
+        return $this->jsonResponseWithoutMessage($all_points_bonus, 'data', 200);
     }
     function getBonusPoints($user_id, $osboha_marthon_id)
     {
-        $points_bonus =  MarthonBonus::where('user_id', $user_id)->where('osboha_marthon_id', $osboha_marthon_id)->first();
+        $points_bonus =  MarthonBonus::with([
+            'week' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+        ])->where('user_id', $user_id)->where('osboha_marthon_id', $osboha_marthon_id)->orderBy('week_key', 'desc')->get();
         return $this->jsonResponseWithoutMessage($points_bonus, 'data', 200);
     }
 
@@ -286,34 +299,22 @@ class MarathonPointsController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id'           => 'required',
             'osboha_marthon_id' => 'required',
-            'bonus_type'            => 'required|string',
+            'bonus_id'            => 'required',
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
         }
-        if (!Auth::user()->hasanyrole(['admin', 'marathon_coordinator'])) {
+        if (!Auth::user()->hasanyrole(['admin', 'marathon_coordinator', 'marathon_verification_supervisor'])) {
             throw new NotAuthorized;
         }
 
-        $points_bonus =  MarthonBonus::where('user_id', $request->user_id)->where('osboha_marthon_id', $request->osboha_marthon_id)->first();
-        if ($points_bonus) {
-            $bonus_type = $request->bonus_type;
-            switch ($bonus_type) {
-                case 'activity':
-                    $points_bonus->activity = 0;
-                    break;
-                case 'leading_course':
-                    $points_bonus->leading_course = 0;
-                    break;
-                case 'eligible_book':
-                    $points_bonus->eligible_book = 0;
-                    break;
-                case 'eligible_book_less_VG':
-                    $points_bonus->eligible_book_less_VG = 0;
-                    break;
-            }
-            $points_bonus->save();
-        }
+        MarthonBonus::destroy($request->bonus_id);
+        $points_bonus = MarthonBonus::with([
+            'week' => function ($query) {
+                $query->setEagerLoads([]);
+            },
+        ])->where('user_id', $request->user_id)->where('osboha_marthon_id', $request->osboha_marthon_id)->orderBy('week_key', 'desc')
+            ->get();
         return $this->jsonResponseWithoutMessage($points_bonus, 'data', 200);
     }
 
