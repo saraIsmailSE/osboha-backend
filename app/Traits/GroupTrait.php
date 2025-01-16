@@ -7,27 +7,41 @@ use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\Week;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 trait GroupTrait
 {
     function groupAvg($group_id, $week_id, $users_in_group)
     {
         try {
-            $avg = Mark::without('user,week')->where('week_id', $week_id)
+            $marks = Mark::without('user', 'week')
+                ->where('week_id', $week_id)
                 ->whereIn('user_id', $users_in_group)
                 ->where('is_freezed', 0)
+                ->distinct('user_id')
                 ->select(
+                    'user_id',
                     DB::raw('SUM(reading_mark + writing_mark + support) as out_of_100')
-                )->first();
+                )
+                ->get();
 
-            $total_freezed =
-                Mark::without('user,week')->where('week_id', $week_id)
+            $total_out_of_100 = $marks->sum('out_of_100');
+
+            $total_freezed = Mark::without('user', 'week')
+                ->where('week_id', $week_id)
                 ->whereIn('user_id', $users_in_group)
                 ->where('is_freezed', 1)
-                ->count();
+                ->distinct('user_id')
+                ->count('user_id');
 
-            if ($avg && (count($users_in_group) - $total_freezed) != 0)
-                return $avg->out_of_100 / (count($users_in_group) - $total_freezed);
+            // Log::channel('newWeek')->info('total_out_of_100: ' . $total_out_of_100);
+            // Log::channel('newWeek')->info('count users_in_group: ' . count($users_in_group));
+            // Log::channel('newWeek')->info('total_freezed: ' . $total_freezed);
+
+            if ($total_out_of_100 && (count($users_in_group) - $total_freezed) != 0) {
+                // Log::channel('newWeek')->info('AVG: ' . $total_out_of_100 / (count($users_in_group) - $total_freezed));
+                return $total_out_of_100 / (count($users_in_group) - $total_freezed);
+            }
 
             return 0;
         } catch (\Error $e) {
