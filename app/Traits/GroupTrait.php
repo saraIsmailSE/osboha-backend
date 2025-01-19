@@ -60,13 +60,15 @@ trait GroupTrait
                 ->where('updated_at', '>=', $weekPlusSevenDays)
                 ->where('group_id', $group_id);
         })
-            ->orWhere(function ($query) use ($weekPlusSevenDays, $group_id) {
-                $query->where('created_at', '<=', $weekPlusSevenDays)
-                    ->whereNull('termination_reason')
-                    ->where('group_id', $group_id);
-            })
-            ->whereIn('user_type', $user_type)
-            ->get();
+        ->orWhere(function ($query) use ($weekPlusSevenDays, $group_id) {
+            $query->where('created_at', '<=', $weekPlusSevenDays)
+                ->whereNull('termination_reason')
+                ->where('group_id', $group_id);
+        })
+        ->whereIn('user_type', $user_type)
+        ->groupBy('user_id')
+        ->get();
+
     }
 
     function groupsUsersByWeek($groups_id, $week_id, $user_type)
@@ -85,6 +87,7 @@ trait GroupTrait
                     ->whereIn('group_id', $groups_id);
             })
             ->whereIn('user_type', $user_type)
+            ->groupBy('user_id')
             ->get();
     }
     function membersReading($membersIDs, $week_id)

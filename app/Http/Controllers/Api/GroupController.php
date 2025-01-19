@@ -745,6 +745,9 @@ class GroupController extends Controller
             })
             ->get();
 
+            Log::channel('newWeek')->info('users_in_group: ' . $users_in_group->pluck('user_id'));
+            Log::channel('newWeek')->info('ambassadors_reading: ' . $response['ambassadors_reading']);
+
         $response['total_statistics'] = Mark::without('user,week')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
@@ -784,7 +787,7 @@ class GroupController extends Controller
         $response['total']['out_of_100'] = Mark::without('user')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('sum(reading_mark + writing_mark) as out_of_100'))
+            ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
             ->groupBy('user_id')
             ->having('out_of_100', '=', 100)
             ->count();
