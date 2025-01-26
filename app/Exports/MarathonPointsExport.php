@@ -7,7 +7,6 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-
 class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
 {
     protected $users;
@@ -25,21 +24,21 @@ class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
     {
         $rows = [];
 
-        // Loop through each user and add their data to the rows
         foreach ($this->users as $user) {
             $rows[] = [
                 $user['user_name'],
-                // $user['group_name'],
-                // $user['osboha_marathon']['title'],
                 $user['total_points'],
                 $user['basic_points']['point_week_1'] ?? 0,
-                $user['basic_points']['point_week_2'] ?? 0,
-                $user['basic_points']['point_week_3'] ?? 0,
-                $user['basic_points']['point_week_4'] ?? 0,
-                $user['bonus_points'],
+                $user['bonus_points']['bonus_week_1'] ?? 0,
                 $user['week_violations']['week_violations_1'] ?? 0,
+                $user['basic_points']['point_week_2'] ?? 0,
+                $user['bonus_points']['bonus_week_2'] ?? 0,
                 $user['week_violations']['week_violations_2'] ?? 0,
+                $user['basic_points']['point_week_3'] ?? 0,
+                $user['bonus_points']['bonus_week_3'] ?? 0,
                 $user['week_violations']['week_violations_3'] ?? 0,
+                $user['basic_points']['point_week_4'] ?? 0,
+                $user['bonus_points']['bonus_week_4'] ?? 0,
                 $user['week_violations']['week_violations_4'] ?? 0,
             ];
         }
@@ -50,21 +49,40 @@ class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
     public function headings(): array
     {
         return [
-            ['اسم المجموعة: ' . $this->groupName],               // Group Name title
-            [' الماراثون: ' . $this->marathonTitle],        // Marathon Title
+            ['اسم المجموعة: ' . $this->groupName],
+            ['الماراثون: ' . $this->marathonTitle],
             [
-                'اسم المستخدم',          // User Name
-                'إجمالي النقاط',         // Total Points
-                'نقاط الأسبوع الأول',     // Basic Point Week 1
-                'نقاط الأسبوع الثاني',    // Basic Point Week 2
-                'نقاط الأسبوع الثالث',    // Basic Point Week 3
-                'نقاط الأسبوع الرابع',    // Basic Point Week 4
-                'النقاط الإضافية',        // Bonus Points
-                'مخالفات الأسبوع الأول',  // Violation Week 1
-                'مخالفات الأسبوع الثاني',  // Violation Week 2
-                'مخالفات الأسبوع الثالث',  // Violation Week 3
-                'مخالفات الأسبوع الرابع'   // Violation Week 4
-            ]
+                'اسم المستخدم',
+                'إجمالي النقاط',
+                'الأسبوع الأول',
+                '',
+                '',
+                'الأسبوع الثاني',
+                '',
+                '',
+                'الأسبوع الثالث',
+                '',
+                '',
+                'الأسبوع الرابع',
+                '',
+                '',
+            ],
+            [
+                '',
+                '',
+                'النقاط الأساسية',
+                'النقاط الإضافية',
+                'نقاط المخالفات',
+                'النقاط الأساسية',
+                'النقاط الإضافية',
+                'نقاط المخالفات',
+                'النقاط الأساسية',
+                'النقاط الإضافية',
+                'نقاط المخالفات',
+                'النقاط الأساسية',
+                'النقاط الإضافية',
+                'نقاط المخالفات',
+            ],
         ];
     }
 
@@ -73,9 +91,15 @@ class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
         // Set the sheet direction to right-to-left
         $sheet->setRightToLeft(true);
 
-        // Style the title rows for group name and marathon title
-        $sheet->mergeCells('A1:M1');
-        $sheet->mergeCells('A2:M2');
+        // Merge cells for week headings
+        $sheet->mergeCells('C3:E3'); // Week 1
+        $sheet->mergeCells('F3:H3'); // Week 2
+        $sheet->mergeCells('I3:K3'); // Week 3
+        $sheet->mergeCells('L3:N3'); // Week 4
+
+        // Style the title rows
+        $sheet->mergeCells('A1:N1');
+        $sheet->mergeCells('A2:N2');
 
         $sheet->getStyle('A1:A2')->applyFromArray([
             'font' => [
@@ -85,16 +109,14 @@ class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['argb' => '208040']
+                'startColor' => ['argb' => '208040'],
             ],
             'alignment' => [
                 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
             ],
-
         ]);
 
-        // Style the header row
-        $sheet->getStyle('A3:M3')->applyFromArray([
+        $sheet->getStyle('A3:N3')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -102,11 +124,25 @@ class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['argb' => '208040']
-            ]
+                'startColor' => ['argb' => '208040'],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
         ]);
 
-        $sheet->getStyle('A1:M' . ($sheet->getHighestRow()))->applyFromArray([
+        $sheet->getStyle('A4:N4')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 11,
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+        ]);
+
+        // Add borders to the entire table
+        $sheet->getStyle('A1:N' . ($sheet->getHighestRow()))->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -116,7 +152,7 @@ class MarathonPointsExport implements FromArray, WithHeadings, WithStyles
         ]);
 
         // Auto-size columns
-        foreach (range('A', 'M') as $column) {
+        foreach (range('A', 'N') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 

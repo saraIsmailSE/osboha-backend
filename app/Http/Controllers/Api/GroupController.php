@@ -745,9 +745,6 @@ class GroupController extends Controller
             })
             ->get();
 
-            Log::channel('newWeek')->info('users_in_group: ' . $users_in_group->pluck('user_id'));
-            Log::channel('newWeek')->info('ambassadors_reading: ' . $response['ambassadors_reading']);
-
         $response['total_statistics'] = Mark::without('user,week')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)

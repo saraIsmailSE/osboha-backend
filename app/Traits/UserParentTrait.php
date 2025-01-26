@@ -45,7 +45,7 @@ trait UserParentTrait
 
                 UNION ALL
 
-                SELECT u.id, u.name, u.last_name , u.parent_id, cte.depth + 1
+                SELECT u.id, u.name, u.last_name, u.parent_id, cte.depth + 1
                 FROM cte
                 JOIN users u ON u.parent_id = cte.id
                 WHERE cte.depth < :depthLimit
@@ -53,7 +53,8 @@ trait UserParentTrait
             SELECT * FROM cte
             ORDER BY depth, parent_id, id;
         ";
-        return DB::select(DB::raw($query), [
+
+        return DB::select($query, [
             'parentId' => $parentId,
             'depthLimit' => $depthLimit - 1
         ]);

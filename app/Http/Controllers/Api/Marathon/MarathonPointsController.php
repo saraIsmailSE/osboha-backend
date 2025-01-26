@@ -86,10 +86,20 @@ class MarathonPointsController extends Controller
             return $violation->reason ? $violation->reason->points : 0;
         });
 
+        $bonuses = MarthonBonus::where('user_id', $user_id)
+            ->where('week_key', $week->week_key)
+            ->get();
+        $bonus_points = $bonuses->sum(function ($bonus) {
+            return $bonus->activity
+                + $bonus->leading_course
+                + $bonus->eligible_book
+                + $bonus->eligible_book_less_VG;
+        });
         return [
             'points' => $points,
             'violations_points' => $violations_points,
             'daily_totals' => $daily_totals,
+            'bonus_points' => $bonus_points,
         ];
     }
 
@@ -123,6 +133,7 @@ class MarathonPointsController extends Controller
             $basic_points = [];
             $point_details = [];
             $week_violations = [];
+            $week_bonuses = [];
 
             // Maximum total pages for each week
             $maximum_total_pages = [
@@ -137,6 +148,7 @@ class MarathonPointsController extends Controller
                 $basic_points["point_week_" . ($i + 1)] = 0;
                 $point_details["point_week_" . ($i + 1)] = [];
                 $week_violations["week_violations_" . ($i + 1)] = 0;
+                $week_bonuses["week_bonuses_" . ($i + 1)] = 0;
             }
 
             $week_index = 0;
@@ -147,6 +159,7 @@ class MarathonPointsController extends Controller
                     $basic_points["point_week_" . ($week_index + 1)] =  $result['points'];
                     $point_details["point_week_" . ($week_index + 1)] =  $result['daily_totals'];
                     $week_violations["week_violations_" . ($week_index + 1)] = $result['violations_points'];
+                    $week_bonuses["week_bonuses_" . ($week_index + 1)] = $result['bonus_points'];
 
                     $total_basic_points += max($result['points'] - $result['violations_points'], 0);
 
@@ -171,6 +184,7 @@ class MarathonPointsController extends Controller
 
             $response['point_details'] = $point_details;
             $response['week_violations'] = $week_violations;
+            $response['week_bonuses'] = $week_bonuses;
             $response['basic_points'] = $basic_points;
             $response['bonus_points'] = $bonus_points;
             $response['total_points'] = $total_basic_points + $bonus_points;
@@ -214,6 +228,7 @@ class MarathonPointsController extends Controller
 
                     $response['points'] = $result['points'];
                     $response['violations_points'] = $result['violations_points'];
+                    $response['week_bonuses'] = $result['bonus_points'];
                 }
             }
         }
