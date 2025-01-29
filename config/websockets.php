@@ -9,6 +9,7 @@ return [
      */
     'dashboard' => [
         'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
+        'activity_timeout' => 120,
     ],
 
     /*
@@ -54,7 +55,7 @@ return [
     /*
      * The maximum request size in kilobytes that is allowed for an incoming WebSocket request.
      */
-    'max_request_size_in_kb' => 250,
+    'max_request_size_in_kb' => 500,
 
     /*
      * This path will be used to register the necessary routes for the package.
