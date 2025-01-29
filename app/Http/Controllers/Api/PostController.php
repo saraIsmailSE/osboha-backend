@@ -951,7 +951,7 @@ class PostController extends Controller
             ['group_id', $group->id],
             ['user_id', $user_id]
         ])->pluck('user_type')->toArray();
-        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin', 'special_care_leader'];
+        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin', 'special_care_leader','special_care_supervisor','special_care_coordinator','marathon_coordinator'];
         $pending_msg = '';
         $pending_userId = null;
         $pending_type = null;

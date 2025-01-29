@@ -45,6 +45,9 @@ class MarathonPointsController extends Controller
 
         if ($mark) {
             $theses = Thesis::where('mark_id', $mark->id)
+                ->whereHas('book.type', function ($q) {
+                    $q->where('type', '=', 'normal')->orWhere('type', '=', 'ramdan');
+                })
                 ->whereBetween('created_at', [$week->created_at, $weekPlusSevenDays])
                 ->select(DB::raw('DATE(created_at) as date, SUM(end_page - start_page + 1) as total_pages, SUM(max_length) as theses_length, COUNT(*) as total_theses'))
                 ->groupBy(DB::raw('DATE(created_at)'))
