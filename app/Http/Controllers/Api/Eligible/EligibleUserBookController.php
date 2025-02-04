@@ -57,12 +57,10 @@ class EligibleUserBookController extends Controller
         })->where('user_id', Auth::id())->count();
 
         if ($count > 0) {
-
-
             return $this->jsonResponseWithoutMessage('You have an open book', 'data', 200);
         }
         try {
-            $userBook = EligibleUserBook::firstOrCreate([
+            $userBook = EligibleUserBook::whereNull('status')->firstOrCreate([
                 'book_id' => $request->book_id,
                 'user_id' => Auth::id()
             ]);
@@ -76,7 +74,10 @@ class EligibleUserBookController extends Controller
 
     public function getByBookID($bookId)
     {
-        $userBook['userBook'] = EligibleUserBook::where('book_id', $bookId)->where('user_id', Auth::id())->first();
+        $userBook['userBook'] = EligibleUserBook::where('book_id', $bookId)
+            ->where('user_id', Auth::id())
+            ->latest('created_at')
+            ->first();
         $userBook['completionPercentage'] = 10;
 
         //50 \ 8 => 6.25 for each (50%)

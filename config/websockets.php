@@ -5,7 +5,7 @@ use BeyondCode\LaravelWebSockets\Dashboard\Http\Middleware\Authorize;
 return [
 
     'ping_interval' => 60,
-    'pong_timeout' => 30,
+    'pong_timeout' => 60,
 
     /*
      * Set a custom dashboard configuration
