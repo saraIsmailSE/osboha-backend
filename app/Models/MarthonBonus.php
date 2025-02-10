@@ -11,6 +11,7 @@ class MarthonBonus extends Model
     protected $fillable = [
         'user_id',
         'osboha_marthon_id',
+        'week_key',
         'activity',
         'leading_course',
         'eligible_book',
@@ -20,7 +21,8 @@ class MarthonBonus extends Model
     {
         return $this->belongsTo(OsbohaMarthon::class);
     }
-
+    public function week()
+    {
+        return $this->belongsTo(Week::class, 'week_key', 'week_key');
+    }
 }
-
-

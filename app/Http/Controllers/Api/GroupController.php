@@ -355,8 +355,8 @@ class GroupController extends Controller
         //if no records, then the user is only an ambassador
         if ($userInGroup || Auth::user()->hasRole(['admin'])) {
             $response['week'] = Week::latest()->first();
-            $response['group'] = Group::with('userAmbassador')->without(['Timeline','type'])
-            ->where('id', $group_id)->first();
+            $response['group'] = Group::with('userAmbassador')->without(['Timeline', 'type'])
+                ->where('id', $group_id)->first();
             $response['exceptions'] = UserException::without(['reviewer'])->whereIn('user_id', $response['group']->userAmbassador->pluck('id'))->where('type_id', '!=', $withdrawn->id)->latest()->get()->makeHidden(['current_assignee']);
             return $this->jsonResponseWithoutMessage($response, 'data', 200);
         } else {
@@ -373,7 +373,7 @@ class GroupController extends Controller
     public function exceptionsFilter($filter, $group_id)
     {
 
-        $group = Group::with('userAmbassador')->without(['Timeline','type'])->where('id', $group_id)->first();
+        $group = Group::with('userAmbassador')->without(['Timeline', 'type'])->where('id', $group_id)->first();
         $withdrawn = Cache::remember('withdrawn', now()->addMinutes(120), function () {
             return ExceptionType::where('type', config("constants.WITHDRAWN_TYPE"))->first();
         });
@@ -727,7 +727,6 @@ class GroupController extends Controller
 
         $users_in_group = $this->usersByWeek($group_id, $week_id, ['leader', 'ambassador']);
 
-
         $response['users_in_group'] = $users_in_group->count();
         $response['group_leader'] = $users_in_group->where('user_type', 'leader')->pluck('user_id');
 
@@ -785,7 +784,7 @@ class GroupController extends Controller
         $response['total']['out_of_100'] = Mark::without('user')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('sum(reading_mark + writing_mark) as out_of_100'))
+            ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
             ->groupBy('user_id')
             ->having('out_of_100', '=', 100)
             ->count();

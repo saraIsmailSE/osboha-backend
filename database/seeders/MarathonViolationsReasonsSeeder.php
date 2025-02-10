@@ -25,6 +25,10 @@ class MarathonViolationsReasonsSeeder extends Seeder
                 'points' => 5
             ],
             [
+                'reason' => 'اطروحة غير شاملة.',
+                'points' => 5
+            ],
+            [
                 'reason' => 'أخذ اقتباس حرفي من الكتاب ووضعه على شكل أطروحة.',
                 'points' => 50
             ],
