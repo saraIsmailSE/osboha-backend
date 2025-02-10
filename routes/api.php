@@ -181,8 +181,8 @@ Route::group(['prefix' => 'v1'], function () {
         ########Start Roles########
         Route::group(["prefix" => "roles"], function () {
             Route::get('/get-secondary-roles/{type}', [RolesAdministrationController::class, 'getSecondaryRoles']);
-            Route::post('/assign-role-v2', [RolesAdministrationController::class, 'assignRoleV2']);
-            Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole']);
+            Route::post('/assign-non-basic-role', [RolesAdministrationController::class, 'assignNonBasicRole']);
+            Route::post('/assign-role', [RolesAdministrationController::class, 'assignRole'])->name('roles.assign');
             Route::post('/change-advising-team', [RolesAdministrationController::class, 'ChangeAdvisingTeam']);
             Route::post('/supervisors-swap', [RolesAdministrationController::class, 'supervisorsSwap']);
             Route::post('/new-supervisor-current-to-ambassador', [RolesAdministrationController::class, 'newSupervisor_currentToAmbassador']);
@@ -704,7 +704,7 @@ Route::group(['prefix' => 'v1'], function () {
 
         ######## Room ########
         Route::group(['prefix' => 'rooms'], function () {
-            Route::post('/create', [RoomController::class, 'create']);
+            Route::post('/', [RoomController::class, 'create']);
             Route::post('/addUserToRoom', [RoomController::class, 'addUserToRoom']);
             Route::get("/", [RoomController::class, "listRooms"]);
         });

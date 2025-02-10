@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\SystemRole;
 use App\Http\Controllers\Controller;
 use App\Traits\ResponseJson;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Helpers\RoleHelper;
 use App\Models\Group;
 use App\Models\GroupType;
 use App\Models\User;
@@ -19,6 +21,7 @@ use App\Models\UserGroup;
 use App\Models\UserParent;
 use App\Notifications\MailDowngradeRole;
 use App\Notifications\MailUpgradeRole;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -94,7 +97,8 @@ class RolesAdministrationController extends Controller
         return $this->jsonResponseWithoutMessage($roles, 'data', 200);
     }
 
-    public function assignRoleV2(Request $request)
+
+    public function assignNonBasicRole(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'user' => 'required|email',
@@ -102,36 +106,43 @@ class RolesAdministrationController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
 
         //check role exists
         $role = Role::find($request->role_id);
         if (!$role) {
-            return $this->jsonResponseWithoutMessage("هذه الترقية غير موجودة", 'data', 200);
+            return $this->jsonResponseWithoutMessage("هذه الرتبة غير موجودة", 'data', 200);
         }
 
         //check user exists
         $user = User::where('email', $request->user)->first();
         if ($user) {
-            //check if user has the role
 
-            if (($role->name == 'special_care_leader' || $role->name == 'special_care_supervisor') && !$user->hasRole('leader')) {
-                //special_care_leader should have a leader role first
-                return $this->jsonResponseWithoutMessage("يجب أن يكون العضو قائداً أولاًً ", 'data', 200);
-            }
 
+            $arabicRole = SystemRole::translate($role->name);
             if ($user->hasRole($role->name)) {
-                return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
+                return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
             } else {
+                //check if user has a leader role
+                if (in_array(
+                    $role->name,
+                    [
+                        SystemRole::SPECIAL_CARE_LEADER->value,
+                        SystemRole::SPECIAL_CARE_SUPERVISOR->value
+                    ]
+                ) && $user->hasRole(SystemRole::LEADER)) {
+                    return $this->jsonResponseWithoutMessage("يجب أن يكون العضو قائداً أولاًً ", 'data', 200);
+                }
+
                 $user->assignRole($role->name);
-                $msg = "قام " . Auth::user()->name . " بـ تعيينك : " . config('constants.ARABIC_ROLES')[$role->name];
+                $msg = "قام " . Auth::user()->fullName . " بـ ترقيتك لـ : " . $arabicRole;
                 (new NotificationController)->sendNotification($user->id, $msg, ROLES);
 
-                $logInfo = ' قام ' . Auth::user()->name . " بترقية العضو " . $user->name . ' لـ ' . config('constants.ARABIC_ROLES')[$role->name];
+                $logInfo = ' قام ' . Auth::user()->fullName . " بترقية العضو " . $user->fullName . ' لـ ' . $role->name;
                 Log::channel('community_edits')->info($logInfo);
 
-                return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
+                return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . $arabicRole, 'data', 200);
             }
         } else {
             return $this->jsonResponseWithoutMessage("المستخدم غير موجود", 'data', 200);
@@ -147,14 +158,24 @@ class RolesAdministrationController extends Controller
     public function assignRole(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user' => 'required|email',
-            'head_user' => 'required_unless:role_id,8|email|nullable',
+            'user' => 'required|email|different:head_user',
+            'head_user' =>
+            [
+                // 'required',
+                'required_unless:role_id,' . Role::where('name', SystemRole::SUPPORT_LEADER->value)->first()->id,
+                'different:user',
+                'email',
+                'nullable'
+
+            ],
             'role_id' => 'required',
         ]);
 
+
         if ($validator->fails()) {
-            return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', 500);
         }
+
 
         //check role exists
         $role = Role::find($request->role_id);
@@ -165,120 +186,113 @@ class RolesAdministrationController extends Controller
         //check user exists
         $user = User::where('email', $request->user)->first();
         if ($user) {
-            //check if role is support leader, just assign role
 
-            if ($role->name === 'support_leader') {
-                if (Auth::user()->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
-
-                    if ($user->hasAnyRole(config('constants.ALL_SUPPER_ROLES'))) {
-                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية المستخدم ل " . config('constants.ARABIC_ROLES')[$role->name] . " لأنه يملك صلاحيات قيادية", 'data', 200);
-                    }
-
-                    if ($user->hasRole($role->name)) {
-                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
-                    }
-
-                    $user->assignRole($role->name);
-
-                    $logInfo = ' قام ' . Auth::user()->name . " بترقية العضو " . $user->name . ' لـ ' . config('constants.ARABIC_ROLES')[$role->name];
-                    Log::channel('community_edits')->info($logInfo);
-
-                    return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
-                } else {
-                    return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . config('constants.ARABIC_ROLES')[$role->name], 'data', 200);
-                }
+            $authUser = Auth::user();
+            if (!(SystemRole::canUserManageAnotherUser($authUser, $user)) || !(SystemRole::canUserManageRole($authUser, $role->name))) {
+                return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . SystemRole::translate($role->name), 'data', 200);
             }
 
             //check head_user exists
             $head_user = User::where('email', $request->head_user)->first();
             if ($head_user) {
-                if ($head_user->id == $user->id) {
-                    return $this->jsonResponseWithoutMessage("لا يمكن أن يكون الشخص مسؤولاً عن نفسه", 'data', 200);
+                $arabicRole = SystemRole::translate($role->name);
+
+                //check if user has the role
+                if ($user->hasRole($role->name)) {
+                    return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
                 }
 
-                $head_user_last_role = $head_user->roles->first();
-                //check if head user role is greater that user role
-                if ($head_user_last_role->id < $role->id) {
-                    $user_current_role = $user->roles->first();
-                    $arabicRole = config('constants.ARABIC_ROLES')[$role->name];
-                    $userRoles = null;
 
-                    //check if supervisor is a leader first
-                    if (($user_current_role->name === 'ambassador' && $role->name === 'supervisor') ||
-                        ($user_current_role->name === 'advisor' && $role->name === 'supervisor') ||
-                        ($user_current_role->name === 'consultant' && $role->name === 'supervisor')
-                    ) {
-                        return $this->jsonResponseWithoutMessage("لا يمكنك ترقية العضو لمراقب مباشرة, يجب أن يكون قائد أولاً", 'data', 200);
-                    }
+                //check if head roles has a role greater that the greatest role of the user
+                if (SystemRole::canUserManageAnotherUser($head_user, $user)) {
 
-                    //check if user has the role
-                    if ($user->hasRole($role->name) && $user_current_role->id >= $role->id) {
-                        return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
-                    }
-
-                    //if the last role of the user is greater than the new role (last role is less than new role) => downgrade
-                    if ($user_current_role->id > $role->id) {
-
-                        //remove last role if not ambassador or leader and new role is supervisor
-                        if ($user_current_role->name !== 'ambassador' && !($user_current_role->name === 'leader' && $role->name === 'supervisor')) {
-                            $user->removeRole($user_current_role->name);
+                    //check if head user role is greater that user role
+                    if (SystemRole::canUserManageRole($head_user, $role->name)) {
+                        //check if role is support leader, just assign role
+                        if ($role->name === SystemRole::SUPPORT_LEADER->value) {
+                            return $this->handleSupportLeaderRole($user, $role);
                         }
 
-                        //else remove all roles except the ambassador (upgrade)
-                    } else {
-                        $userRoles = $user->roles()->where('name', '!=', 'ambassador')->pluck('name');
+                        //check if supervisor is a leader first
+                        if (
+                            !$user->hasRole(SystemRole::LEADER->value) &&
+                            $role->name === SystemRole::SUPERVISOR->value
+                        ) {
+                            return $this->jsonResponseWithoutMessage("لا يمكنك ترقية العضو لمراقب مباشرة, يجب أن يكون قائد أولاً", 'data', 200);
+                        }
+
+                        $userRoles = [];
+                        if ($role->name === SystemRole::SUPERVISOR->value) {
+                            //remove all roles except the ambassador and book_quality_team and leader
+                            $userRoles = $user->roles()->whereNotIn('name', [SystemRole::AMBASSADOR->value, SystemRole::BOOK_QUALITY_TEAM->value, SystemRole::LEADER->value])->pluck('name');
+                        } else {
+                            $userRoles = $user->roles()->whereNotIn('name', [SystemRole::AMBASSADOR->value, SystemRole::BOOK_QUALITY_TEAM->value])->pluck('name');
+                        }
+
                         foreach ($userRoles as $userRole) {
                             $user->removeRole($userRole);
                         }
 
-                        $userRoles = collect($userRoles)->map(function ($role) {
-                            return config('constants.ARABIC_ROLES')[$role];
-                        });
-                    }
+                        if (count($userRoles) > 0) {
+                            $userRoles = $userRoles->map(function ($role) {
+                                return SystemRole::translate($role);
+                            });
+                        }
 
-                    // assign new role
-                    $user->assignRole($role->name);
+                        // assign new role
+                        $user->assignRole($role->name);
 
-                    // Link with head user
-                    $user->parent_id = $head_user->id;
-                    $user->save();
+                        // Link with head user
+                        $user->parent_id = $head_user->id;
+                        $user->save();
 
-                    //Update User Parent
-                    UserParent::where("user_id", $user->id)->update(["is_active" => 0]);
-                    UserParent::create([
-                        'user_id' => $user->id,
-                        'parent_id' =>  $head_user->id,
-                        'is_active' => 1,
-                    ]);
+                        //Update User Parent
+                        UserParent::where("user_id", $user->id)->update(["is_active" => 0]);
+                        UserParent::create([
+                            'user_id' => $user->id,
+                            'parent_id' =>  $head_user->id,
+                            'is_active' => 1,
+                        ]);
 
-                    $msg = "";
-                    $successMessage = "";
-                    if (!$userRoles) {
-                        $msg = "تمت ترقيتك ل " . $arabicRole . " - المسؤول عنك:  " . $head_user->name;
-                        $successMessage = "تمت ترقية العضو ل " . $arabicRole . " - المسؤول عنه:  " . $head_user->name;
-                        $user->notify(new MailUpgradeRole($arabicRole));
+
+                        $msg = "";
+                        $successMessage = "";
+                        if (count($userRoles) === 0) {
+                            $msg = "تمت ترقيتك ل " . $arabicRole . " - المسؤول عنك:  " . $head_user->fullName;
+                            $successMessage = "تمت ترقية العضو ل " . $arabicRole . " - المسؤول عنه:  " . $head_user->fullName;
+
+                            //TODO: remove if statement
+                            // if (!config('app.debug')) {
+                            $user->notify(new MailUpgradeRole($arabicRole));
+                            // }
+                        } else {
+                            $msg = count($userRoles) > 1
+                                ?
+                                "تم سحب الأدوار التالية منك: " . implode(',', $userRoles->all()) . ", أنت الآن " . $arabicRole
+                                :
+                                "تم سحب دور ال" . $userRoles[0] . " منك, أنت الآن " . $arabicRole;
+                            $successMessage = count($userRoles) > 1
+                                ?
+                                "تم سحب الأدوار التالية من العضو: " . implode(',', $userRoles->all()) . ", إنه الآن " . $arabicRole
+                                :
+                                "تم سحب دور ال" . $userRoles[0] . " من العضو, إنه الآن " . $arabicRole;
+
+                            // if (!config('app.debug')) {
+                            $user->notify(new MailDowngradeRole($userRoles->all(), $arabicRole));
+                            // }
+                        }
+                        // notify user
+                        (new NotificationController)->sendNotification($user->id, $msg, ROLES);
+
+                        $logInfo = ' قام ' . Auth::user()->fullName . " بترقية العضو " . $user->fullName . ' لـ ' . $arabicRole . " - المسؤول عنه:  " . $head_user->fullName;
+                        Log::channel('community_edits')->info($logInfo);
+
+                        return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
                     } else {
-                        $msg = count($userRoles) > 1
-                            ?
-                            "تم سحب الأدوار التالية منك: " . implode(',', $userRoles->all()) . " أنت الآن " . $arabicRole
-                            :
-                            "تم سحب دور ال" . $userRoles[0] . " منك, أنت الآن " . $arabicRole;
-                        $successMessage = count($userRoles) > 1
-                            ?
-                            "تم سحب الأدوار التالية من العضو: " . implode(',', $userRoles->all()) . " , إنه الآن " . $arabicRole
-                            :
-                            "تم سحب دور ال" . $userRoles[0] . " من العضو, إنه الآن " . $arabicRole;
-                        $user->notify(new MailDowngradeRole($userRoles->all(), $arabicRole));
+                        return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى من الرتبة المراد الترقية لها", 'data', 200);
                     }
-                    // notify user
-                    (new NotificationController)->sendNotification($user->id, $msg, ROLES);
-
-                    $logInfo = ' قام ' . Auth::user()->name . " بترقية العضو " . $user->name . ' لـ ' . $arabicRole . " - المسؤول عنه:  " . $head_user->name;
-                    Log::channel('community_edits')->info($logInfo);
-
-                    return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
                 } else {
-                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول أعلى من الرتبة المراد الترقية لها", 'data', 200);
+                    return $this->jsonResponseWithoutMessage("يجب أن تكون رتبة المسؤول اعلى من رتبة المستخدم", 'data', 200);
                 }
             } else {
                 return $this->jsonResponseWithoutMessage("المسؤول غير موجود", 'data', 200);
@@ -288,6 +302,30 @@ class RolesAdministrationController extends Controller
         }
     }
 
+    function handleSupportLeaderRole(User $user, Role $role)
+    {
+        $arabicRole = SystemRole::translate($role->name);
+
+        if (Auth::user()->hasAnyRole(SystemRole::basicHighRoles())) {
+
+            if ($user->hasAnyRole(SystemRole::basicHighRoles())) {
+                return $this->jsonResponseWithoutMessage("لا يمكنك ترقية المستخدم ل " . $arabicRole . " لأنه يملك صلاحيات قيادية", 'data', 200);
+            }
+
+            if ($user->hasRole($role->name)) {
+                return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
+            }
+
+            $user->assignRole($role->name);
+
+            $logInfo = ' قام ' . Auth::user()->fullName . " بترقية العضو " . $user->fullName . ' لـ ' . $arabicRole;
+            Log::channel('community_edits')->info($logInfo);
+
+            return $this->jsonResponseWithoutMessage("تمت ترقية العضو ل " . $arabicRole, 'data', 200);
+        } else {
+            return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . $arabicRole, 'data', 200);
+        }
+    }
     /**
      * Change advising team for a supervisor
      *
@@ -355,7 +393,6 @@ class RolesAdministrationController extends Controller
                             );
                             $userGroupCacheKey = 'user_group_' .  $supervisor->id;
                             Cache::forget($userGroupCacheKey);
-
                         } else {
                             return $this->jsonResponseWithoutMessage("الموجه ليس موجهاً في أي مجموعة", 'data', 200);
                         }
