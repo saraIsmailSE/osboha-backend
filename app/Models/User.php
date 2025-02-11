@@ -253,7 +253,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function parents()
     {
-        return $this->belongsToMany(Parent::class, 'user_parent', 'user_id', 'parent_id');
+        return $this->belongsToMany(Parent::class, 'user_parents', 'user_id', 'parent_id');
     }
     public function contactsWithWithdrawns()
     {
@@ -281,6 +281,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(OsbohaMarthon::class);
     }
 
+    /** Accessors */
+    public function getFullNameAttribute()
+    {
+        return $this->name . ' ' . $this->last_name;
+    }
 
     /** Scopes */
     public function scopeSearchName(Builder $query, string $term): Builder
