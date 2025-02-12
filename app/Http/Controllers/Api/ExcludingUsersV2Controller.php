@@ -24,6 +24,19 @@ class ExcludingUsersV2Controller extends Controller
     {
         try {
 
+            /**
+             * Bug Fix: Ambassadors should not be excluded if they have received a mark in the new week.
+             *
+             * @issue Reported by Sarah
+             * @fix Adjust the exclusion logic to ensure ambassadors are not removed if they have activity in the current week.
+             *
+             * @scenario
+             * - The ambassador received zero in weeks 1 and 2.
+             * - They received a mark in week 3.
+             * - The current logic excludes them due to receiving zero in weeks 1 and 2.
+             * - However, since they received a mark in week 3, they should not be excluded.
+             */
+
             Log::channel('newWeek')->info("Start Users Excluding");
             // Previous Week [0], Before the Previous [1] and Before Before the Previous [3]
             $lastWeekIds = $this->get_last_weeks_ids();

@@ -27,6 +27,14 @@ class Kernel extends ConsoleKernel
         ##########  00	09	*	*	7 ##########
         $schedule->command('weekly:marks')->weekly()->sundays()->at('12:00'); //main part
 
+        //delete notifications older than 2 weeks
+        ##########  00	10	*	*	7 ##########
+        $schedule->command('notifications:deleteOldNotifications')->weekly()->sundays()->at('13:00');
+
+        //delete posts of type announcement  older than 3 weeks
+        ##########  00	09	*	*	7 ##########
+        // $schedule->command('post:deleteOldAnnouncement')->weekly()->sundays()->at('13:10');
+
         //exclude new users
         ##########  30	09	*	*	7 ##########
         $schedule->command('users:exclude_new')->weekly()->sundays()->at('12:30');

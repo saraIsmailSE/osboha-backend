@@ -328,4 +328,19 @@ class EligibleUserBookController extends Controller
         $user_books = EligibleUserBook::where('status', $user_book_status)->with('user')->with('book')->get();
         return $this->jsonResponseWithoutMessage($user_books, 'data', 200);
     }
+
+    function getEligibleUserBooksWithAuditStatus()
+    {
+        $eligible_user_books =  EligibleUserBook::whereDoesntHave('thesises', function ($query) {
+            $query->where('status', '!=', 'audit');
+        })
+            ->whereDoesntHave('questions', function ($query) {
+                $query->where('status', '!=', 'audit');
+            })
+            ->whereDoesntHave('generalInformation', function ($query) {
+                $query->where('status', '!=', 'audit');
+            })
+            ->get();
+        return $this->jsonResponseWithoutMessage($eligible_user_books, 'data', 200);
+    }
 }

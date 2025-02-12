@@ -21,8 +21,8 @@ class Post extends Model
         'book_id',
     ];
 
-    protected $with = array('media' , 'type');
-    protected $appends = [/*'comments_count', 'reactions_count',*/ 'reacted_by_user'];
+    protected $with = array('media', 'type');
+    protected $appends = [/*'comments_count', 'reactions_count',*/'reacted_by_user'];
 
     public function comments()
     {
@@ -90,21 +90,61 @@ class Post extends Model
         return $this->belongsToMany(User::class, 'reactions', 'post_id', 'user_id')->withPivot('type_id')->withTimestamps();
     }
 
-    //attributes
-    // public function getCommentsCountAttribute()
-    // {
-    //     return Comment::where('post_id', $this->id)->count();
-    //     return $this->comments()->count();
-    // }
-
-    // public function getReactionsCountAttribute()
-    // {
-    //     return Reaction::where('post_id', $this->id)->count();
-    //     return $this->reactions()->count();
-    // }
-
     public function getReactedByUserAttribute()
     {
         return $this->reactions->contains(auth()->user());
     }
+
+    // public static function boot()
+    // {
+    //     parent::boot();
+
+    //     self::deleting(function ($post) {
+
+    //         $restrictedTypes = ['book', 'support', 'discussion', 'friday-thesis', 'book_review'];
+    //         if (in_array($post->type->type, $restrictedTypes)) {
+    //             return false;
+    //         }
+
+    //         $post->reactions()->get()->each(function ($reaction) {
+    //             $reaction->delete();
+    //         });
+
+    //         $post->comments()->each(function ($comment) {
+    //             $comment->delete();
+    //         });
+
+    //         $post->media()->each(function ($media) {
+    //             if (file_exists(public_path($media->media))) {
+    //                 unlink(public_path($media->media));
+    //             }
+    //             $media->delete();
+    //         });
+
+    //         if ($post->article) {
+    //             $post->article->delete();
+    //         }
+
+    //         if ($post->activity) {
+    //             $post->activity->delete();
+    //         }
+
+    //         $post->rates()->each(function ($rate) {
+    //             $rate->delete();
+    //         });
+
+    //         $post->pollVotes()->each(function ($pollVote) {
+    //             $pollVote->delete();
+    //         });
+
+    //         $post->pollOptions()->each(function ($pollOption) {
+    //             $pollOption->delete();
+    //         });
+
+
+    //         $post->taggedUsers()->each(function ($taggedUser) {
+    //             $taggedUser->delete();
+    //         });
+    //     });
+    // }
 }

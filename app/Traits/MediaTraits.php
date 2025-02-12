@@ -7,8 +7,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-use Image;
+use Illuminate\Support\Str;
+// use Image;
+use Intervention\Image\Facades\Image as Image;
 use Intervention\Image\Facades\Image as ResizeImage;
+use Illuminate\Support\Facades\DB;
 
 trait MediaTraits
 {
@@ -22,108 +25,61 @@ trait MediaTraits
                 File::makeDirectory(public_path($fullPath), 0777, true, true);
             }
 
-            $fileName = rand(100000, 999999) . time() . '.';
+            $fileName = $this->generateFileName($media);
+
             $imageFile = null;
             $videoFile = null;
             $fileType = null;
 
-            if (is_string($media)) {
-                //base64 image
-                $image = $media;
-                $imageParts = explode(";base64,", $image);
-                $imageTypeAux = explode("image/", $imageParts[0]);
-                $imageType = $imageTypeAux[1];
-                $imageBase64 = base64_decode($imageParts[1]);
-                $fileName .=  $imageType;
 
-                $imageFile = $imageBase64;
-                //resize image
-                ResizeImage::make($imageBase64)->resize(500, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save(public_path($fullPath . '/' . $fileName));
+            if (is_string($media) && $this->isValidBase64Image($media)) {
+                $imageFile = $this->processBase64Image($media, $fullPath, $fileName);
+                $fileType = 'image';
+            } elseif ($media instanceof \Illuminate\Http\UploadedFile) {
+                $allowedMimeTypes = [
+                    'image/jpeg',
+                    'image/png',
+                    'image/gif',
+                    'image/webp',
+                    'image/heic',
+                    'image/heif',
+                    'video/mp4',
+                    'video/quicktime',
+                    'video/x-msvideo'
+                ];
 
-                // file_put_contents(public_path($fullPath . '/' . $fileName), $imageBase64);
-            } else {
-                $fileName .= $media->extension();
-
-                //get file type
                 $fileType = explode('/', $media->getClientMimeType())[0];
+                if (!in_array($media->getClientMimeType(), $allowedMimeTypes)) {
+                    return response()->json(['error' => 'Unsupported file type'], 400);
+                }
 
                 if ($fileType === 'video') {
                     $videoFile = $media;
                     $videoFile->move(public_path($fullPath), $fileName);
                 } else {
-                    $imageFile = $media;
+                    $this->processUploadedImage($media, $fullPath, $fileName);
                 }
+            } else {
+                return response()->json(['error' => 'Invalid media format'], 400);
+            }
+            // Save to database
+            $mediaRecord = new Media();
+            $mediaRecord->media = $folderPath ? $folderPath . '/' . $fileName : $fileName;
+            $mediaRecord->type = $fileType;
+            $mediaRecord->user_id = Auth::id();
+
+            if (!$this->attachMediaToType($mediaRecord, $type, $type_id)) {
+                return response()->json(['error' => 'Invalid media type'], 400);
             }
 
-            if ($imageFile) {
-                // resize the image to a width of 500 and constrain aspect ratio (auto height)
-                ResizeImage::make($imageFile)->resize(500, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save(public_path($fullPath . '/' . $fileName));
-            }
+            $mediaRecord->save();
+            DB::commit();
 
-
-            // link media with comment
-            $media = new Media();
-            $media->media = $folderPath ? $folderPath . '/' . $fileName : $fileName;
-            $media->type = $fileType;
-            $media->user_id = Auth::id();
-            Log::error($media);
-
-            switch ($type) {
-                case 'comment':
-                    $media->comment_id = $type_id;
-                    break;
-                case 'post':
-                    $media->post_id = $type_id;
-                    break;
-                case 'infographicSeries':
-                    $media->infographic_series_id = $type_id;
-                    break;
-                case 'infographic':
-                    $media->infographic_id = $type_id;
-                    break;
-                case 'book':
-                    $media->book_id = $type_id;
-                    break;
-                case 'group':
-                    $media->group_id = $type_id;
-                    break;
-                case 'reaction':
-                    $media->reaction_id = $type_id;
-                    $media->type = $type;
-                    break;
-                case 'message':
-                    $media->message_id = $type_id;
-                    $media->type = $type;
-                    break;
-                case 'user_exception':
-                    $media->user_exception_id = $type_id;
-                    $media->type = $type;
-                    break;
-                case 'question':
-                    $media->question_id = $type_id;
-                    $media->type = $type;
-                    break;
-                case 'answer':
-                    $media->answer_id = $type_id;
-                    $media->type = $type;
-                    break;
-                case 'book_report':
-                    $media->book_report_id = $type_id;
-                    $media->type = $type;
-                    break;
-                default:
-                    return 'Type Not Found';
-            }
-
-            $media->save();
-            return $media;
-        } catch (\Error $e) {
-            report($e);
-            return false;
+            return $mediaRecord;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'Failed to save media'], 500);
         }
     }
     function updateMedia($media, $media_id, $folderPath = null)
@@ -281,4 +237,65 @@ trait MediaTraits
             Log::error("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
         }
     }
+
+    private function generateFileName($media)
+    {
+        return Str::random(12) . '_' . time() . '.' . ($media instanceof \Illuminate\Http\UploadedFile ? $media->extension() : '');
+    }
+
+    private function processBase64Image($media, $fullPath, $fileName)
+    {
+        $imageParts = explode(";base64,", $media);
+        $imageTypeAux = explode("image/", $imageParts[0]);
+        $imageType = $imageTypeAux[1];
+
+        $imageBase64 = base64_decode($imageParts[1]);
+
+        if (!$imageBase64 || !@getimagesizefromstring($imageBase64)) {
+            throw new \Exception("Invalid Base64 Image");
+        }
+
+        $fileName .= $imageType;
+        $imagePath = storage_path('app/' . $fullPath . '/' . $fileName);
+
+        Image::make($imageBase64)->resize(500, null, function ($constraint) {
+            $constraint->aspectRatio();
+        })->save($imagePath, 90);
+
+        return $imagePath;
+    }
+
+    private function processUploadedImage($media, $fullPath, $fileName)
+    {
+        $image = Image::make($media->getRealPath());
+
+        if ($image->width() > 1000) {
+            $image->resize(1000, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+        }
+
+        $imagePath = public_path($fullPath . '/' . $fileName);
+        $image->save($imagePath, 90);
+
+        return $imagePath;
+    }
+
+    private function attachMediaToType($media, $type, $type_id)
+    {
+        switch ($type) {
+            case 'comment': $media->comment_id = $type_id; break;
+            case 'post': $media->post_id = $type_id; break;
+            case 'book': $media->book_id = $type_id; break;
+            case 'group': $media->group_id = $type_id; break;
+            case 'reaction': $media->reaction_id = $type_id; $media->type = $type; break;
+            case 'message': $media->message_id = $type_id; $media->type = $type; break;
+            case 'question': $media->question_id = $type_id; $media->type = $type; break;
+            case 'answer': $media->answer_id = $type_id; $media->type = $type; break;
+            case 'book_report': $media->book_report_id = $type_id; $media->type = $type; break;
+            default: return false;
+        }
+        return true;
+    }
+
 }

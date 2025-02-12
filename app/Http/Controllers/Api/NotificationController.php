@@ -13,6 +13,8 @@ use App\Traits\ResponseJson;
 use App\Exceptions\NotFound;
 use App\Exceptions\NotAuthorized;
 use App\Events\NotificationsEvent;
+use App\Models\Week;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
@@ -137,5 +139,11 @@ class NotificationController extends Controller
         } else {
             throw new NotFound;
         }
+    }
+
+    public function deleteOldNotifications()
+    {
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        DB::table('notifications')->where('created_at', '<', $previous_week->created_at)->delete();
     }
 }

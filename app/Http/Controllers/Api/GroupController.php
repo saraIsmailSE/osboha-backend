@@ -777,7 +777,7 @@ class GroupController extends Controller
         $response['total']['out_of_90'] = Mark::without('user')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
-            ->select('user_id', DB::raw('sum(reading_mark + writing_mark) as out_of_90'))
+            ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_90'))
             ->groupBy('user_id')
             ->having('out_of_90', '=', 90)
             ->count();
@@ -794,13 +794,22 @@ class GroupController extends Controller
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
             ->groupBy('user_id')
-            ->havingBetween('out_of_100', [10, 90])
+            ->havingBetween('out_of_100', [10, 89])
             ->count();
 
         $response['total']['zero'] = $response['users_in_group'] - ($response['total']['freezed'] + $response['total']['out_of_90'] + $response['total']['out_of_100'] + $response['total']['others']);
 
         $currentMonth = date('m', strtotime($response['week']->created_at));
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
+
+        /**
+         * Bug Fix: Fetching users in the group should be based on the month, not the week.
+         *
+         * @issue Reported by Heba & Sara
+         * @fix Update the query logic to filter users based on the month instead of the week.
+         * @note The update should include users with zero markers.
+         */
+
         $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->whereIn('week_id', $weeksInMonth->pluck('id'))
             ->where('is_freezed', 0)
