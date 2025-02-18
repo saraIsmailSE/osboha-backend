@@ -13,9 +13,7 @@ use App\Models\EligibleUserBook;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
-
-
-
+use Symfony\Component\HttpFoundation\Response;
 
 class EligibleQuestionController extends Controller
 {
@@ -232,7 +230,11 @@ class EligibleQuestionController extends Controller
     }
     public function getByStatus($status)
     {
-        $questions =  EligibleQuestion::with("user_book.user")->with("user_book.book")->with("user_book.questions")->where('status', $status)->groupBy('eligible_user_books_id')->get();
+        $questions =  EligibleQuestion::with("user_book.user")->with("user_book.book")->with("user_book.questions")
+            ->where('status', $status)
+            ->groupBy('eligible_user_books_id')
+            ->orderBy('updated_at', 'asc')
+            ->get();
         return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }
 
@@ -286,5 +288,15 @@ class EligibleQuestionController extends Controller
             "good" => ($good / $questionsCount) * 100,
             "accebtable" => ($accebtable / $questionsCount) * 100,
         ];
+    }
+    function undoAccept(Request $request, $questionId)
+    {
+        if (!Auth::user()->hasanyrole('admin|super_reviewer|eligible_admin')) {
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
+        }
+        EligibleQuestion::where('id', $questionId)
+            ->update(['status' => 'review']);
+
+        return $this->jsonResponseWithoutMessage("تم الاعادة لفريق المراجعة", 'data', 200);
     }
 }

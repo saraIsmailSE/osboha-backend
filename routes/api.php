@@ -820,12 +820,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::delete('/photo/{id}', [EligibleThesisController::class, 'deletePhoto']);
             Route::delete('/{id}', [EligibleThesisController::class, 'destroy']);
             Route::patch('add-degree/{id}', [EligibleThesisController::class, "addDegree"]);
-
             Route::post('update-photo', [EligibleThesisController::class, "updatePicture"]);
             Route::post('upload/{id}', [EligibleThesisController::class, "uploadPhoto"]);
             Route::get('eligible_user_books_id/{user_book_id}&{status?}', [EligibleThesisController::class, "getByUserBook"]);
             Route::get('book/{book_id}', [EligibleThesisController::class, "getByBook"]);
             Route::post('/review', [EligibleThesisController::class, "review"]);
+            Route::patch('/undo/accept/{thesisId}', [EligibleThesisController::class, 'undoAccept']);
         });
 
         //questions routes
@@ -844,6 +844,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('status/{status}', [EligibleQuestionController::class, "getByStatus"]);
             Route::post('/review', [EligibleQuestionController::class, "review"]);
             Route::patch('review-question/{id}', [EligibleQuestionController::class, "reviewQuestion"]);
+            Route::patch('/undo/accept/{questionId}', [EligibleQuestionController::class, 'undoAccept']);
+
         });
 
         //certificates routes

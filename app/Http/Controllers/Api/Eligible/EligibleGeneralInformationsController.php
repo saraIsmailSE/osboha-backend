@@ -48,7 +48,6 @@ class EligibleGeneralInformationsController extends Controller
                     'eligible_user_books_id' => $request->eligible_user_books_id
                 ]
             );
-
         } catch (\Illuminate\Database\QueryException $e) {
             return $this->jsonResponseWithoutMessage('User Book does not exist', 'data', 404);
         }
@@ -211,7 +210,10 @@ class EligibleGeneralInformationsController extends Controller
     }
     public function getByStatus($status)
     {
-        $general_informations =  EligibleGeneralInformations::with("user_book.user")->with("user_book.book")->where('status', $status)->groupBy('eligible_user_books_id')->get();
+        $general_informations =  EligibleGeneralInformations::with("user_book.user")->with("user_book.book")->where('status', $status)
+            ->groupBy('eligible_user_books_id')
+            ->orderBy('updated_at', 'asc')
+            ->get();
         return $this->jsonResponseWithoutMessage($general_informations, 'data', 200);
     }
 

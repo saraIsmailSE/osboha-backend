@@ -16,8 +16,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Traits\ResponseJson;
-
-
+use Symfony\Component\HttpFoundation\Response;
 
 class EligibleUserBookController extends Controller
 {
@@ -331,6 +330,10 @@ class EligibleUserBookController extends Controller
 
     function getEligibleUserBooksWithAuditStatus()
     {
+        if (!Auth::user()->hasanyrole('admin|super_auditer|eligible_admin')) {
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
+        }
+
         $eligible_user_books = EligibleUserBook::whereHas('thesises', function ($query) {
             $query->where('status', 'audit');
         })
@@ -356,6 +359,10 @@ class EligibleUserBookController extends Controller
 
     function getBooksWithRetardStatus()
     {
+        if (!Auth::user()->hasanyrole('admin|super_reviewer|eligible_admin')) {
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
+        }
+
         $eligible_user_books = EligibleUserBook::without(['book', 'user'])->with(['thesises', 'questions', 'generalInformation'])
             ->where('status', 'retard')->get()
             ->filter(function ($book) {
@@ -386,6 +393,9 @@ class EligibleUserBookController extends Controller
 
     function undoRetard(Request $request, $eligibleUserBookId)
     {
+        if (!Auth::user()->hasanyrole('admin|super_reviewer|eligible_admin')) {
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
+        }
         $retardType = $request->retard_type;
         $userBook = EligibleUserBook::findOrFail($eligibleUserBookId);
         switch ($retardType) {
@@ -430,6 +440,6 @@ class EligibleUserBookController extends Controller
             (new \App\Notifications\UndoRetardAchievement($userBook->book->name, $retardType))->delay(now()->addMinutes(2))
         );
 
-        return $this->jsonResponseWithoutMessage("تم الاعادة لفريق التقييم", 'data', 200);
+        return $this->jsonResponseWithoutMessage("تم الاعادة لفريق المراجعة", 'data', 200);
     }
 }

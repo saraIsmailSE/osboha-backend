@@ -119,7 +119,6 @@ class RolesAdministrationController extends Controller
         $user = User::where('email', $request->user)->first();
         if ($user) {
 
-
             $arabicRole = SystemRole::translate($role->name);
             if ($user->hasRole($role->name)) {
                 return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
@@ -131,7 +130,7 @@ class RolesAdministrationController extends Controller
                         SystemRole::SPECIAL_CARE_LEADER->value,
                         SystemRole::SPECIAL_CARE_SUPERVISOR->value
                     ]
-                ) && $user->hasRole(SystemRole::LEADER)) {
+                ) && $user->hasRole(SystemRole::LEADER->value)) {
                     return $this->jsonResponseWithoutMessage("يجب أن يكون العضو قائداً أولاًً ", 'data', 200);
                 }
 

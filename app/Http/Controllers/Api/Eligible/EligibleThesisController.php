@@ -12,7 +12,7 @@ use App\Models\EligibleUserBook;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Auth;
-
+use Symfony\Component\HttpFoundation\Response;
 
 class EligibleThesisController extends Controller
 {
@@ -265,5 +265,16 @@ class EligibleThesisController extends Controller
             "good" => ($good / $thesisCount) * 100,
             "accebtable" => ($accebtable / $thesisCount) * 100
         ];
+    }
+
+    function undoAccept(Request $request, $thesisId)
+    {
+        if (!Auth::user()->hasanyrole('admin|super_reviewer|eligible_admin')) {
+            return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
+        }
+        EligibleThesis::where('id', $thesisId)
+            ->update(['status' => 'review']);
+
+        return $this->jsonResponseWithoutMessage("تم الاعادة لفريق المراجعة", 'data', 200);
     }
 }
