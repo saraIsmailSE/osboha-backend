@@ -800,6 +800,9 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/review', [EligibleUserBookController::class, "review"]);
             Route::get('/ready/to', [EligibleUserBookController::class, "readyToAudit"]);
             Route::get('/check-achievement/{id}', [EligibleUserBookController::class, 'checkAchievement']);
+            Route::get('/get-books/audit-status', [EligibleUserBookController::class, 'getEligibleUserBooksWithAuditStatus']);
+            Route::get('/get-books/retard-status', [EligibleUserBookController::class, 'getBooksWithRetardStatus']);
+            Route::patch('/undo/retard/{eligibleUserBookId}', [EligibleUserBookController::class, 'undoRetard']);
         });
 
         //thesis routes

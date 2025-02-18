@@ -331,16 +331,105 @@ class EligibleUserBookController extends Controller
 
     function getEligibleUserBooksWithAuditStatus()
     {
-        $eligible_user_books =  EligibleUserBook::whereDoesntHave('thesises', function ($query) {
-            $query->where('status', '!=', 'audit');
+        $eligible_user_books = EligibleUserBook::whereHas('thesises', function ($query) {
+            $query->where('status', 'audit');
         })
+            ->whereDoesntHave('thesises', function ($query) {
+                $query->where('status', '!=', 'audit');
+            })
+            ->whereHas('questions', function ($query) {
+                $query->where('status', 'audit');
+            })
             ->whereDoesntHave('questions', function ($query) {
                 $query->where('status', '!=', 'audit');
+            })
+            ->whereHas('generalInformation', function ($query) {
+                $query->where('status', 'audit');
             })
             ->whereDoesntHave('generalInformation', function ($query) {
                 $query->where('status', '!=', 'audit');
             })
             ->get();
+
         return $this->jsonResponseWithoutMessage($eligible_user_books, 'data', 200);
+    }
+
+    function getBooksWithRetardStatus()
+    {
+        $eligible_user_books = EligibleUserBook::without(['book', 'user'])->with(['thesises', 'questions', 'generalInformation'])
+            ->where('status', 'retard')->get()
+            ->filter(function ($book) {
+                $retardTypes = [];
+
+                if ($book->thesises->contains('status', 'retard')) {
+                    $retardTypes[] = 'أطروحات';
+                }
+
+                if ($book->questions->contains('status', 'retard')) {
+                    $retardTypes[] = 'أسئلة';
+                }
+
+                if ($book->generalInformation->status == 'retard') {
+                    $retardTypes[] = 'ملخص عام';
+                }
+
+                if (!empty($retardTypes)) {
+                    $book->setAttribute('retard_types', implode('، ', $retardTypes));
+                    return true;
+                }
+
+                return false;
+            });
+
+        return $this->jsonResponseWithoutMessage($eligible_user_books, 'data', 200);
+    }
+
+    function undoRetard(Request $request, $eligibleUserBookId)
+    {
+        $retardType = $request->retard_type;
+        $userBook = EligibleUserBook::findOrFail($eligibleUserBookId);
+        switch ($retardType) {
+            case 'questions':
+                EligibleQuestion::where('eligible_user_books_id', $eligibleUserBookId)
+                    ->where('status', 'retard')
+                    ->update(['status' => 'review']);
+                break;
+
+            case 'general_informations':
+                EligibleGeneralInformations::where('eligible_user_books_id', $eligibleUserBookId)
+                    ->where('status', 'retard')
+                    ->update(['status' => 'review']);
+                break;
+
+            case 'thesis':
+                EligibleThesis::where('eligible_user_books_id', $eligibleUserBookId)
+                    ->where('status', 'retard')
+                    ->update(['status' => 'review']);
+                break;
+
+            default:
+                throw new \Exception("نوع غير معروف: $retardType");
+        }
+
+        $hasRetard = EligibleQuestion::where('eligible_user_books_id', $eligibleUserBookId)
+            ->where('status', 'retard')
+            ->exists() ||
+            EligibleGeneralInformations::where('eligible_user_books_id', $eligibleUserBookId)
+            ->where('status', 'retard')
+            ->exists() ||
+            EligibleThesis::where('eligible_user_books_id', $eligibleUserBookId)
+            ->where('status', 'retard')
+            ->exists();
+
+        if (!$hasRetard) {
+            $userBook->status = 'review';
+            $userBook->save();
+        }
+        $user = User::find($userBook->user_id);
+        $user->notify(
+            (new \App\Notifications\UndoRetardAchievement($userBook->book->name, $retardType))->delay(now()->addMinutes(2))
+        );
+
+        return $this->jsonResponseWithoutMessage("تم الاعادة لفريق التقييم", 'data', 200);
     }
 }
