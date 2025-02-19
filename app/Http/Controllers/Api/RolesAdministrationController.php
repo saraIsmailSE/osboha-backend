@@ -130,7 +130,7 @@ class RolesAdministrationController extends Controller
                         SystemRole::SPECIAL_CARE_LEADER->value,
                         SystemRole::SPECIAL_CARE_SUPERVISOR->value
                     ]
-                ) && $user->hasRole(SystemRole::LEADER->value)) {
+                ) && !$user->hasRole(SystemRole::LEADER->value)) {
                     return $this->jsonResponseWithoutMessage("يجب أن يكون العضو قائداً أولاًً ", 'data', 200);
                 }
 
