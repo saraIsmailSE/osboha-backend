@@ -226,7 +226,7 @@ class EligibleGeneralInformationsController extends Controller
     }
     public function getByBook($book_id)
     {
-        $general_informations['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->first();
+        $general_informations['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->latest()->first();
         $general_informations['general_informations'] =  EligibleGeneralInformations::with('reviewer')->with('auditor')
             ->where('eligible_user_books_id', $general_informations['user_book']->id)->first();
         return $this->jsonResponseWithoutMessage($general_informations, 'data', 200);

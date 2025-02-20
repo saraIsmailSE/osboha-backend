@@ -247,7 +247,7 @@ class EligibleQuestionController extends Controller
     }
     public function getByBook($book_id)
     {
-        $questions['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->first();
+        $questions['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->latest()->first();
         $questions['questions'] =  EligibleQuestion::with('reviewer')->with('auditor')->where('eligible_user_books_id', $questions['user_book']->id)->get();
         return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }

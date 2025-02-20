@@ -223,7 +223,7 @@ class EligibleThesisController extends Controller
 
     public function getByBook($book_id)
     {
-        $theses['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->first();
+        $theses['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->latest()->first();
         $theses['theses'] =  EligibleThesis::with('reviewer')->with('auditor')->where('eligible_user_books_id', $theses['user_book']->id)->orderBy('created_at')->get();
         return $this->jsonResponseWithoutMessage($theses, 'data', 200);
     }
