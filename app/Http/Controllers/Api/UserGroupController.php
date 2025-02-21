@@ -266,6 +266,7 @@ class UserGroupController extends Controller
 
                     UserGroup::where('user_type', SystemRole::AMBASSADOR->value)
                         ->where('user_id', $user->id)
+                        ->whereNull('termination_reason')
                         ->update(['termination_reason'  => 'upgraded_to_' . $group->type->type]);
                 } else {
                     //CHECK IF USER IS AMBASSADOR IN ANOTHER GROUP
@@ -300,7 +301,7 @@ class UserGroupController extends Controller
                     $user->save();
 
                     if ($group->type->type === GroupType::FOLLOWUP->value) {
-                        //if the parent is not active, deactivate all parents and create a new one                                                        
+                        //if the parent is not active, deactivate all parents and create a new one
                         $userParent = UserParent::where('user_id', $user->id)
                             ->where('parent_id', $group->groupLeader[0]->id)
                             ->where('is_active', 1)
@@ -468,7 +469,7 @@ class UserGroupController extends Controller
             foreach ($groupAmbassadors as $ambassadorID) {
                 User::where('id', $ambassadorID)->update(['parent_id' => $supervisorID]);
 
-                //if the parent is not active, deactivate all parents and create a new one                                    
+                //if the parent is not active, deactivate all parents and create a new one
                 $userParent = UserParent::where('user_id', $ambassadorID)
                     ->where('parent_id', $supervisorID)
                     ->where('is_active', 1)

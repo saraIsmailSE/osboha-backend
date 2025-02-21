@@ -420,7 +420,7 @@ class RolesAdministrationController extends Controller
                         }
 
                         // add supervisor as ambassador to the new advising team
-                        UserGroup::where('user_type', 'ambassador')->where('user_id', $supervisor->id)->update(['termination_reason'  => 'advisor_change']);
+                        UserGroup::where('user_type', 'ambassador')->where('user_id', $supervisor->id)->whereNull('termination_reason')->update(['termination_reason'  => 'advisor_change']);
                         UserGroup::Create(
                             [
                                 'user_id' =>  $supervisor->id,
@@ -605,7 +605,7 @@ class RolesAdministrationController extends Controller
                         ########## Change Supervising Team ##########
 
                         //terminate current recored then create one
-                        UserGroup::where('user_type', 'supervisor')->where('user_id', $currentSupervisor->id)->where('group_id', $supervising1Group->id)->update(['termination_reason'  => 'supervisor_change']);
+                        UserGroup::where('user_type', 'supervisor')->where('user_id', $currentSupervisor->id)->where('group_id', $supervising1Group->id)->whereNull('termination_reason')->update(['termination_reason'  => 'supervisor_change']);
                         UserGroup::Create(
                             [
                                 'user_id' =>  $currentSupervisor->id,
@@ -613,7 +613,7 @@ class RolesAdministrationController extends Controller
                                 'user_type' => 'supervisor'
                             ]
                         );
-                        UserGroup::where('user_type', 'supervisor')->where('user_id', $newSupervisor->id)->where('group_id', $supervising2Group->id)->update(['termination_reason'  => 'supervisor_change']);
+                        UserGroup::where('user_type', 'supervisor')->where('user_id', $newSupervisor->id)->where('group_id', $supervising2Group->id)->whereNull('termination_reason')->update(['termination_reason'  => 'supervisor_change']);
                         UserGroup::Create(
                             [
                                 'user_id' =>  $newSupervisor->id,
@@ -759,7 +759,7 @@ class RolesAdministrationController extends Controller
                                         $currentSupervisor->removeRole("leader");
 
                                         //* اضافة القائد الجديد إلى مجموعة المتابعة كـ قائد
-                                        UserGroup::where('user_type', 'leader')->where('user_id',  $newLeader->id)->update(['termination_reason'  => 'supervisor_change']);
+                                        UserGroup::where('user_type', 'leader')->where('user_id',  $newLeader->id)->whereNull('termination_reason')->update(['termination_reason'  => 'supervisor_change']);
                                         UserGroup::create(
                                             [
                                                 'user_id' => $newLeader->id,
@@ -781,7 +781,7 @@ class RolesAdministrationController extends Controller
                                             ->whereNull('user_groups.termination_reason')
                                             ->first();
 
-                                        UserGroup::where('user_type', 'ambassador')->where('user_id',  $newLeader->id)->update(['termination_reason'  => 'supervisor_change']);
+                                        UserGroup::where('user_type', 'ambassador')->where('user_id',  $newLeader->id)->whereNull('termination_reason')->update(['termination_reason'  => 'supervisor_change']);
                                         UserGroup::create(
                                             [
                                                 'user_id' => $newLeader->id,
@@ -877,7 +877,7 @@ class RolesAdministrationController extends Controller
                             try {
 
                                 //* اضافة المراقب الجديد إلى مجموعة التوجيه كـ سفير
-                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $newSupervisor->id)->update(['termination_reason'  => 'supervisor_upgrade']);
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $newSupervisor->id)->whereNull('termination_reason')->update(['termination_reason'  => 'supervisor_upgrade']);
                                 UserGroup::create(
                                     [
                                         'user_id' => $newSupervisor->id,
@@ -933,7 +933,7 @@ class RolesAdministrationController extends Controller
                                         $q->where('type_id', '=', $supervisingGroupTypeID);
                                     })->where('user_type', 'supervisor')->pluck('group_id')->first();
 
-                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $currentSupervisor->id)->update(['termination_reason'  => 'advisor_change']);
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $currentSupervisor->id)->whereNull('termination_reason')->update(['termination_reason'  => 'advisor_change']);
                                 UserGroup::create(
                                     [
                                         'user_id' => $currentSupervisor->id,
@@ -1036,7 +1036,7 @@ class RolesAdministrationController extends Controller
                                     ->where('user_type', 'ambassador')
                                     ->pluck('group_id')->first();
 
-                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $newLeader->id)->update(['termination_reason'  => 'leader_upgrade']);
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $newLeader->id)->whereNull('termination_reason')->update(['termination_reason'  => 'leader_upgrade']);
                                 UserGroup::create(
                                     [
                                         'user_id' => $newLeader->id,
@@ -1152,7 +1152,7 @@ class RolesAdministrationController extends Controller
                                     'is_active' => 1,
                                 ]);
                                 //move ambassador to new followup group
-                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->update(['termination_reason'  => 'transfer_ambassador']);
+                                UserGroup::where('user_type', 'ambassador')->where('user_id',  $ambassador->id)->whereNull('termination_reason')->update(['termination_reason'  => 'transfer_ambassador']);
                                 UserGroup::create(
                                     [
                                         'user_id' => $ambassador->id,
@@ -1234,7 +1234,7 @@ class RolesAdministrationController extends Controller
                                     $currentAdvisorId = User::where('id', $leader->parent_id)->pluck('parent_id')->first();
 
                                     // جعل القائد سفير في غروب الرقابة الجديد
-                                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $leader->id)->update(['termination_reason'  => 'transfer_leader']);
+                                    UserGroup::where('user_type', 'ambassador')->where('user_id',  $leader->id)->whereNull('termination_reason')->update(['termination_reason'  => 'transfer_leader']);
                                     UserGroup::create(
                                         [
                                             'user_id' => $leader->id,
