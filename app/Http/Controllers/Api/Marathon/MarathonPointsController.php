@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Exports\MarathonPointsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Constants\MarkConstants;
+use Illuminate\Support\Facades\Log;
 
 class MarathonPointsController extends Controller
 {

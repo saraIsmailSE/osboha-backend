@@ -225,15 +225,16 @@ class EligibleUserBookController extends Controller
 
         try {
             //REJECT OR RETARD ENTIER USER BOOK
+            $authID = Auth::id();
             $userBook = EligibleUserBook::find($request->id);
             $user = User::find($userBook->user_id);
             $userBook->status = $request->status;
             $userBook->reviews = $request->reviews;
             $userBook->save();
 
-            EligibleThesis::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
-            EligibleQuestion::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
-            EligibleGeneralInformations::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews]);
+            EligibleThesis::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews, 'reviewer_id' => $authID]);
+            EligibleQuestion::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews, 'reviewer_id' => $authID]);
+            EligibleGeneralInformations::where('eligible_user_books_id', $request->id)->update(['status' => $request->status, 'reviews' => $request->reviews, 'reviewer_id' => $authID]);
 
             $user->notify(
                 (new \App\Notifications\RejectAchievement($userBook->book->name))->delay(now()->addMinutes(2))
