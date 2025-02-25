@@ -14,6 +14,7 @@ return [
         array('title' => 'الأول من فبراير', 'date' => '2025-02-02', 'is_vacation' => 0, 'week_key' => 56),
         array('title' => 'الثاني من فبراير', 'date' => '2025-02-09', 'is_vacation' => 0, 'week_key' => 57),
         array('title' => 'الثالث من فبراير', 'date' => '2025-02-16', 'is_vacation' => 0, 'week_key' => 58),
+        array('title' => 'الرابع من فبراير', 'date' => '2025-02-19', 'is_vacation' => 0, 'week_key' => 59),
         array('title' => 'الخامس من فبراير', 'date' => '2025-02-23', 'is_vacation' => 0, 'week_key' => 60),
         array('title' => 'الأول من مارس', 'date' => '2025-03-02', 'is_vacation' => 0, 'week_key' => 61),
         array('title' => 'الثاني من مارس', 'date' => '2025-03-09', 'is_vacation' => 0, 'week_key' => 62),
