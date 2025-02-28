@@ -20,7 +20,7 @@ class HadithSeeder extends Seeder
 
         try {
             DB::beginTransaction();
-            $csv = fopen(base_path('database/data/ramadan_2024/ramadan_hadiths.csv'), 'r');
+            $csv = fopen(base_path('database/data/ramadan_2025/ramadan_hadiths.csv'), 'r');
             $hadiths = [];
 
             while (($row = fgetcsv($csv)) !== false) {

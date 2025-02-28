@@ -45,8 +45,9 @@ class RamadanQuestionAnswerController extends Controller
                 ];
         }
 
+        $currentYear = now()->year;
 
-        $answers = RamadanQuestionsAnswer::where('status', 'pending')
+        $answers = RamadanQuestionsAnswer::where('status', 'pending')->whereYear('created_at', $currentYear)
             ->with('user')->with('ramadanQuestion')
             ->whereHas('ramadanQuestion', function ($q) use ($questionCategory) {
                 $q->whereIn('category', $questionCategory);

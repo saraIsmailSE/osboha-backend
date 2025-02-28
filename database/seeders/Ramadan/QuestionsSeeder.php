@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Ramadan;
 
+use App\Models\RamadanDay;
 use App\Models\RamadanHadith;
 use App\Models\RamadanQuestion;
 use Carbon\Carbon;
@@ -23,13 +24,17 @@ class QuestionsSeeder extends Seeder
         //DB::statement('SET FOREIGN_KEY_CHECKS=0');
         try {
             DB::beginTransaction();
-            $csv = fopen(base_path('database/data/ramadan_2024/ramadan_questions.csv'), 'r');
+            $csv = fopen(base_path('database/data/ramadan_2025/ramadan_questions.csv'), 'r');
             $questions = [];
 
             while (($row = fgetcsv($csv)) !== false) {
 
+                $ramadan_day = RamadanDay::find($row[1]);
+                $newDateTime = $ramadan_day->created_at->format('Y-m-d') . ' ' .  $row[0] . ':00';
+                $time_to_publish = Carbon::parse($newDateTime)->format('Y-m-d H:i:s');
+
                 $questionsData = [
-                    'time_to_publish' => $row[0],
+                    'time_to_publish' => $time_to_publish,
                     'ramadan_day_id' => $row[1],
                     'title' => $row[2],
                     'link' => $row[3],
@@ -50,7 +55,6 @@ class QuestionsSeeder extends Seeder
                 ]);
 
                 if ($validator->fails()) {
-                    // Handle validation errors
                     continue;
                 }
 

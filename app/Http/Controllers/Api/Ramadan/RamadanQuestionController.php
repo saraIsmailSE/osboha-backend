@@ -34,9 +34,12 @@ class RamadanQuestionController extends Controller
         $data = $day->ramadanQuestions()->with(['answers' => function ($query) {
             $query->where('user_id', Auth::id());
         }])->orderBy('time_to_publish', 'asc')
-        ->get();
+            ->get();
 
-        return $this->jsonResponseWithoutMessage($data, 'data', Response::HTTP_OK);
+        $response['day'] = $day;
+        $response['answers'] = $data;
+
+        return $this->jsonResponseWithoutMessage($response, 'data', Response::HTTP_OK);
     }
     public function show($id)
     {

@@ -52,11 +52,13 @@ class RamadanNightPrayerController extends Controller
 
     public function statistics($ramadan_day_id)
     {
+        $currentYear = now()->year;
         $statistics = [];
-        
+
         // 1. Number of distinct users who complete night pray for 5 days
         $statistics['distinct_users_5_night'] = RamadanNightPrayer::where('no_of_rakaat', '>', 0)
             ->where('night_pray', 2)
+            ->whereYear('created_at', $currentYear)
             ->groupBy('user_id')
             ->havingRaw('COUNT(DISTINCT ramadan_day_id) >= 5')
             ->count();
@@ -64,6 +66,7 @@ class RamadanNightPrayerController extends Controller
         // 2. Number of distinct users who complete night pray for 10 days
         $statistics['distinct_users_10_night'] = RamadanNightPrayer::where('no_of_rakaat', '>', 0)
             ->where('night_pray', 2)
+            ->whereYear('created_at', $currentYear)
             ->groupBy('user_id')
             ->havingRaw('COUNT(DISTINCT ramadan_day_id) >= 10')
             ->count();
@@ -71,6 +74,7 @@ class RamadanNightPrayerController extends Controller
         // 3. Number of distinct users who complete night pray for 20 days
         $statistics['distinct_users_20_night'] = RamadanNightPrayer::where('no_of_rakaat', '>', 0)
             ->where('night_pray', 2)
+            ->whereYear('created_at', $currentYear)
             ->groupBy('user_id')
             ->havingRaw('COUNT(DISTINCT ramadan_day_id) >= 20')
             ->count();
@@ -78,6 +82,7 @@ class RamadanNightPrayerController extends Controller
         // 4. Number of ramadan_day_id where the user complete night pray
         $statistics['auth_complete_nights'] = RamadanNightPrayer::where('user_id', Auth::id())
             ->where('no_of_rakaat', '>', 0)
+            ->whereYear('created_at', $currentYear)
             ->where('night_pray', 2)
             ->distinct('ramadan_day_id')
             ->count();
@@ -85,6 +90,7 @@ class RamadanNightPrayerController extends Controller
         // 5. Summation of specific ramadan_day_id
         $statistics['auth_specific_ramadan_day_points'] = RamadanNightPrayer::where('user_id', Auth::id())
             ->where('ramadan_day_id', $ramadan_day_id)
+            ->whereYear('created_at', $currentYear)
             ->sum(DB::raw("no_of_rakaat + night_pray"));
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', 200);

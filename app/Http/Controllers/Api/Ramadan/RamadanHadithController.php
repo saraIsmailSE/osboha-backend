@@ -23,10 +23,12 @@ class RamadanHadithController extends Controller
      */
     public function index()
     {
+        $currentYear = now()->year;
         //get all days with their hadiths and the memorized hadith for authenticated user of each hadith
-        $data = RamadanHadith::with('ramadanDay')->with(['memorization' => function ($query) {
-            $query->where('user_id', Auth::id());
-        }])->get();
+        $data = RamadanHadith::with('ramadanDay')->whereYear('created_at', $currentYear)
+            ->with(['memorization' => function ($query) {
+                $query->where('user_id', Auth::id());
+            }])->get();
 
         return $this->jsonResponseWithoutMessage($data, 'data', Response::HTTP_OK);
     }

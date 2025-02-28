@@ -176,8 +176,10 @@ class RamadanHadithMemorizationController extends Controller
         */
 
         $user = Auth::user();
+        $currentYear = now()->year;
 
         $usersCount = RamadanHadithMemorization::select('user_id')
+            ->whereYear('created_at', $currentYear)
             ->distinct()
             ->count('user_id');
 
@@ -185,6 +187,7 @@ class RamadanHadithMemorizationController extends Controller
             ->distinct()
             ->groupBy('user_id')
             ->where('status', 'accepted')
+            ->whereYear('created_at', $currentYear)
             ->havingRaw('count(user_id) >= 5')
             ->count('user_id');
 
@@ -192,6 +195,7 @@ class RamadanHadithMemorizationController extends Controller
             ->distinct()
             ->groupBy('user_id')
             ->where('status', 'accepted')
+            ->whereYear('created_at', $currentYear)
             ->havingRaw('count(user_id) >= 15')
             ->count('user_id');
 
@@ -199,16 +203,19 @@ class RamadanHadithMemorizationController extends Controller
             ->distinct()
             ->groupBy('user_id')
             ->where('status', 'accepted')
+            ->whereYear('created_at', $currentYear)
             ->havingRaw('count(user_id) >= 25')
             ->count('user_id');
 
         $memorizedHadithsCount = RamadanHadithMemorization::where('user_id', $user->id)
-            ->where('status', 'accepted')->count();
+            ->where('status', 'accepted')->whereYear('created_at', $currentYear)
+            ->count();
 
         $userPoints = RamadanHadithMemorization::where('user_id', $user->id)
-            ->where('status', 'accepted')
+            ->where('status', 'accepted')->whereYear('created_at', $currentYear)
+
             ->whereHas('hadith', function ($q) use ($ramadan_day_id) {
-                    $q->where('ramadan_day_id', $ramadan_day_id);
+                $q->where('ramadan_day_id', $ramadan_day_id);
             })
             ->sum('points');
 
@@ -236,7 +243,9 @@ class RamadanHadithMemorizationController extends Controller
             return $this->jsonResponseWithoutMessage('لا تملك صلاحية التصحيح', 'data', Response::HTTP_FORBIDDEN);
         }
 
+        $currentYear = now()->year;
         $memorizedHadiths = RamadanHadithMemorization::where('status', 'pending')
+            ->whereYear('created_at', $currentYear)
             ->with('user')
             ->with('hadith')
             ->orderBy('created_at', 'asc')->limit(25)->get();

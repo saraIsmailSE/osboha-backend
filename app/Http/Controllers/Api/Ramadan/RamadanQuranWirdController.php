@@ -54,41 +54,41 @@ class RamadanQuranWirdController extends Controller
     }
     public function statistics($ramadan_day_id)
     {
-        /*count of users who read at least one juzu
-        * count of users who read more than one juzu
-        * count of users who read 5 juzu or more
-        */
-
+        $currentYear = now()->year;
         $statistics = [];
 
-        // 1. Number of  users who read at least one juzu
+        // 1. Number of users who read at least one juzu
         $statistics['num_users_read_one_juzu'] = RamadanQuranWird::where('no_of_parts', '=', 1)
             ->where('ramadan_day_id', $ramadan_day_id)
+            ->whereYear('created_at', $currentYear)
             ->count();
 
         // 2. Number of users who read more than one juzu
         $statistics['num_users_read_more_than_one_juzu'] = RamadanQuranWird::whereBetween('no_of_parts', [2, 4])
             ->where('ramadan_day_id', $ramadan_day_id)
+            ->whereYear('created_at', $currentYear)
             ->count();
 
         // 3. Number of users who read 5 juzu or more
         $statistics['num_users_read_five_juzu_or_more'] = RamadanQuranWird::where('no_of_parts', '>', 4)
             ->where('ramadan_day_id', $ramadan_day_id)
+            ->whereYear('created_at', $currentYear)
             ->count();
 
-        // 5.  Auth user wird for specific day
+        // 4. Auth user wird for a specific day
         $statistics['auth_specific_ramadan_day_wird'] = RamadanQuranWird::where('user_id', Auth::id())
             ->where('ramadan_day_id', $ramadan_day_id)
+            ->whereYear('created_at', $currentYear)
             ->first();
 
-        // 6. Summation of specific ramadan_day_id
+        // 5. Summation of specific ramadan_day_id for auth user
         $statistics['auth_total_no_of_parts'] = RamadanQuranWird::where('user_id', Auth::id())
-        ->sum("no_of_parts");
-        // ->sum(DB::raw("no_of_parts"));
-
+            ->whereYear('created_at', $currentYear)
+            ->sum("no_of_parts");
 
         return $this->jsonResponseWithoutMessage($statistics, 'data', 200);
     }
+
     public function show($ramadan_day_id)
     {
         $night_pray = RamadanQuranWird::where('ramadan_day_id', $ramadan_day_id)->where('user_id', Auth::id())->first();
