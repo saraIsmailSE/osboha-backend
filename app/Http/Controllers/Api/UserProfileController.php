@@ -193,6 +193,7 @@ class UserProfileController extends Controller
             // Update the User record if name fields have changed
             if ($nameFieldsChanged) {
                 User::where('id', $authID)->update(['allowed_to_eligible' => 2]);
+                $this->deleteOfficialDoc($profile->user_id);
             }
 
             return $this->jsonResponseWithoutMessage($profile, 'data', 200);
