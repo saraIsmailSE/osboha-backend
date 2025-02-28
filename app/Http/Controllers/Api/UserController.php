@@ -12,6 +12,7 @@ use App\Models\UserGroup;
 use App\Models\UserParent;
 use App\Models\Week;
 use App\Traits\MarkTrait;
+use App\Traits\MediaTraits;
 use App\Models\SocialMedia;
 use App\Models\Thesis;
 use App\Models\UserException;
@@ -21,15 +22,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-
-
 use App\Traits\UserParentTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
-    use ResponseJson, UserParentTrait, MarkTrait;
+    use ResponseJson, UserParentTrait, MarkTrait, MediaTraits;
 
     /**
      * Show user`s basic info.
@@ -259,21 +258,6 @@ class UserController extends Controller
         }
         return $this->jsonResponseWithoutMessage($result, 'data', 200);
     }
-
-    public function deleteOfficialDoc($userID)
-    {
-        $pathToRemove = '/assets/images/Official_Document/' . 'osboha_official_document_' . $userID;
-
-        //get all files with same name no matter what extension is
-        $filesToRemove = glob(public_path($pathToRemove . '.*'));
-
-        foreach ($filesToRemove as $file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-        }
-    }
-
 
     function retrieveNestedUsers($parentId)
     {

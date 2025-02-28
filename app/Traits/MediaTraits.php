@@ -284,18 +284,55 @@ trait MediaTraits
     private function attachMediaToType($media, $type, $type_id)
     {
         switch ($type) {
-            case 'comment': $media->comment_id = $type_id; break;
-            case 'post': $media->post_id = $type_id; break;
-            case 'book': $media->book_id = $type_id; break;
-            case 'group': $media->group_id = $type_id; break;
-            case 'reaction': $media->reaction_id = $type_id; $media->type = $type; break;
-            case 'message': $media->message_id = $type_id; $media->type = $type; break;
-            case 'question': $media->question_id = $type_id; $media->type = $type; break;
-            case 'answer': $media->answer_id = $type_id; $media->type = $type; break;
-            case 'book_report': $media->book_report_id = $type_id; $media->type = $type; break;
-            default: return false;
+            case 'comment':
+                $media->comment_id = $type_id;
+                break;
+            case 'post':
+                $media->post_id = $type_id;
+                break;
+            case 'book':
+                $media->book_id = $type_id;
+                break;
+            case 'group':
+                $media->group_id = $type_id;
+                break;
+            case 'reaction':
+                $media->reaction_id = $type_id;
+                $media->type = $type;
+                break;
+            case 'message':
+                $media->message_id = $type_id;
+                $media->type = $type;
+                break;
+            case 'question':
+                $media->question_id = $type_id;
+                $media->type = $type;
+                break;
+            case 'answer':
+                $media->answer_id = $type_id;
+                $media->type = $type;
+                break;
+            case 'book_report':
+                $media->book_report_id = $type_id;
+                $media->type = $type;
+                break;
+            default:
+                return false;
         }
         return true;
     }
 
+    public function deleteOfficialDoc($userID)
+    {
+        $pathToRemove = '/assets/images/Official_Document/' . 'osboha_official_document_' . $userID;
+
+        //get all files with same name no matter what extension is
+        $filesToRemove = glob(public_path($pathToRemove . '.*'));
+
+        foreach ($filesToRemove as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+    }
 }
