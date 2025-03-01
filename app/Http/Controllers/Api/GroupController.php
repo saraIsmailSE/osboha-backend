@@ -728,7 +728,6 @@ class GroupController extends Controller
         $users_in_group = $this->usersByWeek($group_id, $week_id, ['leader', 'ambassador']);
 
         $response['users_in_group'] = $users_in_group->count();
-        Log::channel('community_edits')->info($users_in_group->count());
 
         $response['group_leader'] = $users_in_group->where('user_type', 'leader')->pluck('user_id');
 
