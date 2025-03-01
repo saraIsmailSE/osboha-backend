@@ -728,9 +728,12 @@ class GroupController extends Controller
         $users_in_group = $this->usersByWeek($group_id, $week_id, ['leader', 'ambassador']);
 
         $response['users_in_group'] = $users_in_group->count();
+        Log::channel('community_edits')->info($users_in_group->count());
+
         $response['group_leader'] = $users_in_group->where('user_type', 'leader')->pluck('user_id');
 
         $response['ambassadors_reading'] = User::without('userProfile')->select('users.*')
+            ->distinct('user_id')
             ->whereIn('users.id', $users_in_group->pluck('user_id'))
             ->selectRaw('COALESCE(marks.reading_mark, 0) as reading_mark')
             ->selectRaw('COALESCE(marks.writing_mark, 0) as writing_mark')
@@ -747,6 +750,7 @@ class GroupController extends Controller
 
         $response['total_statistics'] = Mark::without('user,week')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
+            ->distinct('user_id')
             ->where('is_freezed', 0)
             ->select(
                 DB::raw('sum(reading_mark + writing_mark + support) as team_out_of_100'),
@@ -762,6 +766,7 @@ class GroupController extends Controller
 
         $response['most_read'] = Mark::where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
+            ->distinct('user_id')
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('max(total_pages) as max_total_pages'))
             ->groupBy('user_id')
@@ -772,6 +777,7 @@ class GroupController extends Controller
             Mark::without('user,week')->where('week_id', $response['week']->id)
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 1)
+            ->distinct('user_id')
             ->count();
 
         $response['total']['out_of_90'] = Mark::without('user')->where('week_id', $response['week']->id)

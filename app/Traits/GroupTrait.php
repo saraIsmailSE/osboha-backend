@@ -66,7 +66,7 @@ trait GroupTrait
                 ->where('group_id', $group_id);
         })
         ->whereIn('user_type', $user_type)
-        ->groupBy('user_id')
+        ->distinct('user_id')
         ->get();
 
     }
@@ -87,7 +87,7 @@ trait GroupTrait
                     ->whereIn('group_id', $groups_id);
             })
             ->whereIn('user_type', $user_type)
-            ->groupBy('user_id')
+            ->distinct('user_id')
             ->get();
     }
     function membersReading($membersIDs, $week_id)

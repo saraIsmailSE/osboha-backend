@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\Ramadan;
 
 use App\Http\Controllers\Controller;
+use App\Models\RamadanDay;
 use App\Models\RamadanNightPrayer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class RamadanNightPrayerController extends Controller
 {
@@ -99,7 +101,15 @@ class RamadanNightPrayerController extends Controller
 
     public function show($ramadan_day_id)
     {
+        $day = RamadanDay::find($ramadan_day_id);
+        if (!$day) {
+            return $this->jsonResponseWithoutMessage('اليوم غير موجود', 'data', Response::HTTP_NOT_FOUND);
+        }
+
         $night_pray = RamadanNightPrayer::where('ramadan_day_id', $ramadan_day_id)->where('user_id', Auth::id())->first();
-        return $this->jsonResponseWithoutMessage($night_pray, 'data', 200);
+        $response['day'] = $day;
+        $response['night_pray'] = $night_pray;
+
+        return $this->jsonResponseWithoutMessage($response, 'data', Response::HTTP_OK);
     }
 }
