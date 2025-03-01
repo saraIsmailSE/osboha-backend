@@ -377,7 +377,7 @@ class EligibleUserBookController extends Controller
                     $retardTypes[] = 'أسئلة';
                 }
 
-                if ($book->generalInformation->status == 'retard') {
+                if ($book->generalInformation && $book->generalInformation->status == 'retard') {
                     $retardTypes[] = 'ملخص عام';
                 }
 
