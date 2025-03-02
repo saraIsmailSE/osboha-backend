@@ -52,10 +52,7 @@ class RamadanDayController extends Controller
     }
     public function closeDay()
     {
-        Log::channel('ramadanDay')->info('START: Closing the previous day and opening the next day of Ramadan');
-
         $current_day = RamadanDay::where('is_active', 1)->orderBy('id', 'desc')->first();
-        Log::channel('ramadanDay')->info($current_day);
 
         if (!$current_day) {
             Log::channel('ramadanDay')->info('No active ramadan day');
@@ -66,11 +63,9 @@ class RamadanDayController extends Controller
 
         try {
             $nextDay = RamadanDay::where('is_active', 0)
-            ->where('id', '>', optional($current_day)->id)
-            ->orderBy('id', 'asc')
-            ->first();
-            Log::channel('ramadanDay')->info($nextDay);
-
+                ->where('id', '>', optional($current_day)->id)
+                ->orderBy('id', 'asc')
+                ->first();
             if ($nextDay) {
                 $nextDay->is_active = 1;
                 $nextDay->save();
