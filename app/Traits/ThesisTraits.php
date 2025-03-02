@@ -120,13 +120,19 @@ trait ThesisTraits
         return $this->jsonResponse(new ThesisResource($thesis), 'data', 200, 'Thesis deleted successfully!');
     }
 
-    public function calculateAllThesesMark(int $mark_id, bool $update = false): array
+    public function calculateAllThesesMark(int $mark_id, bool $update = false, bool $skipRamadan = false, Collection $theses = null): array
     {
         //new approach
         $userMark = $this->getUserMark(null, $mark_id);
-        $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id);
 
-        $markData = $this->calculateMarks($allTheses, null, false);
+        // if ($theses) {
+        //     $allTheses = $theses;
+        // } else {
+        //     $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id);
+        // }
+
+        $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id);
+        $markData = $this->calculateMarks($allTheses, null, false, $skipRamadan);
 
         if ($update) {
             $userMark->update($markData);
@@ -363,7 +369,7 @@ trait ThesisTraits
         ];
     }
 
-    private function calculateMarks(Collection $allTheses, array|Thesis|null $thesis, bool $resetFreeze = true): array
+    private function calculateMarks(Collection $allTheses, array|Thesis|null $thesis, bool $resetFreeze = true, bool $skipRamadan = false): array
     {
         $isRamadanActive = $this->checkRamadanStatus();
         $normalThesesMark = $ramadanThesesMark = null;
@@ -394,7 +400,10 @@ trait ThesisTraits
             }
         }
 
+        dd($allTheses);
+
         foreach ($allTheses as $type => $theses) {
+            dd($theses, $theses->count());
             list($actualTotals, $filteredTotals) = $this->aggregateTheses($theses);
 
             $finalTotals['total_pages'] += $filteredTotals['total_pages'];
@@ -402,12 +411,18 @@ trait ThesisTraits
             $finalTotals['total_screenshots'] += $filteredTotals['total_screenshots'];
             $finalTotals['total_rejected_parts'] += $filteredTotals['total_rejected_parts'];
 
+            //if skip ramadan is true, calculate the ramadan theses as normal theses
+
             if (strcasecmp($type, ThesisConstants::NORMAL_THESIS_TYPE) === 0) {
                 $normalThesesMark = $this->calculateNormalThesesMark($filteredTotals);
             } elseif (strcasecmp($type, ThesisConstants::RAMADAN_THESIS_TYPE) === 0 || strcasecmp($type, ThesisConstants::TAFSEER_THESIS_TYPE) === 0) {
-                $ramadanThesesMark = $isRamadanActive
-                    ? $this->calculateRamadanThesesMark($filteredTotals, $type)
-                    : $this->calculateNormalThesesMark($filteredTotals);
+                if ($skipRamadan) {
+                    $ramadanThesesMark = $this->calculateNormalThesesMark($filteredTotals);
+                } else {
+                    $ramadanThesesMark = $isRamadanActive
+                        ? $this->calculateRamadanThesesMark($filteredTotals, $type)
+                        : $this->calculateNormalThesesMark($filteredTotals);
+                }
             }
         }
 
@@ -466,7 +481,6 @@ trait ThesisTraits
             'complete_theses_count' => 0,
             'total_rejected_parts' => 0,
         ];
-
         foreach ($theses as $thesis) {
             $this->aggregateSingleThesis($thesis->toArray(), $actualTotals, $filteredTotals);
         }
@@ -701,7 +715,8 @@ trait ThesisTraits
     protected function checkRamadanStatus(): bool
     {
         $currentYear = now()->year;
-        return Cache::remember("ramadan_active_$currentYear", now()->addMonth(), function () use ($currentYear) {
+        $currentMonth = now()->month;
+        return Cache::remember("ramadan_active_$currentYear-$currentMonth", now()->endOfWeek()->addSecond(), function () use ($currentYear) {
             return RamadanDay::whereYear('created_at', $currentYear)
                 ->where('is_active', 1)
                 ->exists();

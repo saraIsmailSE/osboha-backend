@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Constants\BookConstants;
 use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\ThesisResource;
+use App\Models\BookType;
 use App\Models\Comment;
+use App\Models\Mark;
 use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Thesis;
@@ -15,6 +18,8 @@ use App\Traits\ResponseJson;
 use App\Traits\ThesisTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ThesisController extends Controller
@@ -202,5 +207,48 @@ class ThesisController extends Controller
         return $this->jsonResponseWithoutMessage([
             "overlap" => false,
         ], 'data', 200);
+    }
+
+
+    /**
+     * For the ramadan days that should not be considered in the theses marks calculation, recalculate the theses marks.
+     */
+    public function recalculateRamadanThesesMarks()
+    {
+        //get the previous week
+        $week = Week::orderBy('created_at', 'desc')->skip(1)->first();
+
+        if ($week) {
+            //get the marks that have theses which written from ramadan/tafseer book during the previous week
+            $marks = Mark::where('week_id', $week->id)
+                ->whereHas('thesis', function ($query) {
+                    $query->whereHas('book', function ($query) {
+                        $query->whereIn('type_id', BookType::whereIn('type', [BookConstants::RAMADAN, BookConstants::TAFSEER])->pluck('id')->toArray());
+                    });
+                })
+                ->with('thesis')
+                ->get();
+
+            // dd($marks->count());
+            //recalculate the marks using chunk to avoid memory issues
+
+            try {
+                DB::beginTransaction();
+                $marks->chunk(100, function ($marks) {
+                    foreach ($marks as $mark) {
+                        $this->calculateAllThesesMark($mark->id, true, true);
+                    }
+                });
+
+                DB::commit();
+
+                $users = $marks->pluck('user_id')->unique()->toArray();
+                Log::channel('community_edits')->info('Recalculate Ramadan Theses Marks in non-ramadan days ', ['users' => $users]);
+                $this->jsonResponseWithoutMessage("تم اعادة حساب العلامات بنجاح - $marks->count() علامة", 'data', 200);
+            } catch (\Exception $e) {
+                DB::rollback();
+                throw $e;
+            }
+        }
     }
 }
