@@ -84,6 +84,7 @@ use App\Http\Controllers\Api\Marathon\{
 };
 
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,7 +96,21 @@ use Illuminate\Support\Facades\Broadcast;
 
 Route::group(['prefix' => 'v1'], function () {
 
+    Route::prefix('tests')->group(function () {
+        Route::get('connection', function () {
+            return response()->json(['message' => 'Connected Successfully']);
+        });
 
+        Route::get('db-connection', function () {
+            try {
+                $conn = DB::connection();
+                $dbName = $conn->getDatabaseName();
+                return response()->json(['message' => 'Connected to ' . $dbName . ' Successfully']);
+            } catch (\Exception $e) {
+                return response()->json(['message' => $e->getMessage()], 500);
+            }
+        });
+    });
 
     ########Start Media########
     Route::group(['prefix' => 'media'], function () {
@@ -582,6 +597,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/user/{user_id}', [ThesisController::class, 'listUserThesis'])->where('user_id', '[0-9]+');
             Route::get('/week/{week_id}', [ThesisController::class, 'listWeekThesis'])->where('week_id', '[0-9]+');
             Route::post('/check-overlap', [ThesisController::class, 'checkThesisOverlap']);
+            Route::get('/recalculate-ramadan-mark', [ThesisController::class, 'recalculateRamadanThesesMarks']);
         });
         ######## End Thesis ########
 
@@ -845,7 +861,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/review', [EligibleQuestionController::class, "review"]);
             Route::patch('review-question/{id}', [EligibleQuestionController::class, "reviewQuestion"]);
             Route::patch('/undo/accept/{questionId}', [EligibleQuestionController::class, 'undoAccept']);
-
         });
 
         //certificates routes
