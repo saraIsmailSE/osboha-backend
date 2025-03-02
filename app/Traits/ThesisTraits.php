@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Error\Deprecated;
 
 trait ThesisTraits
@@ -366,6 +367,7 @@ trait ThesisTraits
     private function calculateMarks(Collection $allTheses, array|Thesis|null $thesis, bool $resetFreeze = true): array
     {
         $isRamadanActive = $this->checkRamadanStatus();
+
         $normalThesesMark = $ramadanThesesMark = null;
         $thesisType = $thesis ? ThesisType::findOrFail($thesis['type_id'])->type : null;
 
@@ -701,7 +703,7 @@ trait ThesisTraits
     protected function checkRamadanStatus(): bool
     {
         $currentYear = now()->year;
-        return Cache::remember("ramadan_active_$currentYear", now()->addMonth(), function () use ($currentYear) {
+        return Cache::remember("is_ramadan_active", now()->addMonth(), function () use ($currentYear) {
             return RamadanDay::whereYear('created_at', $currentYear)
                 ->where('is_active', 1)
                 ->exists();
@@ -719,7 +721,7 @@ trait ThesisTraits
             'total_pages' => 0,
             'total_theses' => 0,
             'total_screenshots' => 0,
-            // 'total_rejected_parts_from_complete' => 0, //this will be filled in one case: when there are remaining rejected parts which are less than the max parts and the theses are complete 
+            // 'total_rejected_parts_from_complete' => 0, //this will be filled in one case: when there are remaining rejected parts which are less than the max parts and the theses are complete
             'total_rejected_parts' => 0,
         ];
 
@@ -754,7 +756,7 @@ trait ThesisTraits
 
         $filteredTotals['total_pages'] = $actualTotals['total_pages'];
 
-        // ! Deprecated status 
+        // ! Deprecated status
         if (strcasecmp($thesis['status'], StatusConstants::REJECTED_WRITING_STATUS) === 0) {
             return [$actualTotals, $filteredTotals];
         }
@@ -848,8 +850,8 @@ trait ThesisTraits
 
     /**
      * Calculates the maximum allowed writing parts for a thesis based on the total pages, max length, and total screenshots.
-     * @param int $totalPages 
-     * @param int $maxLength 
+     * @param int $totalPages
+     * @param int $maxLength
      * @param int $totalScreenshots
      * @return int
      */
