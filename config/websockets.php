@@ -12,7 +12,7 @@ return [
      */
     'dashboard' => [
         'port' => env('LARAVEL_WEBSOCKETS_PORT', 6001),
-        'activity_timeout' => 43200,  
+        'activity_timeout' => 43200,
     ],
 
     /*
@@ -120,7 +120,7 @@ return [
          * certificate chain of issuers. The private key also may be contained
          * in a separate file specified by local_pk.
          */
-        'local_cert' => env('LARAVEL_WEBSOCKETS_SSL_LOCAL_CERT', null),
+        'local_cert' => '/home/osbohaco/ssl/certs/fullchain.pem',
 
         /*
          * Path to local private key file on filesystem in case of separate files for
