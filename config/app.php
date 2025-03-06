@@ -179,6 +179,7 @@ return [
         App\Providers\TelescopeServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Elibyy\TCPDF\ServiceProvider::class,
+        App\Providers\CertificateServiceProvider::class,
 
     ],
 

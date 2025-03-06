@@ -40,6 +40,7 @@ return [
                 'host' => '127.0.0.1',
                 'port' => 6001,
                 'scheme' => 'https',
+                'verify' => env('CURL_CA_BUNDLE', true),
             ],
             'curl_options' => [
                 CURLOPT_SSL_VERIFYPEER => true,
