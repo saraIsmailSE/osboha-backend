@@ -128,7 +128,7 @@ class UserExceptionController extends Controller
 
         $typeId = $request->type_id;
         switch ($typeId) {
-                // تجميد عادي - الاسبوع الحالي أو القادم
+            // تجميد عادي - الاسبوع الحالي أو القادم
             case $this->getExceptionTypeId(config("constants.FREEZE_THIS_WEEK_TYPE")):
             case $this->getExceptionTypeId(config("constants.FREEZE_NEXT_WEEK_TYPE")):
                 return $this->createFreezingRequest($exception, $typeId, $current_week);
@@ -305,7 +305,7 @@ class UserExceptionController extends Controller
             } else {
                 //leader or ambassador
                 // get group advisor
-                $group = UserGroup::without(['user', 'group.Timeline','group.type'])->where('user_id', Auth::id())->where('user_type', 'ambassador')->whereNull('termination_reason')->first()->group;
+                $group = UserGroup::without(['user', 'group.Timeline', 'group.type'])->where('user_id', Auth::id())->where('user_type', 'ambassador')->whereNull('termination_reason')->first()->group;
                 $assignee_id =  $group->groupAdvisor()->first()->id;
                 $leader_id = Auth::user()->parent_id;
 
@@ -802,7 +802,7 @@ class UserExceptionController extends Controller
 
 
                 switch ($decision) {
-                        //اعفاء الأسبوع الحالي
+                    //اعفاء الأسبوع الحالي
                     case 1:
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at)
@@ -811,7 +811,7 @@ class UserExceptionController extends Controller
                             ->addHours(12)
                             ->format('Y-m-d H:i:s');
                         break;
-                        //اعفاء الأسبوع القادم
+                    //اعفاء الأسبوع القادم
                     case 2:
                         $userException->start_at = Carbon::parse($desired_week->created_at)
                             ->setTime(0, 0)
@@ -824,7 +824,7 @@ class UserExceptionController extends Controller
                             ->addHours(12)
                             ->format('Y-m-d H:i:s');
                         break;
-                        //اعفاء لأسبوعين الحالي و القادم
+                    //اعفاء لأسبوعين الحالي و القادم
                     case 3:
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at)
@@ -834,7 +834,7 @@ class UserExceptionController extends Controller
                             ->format('Y-m-d H:i:s');
 
                         break;
-                        //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
+                    //اعفاء لثلاثة أسابيع الحالي - القام - الذي يليه
                     case 4:
                         $userException->start_at = $desired_week->created_at;
                         $userException->end_at = Carbon::parse($desired_week->created_at)
@@ -889,7 +889,7 @@ class UserExceptionController extends Controller
             $status = 'مقبول';
 
             switch ($decision) {
-                    //اعفاء الأسبوع الحالي
+                //اعفاء الأسبوع الحالي
                 case 1:
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at)
@@ -898,7 +898,7 @@ class UserExceptionController extends Controller
                         ->addHours(12)
                         ->format('Y-m-d H:i:s');
                     break;
-                    //اعفاء الأسبوع القادم
+                //اعفاء الأسبوع القادم
                 case 2:
                     $userException->start_at = Carbon::parse($desired_week->created_at)
                         ->setTime(0, 0)
@@ -911,7 +911,7 @@ class UserExceptionController extends Controller
                         ->addHours(12)
                         ->format('Y-m-d H:i:s');
                     break;
-                    //اعفاء لأسبوعين الحالي و القادم
+                //اعفاء لأسبوعين الحالي و القادم
                 case 3:
                     $userException->start_at = $desired_week->created_at;
                     $userException->end_at = Carbon::parse($desired_week->created_at)
@@ -938,8 +938,10 @@ class UserExceptionController extends Controller
 
         //notify ambassador
         $userToNotify = User::find($userException->user_id);
-        $userToNotify->notify(new \App\Notifications\UpdateExceptionStatus($status, $userException->note, $userException->start_at, $userException->end_at));
 
+        $userToNotify->notify(
+            (new \App\Notifications\UpdateExceptionStatus($status, $userException->note, $userException->start_at, $userException->end_at))->delay(now()->addMinutes(2))
+        );
         $msg = "حالة طلبك لنظام الامتحانات هي " . $status;
         (new NotificationController)->sendNotification($userToNotify->id, $msg, USER_EXCEPTIONS, $this->getExceptionPath($userException->id));
 

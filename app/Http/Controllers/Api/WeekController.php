@@ -389,4 +389,9 @@ class WeekController extends Controller
         // Return the week titles
         return $this->jsonResponseWithoutMessage($weekTitles, 'data', 200);
     }
+    public function getPreviousWeek()
+    {
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        return $this->jsonResponseWithoutMessage($previous_week, 'data', 200);
+    }
 }

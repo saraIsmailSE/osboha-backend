@@ -190,6 +190,10 @@ class RolesAdministrationController extends Controller
             if (!(SystemRole::canUserManageAnotherUser($authUser, $user)) || !(SystemRole::canUserManageRole($authUser, $role->name))) {
                 return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . SystemRole::translate($role->name), 'data', 200);
             }
+            //check if role is support leader, just assign role
+            if ($role->name === SystemRole::SUPPORT_LEADER->value) {
+                return $this->handleSupportLeaderRole($user, $role);
+            }
 
             //check head_user exists
             $head_user = User::where('email', $request->head_user)->first();
@@ -207,10 +211,6 @@ class RolesAdministrationController extends Controller
 
                     //check if head user role is greater that user role
                     if (SystemRole::canUserManageRole($head_user, $role->name)) {
-                        //check if role is support leader, just assign role
-                        if ($role->name === SystemRole::SUPPORT_LEADER->value) {
-                            return $this->handleSupportLeaderRole($user, $role);
-                        }
 
                         //check if supervisor is a leader first
                         if (

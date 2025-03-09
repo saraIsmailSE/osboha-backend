@@ -17,6 +17,7 @@ use App\Models\Week;
 use Illuminate\Support\Facades\DB;
 use App\Traits\GroupTrait;
 use App\Traits\UserParentTrait;
+use Illuminate\Support\Facades\Log;
 
 use function PHPUnit\Framework\returnSelf;
 
@@ -133,9 +134,9 @@ class StatisticsController extends Controller
         $leadersIDs =  $leaders->pluck('user_id');
         //افرقة المتابعة الخاصة بالقادة
         $group_followups = UserGroup::with('user')->where('user_type', 'leader')
-        ->whereIn('user_id', $leadersIDs)
-        ->where('user_id','!=', $superviser_id)
-        ->whereNull('termination_reason')
+            ->whereIn('user_id', $leadersIDs)
+            ->where('user_id', '!=', $superviser_id)
+            ->whereNull('termination_reason')
             ->get();
 
         foreach ($group_followups as $key => $group) {
@@ -162,7 +163,7 @@ class StatisticsController extends Controller
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
-    public function advisorsStatistics($advisor_id, $week_filter = "current")
+    public function advisorsStatistics($advisor_id, $week_id)
     {
 
         $advisingGroup = UserGroup::where('user_id', $advisor_id)->where('user_type', 'advisor')
@@ -181,15 +182,17 @@ class StatisticsController extends Controller
         }
 
 
-        //previous_week
-        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
-        //last_previous_week
-        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
-
+        //weekInfo
+        $weekInfo = Week::find($week_id);
+        //previous_weekInfo
+        $previous_weekInfo = Week::where('created_at', '<', $weekInfo->created_at)
+            ->orderBy('created_at', 'desc')
+            ->first();
+            
         $response = [];
 
-        // $supervisors = $this->usersByWeek($advisorGroup->id, $previous_week->id, ['ambassador']);
-        $supervisors = $this->childrensByWeek($advisor_id, $previous_week->id, ['supervisor']);
+        // $supervisors = $this->usersByWeek($advisorGroup->id, $weekInfo->id, ['ambassador']);
+        $supervisors = $this->childrensByWeek($advisor_id, $weekInfo->id, ['supervisor']);
 
 
         $supervisorsIDs = $supervisors->pluck('user_id');
@@ -202,7 +205,7 @@ class StatisticsController extends Controller
 
         foreach ($group_followups as $key => $group) {
             if ($group) {
-                $response['supervisor_own_followup_team'][$key] = $this->followupTeamStatistics($group, $previous_week, $last_previous_week);
+                $response['supervisor_own_followup_team'][$key] = $this->followupTeamStatistics($group, $weekInfo, $previous_weekInfo);
             }
         }
 
@@ -210,18 +213,17 @@ class StatisticsController extends Controller
 
         foreach ($supervisorsIDs as $key => $superviser_id) {
             $superviser = User::find($superviser_id);
-            $response['supervisor_followup_teams'][$key] = $this->totalFollowupTeamStatistics($superviser, $previous_week, $last_previous_week);
+            $response['supervisor_followup_teams'][$key] = $this->totalFollowupTeamStatistics($superviser, $weekInfo, $previous_weekInfo);
         }
 
         // Supervisors reading
-        $response['supervisors_reading'] = $this->membersReading($supervisorsIDs, $previous_week->id);
+        $response['supervisors_reading'] = $this->membersReading($supervisorsIDs, $weekInfo->id);
 
         $response['advisor_group'] = $advisorGroup;
 
 
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
-
 
     public function consultantsStatistics($consultant_id, $week_filter = "current")
     {
@@ -367,7 +369,7 @@ class StatisticsController extends Controller
 
     private function followupTeamStatistics($group, $previous_week, $last_previous_week)
     {
-       // $group->group_id=1235;
+        // $group->group_id=1235;
         if (!$group) {
             $teamStatistics['team'] = 'لا يوجد فريق متابعة';
 
@@ -507,9 +509,9 @@ class StatisticsController extends Controller
 
         $secondLastWeekZeroMarks = collect($followupLeaderAndAmbassadors)->diff($secondLastWeekMarks)->values();
 
-        $markChanges = Mark:: where('week_id', $previous_week->id)
-        ->whereIn('user_id', $secondLastWeekZeroMarks)
-        ->count();
+        $markChanges = Mark::where('week_id', $previous_week->id)
+            ->whereIn('user_id', $secondLastWeekZeroMarks)
+            ->count();
 
         return $markChanges;
     }
@@ -521,12 +523,12 @@ class StatisticsController extends Controller
     }
 
     private function excluded_and_withdraw($previous_week, $group_id)
-    { 
+    {
         $current_week = Week::orderBy('created_at', 'desc')->first();
 
         return UserGroup::where('group_id', $group_id)
             ->where('updated_at', '>=', $previous_week->created_at)
-           ->where('updated_at', '<', $current_week->created_at)
+            ->where('updated_at', '<', $current_week->created_at)
             ->where('user_type', 'ambassador')
             ->select(
                 DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END), 0) as excluded_members"),

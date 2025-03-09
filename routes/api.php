@@ -538,7 +538,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/by-week/{week_id?}', [StatisticsController::class, 'byWeek']);
             Route::get('/last-week', [StatisticsController::class, 'lastWeek']);
             Route::get('/leaders-statistics/{superviser_id}/{week_filter?}', [StatisticsController::class, 'supervisingStatistics']);
-            Route::get('/supervisors-statistics/{advisor_id}/{week_filter?}', [StatisticsController::class, 'advisorsStatistics']);
+            Route::get('/supervisors-statistics/{advisor_id}/{week_id}', [StatisticsController::class, 'advisorsStatistics']);
             Route::get('/advisors-statistics/{consultant_id}/{week_filter?}', [StatisticsController::class, 'consultantsStatistics']);
             Route::get('/consultant-statistics/{admin_id}/{week_filter?}', [StatisticsController::class, 'administratorStatistics']);
         });
@@ -599,6 +599,8 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/notify-users', [WeekController::class, 'notifyUsersNewWeek']);
             Route::get('/get-weeks/{limit}', [WeekController::class, 'getWeeks']);
             Route::get('/get-next-weeks-title/{limit}', [WeekController::class, 'getNextWeekTitles']);
+            Route::get('/get-previous-week', [WeekController::class, 'getPreviousWeek']);
+
         });
         ######## Week ########
 
