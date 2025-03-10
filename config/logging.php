@@ -163,6 +163,11 @@ return [
             'path' => storage_path('logs/Questions.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'Notification' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/Notification.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
         'NotificationBroadcasting' => [
             'driver' => 'single',
             'path' => storage_path('logs/NotificationBroadcasting.log'),

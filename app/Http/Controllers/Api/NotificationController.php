@@ -143,7 +143,12 @@ class NotificationController extends Controller
 
     public function deleteOldNotifications()
     {
-        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
-        DB::table('notifications')->where('created_at', '<', $previous_week->created_at)->delete();
+        try {
+            $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+            DB::table('notifications')->where('created_at', '<', $previous_week->created_at)->delete();
+            Log::channel('Notification')->info('old notifications deleted successfully');
+        } catch (\Exception $e) {
+            Log::channel('Notification')->error('delete old notifications: ' . $e->getMessage());
+        }
     }
 }
