@@ -230,11 +230,24 @@ class EligibleQuestionController extends Controller
     }
     public function getByStatus($status)
     {
-        $questions =  EligibleQuestion::with("user_book.user")->with("user_book.book")->with("user_book.questions")
-            ->where('status', $status)
-            ->groupBy('eligible_user_books_id')
-            ->orderBy('updated_at', 'asc')
-            ->get();
+        $questions = EligibleQuestion::with([
+            'user_book' => function ($q) {
+                $q->with([
+                    'book' => function ($q) {
+                        $q->select(['id', 'name']);
+                    },
+                    'user' => function ($q) {
+                        $q->select(['id', 'name' , 'last_name']);
+                    }
+                ])->without(['thesises', 'generalInformation']);
+            }
+        ])
+        ->without(['reviewer', 'auditor'])
+        ->where('status', $status)
+        ->groupBy('eligible_user_books_id')
+        ->orderBy('updated_at', 'asc')
+        ->get();
+
         return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }
 

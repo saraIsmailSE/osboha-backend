@@ -780,6 +780,7 @@ class GroupController extends Controller
             ->count();
 
         $response['total']['out_of_90'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->distinct('user_id')
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_90'))
@@ -787,6 +788,7 @@ class GroupController extends Controller
             ->having('out_of_90', '=', 90)
             ->count();
         $response['total']['out_of_100'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->distinct('user_id')
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
@@ -795,6 +797,7 @@ class GroupController extends Controller
             ->count();
 
         $response['total']['others'] = Mark::without('user')->where('week_id', $response['week']->id)
+            ->distinct('user_id')
             ->whereIn('user_id', $users_in_group->pluck('user_id'))
             ->where('is_freezed', 0)
             ->select('user_id', DB::raw('sum(reading_mark + writing_mark + support) as out_of_100'))
@@ -805,6 +808,7 @@ class GroupController extends Controller
         $response['total']['zero'] = $response['users_in_group'] - ($response['total']['freezed'] + $response['total']['out_of_90'] + $response['total']['out_of_100'] + $response['total']['others']);
 
         $currentMonth = date('m', strtotime($response['week']->created_at));
+        $currentYear = date('y', strtotime($response['week']->created_at));
         $weeksInMonth = Week::whereRaw('MONTH(created_at) = ?', $currentMonth)->get();
 
         /**
@@ -814,8 +818,9 @@ class GroupController extends Controller
          * @fix Update the query logic to filter users based on the month instead of the week.
          * @note The update should include users with zero markers.
          */
-
-        $month_achievement = Mark::without('user')->whereIn('user_id', $users_in_group->pluck('user_id'))
+        $usersByMonth = $this->usersByMonth($group_id, $currentMonth, $currentYear, ['leader', 'ambassador']);
+        $month_achievement = Mark::without('user')->whereIn('user_id', $usersByMonth->pluck('user_id'))
+            ->distinct('user_id')
             ->whereIn('week_id', $weeksInMonth->pluck('id'))
             ->where('is_freezed', 0)
             ->select(DB::raw('avg(reading_mark + writing_mark + support) as out_of_100 , week_id'))

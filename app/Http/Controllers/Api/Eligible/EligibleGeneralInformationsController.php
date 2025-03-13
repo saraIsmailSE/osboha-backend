@@ -210,10 +210,24 @@ class EligibleGeneralInformationsController extends Controller
     }
     public function getByStatus($status)
     {
-        $general_informations =  EligibleGeneralInformations::with("user_book.user")->with("user_book.book")->where('status', $status)
+        $general_informations =  EligibleGeneralInformations::with([
+            'user_book' => function ($q) {
+                $q->with([
+                    'book' => function ($q) {
+                        $q->select(['id', 'name']);
+                    },
+                    'user' => function ($q) {
+                        $q->select(['id', 'name', 'last_name']);
+                    }
+                ])->without(['thesises', 'questions']);
+            }
+        ])
+            ->without(['reviewer', 'auditor'])
+            ->where('status', $status)
             ->groupBy('eligible_user_books_id')
             ->orderBy('updated_at', 'asc')
             ->get();
+
         return $this->jsonResponseWithoutMessage($general_informations, 'data', 200);
     }
 
