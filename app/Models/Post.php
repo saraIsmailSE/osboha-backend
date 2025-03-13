@@ -14,6 +14,7 @@ class Post extends Model
         'user_id',
         'type_id',
         'allow_comments',
+        'allow_votes',
         'tags',
         'is_approved',
         'is_pinned',

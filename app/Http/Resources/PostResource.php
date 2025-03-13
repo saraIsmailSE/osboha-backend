@@ -20,6 +20,7 @@ class PostResource extends JsonResource
             'user' => new UserInfoResource($this->whenLoaded('user')),
             'body' => $this->body,
             'allow_comments' => $this->allow_comments,
+            'allow_votes' => $this->allow_votes,
             'is_approved' => $this->is_approved,
             'is_pinned' => $this->is_pinned,
             'type' =>  $this->type->type,

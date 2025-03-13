@@ -497,6 +497,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::patch('/accept/{id}', [PostController::class, 'acceptPost'])->where('id', '[0-9]+');
             Route::patch('/decline/{id}', [PostController::class, 'declinePost'])->where('id', '[0-9]+');
             Route::patch('/{id}/control-comments', [PostController::class, 'controlComments']);
+            Route::patch('/{id}/control-votes', [PostController::class, 'controlVotes']);
             Route::patch('/pin/{id}', [PostController::class, 'pinPost'])->where('id', '[0-9]+');
             Route::get('/home', [PostController::class, 'getPostsForMainPage']);
             Route::get('/announcements', [PostController::class, 'getAnnouncements']);

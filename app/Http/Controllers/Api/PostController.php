@@ -661,6 +661,36 @@ class PostController extends Controller
             throw new NotFound;
         }
     }
+
+    /**
+     * user can control comments in the system (“control comments” permission is required)
+     * @param  Request  $request
+     * @return jsonResponseWithoutMessage
+     */
+    public function controlVotes($post_id)
+    {
+
+        $post = Post::find($post_id);
+
+        if ($post) {
+            if (Auth::id() == $post->user_id || (Auth::user()->can('control comments') && $post->timeline->type->type === 'group')) {
+                $post->allow_votes = $post->allow_votes ? 0 : 1;
+                $post->save();
+
+                if ($post->allow_votes == 0) {
+                    $msg = "closed";
+                } else {
+                    $msg = "openned";
+                }
+
+                return $this->jsonResponseWithoutMessage($msg, 'data', 200);
+            } else {
+                throw new NotAuthorized;
+            }
+        } else {
+            throw new NotFound;
+        }
+    }
     /**
      * User can pin post on his profile or if user has a pin post permission.
      * posts can be pinned only on the timelines ['announcement', 'group', 'profile']
