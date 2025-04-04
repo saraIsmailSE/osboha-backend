@@ -31,19 +31,18 @@ return [
     'connections' => [
         'pusher' => [
             'driver' => 'pusher',
-            'key' => env('REVERB_APP_ID'),
-            'secret' => env('REVERB_APP_SECRET'),
-            'app_id' => env('REVERB_APP_ID'),
+            'key' => env('PUSHER_APP_KEY'),
+            'secret' => env('PUSHER_APP_SECRET'),
+            'app_id' => env('PUSHER_APP_ID'),
             'options' => [
-                'cluster' => env('REVERB_APP_CLUSTER', 'mt1'),
+                'cluster' => env('PUSHER_APP_CLUSTER'),
                 'useTLS' => true,
                 'host' => '127.0.0.1',
                 'port' => 6001,
-                'scheme' => env('PUSHER_APP_SCHEME', 'http'),
+                'scheme' => 'https',
                 'verify' => env('CURL_CA_BUNDLE', true),
             ],
             'curl_options' => [
-                CURLOPT_TIMEOUT => 60,
                 CURLOPT_SSL_VERIFYPEER => true,
                 CURLOPT_SSL_VERIFYHOST => 2,
                 CURLOPT_CAINFO => env('CURL_CA_BUNDLE', '/home/osbohaco/ssl/certs/cacert.pem'),
