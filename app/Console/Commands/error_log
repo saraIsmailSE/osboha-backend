@@ -1,0 +1,416 @@
+[31-Jan-2025 18:03:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[31-Jan-2025 18:03:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[31-Jan-2025 18:03:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[31-Jan-2025 18:03:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php on line 9
+[31-Jan-2025 18:04:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[31-Jan-2025 18:04:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[31-Jan-2025 18:04:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[31-Jan-2025 18:05:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[31-Jan-2025 18:05:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[31-Jan-2025 18:05:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php on line 8
+[31-Jan-2025 19:51:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[31-Jan-2025 19:51:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8
+[09-Mar-2025 21:10:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[10-Mar-2025 13:25:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[10-Mar-2025 14:08:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[10-Mar-2025 14:44:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[10-Mar-2025 15:18:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[10-Mar-2025 15:27:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8
+[10-Mar-2025 15:30:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[11-Mar-2025 05:38:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[11-Mar-2025 06:59:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php on line 8
+[11-Mar-2025 07:28:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[11-Mar-2025 07:29:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[11-Mar-2025 07:29:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[11-Mar-2025 07:37:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[11-Mar-2025 12:51:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[11-Mar-2025 14:15:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php on line 9
+[12-Mar-2025 10:01:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[12-Mar-2025 10:08:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[12-Mar-2025 10:10:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[12-Mar-2025 17:37:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[12-Mar-2025 17:55:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[12-Mar-2025 18:07:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8
+[13-Mar-2025 04:45:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[13-Mar-2025 04:50:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[13-Mar-2025 04:58:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[13-Mar-2025 07:19:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php on line 8
+[13-Mar-2025 07:43:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[13-Mar-2025 08:22:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[15-Mar-2025 07:28:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[15-Mar-2025 09:14:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php on line 9
+[15-Mar-2025 09:28:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[15-Mar-2025 09:45:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[15-Mar-2025 10:17:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[15-Mar-2025 14:55:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[20-Mar-2025 01:20:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[20-Mar-2025 02:13:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[20-Mar-2025 02:44:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php on line 8
+[20-Mar-2025 03:18:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8
+[20-Mar-2025 05:00:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[20-Mar-2025 05:10:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[20-Mar-2025 08:13:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php on line 9
+[20-Mar-2025 08:14:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[20-Mar-2025 09:10:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[20-Mar-2025 09:33:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[20-Mar-2025 09:35:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[20-Mar-2025 10:37:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[22-Mar-2025 16:59:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[22-Mar-2025 17:50:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[22-Mar-2025 17:53:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[22-Mar-2025 20:24:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[22-Mar-2025 21:01:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[22-Mar-2025 21:53:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[22-Mar-2025 22:14:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[22-Mar-2025 22:15:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[22-Mar-2025 23:08:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8
+[22-Mar-2025 23:36:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[24-Mar-2025 05:24:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[24-Mar-2025 06:18:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[24-Mar-2025 06:21:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[24-Mar-2025 08:36:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[24-Mar-2025 08:57:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[24-Mar-2025 09:01:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php on line 9
+[24-Mar-2025 09:34:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php on line 8
+[24-Mar-2025 09:50:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[24-Mar-2025 10:04:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[24-Mar-2025 10:09:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[24-Mar-2025 10:51:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8
+[24-Mar-2025 11:19:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[26-Mar-2025 09:14:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[26-Mar-2025 09:18:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[26-Mar-2025 09:18:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[26-Mar-2025 09:56:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[26-Mar-2025 10:00:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[26-Mar-2025 10:01:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php on line 9
+[26-Mar-2025 10:16:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php on line 8
+[26-Mar-2025 10:18:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[26-Mar-2025 10:19:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[26-Mar-2025 10:19:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[26-Mar-2025 10:31:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8
+[26-Mar-2025 10:39:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[31-Mar-2025 20:19:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[02-Apr-2025 17:52:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/deleteOldMedia.php on line 8
+[02-Apr-2025 18:11:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeNewUsers.php on line 8
+[02-Apr-2025 18:48:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/CloseRamadanDay.php on line 8
+[02-Apr-2025 19:10:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/generateAuditMark.php on line 8
+[02-Apr-2025 19:18:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ExcludeUsers.php on line 8
+[02-Apr-2025 19:28:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/Eligible.php on line 10
+[02-Apr-2025 19:30:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/WeeklyMarks.php on line 9
+[02-Apr-2025 19:34:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/ModifyTimer.php on line 9
+[02-Apr-2025 19:57:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/finishedException.php on line 8
+[02-Apr-2025 20:17:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/SetMarkForExceptionalFreez.php on line 8
+[03-Apr-2025 02:58:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/AcceptSupport.php on line 8
+[03-Apr-2025 04:49:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Console\Command" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Commands/RemoveOldQuestions.php on line 8

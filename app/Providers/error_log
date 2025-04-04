@@ -1,0 +1,180 @@
+[09-Mar-2025 14:47:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[10-Mar-2025 14:45:57 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[11-Mar-2025 06:03:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[11-Mar-2025 12:50:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\AuthServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php on line 11
+[11-Mar-2025 14:16:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php on line 10
+[11-Mar-2025 15:08:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php on line 8
+[11-Mar-2025 21:33:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[12-Mar-2025 09:59:55 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[13-Mar-2025 05:24:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\AuthServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php on line 11
+[13-Mar-2025 06:18:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[13-Mar-2025 06:55:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[13-Mar-2025 06:58:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php on line 10
+[13-Mar-2025 06:58:30 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[13-Mar-2025 07:28:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php on line 8
+[15-Mar-2025 07:24:14 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[20-Mar-2025 01:38:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\AuthServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php on line 11
+[20-Mar-2025 02:21:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php on line 10
+[20-Mar-2025 02:39:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php on line 8
+[20-Mar-2025 06:57:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[20-Mar-2025 07:58:05 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[20-Mar-2025 07:58:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[22-Mar-2025 18:49:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\AuthServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php on line 11
+[22-Mar-2025 19:38:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[22-Mar-2025 20:43:56 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[22-Mar-2025 20:44:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[22-Mar-2025 21:29:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php on line 8
+[24-Mar-2025 07:03:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\AuthServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php on line 11
+[24-Mar-2025 07:48:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[24-Mar-2025 08:43:07 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[24-Mar-2025 08:45:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[24-Mar-2025 08:48:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php on line 10
+[24-Mar-2025 09:34:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php on line 8
+[26-Mar-2025 09:29:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\AuthServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php on line 11
+[26-Mar-2025 09:38:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[26-Mar-2025 09:56:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[26-Mar-2025 09:57:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php on line 10
+[26-Mar-2025 09:58:38 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[26-Mar-2025 10:09:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php on line 8
+[29-Mar-2025 08:06:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[02-Apr-2025 18:08:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\EventServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/EventServiceProvider.php on line 23
+[02-Apr-2025 18:09:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\AuthServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AuthServiceProvider.php on line 11
+[02-Apr-2025 18:45:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Support\Providers\RouteServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/RouteServiceProvider.php on line 11
+[02-Apr-2025 18:47:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/AppServiceProvider.php on line 10
+[02-Apr-2025 18:47:33 UTC] PHP Fatal error:  Uncaught Error: Class "Laravel\Telescope\TelescopeApplicationServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/TelescopeServiceProvider.php on line 10
+[02-Apr-2025 19:04:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Providers/BroadcastServiceProvider.php on line 8

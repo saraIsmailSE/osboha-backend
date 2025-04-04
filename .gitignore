@@ -18,3 +18,4 @@ yarn-error.log
 /.vscode
 .htaccess1
 error_log.log
+*.log

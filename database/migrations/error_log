@@ -1,0 +1,272 @@
+[30-Jan-2025 08:21:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_163824_create_user_exceptions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_163824_create_user_exceptions_table.php on line 7
+[30-Jan-2025 15:58:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_10_18_173610_create_marathon_violations_reasons_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_10_18_173610_create_marathon_violations_reasons_table.php on line 7
+[31-Jan-2025 03:23:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_04_18_111217_create_tagged_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_04_18_111217_create_tagged_users_table.php on line 7
+[31-Jan-2025 21:04:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php on line 7
+[31-Jan-2025 23:32:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php on line 7
+[01-Feb-2025 15:05:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php on line 7
+[01-Feb-2025 21:53:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php on line 7
+[02-Feb-2025 16:40:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php on line 7
+[03-Feb-2025 16:39:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php on line 7
+[03-Feb-2025 21:30:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_05_1_213154_create_ambassadors_requests_table.php on line 7
+[04-Feb-2025 06:04:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_11_21_020610_update_user_groups_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_11_21_020610_update_user_groups_table.php on line 7
+[04-Feb-2025 16:39:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php on line 7
+[05-Feb-2025 16:41:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php on line 7
+[06-Feb-2025 16:42:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_14_062828_change_time_to_publish_column_in_ramadan_questions_table.php on line 7
+[08-Feb-2025 16:32:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_04_135953_create_ramadan_quran_wirds_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_04_135953_create_ramadan_quran_wirds_table.php on line 7
+[15-Feb-2025 10:10:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php on line 7
+[17-Feb-2025 01:57:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_02_15_075319_add_enum_value_to_user_exceptions.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_02_15_075319_add_enum_value_to_user_exceptions.php on line 8
+[17-Feb-2025 07:28:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php on line 7
+[18-Feb-2025 08:37:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php on line 7
+[20-Feb-2025 01:36:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2018_08_08_100000_create_telescope_entries_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2018_08_08_100000_create_telescope_entries_table.php on line 7
+[21-Feb-2025 08:33:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_07_24_181653_create_marathon_weeks_table.php on line 7
+[21-Feb-2025 16:17:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php on line 7
+[23-Feb-2025 12:21:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php on line 7
+[24-Feb-2025 12:20:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php on line 7
+[25-Feb-2025 12:27:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php on line 7
+[27-Feb-2025 13:01:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php on line 7
+[27-Feb-2025 14:48:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165353_create_book_levels_table.php on line 7
+[01-Mar-2025 00:39:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_10_24_012559_add_user_exception_id_index_to_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_10_24_012559_add_user_exception_id_index_to_media_table.php on line 7
+[01-Mar-2025 01:29:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_15_221103_add_week_key_to_marathon_bonuses_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_15_221103_add_week_key_to_marathon_bonuses_table.php on line 7
+[02-Mar-2025 08:15:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160313_create_exception_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160313_create_exception_types_table.php on line 7
+[04-Mar-2025 10:50:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_09_05_083145_modify_theses_table_fields.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_09_05_083145_modify_theses_table_fields.php on line 7
+[04-Mar-2025 11:50:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php on line 7
+[05-Mar-2025 01:46:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php on line 7
+[06-Mar-2025 09:09:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php on line 7
+[06-Mar-2025 23:54:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php on line 7
+[07-Mar-2025 02:01:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php on line 7
+[07-Mar-2025 09:30:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php on line 7
+[08-Mar-2025 02:17:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php on line 7
+[09-Mar-2025 10:07:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php on line 7
+[10-Mar-2025 02:03:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php on line 7
+[11-Mar-2025 02:03:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2025_01_10_131819_add_indices_to_the_media_table.php on line 7
+[11-Mar-2025 09:45:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_07_17_162914_create_eligible_theses_table.php on line 7
+[15-Mar-2025 10:29:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170025_create_infographic_series_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170025_create_infographic_series_table.php on line 7
+[18-Mar-2025 12:31:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_29_214037_create_eligible_quotations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_29_214037_create_eligible_quotations_table.php on line 7
+[20-Mar-2025 12:36:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165355_create_languages_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165355_create_languages_table.php on line 7
+[24-Mar-2025 03:26:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170011_create_reaction_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170011_create_reaction_types_table.php on line 7
+[29-Mar-2025 09:57:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php on line 7
+[30-Mar-2025 01:57:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2014_10_12_000000_create_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2014_10_12_000000_create_users_table.php on line 7
+[30-Mar-2025 05:04:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_07_10_200452_update_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_07_10_200452_update_media_table.php on line 7
+[30-Mar-2025 22:02:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_04_150248_create_ramadan_hadith_memorizations_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2024_03_04_150248_create_ramadan_hadith_memorizations_table.php on line 7
+[31-Mar-2025 00:46:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php on line 7
+[31-Mar-2025 02:46:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165950_create_posts_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165950_create_posts_table.php on line 7
+[31-Mar-2025 08:26:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php on line 7
+[31-Mar-2025 22:20:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_06_08_200452_update_audit_notes_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_06_08_200452_update_audit_notes_table.php on line 7
+[01-Apr-2025 00:53:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_07_10_200452_update_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_07_10_200452_update_media_table.php on line 7
+[01-Apr-2025 07:45:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php on line 7
+[01-Apr-2025 08:25:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php on line 7
+[01-Apr-2025 14:55:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165950_create_posts_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165950_create_posts_table.php on line 7
+[02-Apr-2025 08:04:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php on line 7
+[02-Apr-2025 08:23:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_06_08_200452_update_audit_notes_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_06_08_200452_update_audit_notes_table.php on line 7
+[02-Apr-2025 09:03:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php on line 7
+[02-Apr-2025 11:00:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php on line 7
+[02-Apr-2025 17:30:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170012_create_reactions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170012_create_reactions_table.php on line 7
+[02-Apr-2025 21:58:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170040_create_weeks_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_170040_create_weeks_table.php on line 7
+[03-Apr-2025 01:24:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_07_10_200452_update_media_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2023_07_10_200452_update_media_table.php on line 7
+[03-Apr-2025 08:59:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_05_19_160450_create_group_types_table.php on line 7
+[03-Apr-2025 09:04:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_08_17_141642_create_user_statistics_table.php on line 7
+[03-Apr-2025 15:18:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165950_create_posts_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/migrations/2022_02_04_165950_create_posts_table.php on line 7

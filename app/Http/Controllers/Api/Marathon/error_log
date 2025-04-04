@@ -1,0 +1,64 @@
+[01-Feb-2025 09:55:03 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:27
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 27
+[01-Feb-2025 09:55:10 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15
+[10-Mar-2025 16:08:50 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15
+[11-Mar-2025 07:53:03 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 28
+[12-Mar-2025 18:20:29 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15
+[15-Mar-2025 10:27:23 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 28
+[20-Mar-2025 03:48:48 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15
+[20-Mar-2025 10:52:39 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 28
+[23-Mar-2025 00:03:53 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 28
+[23-Mar-2025 00:22:21 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15
+[24-Mar-2025 11:47:43 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 28
+[24-Mar-2025 12:00:49 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15
+[26-Mar-2025 10:55:06 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 28
+[26-Mar-2025 10:56:51 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15
+[02-Apr-2025 20:32:59 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/MarathonPointsController.php on line 28
+[02-Apr-2025 20:40:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Marathon/OsbohaMarathonController.php on line 15

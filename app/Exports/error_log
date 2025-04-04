@@ -1,0 +1,88 @@
+[10-Mar-2025 14:55:08 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php on line 10
+[10-Mar-2025 15:04:22 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10
+[11-Mar-2025 12:49:40 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php on line 7
+[12-Mar-2025 17:44:22 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php on line 10
+[12-Mar-2025 18:12:08 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10
+[15-Mar-2025 10:15:30 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10
+[15-Mar-2025 13:36:31 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php on line 7
+[20-Mar-2025 02:29:16 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php on line 10
+[20-Mar-2025 06:52:48 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php on line 7
+[20-Mar-2025 10:36:15 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10
+[22-Mar-2025 19:38:58 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php on line 7
+[22-Mar-2025 21:04:52 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php on line 10
+[22-Mar-2025 23:35:27 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10
+[24-Mar-2025 07:46:17 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php on line 7
+[24-Mar-2025 09:02:41 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php on line 10
+[24-Mar-2025 11:17:36 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10
+[26-Mar-2025 09:42:05 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php on line 7
+[26-Mar-2025 10:05:40 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php on line 10
+[26-Mar-2025 10:38:58 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10
+[02-Apr-2025 18:08:03 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/WorkingHoursExport.php on line 7
+[02-Apr-2025 18:44:12 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/UsersExport.php on line 10
+[02-Apr-2025 20:16:41 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromArray" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exports/MarathonPointsExport.php on line 10

@@ -1,0 +1,76 @@
+[01-Feb-2025 14:45:54 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/RamadanThesesTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/RamadanThesesTest.php on line 9
+[01-Feb-2025 14:46:34 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[01-Feb-2025 14:46:58 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/NormalThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/NormalThesesTest.php on line 8
+[01-Feb-2025 14:47:17 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[11-Mar-2025 05:59:51 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[11-Mar-2025 12:53:13 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[12-Mar-2025 17:22:45 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[13-Mar-2025 06:01:44 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[15-Mar-2025 13:31:40 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[20-Mar-2025 01:37:03 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[20-Mar-2025 06:35:26 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[22-Mar-2025 18:28:14 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[22-Mar-2025 19:17:22 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[24-Mar-2025 06:56:30 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[24-Mar-2025 07:37:02 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[26-Mar-2025 09:39:16 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[26-Mar-2025 09:41:52 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14
+[02-Apr-2025 18:22:06 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\Feature\Comment\ThesisTestsHelper" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/AuditedThesesTest.php on line 8
+[03-Apr-2025 03:26:27 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/Comment/ThesisTestsHelper.php on line 14

@@ -1,0 +1,48 @@
+[23-Feb-2025 19:34:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[25-Feb-2025 05:09:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[27-Feb-2025 05:07:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[28-Feb-2025 05:09:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[02-Mar-2025 05:44:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[11-Mar-2025 12:51:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[13-Mar-2025 06:27:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[20-Mar-2025 02:03:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[22-Mar-2025 20:01:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[24-Mar-2025 08:12:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[26-Mar-2025 09:49:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12
+[02-Apr-2025 18:06:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Console\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Console/Kernel.php on line 12

@@ -1,0 +1,1016 @@
+[10-Mar-2025 13:13:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php on line 9
+[10-Mar-2025 13:33:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[10-Mar-2025 13:39:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[10-Mar-2025 13:41:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[10-Mar-2025 13:44:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[10-Mar-2025 13:51:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[10-Mar-2025 14:03:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[10-Mar-2025 14:11:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[10-Mar-2025 14:36:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php on line 8
+[10-Mar-2025 14:44:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[10-Mar-2025 14:47:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php on line 8
+[10-Mar-2025 15:07:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[10-Mar-2025 15:18:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[10-Mar-2025 15:20:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php on line 12
+[10-Mar-2025 15:20:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[10-Mar-2025 15:29:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[10-Mar-2025 15:36:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[10-Mar-2025 16:05:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[11-Mar-2025 01:08:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[11-Mar-2025 05:43:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[11-Mar-2025 06:00:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[11-Mar-2025 06:55:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[11-Mar-2025 07:07:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php on line 8
+[11-Mar-2025 12:12:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php on line 11
+[11-Mar-2025 12:15:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[11-Mar-2025 12:16:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[11-Mar-2025 12:22:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php on line 14
+[11-Mar-2025 12:25:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php on line 9
+[11-Mar-2025 12:30:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[11-Mar-2025 12:38:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php on line 9
+[11-Mar-2025 12:42:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php on line 9
+[11-Mar-2025 12:42:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php on line 9
+[11-Mar-2025 13:07:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php on line 11
+[11-Mar-2025 13:22:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[11-Mar-2025 21:13:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[12-Mar-2025 09:43:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[12-Mar-2025 09:51:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[12-Mar-2025 13:09:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[12-Mar-2025 13:29:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php on line 13
+[12-Mar-2025 13:30:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php on line 10
+[12-Mar-2025 15:36:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[12-Mar-2025 17:17:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[12-Mar-2025 17:18:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[12-Mar-2025 17:19:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[12-Mar-2025 17:38:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[12-Mar-2025 17:41:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[12-Mar-2025 17:46:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[12-Mar-2025 17:47:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php on line 8
+[12-Mar-2025 17:50:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php on line 8
+[12-Mar-2025 17:55:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[12-Mar-2025 17:55:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php on line 8
+[12-Mar-2025 18:07:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[12-Mar-2025 18:07:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[12-Mar-2025 18:09:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[12-Mar-2025 18:11:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[12-Mar-2025 18:18:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[12-Mar-2025 18:19:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[13-Mar-2025 02:51:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[13-Mar-2025 03:41:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php on line 9
+[13-Mar-2025 04:07:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php on line 11
+[13-Mar-2025 04:24:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[13-Mar-2025 04:58:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php on line 14
+[13-Mar-2025 05:00:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[13-Mar-2025 05:21:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php on line 9
+[13-Mar-2025 05:58:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[13-Mar-2025 06:02:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[13-Mar-2025 06:05:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php on line 9
+[13-Mar-2025 06:24:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php on line 9
+[13-Mar-2025 06:28:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php on line 9
+[13-Mar-2025 06:50:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php on line 12
+[13-Mar-2025 07:20:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php on line 11
+[13-Mar-2025 07:37:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[13-Mar-2025 15:37:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[14-Mar-2025 15:38:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[15-Mar-2025 08:17:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[15-Mar-2025 08:37:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[15-Mar-2025 08:51:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[15-Mar-2025 09:21:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[15-Mar-2025 09:33:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[15-Mar-2025 09:41:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[15-Mar-2025 09:59:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[15-Mar-2025 10:11:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[15-Mar-2025 10:18:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php on line 13
+[15-Mar-2025 10:35:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[15-Mar-2025 12:52:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[15-Mar-2025 12:57:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[15-Mar-2025 14:02:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[15-Mar-2025 15:17:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[15-Mar-2025 15:35:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[20-Mar-2025 01:03:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php on line 9
+[20-Mar-2025 01:15:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[20-Mar-2025 01:16:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[20-Mar-2025 01:30:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[20-Mar-2025 01:30:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php on line 14
+[20-Mar-2025 01:36:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[20-Mar-2025 01:38:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[20-Mar-2025 01:39:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[20-Mar-2025 01:54:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[20-Mar-2025 01:56:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php on line 9
+[20-Mar-2025 02:25:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php on line 12
+[20-Mar-2025 02:39:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php on line 8
+[20-Mar-2025 02:41:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php on line 11
+[20-Mar-2025 03:28:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[20-Mar-2025 03:43:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php on line 10
+[20-Mar-2025 05:03:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php on line 11
+[20-Mar-2025 06:02:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php on line 9
+[20-Mar-2025 06:25:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[20-Mar-2025 07:37:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php on line 9
+[20-Mar-2025 07:37:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php on line 9
+[20-Mar-2025 07:53:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[20-Mar-2025 07:54:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[20-Mar-2025 09:01:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[20-Mar-2025 09:04:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[20-Mar-2025 09:42:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php on line 8
+[20-Mar-2025 09:57:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[20-Mar-2025 10:34:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[20-Mar-2025 10:36:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[20-Mar-2025 10:45:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php on line 13
+[20-Mar-2025 10:48:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[20-Mar-2025 11:07:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[21-Mar-2025 02:50:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[22-Mar-2025 15:15:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php on line 9
+[22-Mar-2025 16:24:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php on line 11
+[22-Mar-2025 16:54:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[22-Mar-2025 17:19:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[22-Mar-2025 18:15:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php on line 14
+[22-Mar-2025 18:17:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[22-Mar-2025 18:28:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php on line 9
+[22-Mar-2025 18:40:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[22-Mar-2025 19:00:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[22-Mar-2025 19:01:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[22-Mar-2025 19:12:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[22-Mar-2025 19:24:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[22-Mar-2025 19:34:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php on line 9
+[22-Mar-2025 20:06:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php on line 9
+[22-Mar-2025 20:19:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php on line 9
+[22-Mar-2025 20:28:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[22-Mar-2025 20:35:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[22-Mar-2025 20:49:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php on line 12
+[22-Mar-2025 21:20:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php on line 11
+[22-Mar-2025 21:28:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php on line 8
+[22-Mar-2025 21:39:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[22-Mar-2025 21:49:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[22-Mar-2025 22:23:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php on line 8
+[22-Mar-2025 22:36:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[22-Mar-2025 23:18:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[22-Mar-2025 23:23:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[22-Mar-2025 23:26:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[22-Mar-2025 23:49:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php on line 13
+[22-Mar-2025 23:53:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[23-Mar-2025 00:05:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php on line 10
+[23-Mar-2025 00:30:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[23-Mar-2025 03:16:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[24-Mar-2025 03:16:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[24-Mar-2025 05:00:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php on line 9
+[24-Mar-2025 05:34:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php on line 11
+[24-Mar-2025 05:37:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[24-Mar-2025 05:58:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[24-Mar-2025 06:30:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[24-Mar-2025 06:41:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php on line 9
+[24-Mar-2025 06:44:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php on line 14
+[24-Mar-2025 07:03:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[24-Mar-2025 07:18:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[24-Mar-2025 07:24:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[24-Mar-2025 07:26:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[24-Mar-2025 07:45:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[24-Mar-2025 07:49:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php on line 9
+[24-Mar-2025 08:11:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php on line 9
+[24-Mar-2025 08:22:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php on line 9
+[24-Mar-2025 08:37:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[24-Mar-2025 08:39:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[24-Mar-2025 08:50:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php on line 12
+[24-Mar-2025 09:22:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php on line 8
+[24-Mar-2025 09:22:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php on line 11
+[24-Mar-2025 09:37:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[24-Mar-2025 09:44:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[24-Mar-2025 10:10:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php on line 8
+[24-Mar-2025 10:23:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[24-Mar-2025 11:01:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[24-Mar-2025 11:09:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[24-Mar-2025 11:12:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[24-Mar-2025 11:31:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php on line 13
+[24-Mar-2025 11:37:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[24-Mar-2025 11:45:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php on line 10
+[24-Mar-2025 12:08:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[25-Mar-2025 03:24:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[26-Mar-2025 03:18:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[26-Mar-2025 09:07:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php on line 9
+[26-Mar-2025 09:11:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php on line 11
+[26-Mar-2025 09:13:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[26-Mar-2025 09:14:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[26-Mar-2025 09:21:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[26-Mar-2025 09:24:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php on line 9
+[26-Mar-2025 09:26:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php on line 14
+[26-Mar-2025 09:26:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[26-Mar-2025 09:27:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[26-Mar-2025 09:27:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[26-Mar-2025 09:32:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[26-Mar-2025 09:33:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[26-Mar-2025 09:39:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php on line 9
+[26-Mar-2025 09:48:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php on line 9
+[26-Mar-2025 09:49:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php on line 9
+[26-Mar-2025 09:55:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[26-Mar-2025 09:56:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[26-Mar-2025 10:02:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php on line 12
+[26-Mar-2025 10:08:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php on line 11
+[26-Mar-2025 10:09:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php on line 8
+[26-Mar-2025 10:11:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[26-Mar-2025 10:12:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[26-Mar-2025 10:15:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php on line 8
+[26-Mar-2025 10:22:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php on line 8
+[26-Mar-2025 10:25:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[26-Mar-2025 10:36:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[26-Mar-2025 10:38:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[26-Mar-2025 10:41:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[26-Mar-2025 10:43:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php on line 13
+[26-Mar-2025 10:48:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[26-Mar-2025 10:49:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php on line 10
+[26-Mar-2025 10:51:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[30-Mar-2025 17:13:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/booksMediaSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/booksMediaSeeder.php on line 9
+[02-Apr-2025 13:04:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[02-Apr-2025 15:47:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/EligibleRoles.php on line 9
+[02-Apr-2025 16:04:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BookSeeder.php on line 12
+[02-Apr-2025 16:54:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/CommentSeeder.php on line 9
+[02-Apr-2025 16:56:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TimelineSeeder.php on line 9
+[02-Apr-2025 17:03:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/GroupSeeder.php on line 14
+[02-Apr-2025 17:18:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RateSeeder.php on line 10
+[02-Apr-2025 17:32:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/InfographicSeeder.php on line 9
+[02-Apr-2025 17:33:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[02-Apr-2025 17:33:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/withdrawnsTeam.php on line 9
+[02-Apr-2025 17:47:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksTeam.php on line 8
+[02-Apr-2025 17:58:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SpecialCareRolesGroup.php on line 9
+[02-Apr-2025 18:26:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SectionSeeder.php on line 10
+[02-Apr-2025 18:27:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ArticleSeeder.php on line 9
+[02-Apr-2025 18:28:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AuditTypeSeeder.php on line 9
+[02-Apr-2025 19:09:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/SupportLeaderRoleSeeder.php on line 9
+[02-Apr-2025 19:14:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostTypesFridayThesis.php on line 8
+[02-Apr-2025 19:35:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/exceptionTypesWithdrawn.php on line 8
+[02-Apr-2025 19:41:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/MarathonViolationsReasonsSeeder.php on line 9
+[02-Apr-2025 20:05:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/NewSectionsLevelsSeeder.php on line 10
+[02-Apr-2025 20:09:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ThesisSeeder.php on line 19
+[02-Apr-2025 20:12:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/LeaderRequestsSeeder.php on line 13
+[02-Apr-2025 20:26:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/DatabaseSeeder.php on line 9
+[02-Apr-2025 20:41:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/OsbohaSupportRoles.php on line 10
+[02-Apr-2025 23:45:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/TypeSectionSeeder.php on line 17
+[03-Apr-2025 02:44:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PostSeeder.php on line 11
+[03-Apr-2025 02:50:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/AdvancedSophisticatedGroupType.php on line 10
+[03-Apr-2025 03:49:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/UpdatePermission.php on line 9
+[03-Apr-2025 03:54:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksRoleSeeder.php on line 12
+[03-Apr-2025 04:08:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ModifiedThesesSeeder.php on line 11
+[03-Apr-2025 04:10:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/BooksSupervisorTeam.php on line 8
+[03-Apr-2025 04:14:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/RamadanRoles.php on line 8
+[03-Apr-2025 05:13:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/ReactionSeeder.php on line 13
+[03-Apr-2025 05:19:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/PermissionsSeeder.php on line 10

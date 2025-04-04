@@ -1,0 +1,1004 @@
+[27-Feb-2025 23:32:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[28-Feb-2025 17:21:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageFileResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageFileResource.php on line 8
+[06-Mar-2025 18:01:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php on line 7
+[08-Mar-2025 05:21:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php on line 9
+[08-Mar-2025 12:58:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php on line 7
+[08-Mar-2025 14:25:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php on line 7
+[09-Mar-2025 11:07:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php on line 9
+[09-Mar-2025 12:56:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[09-Mar-2025 20:28:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php on line 7
+[09-Mar-2025 20:46:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[10-Mar-2025 13:12:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[10-Mar-2025 13:26:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[10-Mar-2025 13:41:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[10-Mar-2025 13:43:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[10-Mar-2025 13:51:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[10-Mar-2025 13:52:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php on line 7
+[10-Mar-2025 13:58:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[10-Mar-2025 14:13:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[10-Mar-2025 14:50:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php on line 7
+[10-Mar-2025 14:54:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[10-Mar-2025 14:57:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[10-Mar-2025 14:58:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php on line 8
+[10-Mar-2025 15:14:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php on line 7
+[10-Mar-2025 15:20:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php on line 7
+[10-Mar-2025 15:28:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php on line 7
+[10-Mar-2025 16:08:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php on line 7
+[10-Mar-2025 17:46:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php on line 7
+[10-Mar-2025 20:23:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php on line 7
+[11-Mar-2025 00:37:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php on line 7
+[11-Mar-2025 06:05:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[11-Mar-2025 06:24:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php on line 7
+[11-Mar-2025 06:32:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php on line 7
+[11-Mar-2025 07:35:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[11-Mar-2025 11:25:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php on line 9
+[11-Mar-2025 11:30:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserResource.php on line 7
+[11-Mar-2025 12:20:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php on line 7
+[11-Mar-2025 12:37:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[11-Mar-2025 12:39:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[11-Mar-2025 13:07:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php on line 7
+[11-Mar-2025 13:42:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[11-Mar-2025 14:46:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[11-Mar-2025 14:53:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[11-Mar-2025 15:05:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[11-Mar-2025 20:21:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php on line 7
+[11-Mar-2025 20:47:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[12-Mar-2025 08:15:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php on line 7
+[12-Mar-2025 09:42:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[12-Mar-2025 09:52:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php on line 7
+[12-Mar-2025 09:56:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[12-Mar-2025 10:06:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[12-Mar-2025 10:15:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php on line 7
+[12-Mar-2025 13:12:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[12-Mar-2025 14:02:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollVoteResource.php on line 7
+[12-Mar-2025 17:21:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[12-Mar-2025 17:23:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[12-Mar-2025 17:25:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[12-Mar-2025 17:29:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[12-Mar-2025 18:00:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php on line 7
+[12-Mar-2025 18:07:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php on line 7
+[12-Mar-2025 18:07:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[12-Mar-2025 21:26:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php on line 8
+[13-Mar-2025 03:58:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[13-Mar-2025 04:01:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[13-Mar-2025 04:33:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[13-Mar-2025 06:06:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php on line 7
+[13-Mar-2025 06:11:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[13-Mar-2025 06:18:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php on line 7
+[13-Mar-2025 06:18:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[13-Mar-2025 06:35:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php on line 7
+[13-Mar-2025 07:39:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[13-Mar-2025 07:54:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php on line 7
+[13-Mar-2025 08:10:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php on line 7
+[13-Mar-2025 08:12:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php on line 8
+[13-Mar-2025 08:33:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[13-Mar-2025 08:33:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[13-Mar-2025 11:32:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php on line 9
+[13-Mar-2025 13:50:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php on line 9
+[13-Mar-2025 20:51:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupTypeResource.php on line 7
+[14-Mar-2025 01:11:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php on line 8
+[14-Mar-2025 08:23:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php on line 7
+[14-Mar-2025 11:31:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomResource.php on line 9
+[15-Mar-2025 01:06:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php on line 8
+[15-Mar-2025 04:05:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[15-Mar-2025 07:11:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php on line 7
+[15-Mar-2025 07:35:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[15-Mar-2025 08:41:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[15-Mar-2025 08:47:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php on line 7
+[15-Mar-2025 09:25:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php on line 7
+[15-Mar-2025 10:10:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[15-Mar-2025 13:23:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[15-Mar-2025 14:08:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[15-Mar-2025 15:10:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[16-Mar-2025 01:22:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php on line 8
+[16-Mar-2025 04:02:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[16-Mar-2025 06:17:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[16-Mar-2025 08:21:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserExceptionResource.php on line 7
+[17-Mar-2025 03:59:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[17-Mar-2025 10:49:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[18-Mar-2025 01:05:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/HighPriorityRequestResource.php on line 8
+[18-Mar-2025 10:56:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[19-Mar-2025 11:32:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[19-Mar-2025 14:12:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[20-Mar-2025 01:08:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[20-Mar-2025 01:23:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[20-Mar-2025 01:58:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[20-Mar-2025 01:58:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php on line 7
+[20-Mar-2025 01:58:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php on line 7
+[20-Mar-2025 02:05:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[20-Mar-2025 02:56:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[20-Mar-2025 03:03:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php on line 7
+[20-Mar-2025 03:13:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[20-Mar-2025 03:16:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php on line 8
+[20-Mar-2025 03:39:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[20-Mar-2025 03:47:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php on line 7
+[20-Mar-2025 06:11:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[20-Mar-2025 06:44:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[20-Mar-2025 07:19:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[20-Mar-2025 07:35:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php on line 7
+[20-Mar-2025 07:35:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[20-Mar-2025 07:51:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php on line 7
+[20-Mar-2025 08:10:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[20-Mar-2025 08:41:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php on line 7
+[20-Mar-2025 09:59:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[20-Mar-2025 10:23:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[20-Mar-2025 10:23:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php on line 7
+[20-Mar-2025 10:41:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php on line 7
+[20-Mar-2025 10:47:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[20-Mar-2025 11:49:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[21-Mar-2025 11:45:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[22-Mar-2025 07:12:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[22-Mar-2025 15:44:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[22-Mar-2025 18:06:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[22-Mar-2025 18:33:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[22-Mar-2025 19:19:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[22-Mar-2025 19:51:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[22-Mar-2025 19:52:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php on line 7
+[22-Mar-2025 19:53:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[22-Mar-2025 19:55:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[22-Mar-2025 20:06:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php on line 7
+[22-Mar-2025 20:10:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[22-Mar-2025 20:54:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[22-Mar-2025 21:26:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php on line 7
+[22-Mar-2025 22:02:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[22-Mar-2025 22:29:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php on line 7
+[22-Mar-2025 22:45:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[22-Mar-2025 22:54:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[22-Mar-2025 22:55:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php on line 8
+[22-Mar-2025 22:57:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[22-Mar-2025 22:57:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php on line 7
+[22-Mar-2025 23:36:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php on line 7
+[22-Mar-2025 23:48:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[22-Mar-2025 23:49:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[23-Mar-2025 00:11:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php on line 7
+[24-Mar-2025 05:04:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[24-Mar-2025 06:22:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[24-Mar-2025 06:59:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[24-Mar-2025 07:30:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[24-Mar-2025 07:50:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php on line 7
+[24-Mar-2025 07:55:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[24-Mar-2025 07:58:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php on line 7
+[24-Mar-2025 08:04:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[24-Mar-2025 08:10:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[24-Mar-2025 08:14:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[24-Mar-2025 08:16:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php on line 7
+[24-Mar-2025 08:22:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[24-Mar-2025 08:38:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php on line 7
+[24-Mar-2025 08:53:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[24-Mar-2025 09:28:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php on line 7
+[24-Mar-2025 09:56:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[24-Mar-2025 10:23:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php on line 7
+[24-Mar-2025 10:35:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[24-Mar-2025 10:40:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php on line 8
+[24-Mar-2025 10:41:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[24-Mar-2025 10:42:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php on line 7
+[24-Mar-2025 10:45:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[24-Mar-2025 11:19:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php on line 7
+[24-Mar-2025 11:32:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[24-Mar-2025 11:32:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[24-Mar-2025 11:55:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php on line 7
+[25-Mar-2025 13:26:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[25-Mar-2025 15:40:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[26-Mar-2025 00:25:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[26-Mar-2025 09:08:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[26-Mar-2025 09:19:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[26-Mar-2025 09:24:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[26-Mar-2025 09:30:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[26-Mar-2025 09:43:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php on line 7
+[26-Mar-2025 09:44:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[26-Mar-2025 09:44:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php on line 7
+[26-Mar-2025 09:45:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[26-Mar-2025 09:46:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[26-Mar-2025 09:47:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[26-Mar-2025 09:49:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php on line 7
+[26-Mar-2025 09:54:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php on line 7
+[26-Mar-2025 09:59:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[26-Mar-2025 10:07:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php on line 7
+[26-Mar-2025 10:19:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[26-Mar-2025 10:24:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php on line 7
+[26-Mar-2025 10:28:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php on line 8
+[26-Mar-2025 10:28:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php on line 7
+[26-Mar-2025 10:29:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[26-Mar-2025 10:29:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[26-Mar-2025 10:30:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[26-Mar-2025 10:40:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php on line 7
+[26-Mar-2025 10:43:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[26-Mar-2025 10:45:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[26-Mar-2025 10:47:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php on line 7
+[26-Mar-2025 13:26:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[26-Mar-2025 15:31:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[27-Mar-2025 00:26:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[27-Mar-2025 13:26:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[27-Mar-2025 19:22:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[28-Mar-2025 00:26:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[28-Mar-2025 13:27:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[29-Mar-2025 00:26:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[29-Mar-2025 06:10:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ArticleResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ArticleResource.php on line 7
+[29-Mar-2025 17:38:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[29-Mar-2025 19:19:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[29-Mar-2025 19:23:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php on line 7
+[30-Mar-2025 19:18:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[31-Mar-2025 00:12:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookTypeResource.php on line 7
+[31-Mar-2025 04:44:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php on line 7
+[31-Mar-2025 19:18:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[01-Apr-2025 04:50:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php on line 7
+[01-Apr-2025 06:16:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookTypeResource.php on line 7
+[02-Apr-2025 04:59:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php on line 7
+[02-Apr-2025 15:45:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CustomGroupResource.php on line 7
+[02-Apr-2025 16:46:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserProfileResource.php on line 7
+[02-Apr-2025 17:14:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MessageResource.php on line 7
+[02-Apr-2025 17:41:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserGroupResource.php on line 10
+[02-Apr-2025 17:57:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/GroupResource.php on line 7
+[02-Apr-2025 18:00:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/PollOptionResource.php on line 7
+[02-Apr-2025 18:09:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkResource.php on line 7
+[02-Apr-2025 18:14:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/BookLevelResource.php on line 7
+[02-Apr-2025 18:15:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/CommentResource.php on line 7
+[02-Apr-2025 18:19:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/QuestionResource.php on line 7
+[02-Apr-2025 18:37:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ThesisResource.php on line 7
+[02-Apr-2025 18:41:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomReceiverResource.php on line 9
+[02-Apr-2025 18:58:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/MarkRsource.php on line 7
+[02-Apr-2025 19:24:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/LanguageResource.php on line 7
+[02-Apr-2025 19:42:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserBookResource.php on line 7
+[02-Apr-2025 19:44:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TransactionResource.php on line 7
+[02-Apr-2025 19:52:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/UserManagementTeamResource.php on line 8
+[02-Apr-2025 19:52:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineResource.php on line 7
+[02-Apr-2025 19:53:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/TimelineTypeResource.php on line 7
+[02-Apr-2025 20:36:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RateResource.php on line 7
+[03-Apr-2025 03:29:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/RoomUserResource.php on line 7
+[03-Apr-2025 04:53:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ProfilePictureResource.php on line 7
+[03-Apr-2025 05:09:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/InfographicSeriesResource.php on line 7
+[03-Apr-2025 05:13:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/socialMediaResource.php on line 7
+[03-Apr-2025 05:14:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7

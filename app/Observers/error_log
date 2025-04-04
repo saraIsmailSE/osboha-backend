@@ -1,0 +1,7 @@
+[09-Mar-2025 20:58:56 UTC] PHP Fatal error:  Trait "App\Traits\MediaTraits" not found in /home/osbohaco/platform.osboha180.com/backend/app/Observers/MarkObserver.php on line 10
+[11-Mar-2025 21:29:31 UTC] PHP Fatal error:  Trait "App\Traits\MediaTraits" not found in /home/osbohaco/platform.osboha180.com/backend/app/Observers/MarkObserver.php on line 10
+[20-Mar-2025 02:13:08 UTC] PHP Fatal error:  Trait "App\Traits\MediaTraits" not found in /home/osbohaco/platform.osboha180.com/backend/app/Observers/MarkObserver.php on line 10
+[22-Mar-2025 20:25:14 UTC] PHP Fatal error:  Trait "App\Traits\MediaTraits" not found in /home/osbohaco/platform.osboha180.com/backend/app/Observers/MarkObserver.php on line 10
+[24-Mar-2025 08:35:24 UTC] PHP Fatal error:  Trait "App\Traits\MediaTraits" not found in /home/osbohaco/platform.osboha180.com/backend/app/Observers/MarkObserver.php on line 10
+[26-Mar-2025 09:52:08 UTC] PHP Fatal error:  Trait "App\Traits\MediaTraits" not found in /home/osbohaco/platform.osboha180.com/backend/app/Observers/MarkObserver.php on line 10
+[02-Apr-2025 18:46:04 UTC] PHP Fatal error:  Trait "App\Traits\MediaTraits" not found in /home/osbohaco/platform.osboha180.com/backend/app/Observers/MarkObserver.php on line 10

@@ -1,0 +1,48 @@
+[12-Mar-2025 13:40:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[20-Mar-2025 03:45:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[23-Mar-2025 00:16:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[24-Mar-2025 11:54:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[26-Mar-2025 10:53:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[30-Mar-2025 18:12:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[31-Mar-2025 19:39:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[31-Mar-2025 21:28:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[01-Apr-2025 19:57:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[02-Apr-2025 20:33:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[02-Apr-2025 20:37:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[03-Apr-2025 20:30:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8

@@ -1,0 +1,32 @@
+[09-Mar-2025 14:56:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14
+[11-Mar-2025 22:11:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14
+[15-Mar-2025 15:28:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14
+[20-Mar-2025 10:34:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14
+[22-Mar-2025 23:26:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14
+[24-Mar-2025 11:09:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14
+[26-Mar-2025 10:36:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14
+[02-Apr-2025 20:10:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/bootstrap/app.php on line 14

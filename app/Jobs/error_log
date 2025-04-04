@@ -1,0 +1,12 @@
+[10-Mar-2025 13:24:53 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[12-Mar-2025 17:16:41 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[14-Mar-2025 12:56:40 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[15-Mar-2025 06:42:23 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[16-Mar-2025 14:13:16 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[18-Mar-2025 14:09:12 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[19-Mar-2025 14:21:37 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[20-Mar-2025 05:14:36 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[22-Mar-2025 17:41:51 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[24-Mar-2025 05:56:55 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[26-Mar-2025 09:13:31 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16
+[02-Apr-2025 17:34:32 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Bus\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Jobs/SendNotificationJob.php on line 16

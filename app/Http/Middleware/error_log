@@ -1,0 +1,196 @@
+[17-Feb-2025 04:07:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[18-Feb-2025 09:25:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[18-Feb-2025 12:21:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[19-Feb-2025 09:22:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[20-Feb-2025 09:21:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[21-Feb-2025 10:26:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[24-Feb-2025 10:04:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[09-Mar-2025 14:48:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[09-Mar-2025 21:10:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7
+[10-Mar-2025 13:58:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustProxies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php on line 8
+[10-Mar-2025 14:45:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Cookie\Middleware\EncryptCookies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php on line 7
+[11-Mar-2025 20:45:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[11-Mar-2025 22:16:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7
+[12-Mar-2025 13:05:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php on line 7
+[13-Mar-2025 04:48:08 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustProxies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php on line 8
+[13-Mar-2025 05:08:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[15-Mar-2025 09:13:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Cookie\Middleware\EncryptCookies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php on line 7
+[15-Mar-2025 10:06:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7
+[15-Mar-2025 13:14:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustHosts" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustHosts.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustHosts.php on line 7
+[17-Mar-2025 03:22:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Auth\Middleware\Authenticate" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php on line 7
+[18-Mar-2025 06:55:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Auth\Middleware\Authenticate" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php on line 7
+[19-Mar-2025 07:43:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Auth\Middleware\Authenticate" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php on line 7
+[20-Mar-2025 01:05:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[20-Mar-2025 01:29:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustProxies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php on line 8
+[20-Mar-2025 01:54:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php on line 7
+[20-Mar-2025 08:06:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Auth\Middleware\Authenticate" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php on line 7
+[20-Mar-2025 08:09:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Cookie\Middleware\EncryptCookies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php on line 7
+[20-Mar-2025 10:38:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7
+[22-Mar-2025 07:50:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Auth\Middleware\Authenticate" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/Authenticate.php on line 7
+[22-Mar-2025 16:30:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[22-Mar-2025 18:24:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustProxies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php on line 8
+[22-Mar-2025 19:39:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php on line 7
+[22-Mar-2025 20:50:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Cookie\Middleware\EncryptCookies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php on line 7
+[22-Mar-2025 23:34:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7
+[24-Mar-2025 05:20:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[24-Mar-2025 06:51:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustProxies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php on line 8
+[24-Mar-2025 07:54:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php on line 7
+[24-Mar-2025 08:57:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Cookie\Middleware\EncryptCookies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php on line 7
+[24-Mar-2025 11:20:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7
+[26-Mar-2025 09:06:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[26-Mar-2025 09:35:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustProxies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php on line 8
+[26-Mar-2025 09:38:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php on line 7
+[26-Mar-2025 09:59:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Cookie\Middleware\EncryptCookies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php on line 7
+[26-Mar-2025 10:40:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7
+[02-Apr-2025 17:21:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\TrimStrings" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrimStrings.php on line 7
+[02-Apr-2025 18:05:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Middleware\TrustProxies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/TrustProxies.php on line 8
+[02-Apr-2025 19:18:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Cookie\Middleware\EncryptCookies" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/EncryptCookies.php on line 7
+[03-Apr-2025 03:30:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/PreventRequestsDuringMaintenance.php on line 7
+[03-Apr-2025 05:15:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Middleware\VerifyCsrfToken" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Middleware/VerifyCsrfToken.php on line 7

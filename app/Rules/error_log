@@ -1,0 +1,52 @@
+[10-Mar-2025 13:24:37 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php on line 7
+[11-Mar-2025 12:50:13 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php on line 7
+[12-Mar-2025 17:19:13 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php on line 7
+[20-Mar-2025 01:24:31 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php on line 7
+[20-Mar-2025 01:44:43 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php on line 7
+[22-Mar-2025 17:53:53 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php on line 7
+[22-Mar-2025 19:16:14 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php on line 7
+[24-Mar-2025 06:23:44 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php on line 7
+[24-Mar-2025 07:38:11 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php on line 7
+[26-Mar-2025 09:17:36 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php on line 7
+[26-Mar-2025 09:37:57 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php on line 7
+[02-Apr-2025 17:45:35 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImageMaxSize.php on line 7
+[02-Apr-2025 17:50:33 UTC] PHP Fatal error:  Uncaught Error: Interface "Illuminate\Contracts\Validation\InvokableRule" not found in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Rules/base64OrImage.php on line 7

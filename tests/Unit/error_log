@@ -1,0 +1,28 @@
+[31-Jan-2025 20:04:51 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php on line 7
+[12-Mar-2025 13:12:39 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php on line 7
+[20-Mar-2025 02:28:15 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php on line 7
+[22-Mar-2025 20:51:22 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php on line 7
+[24-Mar-2025 08:56:28 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php on line 7
+[26-Mar-2025 10:00:01 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php on line 7
+[02-Apr-2025 19:32:26 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Unit/ExampleTest.php on line 7

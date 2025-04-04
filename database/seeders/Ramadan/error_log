@@ -1,0 +1,28 @@
+[09-Feb-2025 13:41:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/HadithSeeder.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/HadithSeeder.php on line 11
+[10-Mar-2025 14:08:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php on line 15
+[12-Mar-2025 17:34:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php on line 15
+[20-Mar-2025 02:17:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php on line 15
+[24-Mar-2025 08:40:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php on line 15
+[26-Mar-2025 09:57:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php on line 15
+[02-Apr-2025 18:44:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/seeders/Ramadan/QuestionsSeeder.php on line 15

@@ -1,0 +1,76 @@
+[31-Jan-2025 18:26:28 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[31-Jan-2025 18:47:53 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[31-Jan-2025 18:48:18 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/ReactionTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/ReactionTest.php on line 12
+[31-Jan-2025 18:48:32 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/PostTest.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/PostTest.php on line 19
+[10-Mar-2025 15:28:16 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[11-Mar-2025 06:26:58 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[12-Mar-2025 10:09:58 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[13-Mar-2025 06:22:21 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[13-Mar-2025 07:46:13 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[20-Mar-2025 01:57:30 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[20-Mar-2025 02:59:00 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[22-Mar-2025 19:41:54 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[22-Mar-2025 22:15:14 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[24-Mar-2025 07:59:36 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[24-Mar-2025 10:09:32 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[26-Mar-2025 09:38:10 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[26-Mar-2025 10:21:32 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12
+[02-Apr-2025 18:08:43 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/SocialMediaTest.php on line 9
+[02-Apr-2025 19:45:00 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/tests/Feature/BookTest.php on line 12

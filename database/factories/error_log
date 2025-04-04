@@ -1,0 +1,276 @@
+[05-Feb-2025 12:58:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MarkFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MarkFactory.php on line 7
+[09-Mar-2025 14:44:57 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[09-Mar-2025 20:54:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[10-Mar-2025 13:57:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8
+[10-Mar-2025 14:04:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[10-Mar-2025 14:05:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php on line 7
+[10-Mar-2025 14:29:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php on line 7
+[11-Mar-2025 06:30:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php on line 10
+[11-Mar-2025 06:54:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[11-Mar-2025 12:51:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php on line 7
+[11-Mar-2025 21:10:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[11-Mar-2025 21:24:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[12-Mar-2025 17:25:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php on line 7
+[12-Mar-2025 17:25:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[12-Mar-2025 17:52:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php on line 7
+[13-Mar-2025 06:05:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php on line 10
+[13-Mar-2025 06:11:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php on line 7
+[13-Mar-2025 06:36:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8
+[13-Mar-2025 06:39:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[13-Mar-2025 07:27:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[15-Mar-2025 08:31:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[15-Mar-2025 08:36:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[15-Mar-2025 08:53:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8
+[15-Mar-2025 14:31:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[20-Mar-2025 01:45:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php on line 10
+[20-Mar-2025 01:46:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php on line 7
+[20-Mar-2025 01:49:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php on line 7
+[20-Mar-2025 02:09:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[20-Mar-2025 06:12:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[20-Mar-2025 06:32:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[20-Mar-2025 07:33:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8
+[20-Mar-2025 08:53:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[20-Mar-2025 09:07:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php on line 7
+[22-Mar-2025 18:58:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[22-Mar-2025 19:05:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php on line 10
+[22-Mar-2025 19:15:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[22-Mar-2025 19:16:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php on line 7
+[22-Mar-2025 19:23:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php on line 7
+[22-Mar-2025 20:07:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8
+[22-Mar-2025 20:21:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[22-Mar-2025 21:38:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[22-Mar-2025 21:52:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php on line 7
+[24-Mar-2025 07:24:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[24-Mar-2025 07:28:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php on line 10
+[24-Mar-2025 07:36:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[24-Mar-2025 07:37:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php on line 7
+[24-Mar-2025 07:43:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php on line 7
+[24-Mar-2025 08:19:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8
+[24-Mar-2025 08:22:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[24-Mar-2025 09:35:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[24-Mar-2025 09:47:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php on line 7
+[26-Mar-2025 09:24:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[26-Mar-2025 09:33:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php on line 10
+[26-Mar-2025 09:38:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[26-Mar-2025 09:39:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php on line 7
+[26-Mar-2025 09:41:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php on line 7
+[26-Mar-2025 09:51:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8
+[26-Mar-2025 09:54:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[26-Mar-2025 10:10:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[26-Mar-2025 10:17:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php on line 7
+[02-Apr-2025 18:08:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/BookFactory.php on line 7
+[02-Apr-2025 18:11:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserProfileFactory.php on line 7
+[02-Apr-2025 18:34:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/UserFactory.php on line 8
+[02-Apr-2025 19:10:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/PostFactory.php on line 7
+[02-Apr-2025 19:16:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/ThesisFactory.php on line 7
+[03-Apr-2025 03:09:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/MediaFactory.php on line 10
+[03-Apr-2025 03:24:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/GroupFactory.php on line 10
+[03-Apr-2025 03:25:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/CommentFactory.php on line 7
+[03-Apr-2025 03:43:45 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/database/factories/WeekFactory.php on line 8

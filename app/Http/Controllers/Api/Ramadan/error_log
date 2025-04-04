@@ -1,0 +1,216 @@
+[01-Feb-2025 09:32:08 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[01-Feb-2025 09:32:24 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithMemorizationController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithMemorizationController.php on line 18
+[01-Feb-2025 09:32:55 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[01-Feb-2025 09:33:05 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[01-Feb-2025 09:33:13 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanNightPrayerController.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanNightPrayerController.php on line 13
+[01-Feb-2025 09:33:43 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[01-Feb-2025 09:33:47 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 13
+[01-Feb-2025 09:55:26 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[07-Mar-2025 15:16:21 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[09-Mar-2025 21:06:02 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[11-Mar-2025 07:17:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[11-Mar-2025 07:48:45 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[11-Mar-2025 08:09:08 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[11-Mar-2025 12:53:02 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 15
+[11-Mar-2025 21:54:44 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[12-Mar-2025 10:17:38 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[12-Mar-2025 13:24:17 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[12-Mar-2025 17:30:12 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 15
+[12-Mar-2025 17:49:03 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[13-Mar-2025 08:10:58 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[15-Mar-2025 09:23:50 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[15-Mar-2025 09:49:29 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[15-Mar-2025 10:30:41 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[20-Mar-2025 01:56:44 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 15
+[20-Mar-2025 03:13:24 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[20-Mar-2025 03:14:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[20-Mar-2025 08:35:03 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[20-Mar-2025 09:46:08 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[20-Mar-2025 10:58:18 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[22-Mar-2025 19:41:05 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 15
+[22-Mar-2025 21:15:24 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[22-Mar-2025 22:30:59 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[22-Mar-2025 22:55:39 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[22-Mar-2025 22:56:14 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[23-Mar-2025 00:18:19 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[24-Mar-2025 07:57:11 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 15
+[24-Mar-2025 09:17:22 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[24-Mar-2025 10:16:18 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[24-Mar-2025 10:44:19 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[24-Mar-2025 10:45:08 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[24-Mar-2025 11:55:38 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[25-Mar-2025 16:39:06 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[26-Mar-2025 09:40:15 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 15
+[26-Mar-2025 10:04:58 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16
+[26-Mar-2025 10:23:35 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[26-Mar-2025 10:34:08 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[26-Mar-2025 10:34:47 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[26-Mar-2025 10:47:46 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[02-Apr-2025 18:11:05 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanGolenDayController.php on line 15
+[02-Apr-2025 20:02:16 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionAnswerController.php on line 19
+[02-Apr-2025 20:04:51 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuestionController.php on line 15
+[02-Apr-2025 20:29:33 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanDayController.php on line 17
+[02-Apr-2025 20:37:08 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanHadithController.php on line 14
+[03-Apr-2025 04:11:12 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Ramadan/RamadanQuranWirdController.php on line 16

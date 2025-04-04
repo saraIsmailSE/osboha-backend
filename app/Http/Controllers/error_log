@@ -1,0 +1,60 @@
+[09-Mar-2025 14:55:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[11-Mar-2025 07:19:39 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php on line 8
+[11-Mar-2025 21:38:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[12-Mar-2025 17:58:18 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php on line 8
+[15-Mar-2025 14:16:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[20-Mar-2025 03:08:56 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php on line 8
+[20-Mar-2025 08:23:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[22-Mar-2025 21:08:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[22-Mar-2025 22:45:32 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php on line 8
+[24-Mar-2025 09:15:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[24-Mar-2025 10:33:55 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php on line 8
+[26-Mar-2025 10:11:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[26-Mar-2025 10:34:04 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php on line 8
+[02-Apr-2025 19:32:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Controller.php on line 10
+[03-Apr-2025 04:39:11 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/ExceptionController.php on line 8

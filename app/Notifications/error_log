@@ -1,0 +1,628 @@
+[21-Feb-2025 07:55:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php on line 11
+[21-Feb-2025 10:59:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php on line 11
+[23-Feb-2025 07:49:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php on line 11
+[24-Feb-2025 07:48:35 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php on line 11
+[26-Feb-2025 07:47:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php on line 11
+[28-Feb-2025 08:38:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/QuestionAnswerNotification.php on line 11
+[09-Mar-2025 14:48:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[09-Mar-2025 21:05:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php on line 10
+[09-Mar-2025 21:13:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[09-Mar-2025 21:14:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[10-Mar-2025 14:09:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php on line 10
+[10-Mar-2025 14:46:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php on line 10
+[10-Mar-2025 15:11:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[10-Mar-2025 16:08:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[10-Mar-2025 16:19:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php on line 14
+[11-Mar-2025 05:42:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php on line 11
+[11-Mar-2025 05:51:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php on line 10
+[11-Mar-2025 06:29:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[11-Mar-2025 07:44:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php on line 10
+[11-Mar-2025 12:46:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[11-Mar-2025 12:47:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php on line 10
+[11-Mar-2025 12:48:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php on line 10
+[11-Mar-2025 12:50:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php on line 10
+[11-Mar-2025 13:48:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php on line 10
+[11-Mar-2025 13:51:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[11-Mar-2025 21:24:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php on line 10
+[11-Mar-2025 21:36:55 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[11-Mar-2025 21:38:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[11-Mar-2025 21:45:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[12-Mar-2025 10:04:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[12-Mar-2025 10:17:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[12-Mar-2025 17:09:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php on line 11
+[12-Mar-2025 17:18:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php on line 11
+[12-Mar-2025 17:21:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php on line 10
+[12-Mar-2025 17:43:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php on line 10
+[12-Mar-2025 18:03:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php on line 10
+[12-Mar-2025 18:21:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php on line 14
+[13-Mar-2025 04:53:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[13-Mar-2025 06:17:44 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[13-Mar-2025 06:19:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php on line 10
+[13-Mar-2025 06:26:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php on line 10
+[13-Mar-2025 06:28:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php on line 10
+[13-Mar-2025 06:46:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php on line 10
+[13-Mar-2025 07:24:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[13-Mar-2025 07:55:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php on line 10
+[13-Mar-2025 17:17:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php on line 11
+[14-Mar-2025 17:17:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php on line 11
+[15-Mar-2025 07:21:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php on line 10
+[15-Mar-2025 07:28:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[15-Mar-2025 08:43:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[15-Mar-2025 09:16:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[15-Mar-2025 09:27:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[15-Mar-2025 09:32:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[15-Mar-2025 15:51:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[15-Mar-2025 17:17:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php on line 11
+[16-Mar-2025 09:07:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[16-Mar-2025 17:17:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php on line 11
+[17-Mar-2025 17:29:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UndoRetardAchievement.php on line 11
+[18-Mar-2025 09:09:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[19-Mar-2025 09:31:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[20-Mar-2025 01:11:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php on line 11
+[20-Mar-2025 01:17:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[20-Mar-2025 01:30:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php on line 10
+[20-Mar-2025 01:56:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php on line 10
+[20-Mar-2025 02:01:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php on line 10
+[20-Mar-2025 02:12:07 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php on line 10
+[20-Mar-2025 02:29:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php on line 10
+[20-Mar-2025 02:33:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[20-Mar-2025 02:54:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php on line 10
+[20-Mar-2025 03:16:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php on line 10
+[20-Mar-2025 06:54:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[20-Mar-2025 07:24:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php on line 10
+[20-Mar-2025 08:08:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[20-Mar-2025 08:22:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[20-Mar-2025 08:43:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[20-Mar-2025 09:01:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[20-Mar-2025 10:40:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[20-Mar-2025 11:03:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[20-Mar-2025 11:05:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php on line 14
+[22-Mar-2025 10:20:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[22-Mar-2025 16:38:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php on line 11
+[22-Mar-2025 16:41:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[22-Mar-2025 18:23:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php on line 10
+[22-Mar-2025 19:32:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php on line 10
+[22-Mar-2025 19:37:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[22-Mar-2025 20:01:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php on line 10
+[22-Mar-2025 20:24:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php on line 10
+[22-Mar-2025 20:50:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php on line 10
+[22-Mar-2025 20:52:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[22-Mar-2025 21:07:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[22-Mar-2025 21:22:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[22-Mar-2025 21:30:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[22-Mar-2025 21:41:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[22-Mar-2025 22:12:16 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php on line 10
+[22-Mar-2025 23:06:27 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php on line 10
+[23-Mar-2025 00:24:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[23-Mar-2025 00:24:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php on line 14
+[24-Mar-2025 05:41:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[24-Mar-2025 05:51:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php on line 11
+[24-Mar-2025 06:50:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php on line 10
+[24-Mar-2025 07:48:46 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[24-Mar-2025 07:51:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php on line 10
+[24-Mar-2025 08:09:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php on line 10
+[24-Mar-2025 08:11:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php on line 10
+[24-Mar-2025 08:33:49 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php on line 10
+[24-Mar-2025 08:56:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php on line 10
+[24-Mar-2025 08:58:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[24-Mar-2025 09:12:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[24-Mar-2025 09:17:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[24-Mar-2025 09:32:31 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[24-Mar-2025 09:33:48 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[24-Mar-2025 10:02:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php on line 10
+[24-Mar-2025 10:52:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php on line 10
+[24-Mar-2025 12:05:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[24-Mar-2025 12:07:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php on line 14
+[26-Mar-2025 09:08:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php on line 11
+[26-Mar-2025 09:16:11 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[26-Mar-2025 09:33:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php on line 10
+[26-Mar-2025 09:35:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php on line 10
+[26-Mar-2025 09:37:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[26-Mar-2025 09:46:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php on line 10
+[26-Mar-2025 09:46:15 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php on line 10
+[26-Mar-2025 09:46:23 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php on line 10
+[26-Mar-2025 09:54:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php on line 10
+[26-Mar-2025 10:03:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php on line 10
+[26-Mar-2025 10:03:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[26-Mar-2025 10:08:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[26-Mar-2025 10:08:56 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[26-Mar-2025 10:09:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[26-Mar-2025 10:10:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[26-Mar-2025 10:19:34 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php on line 10
+[26-Mar-2025 10:32:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php on line 10
+[26-Mar-2025 10:49:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php on line 14
+[26-Mar-2025 10:55:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[26-Mar-2025 17:57:36 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php on line 10
+[29-Mar-2025 04:39:19 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistribution.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistribution.php on line 10
+[02-Apr-2025 06:11:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[02-Apr-2025 17:12:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/EligibleCertificate.php on line 11
+[02-Apr-2025 18:03:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailSupportPost.php on line 10
+[02-Apr-2025 18:05:14 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/FreezException.php on line 10
+[02-Apr-2025 18:05:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/UpdateExceptionStatus.php on line 10
+[02-Apr-2025 18:06:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/WithdrawnAccepted.php on line 10
+[02-Apr-2025 18:08:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/GeneralNotification.php on line 10
+[02-Apr-2025 18:13:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExcludedUser.php on line 10
+[02-Apr-2025 18:45:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExceptionFinished.php on line 10
+[02-Apr-2025 19:05:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailMemberAdd.php on line 10
+[02-Apr-2025 19:11:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MoveToPlatform.php on line 10
+[02-Apr-2025 19:22:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalExceptionFromParent.php on line 10
+[02-Apr-2025 19:59:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailUpgradeRole.php on line 10
+[02-Apr-2025 20:41:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailResetPasswordNotification.php on line 14
+[03-Apr-2025 02:54:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailAmbassadorDistributionToYourTeam.php on line 10
+[03-Apr-2025 03:51:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExceptionalException.php on line 10
+[03-Apr-2025 04:02:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[03-Apr-2025 04:06:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/RejectUserEmail.php on line 14
+[03-Apr-2025 04:23:29 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ContactsWithWithdrawnAmbassador.php on line 10
+[03-Apr-2025 05:31:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/MailExcludeAmbassador.php on line 10
+[04-Apr-2025 01:36:24 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10

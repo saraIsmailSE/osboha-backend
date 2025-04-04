@@ -1,0 +1,156 @@
+[01-Feb-2025 14:04:12 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligiblePDFController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligiblePDFController.php on line 14
+[01-Feb-2025 14:04:13 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[01-Feb-2025 14:04:14 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[01-Feb-2025 14:04:28 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleUserBookController.php:22
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleUserBookController.php on line 22
+[01-Feb-2025 14:05:03 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[01-Feb-2025 14:05:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleUserController.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleUserController.php on line 23
+[01-Feb-2025 19:13:53 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleThesisController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleThesisController.php on line 17
+[01-Feb-2025 19:13:58 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 20
+[10-Feb-2025 21:03:35 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 20
+[09-Mar-2025 16:53:49 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligiblePDFController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligiblePDFController.php on line 14
+[10-Mar-2025 15:43:40 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 18
+[11-Mar-2025 07:17:48 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[11-Mar-2025 13:49:39 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[11-Mar-2025 15:13:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[12-Mar-2025 17:49:32 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[12-Mar-2025 18:05:12 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 18
+[15-Mar-2025 09:27:53 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[15-Mar-2025 09:32:52 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[15-Mar-2025 09:40:23 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[20-Mar-2025 03:12:20 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 18
+[20-Mar-2025 08:48:32 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[20-Mar-2025 09:17:56 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[20-Mar-2025 09:19:16 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[22-Mar-2025 21:32:37 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[22-Mar-2025 21:57:49 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[22-Mar-2025 22:07:02 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[22-Mar-2025 22:54:48 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 18
+[24-Mar-2025 09:31:44 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[24-Mar-2025 09:54:07 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[24-Mar-2025 09:56:22 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[24-Mar-2025 10:42:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 18
+[26-Mar-2025 10:16:22 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[26-Mar-2025 10:16:25 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[26-Mar-2025 10:19:25 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[26-Mar-2025 10:34:46 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 18
+[02-Apr-2025 19:36:16 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleCertificatesController.php on line 18
+[03-Apr-2025 04:16:40 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleGeneralInformationsController.php on line 17
+[03-Apr-2025 04:20:37 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/TeamStatisticsController.php on line 15
+[03-Apr-2025 04:56:25 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/Eligible/EligibleQuestionController.php on line 18

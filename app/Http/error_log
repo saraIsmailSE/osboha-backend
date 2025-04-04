@@ -1,0 +1,32 @@
+[09-Mar-2025 21:02:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
+[11-Mar-2025 21:07:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
+[15-Mar-2025 08:18:00 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
+[20-Mar-2025 05:20:17 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
+[22-Mar-2025 17:51:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
+[24-Mar-2025 06:08:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
+[26-Mar-2025 09:20:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
+[02-Apr-2025 16:41:54 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Kernel.php on line 7
