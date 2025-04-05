@@ -35,12 +35,11 @@ class OsbohaMarathonController extends Controller
     }
     function createMarthon(Request $request)
     {
-        //validate requested data
         $validator = Validator::make($request->all(), [
             'marathon_title'                    => 'required_without:marathon_id',
             'marathon_id'        => 'required_without:marathon_title',
-            'weeks_key' => 'required|array', // Validate that weeks_key is an array
-            'weeks_key.*' => 'required|integer', // Validate that each element in the array is an integer
+            'weeks_key' => 'required|array',
+            'weeks_key.*' => 'required|integer',
         ]);
         if ($validator->fails()) {
             return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
