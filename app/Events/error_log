@@ -47,3 +47,4 @@
 [03-Apr-2025 04:15:08 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Events\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Events/NewUserStats.php on line 14
 [03-Apr-2025 05:06:16 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Events\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Events/MessageEvent.php on line 11
 [03-Apr-2025 08:22:34 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Events\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Events/MessageEvent.php on line 11
+[06-Apr-2025 08:08:51 UTC] PHP Fatal error:  Trait "Illuminate\Foundation\Events\Dispatchable" not found in /home/osbohaco/platform.osboha180.com/backend/app/Events/MessageEvent.php on line 11

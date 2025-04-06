@@ -1002,3 +1002,11 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/ExceptionTypeResource.php on line 7
+[05-Apr-2025 05:47:51 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php on line 7
+[05-Apr-2025 06:46:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Http\Resources\Json\JsonResource" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Resources/AnswerResource.php on line 7

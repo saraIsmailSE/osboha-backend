@@ -626,3 +626,7 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10
+[06-Apr-2025 01:33:50 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Notifications\Notification" not found in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Notifications/ExamException.php on line 10

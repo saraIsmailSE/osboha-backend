@@ -46,3 +46,7 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8
+[05-Apr-2025 20:29:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Exceptions\Handler" not found in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Exceptions/Handler.php on line 8

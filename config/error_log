@@ -462,3 +462,11 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/osbohaco/platform.osboha180.com/backend/config/telescope.php on line 19
+[04-Apr-2025 22:48:26 UTC] PHP Fatal error:  Uncaught Error: Class "Carbon\Carbon" not found in /home/osbohaco/platform.osboha180.com/backend/config/constants.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/config/constants.php on line 5
+[05-Apr-2025 22:47:29 UTC] PHP Fatal error:  Uncaught Error: Class "Carbon\Carbon" not found in /home/osbohaco/platform.osboha180.com/backend/config/constants.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/config/constants.php on line 5

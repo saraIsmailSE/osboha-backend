@@ -1498,3 +1498,7 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/osbohaco/platform.osboha180.com/backend/app/Models/RamadanQuestionsAnswer.php on line 7
+[04-Apr-2025 12:02:37 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Model" not found in /home/osbohaco/platform.osboha180.com/backend/app/Models/RamadanQuestionsAnswer.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Models/RamadanQuestionsAnswer.php on line 7

@@ -1606,3 +1606,11 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/SectionController.php on line 22
+[05-Apr-2025 08:36:28 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/UserGroupController.php:37
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/UserGroupController.php on line 37
+[06-Apr-2025 12:55:26 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/RolesAdministrationController.php:31
+Stack trace:
+#0 {main}
+  thrown in /home/osbohaco/platform.osboha180.com/backend/app/Http/Controllers/Api/RolesAdministrationController.php on line 31
