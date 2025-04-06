@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api\Eligible;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\EligibleGeneralInformations;
-use App\Models\EligibleQuestion;
-use App\Models\EligibleThesis;
+use App\Models\Eligible\EligibleGeneralInformations;
+use App\Models\Eligible\EligibleQuestion;
+use App\Models\Eligible\EligibleThesis;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use App\Models\EligibleUserBook;
+use App\Models\Eligible\EligibleUserBook;
 use App\Traits\ResponseJson;
 
 
@@ -244,6 +244,18 @@ class EligibleGeneralInformationsController extends Controller
         $general_informations['general_informations'] =  EligibleGeneralInformations::with('reviewer')->with('auditor')
             ->where('eligible_user_books_id', $general_informations['user_book']->id)->first();
         return $this->jsonResponseWithoutMessage($general_informations, 'data', 200);
+    }
+
+    public function  getGeneralInformationsForEligibleBook($eligible_user_books_id)
+    {
+        $userBook = EligibleUserBook::with('generalInformation')->find($eligible_user_books_id);
+
+        $generalInformations = [
+            'user_book' => $userBook,
+            'general_informations' => $userBook->generalInformation
+        ];
+
+        return $this->jsonResponseWithoutMessage($generalInformations, 'data', 200);
     }
 
 

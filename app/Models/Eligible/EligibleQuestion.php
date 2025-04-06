@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Eligible;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -42,9 +43,9 @@ class EligibleQuestion extends Model
     public static function boot()
     {
         parent::boot();
-        self::deleting(function ($question) { 
+        self::deleting(function ($question) {
             $question->quotation()->each(function ($quotation) {
-                $quotation->delete(); 
+                $quotation->delete();
             });
         });
     }

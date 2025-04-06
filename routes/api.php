@@ -616,6 +616,7 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::get('/notify-users', 'notifyUsersNewWeek');
                 Route::get('/get-weeks/{limit}', 'getWeeks');
                 Route::get('/get-next-weeks-title/{limit}', 'getNextWeekTitles');
+                Route::get('/weeks-around/{title}/{before?}/{after?}', 'getWeeksAroundTitle');
                 Route::get('/get-previous-week', 'getPreviousWeek');
             });
         ######## End Week ########

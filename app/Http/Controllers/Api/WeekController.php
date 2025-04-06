@@ -315,7 +315,7 @@ class WeekController extends Controller
             ->chunk(100, function ($users) use ($notification) {
                 try {
                     // $msg = 'إجازة عيد الأضحى المبارك السنوية 🐑';
-                    $msg='اجازة عيد الفطر السنوية 🌙';
+                    $msg = 'اجازة عيد الفطر السنوية 🌙';
                     foreach ($users as $user) {
                         $notification->sendNotification($user->id, $msg, NEW_WEEK);
                     }
@@ -388,6 +388,23 @@ class WeekController extends Controller
 
         // Return the week titles
         return $this->jsonResponseWithoutMessage($weekTitles, 'data', 200);
+    }
+    public function getWeeksAroundTitle($targetTitle, $before = 2, $after = 10)
+    {
+        $yearWeeks = config('constants.YEAR_WEEKS');
+        $titles = array_column($yearWeeks, 'title');
+
+        $currentIndex = array_search($targetTitle, $titles);
+
+        if ($currentIndex === false) {
+            return $this->jsonResponseWithoutMessage("Target week title not found in YEAR_WEEKS array", 'data', 404);
+        }
+
+        $start = max(0, $currentIndex - $before);
+        $length = $before + 1 + $after;
+        $weekSlice = array_slice($yearWeeks, $start, $length);
+
+        return $this->jsonResponseWithoutMessage($weekSlice, 'data', 200);
     }
     public function getPreviousWeek()
     {

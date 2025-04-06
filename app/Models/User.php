@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Eligible\EligibleThesis;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -210,13 +211,13 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
-    public function eligibleReviewes()
+    public function eligibleThesisReviewes()
     {
-        return $this->hasMany(Thesis::class, 'reviewer_id');
+        return $this->hasMany(EligibleThesis::class, 'reviewer_id');
     }
-    public function eligibleAudites()
+    public function eligibleThesisAudites()
     {
-        return $this->hasMany(Thesis::class, 'auditor_id');
+        return $this->hasMany(EligibleThesis::class, 'auditor_id');
     }
 
     public function reportedViolations()

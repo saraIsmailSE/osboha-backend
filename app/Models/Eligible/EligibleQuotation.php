@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Eligible;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class EligibleQuotation extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'eligible_quotations';
 
     protected $fillable = [
