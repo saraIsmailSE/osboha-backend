@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Eligible;
 
 use App\Http\Controllers\Controller;
-use App\Models\EligibleCertificates;
-use App\Models\EligibleUserBook;
+use App\Models\Eligible\EligibleCertificates;
+use App\Models\Eligible\EligibleUserBook;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
 

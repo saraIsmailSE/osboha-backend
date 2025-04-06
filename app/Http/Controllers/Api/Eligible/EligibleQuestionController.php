@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Api\Eligible;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\EligibleGeneralInformations;
-use App\Models\EligibleQuestion;
-use App\Models\EligibleQuotation;
-use App\Models\EligibleThesis;
+use App\Models\Eligible\EligibleGeneralInformations;
+use App\Models\Eligible\EligibleQuestion;
+use App\Models\Eligible\EligibleQuotation;
+use App\Models\Eligible\EligibleThesis;
 use App\Models\User;
-use App\Models\EligibleUserBook;
+use App\Models\Eligible\EligibleUserBook;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
@@ -237,16 +237,17 @@ class EligibleQuestionController extends Controller
                         $q->select(['id', 'name']);
                     },
                     'user' => function ($q) {
-                        $q->select(['id', 'name' , 'last_name']);
-                    }
-                ])->without(['thesises', 'generalInformation']);
+                        $q->select(['id', 'name', 'last_name']);
+                    },
+                    'questions'
+                ]);
             }
         ])
-        ->without(['reviewer', 'auditor'])
-        ->where('status', $status)
-        ->groupBy('eligible_user_books_id')
-        ->orderBy('updated_at', 'asc')
-        ->get();
+            ->without(['reviewer', 'auditor'])
+            ->where('status', $status)
+            ->groupBy('eligible_user_books_id')
+            ->orderBy('updated_at', 'asc')
+            ->get();
 
         return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }
@@ -262,6 +263,17 @@ class EligibleQuestionController extends Controller
     {
         $questions['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->latest()->first();
         $questions['questions'] =  EligibleQuestion::with('reviewer')->with('auditor')->where('eligible_user_books_id', $questions['user_book']->id)->get();
+        return $this->jsonResponseWithoutMessage($questions, 'data', 200);
+    }
+
+    public function  getQuestionsForEligibleBook($eligible_user_books_id)
+    {
+        $userBook = EligibleUserBook::with('questions')->find($eligible_user_books_id);
+        $questions = [
+            'user_book' => $userBook,
+            'questions' => $userBook->questions
+        ];
+
         return $this->jsonResponseWithoutMessage($questions, 'data', 200);
     }
 

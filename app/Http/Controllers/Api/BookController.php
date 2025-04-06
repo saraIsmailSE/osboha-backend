@@ -89,7 +89,11 @@ class BookController extends Controller
 
         // SELECT * FROM `user_book` WHERE user_id =1 and (status != 'finished' || status is null )
 
-        $books['open_book'] = Book::whereHas('eligibleUserBook', function ($q) {
+        $books['open_book'] = Book::with([
+            'eligibleUserBook' => function ($q) {
+                $q->where('user_id', Auth::id());
+            }
+        ])->whereHas('eligibleUserBook', function ($q) {
             $q->where('user_id', Auth::id())
                 ->where(function ($query) {
                     $query->where('status', '!=', 'finished')

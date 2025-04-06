@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Api\Eligible;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
-use App\Models\EligibleCertificates;
-use App\Models\EligibleGeneralInformations;
-use App\Models\EligibleQuestion;
-use App\Models\EligibleThesis;
+use App\Models\Eligible\EligibleCertificates;
+use App\Models\Eligible\EligibleGeneralInformations;
+use App\Models\Eligible\EligibleQuestion;
+use App\Models\Eligible\EligibleThesis;
 use App\Models\User;
-use App\Models\EligibleUserBook;
+use App\Models\Eligible\EligibleUserBook;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
@@ -106,11 +106,53 @@ class EligibleUserBookController extends Controller
         return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
     }
 
-    public function show($id)
+    public function getById($id)
     {
-        $userBook = EligibleUserBook::with('certificates')->find($id);
+        $userBook['userBook']  = EligibleUserBook::without('user')->with([
+            'book' => function ($q) {
+                $q->without(['section', 'language', 'type']);
+            },
+            'user' => function ($q) {
+                $q->without(['userProfile']);
+            },
+            'thesises' => function ($q) {
+                $q->without(['reviewer', 'auditor']);
+            },
+            'questions' => function ($q) {
+                $q->without(['reviewer', 'auditor']);
+            },
+            'generalInformation' => function ($q) {
+                $q->without(['reviewer', 'auditor']);
+            },
+        ])->find($id);
 
-        if ($userBook) {
+        if ($userBook['userBook']) {
+            $userBook['completionPercentage'] = 10;
+
+            //50 \ 8 => 6.25 for each (50%)
+            $theses = EligibleThesis::where('eligible_user_books_id', $userBook['userBook']->id)->where(function ($query) {
+                $query->where('status', '!=', 'retard')->where('status', '!=', 'rejected')->orWhereNull('status');
+            })->count();
+
+            if ($theses > 8) {
+                $userBook['completionPercentage'] = $userBook['completionPercentage'] + (6.25 * 8);
+            } else {
+                $userBook['completionPercentage'] = $userBook['completionPercentage'] + (6.25 * $theses);
+            }
+            //25 \ 5 => 5 for each (25%)
+            $questions = EligibleQuestion::where('eligible_user_books_id', $userBook['userBook']->id)->where(function ($query) {
+                $query->where('status', '!=', 'retard')->where('status', '!=', 'rejected')->orWhereNull('status');
+            })->count();
+            if ($questions > 5) {
+                $userBook['completionPercentage'] = $userBook['completionPercentage'] + (5 * 5);
+            } else {
+                $userBook['completionPercentage'] = $userBook['completionPercentage'] + (5 * $questions);
+            }
+            $generalInformations = EligibleGeneralInformations::where('eligible_user_books_id', $userBook['userBook']->id)->where(function ($query) {
+                $query->where('status', '!=', 'retard')->where('status', '!=', 'rejected')->orWhereNull('status');
+            })->count();
+            $userBook['completionPercentage'] = $userBook['completionPercentage'] + (15 * $generalInformations); // only one  (15%)
+
             return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
         }
         return $this->jsonResponseWithoutMessage('UserBook does not exist', 'data', 200);
@@ -133,7 +175,11 @@ class EligibleUserBookController extends Controller
 
     public function finishedAchievement()
     {
-        $userBook = EligibleUserBook::where('user_id', Auth::id())->where('status', 'finished')->get();
+        $userBook = EligibleUserBook::without('user')->with([
+            'book' => function ($q) {
+                $q->without(['section', 'language', 'type']);
+            },
+        ])->where('user_id', Auth::id())->where('status', 'finished')->get();
         return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
     }
 

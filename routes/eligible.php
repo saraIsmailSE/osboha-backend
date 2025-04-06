@@ -28,7 +28,7 @@ Route::controller(EligibleUserBookController::class)
         Route::get('/general-statistics', 'getGeneralstatistics');
         Route::get('/by-book-id/{bookId}', 'getByBookID');
         Route::get('/stage-status/{id}', 'getStageStatus');
-        Route::get('/{id}', 'show');
+        Route::get('/{id}', 'getById');
         Route::patch('/{id}', 'update');
         Route::delete('/{id}', 'destroy');
         Route::post('/review', 'review');
@@ -63,6 +63,9 @@ Route::controller(EligibleThesisController::class)
         Route::get('book/{book_id}', 'getByBook');
         Route::post('/review', 'review');
         Route::patch('/undo/accept/{thesisId}', 'undoAccept');
+        //April
+        Route::get('get-theses-for-eligible-book/{eligible_user_books_id}', 'getThesesForEligibleBook');
+
     });
 ######## End eligible-theses ########
 
@@ -85,6 +88,8 @@ Route::controller(EligibleQuestionController::class)
         Route::post('/review', 'review');
         Route::patch('review-question/{id}', 'reviewQuestion');
         Route::patch('/undo/accept/{questionId}', 'undoAccept');
+        Route::get('get-questions-for-eligible-book/{eligible_user_books_id}', 'getQuestionsForEligibleBook');
+
     });
 ######## End eligible-questions ########
 ######## Start eligible-certificates ########
@@ -117,6 +122,8 @@ Route::controller(EligibleGeneralInformationsController::class)
         Route::get('status/{status}', 'getByStatus');
         Route::post('/review', 'review');
         Route::patch('review-general-informations/{id}', 'reviewGeneralInformations');
+        Route::get('get-general-informations-for-eligible-book/{eligible_user_books_id}', 'getGeneralInformationsForEligibleBook');
+
     });
 ######## End eligible-general-informations ########
 ######## Start eligible-statistics ########

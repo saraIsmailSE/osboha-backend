@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api\Eligible;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\EligibleGeneralInformations;
-use App\Models\EligibleQuestion;
-use App\Models\EligibleThesis;
+use App\Models\Eligible\EligibleGeneralInformations;
+use App\Models\Eligible\EligibleQuestion;
+use App\Models\Eligible\EligibleThesis;
 use App\Models\User;
-use App\Models\EligibleUserBook;
+use App\Models\Eligible\EligibleUserBook;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\ResponseJson;
 use Illuminate\Support\Facades\Auth;
@@ -207,16 +207,17 @@ class EligibleThesisController extends Controller
                         $q->select(['id', 'name']);
                     },
                     'user' => function ($q) {
-                        $q->select(['id', 'name' , 'last_name']);
-                    }
-                ])->without(['questions', 'generalInformation']);
+                        $q->select(['id', 'name', 'last_name']);
+                    },
+                    'thesises'
+                ]);
             }
         ])
-        ->without(['reviewer', 'auditor'])
-        ->where('status', $status)
-        ->groupBy('eligible_user_books_id')
-        ->orderBy('updated_at', 'asc')
-        ->get();
+            ->without(['reviewer', 'auditor'])
+            ->where('status', $status)
+            ->groupBy('eligible_user_books_id')
+            ->orderBy('updated_at', 'asc')
+            ->get();
 
         return $this->jsonResponseWithoutMessage($theses, 'data', 200);
     }
@@ -237,6 +238,17 @@ class EligibleThesisController extends Controller
     {
         $theses['user_book'] = EligibleUserBook::where('user_id', Auth::id())->where('book_id', $book_id)->latest()->first();
         $theses['theses'] =  EligibleThesis::with('reviewer')->with('auditor')->where('eligible_user_books_id', $theses['user_book']->id)->orderBy('created_at')->get();
+        return $this->jsonResponseWithoutMessage($theses, 'data', 200);
+    }
+
+    public function  getThesesForEligibleBook($eligible_user_books_id)
+    {
+        $userBook = EligibleUserBook::with('thesises')->find($eligible_user_books_id);
+        $theses = [
+            'user_book' => $userBook,
+            'theses' => $userBook->thesises
+        ];
+
         return $this->jsonResponseWithoutMessage($theses, 'data', 200);
     }
 

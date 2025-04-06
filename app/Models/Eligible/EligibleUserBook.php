@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Eligible;
 
+use App\Models\Book;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,7 +20,7 @@ class EligibleUserBook extends Model
 
     protected $table = 'eligible_user_books';
 
-    protected $with = array('thesises', 'user', 'book', 'questions', 'generalInformation');
+    protected $with = array('user', 'book');
 
 
     public function user()
