@@ -385,8 +385,6 @@ class WeekController extends Controller
             $weekTitles[$i]['title'] = $yearWeeks[$index]['title'];
             $weekTitles[$i]['week_key'] = $yearWeeks[$index]['week_key'];
         }
-
-        // Return the week titles
         return $this->jsonResponseWithoutMessage($weekTitles, 'data', 200);
     }
     public function getWeeksAroundTitle($targetTitle, $before = 2, $after = 10)
