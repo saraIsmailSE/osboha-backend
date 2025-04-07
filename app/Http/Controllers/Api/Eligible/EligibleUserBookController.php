@@ -108,22 +108,16 @@ class EligibleUserBookController extends Controller
 
     public function getById($id)
     {
-        $userBook['userBook']  = EligibleUserBook::without('user')->with([
+        $userBook['userBook']  = EligibleUserBook::with([
             'book' => function ($q) {
                 $q->without(['section', 'language', 'type']);
             },
             'user' => function ($q) {
                 $q->without(['userProfile']);
             },
-            'thesises' => function ($q) {
-                $q->without(['reviewer', 'auditor']);
-            },
-            'questions' => function ($q) {
-                $q->without(['reviewer', 'auditor']);
-            },
-            'generalInformation' => function ($q) {
-                $q->without(['reviewer', 'auditor']);
-            },
+            'thesises',
+            'questions',
+            'generalInformation',
         ])->find($id);
 
         if ($userBook['userBook']) {
