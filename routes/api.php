@@ -540,7 +540,7 @@ Route::group(['prefix' => 'v1'], function () {
             ->group(function () {
                 Route::get('/by-week/{week_id?}', 'byWeek');
                 Route::get('/last-week', 'lastWeek');
-                Route::get('/leaders-statistics/{superviser_id}/{week_filter?}', 'supervisingStatistics');
+                Route::get('/leaders-statistics/{superviser_id}/{week_id}', 'supervisingStatistics');
                 Route::get('/supervisors-statistics/{advisor_id}/{week_id}', 'advisorsStatistics');
                 Route::get('/advisors-statistics/{consultant_id}/{week_filter?}', 'consultantsStatistics');
                 Route::get('/consultant-statistics/{admin_id}/{week_filter?}', 'administratorStatistics');

@@ -106,7 +106,7 @@ class EligibleUserBookController extends Controller
         return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
     }
 
-    public function getById($id)
+    public function searchUserBook($id)
     {
         $userBook['userBook']  = EligibleUserBook::with([
             'book' => function ($q) {
@@ -118,6 +118,29 @@ class EligibleUserBookController extends Controller
             'thesises',
             'questions',
             'generalInformation',
+        ])->find($id);
+
+        return $this->jsonResponseWithoutMessage($userBook, 'data', 200);
+    }
+
+    public function getById($id)
+    {
+        $userBook['userBook']  = EligibleUserBook::with([
+            'book' => function ($q) {
+                $q->without(['section', 'language', 'type']);
+            },
+            'user' => function ($q) {
+                $q->without(['userProfile']);
+            },
+            'thesises' => function ($q) {
+                $q->without(['reviewer', 'auditor']);
+            },
+            'questions' => function ($q) {
+                $q->without(['reviewer', 'auditor']);
+            },
+            'generalInformation' => function ($q) {
+                $q->without(['reviewer', 'auditor']);
+            },
         ])->find($id);
 
         if ($userBook['userBook']) {

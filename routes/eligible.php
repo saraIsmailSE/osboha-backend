@@ -37,6 +37,7 @@ Route::controller(EligibleUserBookController::class)
         Route::get('/get-books/audit-status', 'getEligibleUserBooksWithAuditStatus');
         Route::get('/get-books/retard-status', 'getBooksWithRetardStatus');
         Route::patch('/undo/retard/{eligibleUserBookId}', 'undoRetard');
+        Route::get('/search-by-id/{id}', 'searchUserBook');
     });
 ######## End eligible-userbook ########
 

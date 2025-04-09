@@ -107,7 +107,7 @@ class StatisticsController extends Controller
      *
      * @return statistics;
      */
-    public function supervisingStatistics($superviser_id, $week_filter = "current")
+    public function supervisingStatistics($superviser_id, $week_id)
     {
         $supervisingGroup = UserGroup::where('user_id', $superviser_id)->where('user_type', 'supervisor')
             ->whereHas('group.type', function ($q) {
@@ -121,15 +121,16 @@ class StatisticsController extends Controller
             throw new NotFound;
         }
 
-
-        //previous_week
-        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
-        //last_previous_week
-        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+        //weekInfo
+        $weekInfo = Week::find($week_id);
+        //weekInfoInfo
+        $previous_weekInfo = Week::where('created_at', '<', $weekInfo->created_at)
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         $response = [];
-        //$leaders = $this->usersByWeek($supervisingGroup->group_id, $previous_week->id, ['ambassador']);
-        $leaders = $this->childrensByWeek($superviser_id, $previous_week->id, ['leader']);
+        //$leaders = $this->usersByWeek($supervisingGroup->group_id, $weekInfo->id, ['ambassador']);
+        $leaders = $this->childrensByWeek($superviser_id, $weekInfo->id, ['leader']);
 
         $leadersIDs =  $leaders->pluck('user_id');
         //افرقة المتابعة الخاصة بالقادة
@@ -140,21 +141,21 @@ class StatisticsController extends Controller
             ->get();
 
         foreach ($group_followups as $key => $group) {
-            $response['leaders_followup_team'][$key] = $this->followupTeamStatistics($group, $previous_week, $last_previous_week);
+            $response['leaders_followup_team'][$key] = $this->followupTeamStatistics($group, $weekInfo, $previous_weekInfo);
         }
         // leaders reading
-        $response['leaders_reading'] = $this->membersReading($leadersIDs, $previous_week->id);
+        $response['leaders_reading'] = $this->membersReading($leadersIDs, $weekInfo->id);
 
         $supervisor_followup_team = UserGroup::with('user')->where('user_type', 'leader')
             ->where('user_id', $superviser_id)
             ->whereNull('termination_reason')
             ->first();
-        $response['supervisor_own_followup_team'] = $this->followupTeamStatistics($supervisor_followup_team, $previous_week, $last_previous_week);
+        $response['supervisor_own_followup_team'] = $this->followupTeamStatistics($supervisor_followup_team, $weekInfo, $previous_weekInfo);
 
 
-        $allLeadersAndAmbassadors = $this->groupsUsersByWeek($group_followups->pluck('group_id'), $previous_week->id, ['leader', 'ambassador']);
+        $allLeadersAndAmbassadors = $this->groupsUsersByWeek($group_followups->pluck('group_id'), $weekInfo->id, ['leader', 'ambassador']);
         $allLeadersAndAmbassadorsIDS = $allLeadersAndAmbassadors->pluck('user_id');
-        $response['week_general_avg'] = $this->groupAvg(1,  $previous_week->id, $allLeadersAndAmbassadorsIDS);
+        $response['week_general_avg'] = $this->groupAvg(1,  $weekInfo->id, $allLeadersAndAmbassadorsIDS);
 
 
         $response['supervisor_group'] = $supervisorGroup;
@@ -188,7 +189,7 @@ class StatisticsController extends Controller
         $previous_weekInfo = Week::where('created_at', '<', $weekInfo->created_at)
             ->orderBy('created_at', 'desc')
             ->first();
-            
+
         $response = [];
 
         // $supervisors = $this->usersByWeek($advisorGroup->id, $weekInfo->id, ['ambassador']);
