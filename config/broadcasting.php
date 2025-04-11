@@ -39,7 +39,7 @@ return [
                 'useTLS' => true,
                 'host' => '127.0.0.1',
                 'port' => 6001,
-                'scheme' => 'https',
+                'scheme' => env('PUSHER_APP_SCHEME', 'http'),
                 'verify' => env('CURL_CA_BUNDLE', true),
             ],
             'curl_options' => [
