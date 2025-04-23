@@ -187,7 +187,9 @@ class RolesAdministrationController extends Controller
         if ($user) {
 
             $authUser = Auth::user();
-            if (!(SystemRole::canUserManageAnotherUser($authUser, $user)) || !(SystemRole::canUserManageRole($authUser, $role->name))) {
+
+            // / !(SystemRole::canUserManageAnotherUser($authUser, $user))
+            if (!(SystemRole::canUserManageRole($authUser, $role->name))) {
                 return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . SystemRole::translate($role->name), 'data', 200);
             }
             //check if role is support leader, just assign role
