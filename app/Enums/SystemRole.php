@@ -242,7 +242,7 @@ enum SystemRole: string
     {
         return [
             self::ADMIN->value => [self::ADMIN->value, self::CONSULTANT->value, self::ADVISOR->value, self::SUPERVISOR->value, self::LEADER->value, self::SUPPORT_LEADER->value, self::AMBASSADOR->value, self::BOOK_QUALITY_TEAM->value],
-            self::CONSULTANT->value => [self::ADVISOR->value, self::SUPERVISOR->value, self::LEADER->value, self::SUPPORT_LEADER->value, self::AMBASSADOR->value],
+            self::CONSULTANT->value => [self::CONSULTANT->value, self::ADVISOR->value, self::SUPERVISOR->value, self::LEADER->value, self::SUPPORT_LEADER->value, self::AMBASSADOR->value],
             self::ADVISOR->value => [self::SUPERVISOR->value, self::LEADER->value, self::SUPPORT_LEADER->value, self::AMBASSADOR->value],
             self::SUPERVISOR->value => [self::LEADER->value, self::AMBASSADOR->value],
             self::LEADER->value => [self::AMBASSADOR->value],
