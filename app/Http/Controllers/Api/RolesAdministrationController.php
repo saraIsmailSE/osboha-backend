@@ -187,8 +187,8 @@ class RolesAdministrationController extends Controller
         if ($user) {
 
             $authUser = Auth::user();
-
             // / !(SystemRole::canUserManageAnotherUser($authUser, $user))
+
             if (!(SystemRole::canUserManageRole($authUser, $role->name))) {
                 return $this->jsonResponseWithoutMessage("ليس لديك صلاحية لترقية العضو ل " . SystemRole::translate($role->name), 'data', 200);
             }
@@ -206,7 +206,6 @@ class RolesAdministrationController extends Controller
                 if ($user->hasRole($role->name)) {
                     return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
                 }
-
 
                 //check if head roles has a role greater that the greatest role of the user
                 if (SystemRole::canUserManageAnotherUser($head_user, $user)) {
@@ -433,7 +432,7 @@ class RolesAdministrationController extends Controller
 
                         DB::commit();
 
-                        $logInfo = ' قام ' . Auth::user()->name . " بنقل " . $supervisor->name . ' لـ ' .  $new_advisor->name;
+                        $logInfo = ' قام ' . Auth::user()->fullName . " بنقل " . $supervisor->fullName . ' لـ ' .  $new_advisor->fullName;
                         Log::channel('community_edits')->info($logInfo);
 
                         return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
@@ -626,7 +625,7 @@ class RolesAdministrationController extends Controller
 
                         DB::commit();
 
-                        $logInfo = ' قام ' . Auth::user()->name . " بالتبديل " . $currentSupervisor->name . ' و ' .  $newSupervisor->name;
+                        $logInfo = ' قام ' . Auth::user()->fullName . " بالتبديل " . $currentSupervisor->fullName . ' و ' .  $newSupervisor->fullName;
                         Log::channel('community_edits')->info($logInfo);
 
                         return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
@@ -799,7 +798,7 @@ class RolesAdministrationController extends Controller
                                             ->update(['user_id'  => $newSupervisor->id]);
 
                                         DB::commit();
-                                        $logInfo = ' قام ' . Auth::user()->name . " بالتبديل " . $currentSupervisor->name . ' و ' .  $newSupervisor->name . ' وأصبح ' . $currentSupervisor->name . ' سفيرا ';
+                                        $logInfo = ' قام ' . Auth::user()->fullName . " بالتبديل " . $currentSupervisor->fullName . ' و ' .  $newSupervisor->fullName . ' وأصبح ' . $currentSupervisor->name . ' سفيرا ';
                                         Log::channel('community_edits')->info($logInfo);
 
                                         return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
@@ -946,7 +945,7 @@ class RolesAdministrationController extends Controller
 
 
                                 DB::commit();
-                                $logInfo = ' قام ' . Auth::user()->name . " بالتبديل " . $currentSupervisor->name . ' و ' .  $newSupervisor->name . ' وأصبح ' . $currentSupervisor->name . ' قائدا ';
+                                $logInfo = ' قام ' . Auth::user()->fullName . " بالتبديل " . $currentSupervisor->fullName . ' و ' .  $newSupervisor->fullName . ' وأصبح ' . $currentSupervisor->name . ' قائدا ';
                                 Log::channel('community_edits')->info($logInfo);
 
                                 return $this->jsonResponseWithoutMessage("تم التبديل", 'data', 200);
@@ -1079,7 +1078,7 @@ class RolesAdministrationController extends Controller
                                 UserGroup::where('user_type', 'ambassador')->where('user_id', $currentLeader->id)->update(['group_id'  => $leaderGroupId]);
 
                                 DB::commit();
-                                $logInfo = ' قام ' . Auth::user()->name . " بالتبديل " . $currentLeader->name . ' و ' .  $newLeader->name . ' وأصبح ' . $currentLeader->name . ' سفيرا ';
+                                $logInfo = ' قام ' . Auth::user()->fullName . " بالتبديل " . $currentLeader->fullName . ' و ' .  $newLeader->fullName . ' وأصبح ' . $currentLeader->name . ' سفيرا ';
                                 Log::channel('community_edits')->info($logInfo);
 
                                 return $this->jsonResponseWithoutMessage(" تم تبديل القائد وجعل القائد القديم سفير في نفس المجموعة", 'data', 200);
@@ -1164,7 +1163,7 @@ class RolesAdministrationController extends Controller
                                     ]
                                 );
 
-                                $logInfo = ' قام ' . Auth::user()->name . " بنقل  " . $ambassador->name . ' إلى القائد ' .  $newLeader->name;
+                                $logInfo = ' قام ' . Auth::user()->fullName . " بنقل  " . $ambassador->fullName . ' إلى القائد ' .  $newLeader->fullName;
                                 Log::channel('community_edits')->info($logInfo);
                                 $response['message'] = 'تم النقل';
                             } else {
@@ -1265,7 +1264,7 @@ class RolesAdministrationController extends Controller
                                     if ($newSupervisor->parent_id != $currentAdvisorId) {
                                         UserGroup::where('user_type', 'advisor')->where('group_id', $leaderGroupId)->update(['user_id'  => $newSupervisor->parent_id]);
                                     }
-                                    $logInfo = ' قام ' . Auth::user()->name . " بنقل القائد " . $leader->name . ' إلى المراقب ' .  $newSupervisor->name;
+                                    $logInfo = ' قام ' . Auth::user()->fullName . " بنقل القائد " . $leader->fullName . ' إلى المراقب ' .  $newSupervisor->fullName;
                                     Log::channel('community_edits')->info($logInfo);
 
                                     $response['message'] = 'تم النقل';

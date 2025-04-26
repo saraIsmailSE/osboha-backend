@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 enum SystemRole: string
 {
@@ -121,7 +122,7 @@ enum SystemRole: string
     {
         return match ($this) {
             self::ADMIN => [self::CONSULTANT, self::ADVISOR, self::SUPERVISOR, self::LEADER, self::SUPPORT_LEADER, self::AMBASSADOR],
-            self::CONSULTANT => [self::ADVISOR, self::SUPERVISOR, self::LEADER, self::SUPPORT_LEADER, self::AMBASSADOR],
+            self::CONSULTANT => [self::CONSULTANT, self::ADVISOR, self::SUPERVISOR, self::LEADER, self::SUPPORT_LEADER, self::AMBASSADOR],
             self::ADVISOR => [self::SUPERVISOR, self::LEADER, self::SUPPORT_LEADER, self::AMBASSADOR],
             self::SUPERVISOR => [self::LEADER, self::SUPPORT_LEADER, self::AMBASSADOR],
             self::LEADER => [self::AMBASSADOR, self::SUPPORT_LEADER],
