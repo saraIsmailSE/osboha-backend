@@ -266,9 +266,11 @@ trait MediaTraits
 
     function cleanupEmptyDirectories($path)
     {
-        $directories = File::allDirectories($path);
+        $directories = File::directories($path);
 
         foreach ($directories as $dir) {
+            $this->cleanupEmptyDirectories($dir);
+
             if (File::isDirectory($dir) && File::isEmptyDirectory($dir)) {
                 File::deleteDirectory($dir);
                 Log::info("Empty directory deleted: {$dir}");
