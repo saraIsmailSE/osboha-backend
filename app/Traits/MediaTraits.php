@@ -242,6 +242,8 @@ trait MediaTraits
     {
         $filePath = public_path('assets/images/' . ltrim($file, '/'));
         try {
+            Log::info("Checking path: {$filePath} - is dir: " . (File::isDirectory($filePath) ? 'yes' : 'no'));
+
             if (!File::exists($filePath)) {
                 Log::warning("Path does not exist: {$filePath}");
                 return 'not found';
@@ -262,7 +264,17 @@ trait MediaTraits
         }
     }
 
+    function cleanupEmptyDirectories($path)
+    {
+        $directories = File::allDirectories($path);
 
+        foreach ($directories as $dir) {
+            if (File::isDirectory($dir) && File::isEmptyDirectory($dir)) {
+                File::deleteDirectory($dir);
+                Log::info("Empty directory deleted: {$dir}");
+            }
+        }
+    }
 
     private function generateFileName($media)
     {
