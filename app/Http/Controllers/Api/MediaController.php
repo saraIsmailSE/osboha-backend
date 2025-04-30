@@ -207,7 +207,7 @@ class MediaController extends Controller
                 ->where('created_at', '<',$created_at)
                 ->chunkById(2000, function ($records) {
                     foreach ($records as $media) {
-                        $deletedFiles = $this->deleteMedia_v2($media->media);
+                        $deletedFiles = $this->deleteDirectory($media->media);
                     }
                 });
 

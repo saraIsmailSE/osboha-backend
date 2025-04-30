@@ -238,6 +238,32 @@ trait MediaTraits
         }
     }
 
+    function deleteDirectory($file)
+    {
+        $filePath = public_path('assets/images/' . ltrim($file, '/'));
+        try {
+            if (!File::exists($filePath)) {
+                Log::warning("Path does not exist: {$filePath}");
+                return 'not found';
+            }
+
+            if (File::isDirectory($filePath)) {
+                File::deleteDirectory($filePath);
+                Log::info("Directory deleted: {$filePath}");
+                return 'directory deleted';
+            } else {
+                File::delete($filePath);
+                Log::info("File deleted: {$filePath}");
+                return 'file deleted';
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to delete: {$filePath}. Error: " . $e->getMessage());
+            return 'error';
+        }
+    }
+
+
+
     private function generateFileName($media)
     {
         return Str::random(12) . '_' . time() . '.' . ($media instanceof \Illuminate\Http\UploadedFile ? $media->extension() : '');
