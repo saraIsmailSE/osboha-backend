@@ -200,20 +200,23 @@ class MediaController extends Controller
                 ->take(1)
                 ->first();
 
-            $created_at = $lastWeek->created_at;
-            Log::channel('media')->info('Last Week Date: ' . $created_at);
+            $cutoffDate = $lastWeek->created_at->timestamp;
+            $this->deleteUntrackedImagesFromThesesByWeek($lastWeek->created_at->timestamp);
 
-            $matchingIds = Media::where('media', 'LIKE', "theses/%")
-                ->where('created_at', '<', $created_at)
-                ->chunkById(2000, function ($records) {
-                    Log::channel('media')->info('Found media to delete: ' . count($records));
+            // $created_at = $lastWeek->created_at;
+            // Log::channel('media')->info('Last Week Date: ' . $created_at);
 
-                    foreach ($records as $media) {
-                        $deletedFiles = $this->deleteMedia_v2($media->media);
-                    }
-                });
+            // $matchingIds = Media::where('media', 'LIKE', "theses/%")
+            //     ->where('created_at', '<', $created_at)
+            //     ->chunkById(2000, function ($records) {
+            //         Log::channel('media')->info('Found media to delete: ' . count($records));
 
-            $this->cleanupEmptyDirectories(public_path('assets/images/theses'));
+            //         foreach ($records as $media) {
+            //             $deletedFiles = $this->deleteMedia_v2($media->media);
+            //         }
+            //     });
+
+            // $this->cleanupEmptyDirectories(public_path('assets/images/theses'));
             Log::channel('media')->info('END');
         } catch (\Throwable $th) {
             Log::channel('media')->error('Error while deleting media files', [

@@ -280,6 +280,36 @@ trait MediaTraits
         }
     }
 
+    function deleteUntrackedImagesFromThesesByWeek($cutoffTimestamp)
+    {
+        $basePath = public_path('assets/images/theses');
+        $userFolders = File::directories($basePath);
+
+        foreach ($userFolders as $userFolder) {
+            $bookFolders = File::directories($userFolder);
+
+            foreach ($bookFolders as $bookFolder) {
+                $images = File::files($bookFolder);
+
+                foreach ($images as $image) {
+                    $fullPath = $image->getPathname();
+                    $relativePath = str_replace(public_path('assets/images/') . '/', '', $fullPath);
+                    $createdAt = $image->getMTime();
+
+                    if ($createdAt < $cutoffTimestamp && !Media::where('media', $relativePath)->exists()) {
+                        File::delete($fullPath);
+                        Log::info("Deleted old untracked image: {$fullPath}");
+                    }
+                }
+                if (File::isEmptyDirectory($bookFolder)) {
+                    File::deleteDirectory($bookFolder);
+                    Log::info("Deleted empty book folder: {$bookFolder}");
+                }
+            }
+        }
+    }
+
+
     private function generateFileName($media)
     {
         return Str::random(12) . '_' . time() . '.' . ($media instanceof \Illuminate\Http\UploadedFile ? $media->extension() : '');
