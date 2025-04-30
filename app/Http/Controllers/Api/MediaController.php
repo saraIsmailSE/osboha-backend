@@ -201,17 +201,19 @@ class MediaController extends Controller
                 ->first();
 
             $created_at = $lastWeek->created_at;
-            // Log::channel('media')->info('Memory usage befor: ' . memory_get_usage());
+            Log::channel('media')->info('Last Week Date: ' . $created_at);
 
             $matchingIds = Media::where('media', 'LIKE', "theses/%")
                 ->where('created_at', '<', $created_at)
                 ->chunkById(2000, function ($records) {
+                    Log::channel('media')->info('Found media to delete: ' . count($records));
+
                     foreach ($records as $media) {
                         $deletedFiles = $this->deleteMedia_v2($media->media);
                     }
                 });
 
-                $this->cleanupEmptyDirectories(public_path('assets/images/theses'));
+            $this->cleanupEmptyDirectories(public_path('assets/images/theses'));
             Log::channel('media')->info('END');
         } catch (\Throwable $th) {
             Log::channel('media')->error('Error while deleting media files', [

@@ -267,6 +267,8 @@ trait MediaTraits
     function cleanupEmptyDirectories($path)
     {
         $directories = File::directories($path);
+        Log::channel('media')->info("Scanning: {$path}");
+        Log::channel('media')->info("Directories found: " . count(File::directories($path)));
 
         foreach ($directories as $dir) {
             $this->cleanupEmptyDirectories($dir);
