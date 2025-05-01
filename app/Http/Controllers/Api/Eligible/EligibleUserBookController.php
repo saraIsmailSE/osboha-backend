@@ -118,6 +118,7 @@ class EligibleUserBookController extends Controller
             'thesises',
             'questions',
             'generalInformation',
+            'certificates',
         ])->find($id);
 
         return $this->jsonResponseWithoutMessage($userBook, 'data', 200);

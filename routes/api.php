@@ -170,6 +170,7 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::post('/transfer-leader', 'transferLeader');
                 Route::post('/remove-secondary-role', 'removeSecondaryRole');
                 Route::get('/secondary-roles-by-role', 'getSecondaryRolesByRole');
+                Route::post('/switch-administrators', 'switchAdministrators');
             });
         ########End Roles########
 

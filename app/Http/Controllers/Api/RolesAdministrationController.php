@@ -1423,4 +1423,62 @@ class RolesAdministrationController extends Controller
 
         return $this->jsonResponseWithoutMessage($roles, 'data', Response::HTTP_OK);
     }
+
+    public function switchAdministrators(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'new_administrator_email' => 'required|email',
+            'role' => 'required',
+            'group_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->jsonResponseWithoutMessage($validator->errors()->first(), 'data', Response::HTTP_BAD_REQUEST);
+        }
+        if (!Auth::user()->hasAnyRole(['admin', 'consultant'])) {
+            throw new NotAuthorized;
+        }
+
+        $user = User::where('email', $request->new_administrator_email)
+            ->first();
+
+        if (!$user) {
+            return $this->jsonResponseWithoutMessage(
+                "المستخدم غير موجود",
+                'data',
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        //check if the user has the role
+        if (!$user->hasRole($request->role)) {
+            return $this->jsonResponseWithoutMessage(
+                "المستخدم ليس لديه هذا الدور",
+                'data',
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $group = Group::find($request->group_id);
+        $arabicRole = config('constants.ARABIC_ROLES')[$request->role];
+        UserGroup::where('user_type', $request->role)->where('group_id', $request->group_id)->whereNull('termination_reason')->update(['termination_reason'  => 'switch_administrators']);
+        UserGroup::Create(
+            [
+                'user_id' =>  $user->id,
+                'group_id' => $request->group_id,
+                'user_type' => $request->role
+            ]
+        );
+        $logInfo = ' قام ' . Auth::user()->fullName . " بتبديل  " . $arabicRole . ' في فريق ' .  $group->name . ' وأصبح ' . $user->fullName;
+        Log::channel('community_edits')->info($logInfo);
+
+        $msg = "تمت تعيينك برتبة " . $arabicRole . " لفريق:  " . $group->name;
+        (new NotificationController)->sendNotification($user->id, $msg, ROLES);
+
+        return $this->jsonResponseWithoutMessage(
+            "تم اضافة '" . $user->fullName .  "  بدور  " . $arabicRole . "' بنجاح",
+            'data',
+            Response::HTTP_OK
+        );
+    }
 }
