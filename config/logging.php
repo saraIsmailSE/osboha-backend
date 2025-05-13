@@ -183,6 +183,11 @@ return [
             'path' => storage_path('logs/MessagingBroadcasting.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+        'Posts' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/posts.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];

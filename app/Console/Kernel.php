@@ -82,6 +82,8 @@ class Kernel extends ConsoleKernel
 
         //remove old questions
         $schedule->command('questions:removeOld')->lastDayOfMonth('23:59');
+
+        $schedule->command('posts:cleanup')->monthly()->lastDayOfMonth('23:59');
     }
 
     /**
