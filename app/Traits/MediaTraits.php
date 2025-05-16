@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\Media;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +13,7 @@ use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image as Image;
 use Intervention\Image\Facades\Image as ResizeImage;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Finder\Finder;
 
 trait MediaTraits
 {
@@ -226,16 +228,21 @@ trait MediaTraits
     }
     function deleteMedia_v2($file)
     {
+        $status = 0; // Default status
         try {
             $filePath = public_path('assets/images/' . $file);
             if (File::exists($filePath)) {
                 File::delete($filePath);
                 unset($file); // Free up the variable's memory
-                return 'deleted';
+                $status = 1; // File deleted successfully
+            } else {
+                $status = -1; // File does not exist
             }
         } catch (\Exception $e) {
             Log::error("Failed to delete file: {$filePath}. Error: " . $e->getMessage());
         }
+
+        return $status;
     }
 
     function deleteDirectory($file)
@@ -267,7 +274,7 @@ trait MediaTraits
     function cleanupEmptyDirectories($path)
     {
         $directories = File::directories($path);
-        Log::channel('media')->info("Scanning: {$path}");
+        Log::channel('media')->info("Scanning empty directories: {$path}");
         Log::channel('media')->info("Directories found: " . count(File::directories($path)));
 
         foreach ($directories as $dir) {
@@ -280,7 +287,7 @@ trait MediaTraits
         }
     }
 
-    function deleteUntrackedImagesFromThesesByWeek($cutoffTimestamp)
+    function deleteUntrackedImagesFromThesesByWeek_old($cutoffTimestamp)
     {
         $basePath = public_path('assets/images/theses');
         $userFolders = File::directories($basePath);
@@ -309,6 +316,82 @@ trait MediaTraits
         }
     }
 
+    function deleteUntrackedImagesFromThesesByWeek($startTime, $endTime)
+    {
+
+        $start = Carbon::parse($startTime);
+        $end = Carbon::parse($endTime);
+
+        // $start = Carbon::parse('2024-09-30');
+        // $end = Carbon::parse('2024-04-01');
+
+
+        // dd($startTime, $endTime, $start, $end);
+        echo $start->toDateTimeString() . ' ' . $end->toDateTimeString();
+        echo '<br>';
+        echo $start->toDateString() . ' ' . $end->toDateString();
+        $basePath = public_path('assets/images/theses');
+        $batchSize = 100; // Number of records to process at a time
+        $allDeleted = 0;
+
+        $finder = new Finder();
+        $finder->files()
+            ->in($basePath)
+            ->date('< ' . $start->toDateString())
+            ->date('> ' . $end->toDateString());
+
+        $allFiles = iterator_to_array($finder);
+        $fileChunks = array_chunk($allFiles, $batchSize);
+
+
+        Log::channel('media')->info("START Deleting untracked media files from $startTime till $endTime, $batchSize files per chunk");
+        Log::channel('media')->info('================================================================================================================');
+
+        // dd(count($allFiles), count($fileChunks), $fileChunks);
+
+        foreach ($fileChunks as $index => $chunk) {
+            Log::channel('media')->info("START processing chunk " . ($index + 1) . " of " . count($fileChunks));
+
+            $deleted = 0;
+
+            $filePaths = array_map(function ($file) {
+                return str_replace(public_path('assets/images/'), '', $file->getPathname());
+            }, $chunk);
+
+            // dd($filePaths);
+            $existingFiles = DB::table('media')
+                ->whereIn('media', $filePaths)
+                ->pluck('media')
+                ->toArray();
+
+            // dd($existingFiles);
+
+            Log::channel('media')->info("Found " . count($existingFiles) . " existing files out of " . count($filePaths) . " in the database.");
+            Log::channel('media')->info("Deleting " . (count($filePaths) - count($existingFiles)) . " untracked files.");
+
+            foreach ($chunk as $file) {
+                $fullPath = $file->getPathname();
+                $relativePath = str_replace(public_path('assets/images/'), '', $fullPath);
+
+                // dd($relativePath, in_array($relativePath, $existingFiles));
+                if (!in_array($relativePath, $existingFiles)) {
+                    File::delete($fullPath);
+                    Log::info("Deleted old untracked image: {$fullPath}");
+                    $deleted++;
+                }
+            }
+
+            $allDeleted += $deleted;
+
+            Log::channel('media')->info("Deleted " . $deleted . " untracked files in chunk " . ($index + 1));
+            Log::channel('media')->info("FINISHED deleting untracked media files in chunk " . ($index + 1) . " of " . count($fileChunks));
+            Log::channel('media')->info("Total deleted files so far: " . $allDeleted);
+            Log::channel('media')->info('================================================================================================================');
+        }
+
+        Log::channel('media')->info("FINISHED deleting untracked media files from $startTime till $endTime");
+        Log::channel('media')->info("Total deleted files: " . $allDeleted);
+    }
 
     private function generateFileName($media)
     {

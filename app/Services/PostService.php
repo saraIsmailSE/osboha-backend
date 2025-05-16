@@ -15,19 +15,28 @@ class PostService
         DB::beginTransaction();
 
         try {
-            $currentMedia = $post->media;
-            if ($currentMedia->isNotEmpty()) {
-                foreach ($currentMedia as $media) {
-                    $this->deleteMedia($media->id, 'posts/' . $post->user_id);
-                }
-            }
+            // $currentMedia = $post->media;
+            // if ($currentMedia->isNotEmpty()) {
+            //     foreach ($currentMedia as $media) {
+            //         $this->deleteMedia($media->id, 'posts/' . $post->user_id);
+            //     }
+            // }
 
-            $tags = $post->taggedUsers;
-            if ($tags->isNotEmpty()) {
-                foreach ($tags as $tag) {
-                    $tag->delete();
-                }
-            }
+            $post->media->each(function ($media) use ($post) {
+                $this->deleteMedia($media->id, 'posts/' . $post->user_id);
+            });
+
+
+            $post->taggedUsers->each(function ($tag) {
+                $tag->delete();
+            });
+
+            // $tags = $post->taggedUsers;
+            // if ($tags->isNotEmpty()) {
+            //     foreach ($tags as $tag) {
+            //         $tag->delete();
+            //     }
+            // }
 
             $post->reactions()->detach();
 
@@ -40,6 +49,21 @@ class PostService
                 }
 
                 $comment->delete();
+            });
+
+            $post->article->delete();
+            $post->activity->delete();
+
+            $post->rates->each(function ($rate) {
+                $rate->delete();
+            });
+
+            $post->pollVotes()->each(function ($vote) {
+                $vote->delete();
+            });
+
+            $post->pollOptions->each(function ($option) {
+                $option->delete();
             });
 
             $post->delete();
