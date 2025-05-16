@@ -98,7 +98,7 @@ class StatisticsController extends Controller
 
     public function lastWeek()
     {
-        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        $previous_week = Week::orderBy('created_at', 'desc') ->where('is_vacation',0)->skip(1)->take(2)->first();
         return $this->jsonResponseWithoutMessage($previous_week, 'data', 200);
     }
 
@@ -126,6 +126,7 @@ class StatisticsController extends Controller
         //weekInfoInfo
         $previous_weekInfo = Week::where('created_at', '<', $weekInfo->created_at)
             ->orderBy('created_at', 'desc')
+            ->where('is_vacation',0)
             ->first();
 
         $response = [];
@@ -187,6 +188,7 @@ class StatisticsController extends Controller
         $weekInfo = Week::find($week_id);
         //previous_weekInfo
         $previous_weekInfo = Week::where('created_at', '<', $weekInfo->created_at)
+            ->where('is_vacation',0)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -239,9 +241,9 @@ class StatisticsController extends Controller
         }
 
         //previous_week
-        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2) ->where('is_vacation',0)->first();
         //last_previous_week
-        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+        $last_previous_week = Week::orderBy('created_at', 'desc')->where('is_vacation',0)->skip(2)->take(2)->first();
 
         $response = [];
 
@@ -328,9 +330,9 @@ class StatisticsController extends Controller
         }
 
         //previous_week
-        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->first();
+        $previous_week = Week::orderBy('created_at', 'desc')->skip(1)->take(2)->where('is_vacation',0)->first();
         //last_previous_week
-        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->take(2)->first();
+        $last_previous_week = Week::orderBy('created_at', 'desc')->skip(2)->where('is_vacation',0)->take(2)->first();
 
         $response = [];
 
