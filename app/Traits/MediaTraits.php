@@ -110,6 +110,13 @@ trait MediaTraits
         $currentMedia->delete();
     }
 
+    function deleteMediaByMedia(Media $media)
+    {
+        //delete current media
+        File::delete(public_path('assets/images/' . $media->media));
+        $media->delete();
+    }
+
     function createProfileMedia($media, $folderName)
     {
         $imageName = uniqid('osboha_') . '.' . $media->extension();

@@ -31,7 +31,9 @@ class CommentCreateRequest extends FormRequest
             'body' => [
                 'filled',
                 Rule::requiredIf(function () {
-                    return $this->input('type') != "thesis" && !$this->hasFile('image');
+                    return $this->input('type') != "thesis"
+                        && $this->input('type') != 'screenshot'
+                        && !$this->hasFile('image');
                 }),
 
                 // function ($attribute, $value, $fail) {
@@ -45,11 +47,12 @@ class CommentCreateRequest extends FormRequest
             'comment_id' => 'nullable|numeric',
             'type' => ['required', Rule::in(['thesis', 'comment'])],
             'image' => [
-                'filled',
                 new base64OrImage(),
                 new base64OrImageMaxSize(2 * 1024 * 1024),
                 Rule::requiredIf(function () {
-                    return $this->input('type') != "thesis" && !$this->filled('body');
+                    return $this->input('type') != "thesis"
+                        && $this->input('type') != "screenshot"
+                        && !$this->filled('body');
                 }),
             ],
             'screenShots' => 'nullable|array',
@@ -64,8 +67,8 @@ class CommentCreateRequest extends FormRequest
         return [
             'body.required' => 'النص مطلوب في حالة عدم وجود صورة',
             'body.filled' => 'النص مطلوب',
-            'book_id.required_without' => 'book_id مطلوب',
-            'post_id.required_without' => 'post_id مطلوب',
+            'book_id.required_without' => 'معرف الكتاب مطلوب',
+            'post_id.required_without' => 'معرف المنشور مطلوب',
             'type.required' => 'النوع مطلوب',
             'type.in' => 'النوع غير صحيح',
             'image.required' => 'الصورة مطلوبة في حالة عدم وجود نص',
@@ -76,7 +79,7 @@ class CommentCreateRequest extends FormRequest
         ];
     }
 
-    function failedValidation(Validator $validator)
+    public function failedValidation(Validator $validator)
     {
         throw new \Illuminate\Validation\ValidationException($validator, $this->jsonResponseWithoutMessage(
             $validator->errors()->first(),

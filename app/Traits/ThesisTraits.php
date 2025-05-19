@@ -5,11 +5,13 @@ namespace App\Traits;
 use App\Constants\MarkConstants;
 use App\Constants\StatusConstants;
 use App\Constants\ThesisConstants;
-use App\Exceptions\NotFound;
+use App\Http\Requests\CommentCreateRequest;
+use App\Http\Requests\CommentUpdateRequest;
 use App\Http\Resources\ThesisResource;
 use App\Models\Book;
 use App\Models\Comment;
 use App\Models\Mark;
+use App\Models\Media;
 use App\Models\ModificationReason;
 use App\Models\RamadanDay;
 use App\Models\Thesis;
@@ -24,12 +26,11 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use PHPUnit\Framework\Error\Deprecated;
+use Illuminate\Support\Str;
 
 trait ThesisTraits
 {
-    use ResponseJson;
+    use ResponseJson, MediaTraits;
 
     ##########ASMAA##########
 
@@ -695,7 +696,7 @@ trait ThesisTraits
     private function ensureValidWeek($mainTimer)
     {
         if (!$this->isValidDate($mainTimer)) {
-            throw new \Exception('لا يمكنك إضافة/تعديل الأطروحة إلا في الأسبوع المتاح');
+            throw new \Exception('لا يمكنك إضافة/تعديل/حذف الأطروحة إلا في الأسبوع المتاح');
         }
     }
 
@@ -894,5 +895,132 @@ trait ThesisTraits
         }
 
         return ThesisType::where('type', $type)->firstOrFail()->id;
+    }
+
+
+    ########### For Comment Service ###########
+    public function handleThesisCreate(CommentCreateRequest $request, Comment $comment, int $postId): array
+    {
+        $book = Book::findOrFail($request->book_id);
+        $thesis = [
+            'comment_id' => $comment->id,
+            'book_id' => $book->id,
+            'start_page' => $request->start_page,
+            'end_page' => $request->end_page,
+            'type_id' => $this->getThesisTypeIdFromBook($book)
+        ];
+
+        if ($request->has('body')) {
+            $thesis['max_length'] = Str::length(trim($request->body));
+        }
+
+        if ($request->has('screenShots')) {
+            $thesis['total_screenshots'] = count($request->screenShots);
+            $this->handleScreenshotsCreate($request, $comment, $postId, $book);
+        }
+
+        return $thesis;
+    }
+
+
+    protected function handleScreenshotsCreate(CommentCreateRequest $request, Comment $comment, int $postId, Book $book): void
+    {
+        $folderPath = 'theses/' . $book->id . '/' . Auth::id();
+
+        foreach ($request->screenShots as $index => $screenshot) {
+            if ($index === 0 && !$request->has('body')) {
+                $comment->update(['type' => 'screenshot']);
+                $mediaComment = $comment;
+            } else {
+                $mediaComment = $this->createScreenshotComment($comment->id, $postId);
+            }
+
+            $this->createMedia($screenshot, $mediaComment->id, 'comment', $folderPath);
+        }
+    }
+
+    protected function createScreenshotComment(int $commentId, int $postId): Comment
+    {
+        return Comment::create([
+            'user_id' => Auth::id(),
+            'post_id' => $postId,
+            'comment_id' => $commentId,
+            'type' => 'screenshot',
+        ]);
+    }
+
+    protected function deletePreviousScreenshots(Comment $comment)
+    {
+        /**asmaa **/
+        //delete the previous screenshots
+        //because the user can't edit the screenshots, so if user kept the screenshots and added new ones,
+        //the old ones will be deleted and added again with the new ones
+        //if the user deleted all screenshots, the old ones will be deleted
+
+        $screenshots = Comment::where('type', 'screenshot')
+            ->where(function ($q) use ($comment) {
+                $q->where('comment_id', $comment->id)->orWhere('id', $comment->id);
+            })->get();
+
+        Media::whereIn('comment_id', $screenshots->pluck('id'))->each(function ($media) {
+            $this->deleteMediaByMedia($media);
+        });
+
+        $screenshots->each(function ($c) use ($comment) {
+            if ($c->id !== $comment->id) {
+                $c->delete();
+            }
+        });
+    }
+
+    protected function handleScreenshotsUpdate(CommentUpdateRequest $request, Comment $comment, Thesis &$thesis)
+    {
+        if (!$request->has('screenShots')) {
+            return;
+        }
+
+        $total = count($request->screenShots);
+        $folder = 'theses/' . $thesis->book_id . '/' . Auth::id();
+
+        //if the comment has no body, the first screenshot will be added as a comment
+        //the rest will be added as replies for the new comment created
+        $start = 0;
+        if (!$request->has('body')) {
+            $this->createMedia($request->screenShots[0], $comment->id, 'comment', $folder);
+            $start = 1;
+        }
+        for ($i = $start; $i < $total; $i++) {
+            $mediaComment = $this->createScreenshotComment($comment->id, $comment->post_id);
+            $this->createMedia($request->screenShots[$i], $mediaComment->id, 'comment', $folder);
+        }
+    }
+
+    protected function handleThesisOrScreenshotDelete($comment, $currentWeek): array|null
+    {
+        if (!in_array($comment->type, ['thesis', 'screenshot'])) return null;
+
+        $commentId = $comment->type === 'thesis'
+            ? $comment->id
+            : ($comment->comment_id > 0 ? $comment->comment_id : $comment->id);
+
+        $thesis = Thesis::where('comment_id', $commentId)->first();
+
+        if ($thesis && $thesis->mark && $thesis->mark->week_id < $currentWeek->id) {
+            abort(500, 'لقد انتهى الوقت, لا يمكنك حذف الأطروحة');
+        }
+
+        // Delete screenshots and their media
+        $screenshotComments = Comment::where(function ($query) use ($commentId) {
+            $query->where('comment_id', $commentId)->orWhere('id', $commentId);
+        })->where('type', 'screenshot')->get();
+
+        Media::whereIn('comment_id', $screenshotComments->pluck('id'))->each(function ($media) {
+            $this->deleteMediaByMedia($media);
+        });
+
+        return [
+            'thesis' => null,
+            'screenshots' => $screenshotComments
+        ];
     }
 }
