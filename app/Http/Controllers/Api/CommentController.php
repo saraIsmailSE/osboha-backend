@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\NotAuthorized;
 use App\Exceptions\NotFound;
+use App\Http\Requests\CommentCreateRequest;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\UserInfoResource;
 use App\Models\Book;
@@ -25,15 +26,19 @@ use App\Models\userWeekActivities;
 use App\Models\Week;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
+use App\Services\CommentService;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CommentController extends Controller
 {
     use ResponseJson, MediaTraits, ThesisTraits, PathTrait;
+
+    public function __construct(protected CommentService $commentService) {}
 
     /**
      * Add a new comment to the system.
@@ -41,7 +46,7 @@ class CommentController extends Controller
      * 1- Normal comment: a comment that has a body and an image. (for posts mainly)
      * 2- Thesis comment: a comment that has a body or/and screenshots. (for books mainly)
      */
-    public function create(Request $request)
+    public function create_old(Request $request)
     {
         $validator = Validator::make($request->all(), $this->getCreateValidationRules($request), $this->getCreateValidationMessages());
 
@@ -90,6 +95,43 @@ class CommentController extends Controller
             return $this->jsonResponseWithoutMessage($e->getMessage() . ':' . $e->getLine(), 'data', 500);
         }
     }
+
+
+    public function create(CommentCreateRequest $request)
+    {
+
+        // dd(
+        //     $request->all(),
+        //     'type: ' . $request->input('type'),
+        //     'is not thesis: ',
+        //     ($request->input('type') != 'thesis'),
+        //     'has no image": ',
+        //     !$request->hasFile('image'),
+        //     'has not body and not filled: ',
+        //     !$request->filled('body'),
+        //     'met validation: ',
+        //     ($request->input('type') != 'thesis' && !$request->hasFile('image') && !$request->filled('body'))
+        // );
+        // dd($request->input('type') != 'thesis');
+        // dd(!$request->hasFile('image'));
+        // dd($request->filled('body'));
+        DB::beginTransaction();
+
+        try {
+
+            // dd('first');
+            $comment = $this->commentService->createComment($request);
+            // dd('test');
+            DB::commit();
+            return $this->jsonResponseWithoutMessage($comment, 'data', 200);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::channel('Comments')->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        }
+    }
+
     /**
      * Get all comments for a post.
      *
@@ -555,9 +597,7 @@ class CommentController extends Controller
         $folderPath = 'theses/' . $book->id . '/' . Auth::id();
         foreach ($request->screenShots as $index => $screenshot) {
             if ($index === 0 && !$request->has('body')) {
-                $comment->type = 'screenshot';
-                $comment->save();
-
+                $comment->update(['type' => 'screenshot']);
                 $mediaComment = $comment;
             } else {
                 $mediaComment = $this->createScreenshotComment($comment->id, $postId);

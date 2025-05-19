@@ -2,9 +2,10 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class base64OrImage implements InvokableRule
+class base64OrImage implements ValidationRule
 {
     /**
      * Run the validation rule.
@@ -14,7 +15,9 @@ class base64OrImage implements InvokableRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      * @return void
      */
-    public function __invoke($attribute, $value, $fail)
+
+
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $allowedExtensions = ['png', 'jpg', 'jpeg', 'gif'];
 

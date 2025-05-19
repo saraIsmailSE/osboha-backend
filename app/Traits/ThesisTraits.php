@@ -669,6 +669,11 @@ trait ThesisTraits
                 ];
             }
         }
+
+        return [
+            'reading_mark' => 0,
+            'writing_mark' => 0
+        ];
     }
 
     private function getAllUserTheses(int $userId, int $markId, ?int $excludeThesisId = null)
@@ -690,7 +695,7 @@ trait ThesisTraits
     private function ensureValidWeek($mainTimer)
     {
         if (!$this->isValidDate($mainTimer)) {
-            throw new \Exception('لا يمكنك تعديل الأطروحة إلا في الأسبوع المتاح لها');
+            throw new \Exception('لا يمكنك إضافة/تعديل الأطروحة إلا في الأسبوع المتاح');
         }
     }
 
@@ -703,7 +708,8 @@ trait ThesisTraits
     protected function checkRamadanStatus(): bool
     {
         $currentYear = now()->year;
-        return Cache::remember("is_ramadan_active", now()->addMonth(), function () use ($currentYear) {
+        $currentMonth = now()->month;
+        return Cache::remember("ramadan_active_$currentYear-$currentMonth", now()->endOfWeek()->addSecond(), function () use ($currentYear) {
             return RamadanDay::whereYear('created_at', $currentYear)
                 ->where('is_active', 1)
                 ->exists();
@@ -877,5 +883,16 @@ trait ThesisTraits
         $writingParts = min($writingParts, $readingParts);
 
         return $writingParts;
+    }
+
+    public function getThesisTypeIdFromBook(Book $book): int
+    {
+        $type = $book->type->type === 'free' ? 'normal' : $book->type->type;
+
+        if ($type === 'ramadan' && !$this->checkRamadanStatus()) {
+            $type = 'normal';
+        }
+
+        return ThesisType::where('type', $type)->firstOrFail()->id;
     }
 }
