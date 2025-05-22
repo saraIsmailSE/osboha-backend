@@ -1231,6 +1231,40 @@ class UserExceptionController extends Controller
         return $this->jsonResponseWithoutMessage($response, 'data', 200);
     }
 
+    public function listForSupervisor($exception_type, $supervisor_id)
+    {
+        $supervisingGroup = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')
+            ->whereHas('group.type', function ($q) {
+                $q->where('type', '=', 'supervising');
+            })->first();
+        $response['supervisingGroup'] = $supervisingGroup->group->name;
+
+        $supervisorGroups = UserGroup::where('user_id', $supervisor_id)->where('user_type', 'supervisor')->whereNull('termination_reason')->pluck('group_id');
+
+        $ambassadorsInGroups = UserGroup::whereIn('group_id', $supervisorGroups)->where('user_type', 'ambassador')->whereNull('termination_reason')
+            ->pluck('user_id');
+
+        switch ($exception_type) {
+            case 'exceptional_freez':
+                $response['exceptions'] = UserException::with('user.followupTeam.group')->whereIn('user_id', $ambassadorsInGroups)
+                    ->whereHas('type', function ($q) {
+                        $q->where('type', '=', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
+                    })
+                    ->where('status', 'pending')
+                    ->latest()->get();
+                break;
+            case 'withdrawn':
+                $response['exceptions'] = UserException::with('user.followupTeam.group')->whereIn('user_id', $ambassadorsInGroups)
+                    ->whereHas('type', function ($q) {
+                        $q->where('type', '=', config('constants.WITHDRAWN_TYPE'));
+                    })
+                    ->where('status', 'pending')
+                    ->latest()->get();
+        }
+
+        return $this->jsonResponseWithoutMessage($response, 'data', 200);
+    }
+
 
     public function endExceptions()
     {

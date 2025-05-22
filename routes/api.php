@@ -386,6 +386,7 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::post('/set-new-user', 'setNewUser');
                 Route::get('/search-by-email/{email}', 'searchByEmail');
                 Route::get('/list-by-advisor/{exception_type}/{advisor_id}', 'listForAdvisor');
+                Route::get('/list-by-supervisor/{exception_type}/{supervisor_id}', 'listForSupervisor');
                 Route::put('/{exception_id}/assign-to-parent', 'AssignExceptionToParent');
                 Route::post('/add-note', 'addNote');
                 Route::get('/get-notes/{user_exception_id}', 'getNotes');
