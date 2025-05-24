@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Exceptions\NotAuthorized;
-use App\Exceptions\NotFound;
 use App\Http\Requests\CommentCreateRequest;
 use App\Http\Requests\CommentUpdateRequest;
 use App\Models\Comment;
@@ -15,6 +13,10 @@ use Illuminate\Support\Facades\Auth;
 class CommentService
 {
     use CommentTrait;
+
+    protected array $addedImages = []; //for storing images added by creating or updating
+    protected array $updatedImages = []; //for storing images deleted by updating
+    protected array $deletedImages = []; //for storing deleted images paths during delete comment
 
     public function createComment(CommentCreateRequest $request): Comment
     {
@@ -33,7 +35,9 @@ class CommentService
 
         if ($request->has('image')) {
             $folderPath = 'comments/' . Auth::id();
-            $this->createMedia($request->image, $comment->id, 'comment', $folderPath);
+            $media = $this->createMedia($request->image, $comment->id, 'comment', $folderPath);
+
+            $this->addedImages[] = $media->media;
         }
 
         $this->notifyAddComment($comment, $post, $request);
@@ -98,6 +102,8 @@ class CommentService
         }
 
         $comment->update($input);
+
+        $comment = $comment->fresh();
         $comment->load('replies');
 
         if ($isThesis) {
@@ -116,15 +122,18 @@ class CommentService
 
         $user = Auth::user();
 
-        if (!$user->can('delete comment') && $user->id !== $comment->user_id && !$user->hasRole('admin')) {
+        if (
+            !$user->can('delete comment') && $user->id !== $comment->user_id &&
+            !$user->hasRole('admin')
+        ) {
             abort(403, 'You are not authorized to delete this comment');
         }
 
         $currentWeek = Week::latest()->first();
 
-        $this->handleFridayThesis($comment, $currentWeek);
+        $this->handleFridayThesisDelete($comment, $currentWeek);
 
-        $data = $this->handleThesisOrScreenshotDelete($comment, $currentWeek);
+        $data = $this->handleThesisDelete($comment, $currentWeek);
 
         if ($data) {
             if ($data['thesis']) {
@@ -141,5 +150,70 @@ class CommentService
         $this->deleteCommentRelations($comment);
 
         $comment->delete();
+    }
+
+
+    //properties and methods for handling images backup and restoration
+    public function getAddedImages(): array
+    {
+        return $this->addedImages;
+    }
+
+    public function deleteUploadedImages(): void
+    {
+        $this->deleteAddedImages();
+    }
+
+    public function clearAddedImages(): void
+    {
+        $this->addedImages = [];
+    }
+
+    public function getUpdatedImagesPaths(): array
+    {
+        return $this->getImagesPaths($this->updatedImages);
+    }
+
+    public function clearUpdatedImages(): void
+    {
+        $this->updatedImages = [];
+    }
+
+    public function restoreDeletedImagesByUpdate(): void
+    {
+        $this->restoreUpdatedImages();
+    }
+
+    public function getDeletedImages(): array
+    {
+        return $this->deletedImages;
+    }
+
+    public function clearDeletedImages(): void
+    {
+        $this->deletedImages = [];
+    }
+
+    public function restoreDeletedImagesByDelete(): void
+    {
+        $this->restoreDeletedImages();
+    }
+
+    public function restoreCommentImages(): void
+    {
+        $this->restoreDeletedImagesByUpdate();
+        $this->restoreDeletedImagesByDelete();
+    }
+
+    public function getDeletedImagesPaths(): array
+    {
+        return $this->getImagesPaths($this->deletedImages);
+    }
+
+    public function clearImages(): void
+    {
+        $this->clearAddedImages();
+        $this->clearUpdatedImages();
+        $this->clearDeletedImages();
     }
 }

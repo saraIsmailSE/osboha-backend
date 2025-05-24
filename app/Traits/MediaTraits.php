@@ -75,11 +75,11 @@ trait MediaTraits
             }
 
             $mediaRecord->save();
-            DB::commit();
+            // DB::commit(); // stopped by Asmaa | the transaction should be committed at the top level controller
 
             return $mediaRecord;
         } catch (\Exception $e) {
-            DB::rollBack();
+            // DB::rollBack();
             Log::error($e->getMessage());
             return response()->json(['error' => 'Failed to save media'], 500);
         }
@@ -89,7 +89,7 @@ trait MediaTraits
         //get current media
         $currentMedia = Media::find($media_id);
         //delete current media
-        File::delete(public_path('assets/images/' . $currentMedia->media));
+        $this->deleteFile($currentMedia->media);
 
         $fullPath = 'assets/images' . ($folderPath ? '/' . $folderPath : '');
         // upload new media
@@ -99,22 +99,28 @@ trait MediaTraits
         // update current media
         $currentMedia->media = $folderPath ? $folderPath . '/' . $imageName : $imageName;
         $currentMedia->save();
+
+        $currentMedia = $currentMedia->fresh();
+
+        return $currentMedia;
     }
 
 
     function deleteMedia($media_id)
     {
         $currentMedia = Media::find($media_id);
-        //delete current media
-        File::delete(public_path('assets/images/' . $currentMedia->media));
+        $this->deleteFile($currentMedia->media);
         $currentMedia->delete();
     }
 
     function deleteMediaByMedia(Media $media)
     {
+        $path = $media->media;
         //delete current media
-        File::delete(public_path('assets/images/' . $media->media));
+        $this->deleteFile($path);
         $media->delete();
+
+        return $path;
     }
 
     function createProfileMedia($media, $folderName)
@@ -152,7 +158,7 @@ trait MediaTraits
     {
         $user = User::find($id);
         //delete current media
-        File::delete('asset/images/temMedia/' . $user->picture);
+        $this->deleteFile('temMedia/' . $user->picture);
         $user->picture = null;
         $user->save();
     }
@@ -222,8 +228,7 @@ trait MediaTraits
         foreach ($files as $file) {
             $filePath = public_path('assets/images/' . $file);
             try {
-                if (File::exists($filePath)) {
-                    File::delete($filePath);
+                if ($this->deleteFile($file)) {
                     $filesDeleted[] = $file;
                 }
             } catch (\Exception $e) {
@@ -238,8 +243,8 @@ trait MediaTraits
         $status = 0; // Default status
         try {
             $filePath = public_path('assets/images/' . $file);
-            if (File::exists($filePath)) {
-                File::delete($filePath);
+
+            if ($this->deleteFile($file)) {
                 unset($file); // Free up the variable's memory
                 $status = 1; // File deleted successfully
             } else {
@@ -496,5 +501,24 @@ trait MediaTraits
                 unlink($file);
             }
         }
+    }
+
+    public function getFileContent($filePath)
+    {
+        $fullPath = public_path('assets/images/' . $filePath);
+        if (File::exists($fullPath)) {
+            return File::get($fullPath);
+        }
+        return null;
+    }
+
+    public function deleteFile($filePath)
+    {
+        $fullPath = public_path('assets/images/' . $filePath);
+        if (File::exists($fullPath)) {
+            File::delete($fullPath);
+            return true;
+        }
+        return false;
     }
 }

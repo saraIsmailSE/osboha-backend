@@ -4,39 +4,22 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
-use App\Models\Media;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
 use App\Traits\ThesisTraits;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use App\Exceptions\NotAuthorized;
-use App\Exceptions\NotFound;
 use App\Http\Requests\CommentCreateRequest;
 use App\Http\Requests\CommentUpdateRequest;
 use App\Http\Resources\UserInfoResource;
-use App\Models\Book;
-use App\Models\Mark;
-use App\Models\Post;
-use App\Models\PostType;
-use App\Models\Thesis;
-use App\Models\ThesisType;
-use App\Models\userWeekActivities;
-use App\Models\Week;
-use App\Rules\base64OrImage;
-use App\Rules\base64OrImageMaxSize;
 use App\Services\CommentService;
 use App\Traits\PathTrait;
-use Illuminate\Support\Facades\Cache;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class CommentController extends Controller
 {
-    use ResponseJson, MediaTraits, ThesisTraits, PathTrait;
+    use ResponseJson, MediaTraits, PathTrait;
 
     public function __construct(protected CommentService $commentService) {}
 
@@ -47,11 +30,26 @@ class CommentController extends Controller
 
         try {
             $comment = $this->commentService->createComment($request);
+            // DB::listen(function ($query) {
+            //     Log::channel('Comments')->info("Queries executed: {$query->sql}", [
+            //         'bindings' => $query->bindings,
+            //     ]);
+            // });
+            // throw new Exception("fake exception");
             DB::commit();
+
+            $this->commentService->clearImages();
             return $this->jsonResponseWithoutMessage($comment, 'data', 200);
         } catch (\Throwable $e) {
             DB::rollBack();
-            Log::channel('Comments')->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            Log::channel('Comments')->info("Images deleted due to create comment error: ", $this->commentService->getAddedImages());
+            $this->commentService->deleteUploadedImages();
+            Log::channel('Comments')->error("Failed to create comment: {$e->getMessage()}", [
+                'user_id' => Auth::id(),
+                'post_id' => $request->post_id,
+                'book_id' => $request->book_id,
+                'trace' => $e->getTraceAsString()
+            ]);
 
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
         }
@@ -62,10 +60,23 @@ class CommentController extends Controller
         DB::beginTransaction();
         try {
             $comment = $this->commentService->UpdateComment($request);
+
+            // throw new Exception("fake exception");
             DB::commit();
+
+            $this->commentService->clearImages();
             return $this->jsonResponseWithoutMessage($comment, 'data', 200);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollback();
+            Log::channel('Comments')->info("Images restored due to update comment error: ", $this->commentService->getUpdatedImagesPaths());
+            $this->commentService->restoreCommentImages();
+            Log::channel('Comments')->info("Images deleted due to update comment error: ", $this->commentService->getAddedImages());
+            $this->commentService->deleteUploadedImages();
+            Log::channel('Comments')->error("Failed to update comment {$e->getMessage()}", [
+                'user_id' => Auth::id(),
+                'comment_id' => $request->u_comment_id,
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
         }
     }
@@ -75,12 +86,20 @@ class CommentController extends Controller
         DB::beginTransaction();
         try {
             $this->commentService->deleteComment($comment_id);
+
+            // throw new Exception("fake exception");
             DB::commit();
+            $this->commentService->clearImages();
             return $this->jsonResponseWithoutMessage("Comment Deleted Successfully", 'data', 200);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollback();
-            $user_id = Auth::id();
-            Log::channel('Comments')->error("Failed to delete comment ID: {$comment_id}, User ID: {$user_id} - {$e->getMessage()}", ['trace' => $e->getTrace()]);
+            Log::channel('Comments')->info("Images restored due to delete comment error: ", $this->commentService->getDeletedImagesPaths());
+            $this->commentService->restoreCommentImages();
+            Log::channel('Comments')->error("Failed to delete comment {$e->getMessage()}", [
+                'user_id' => Auth::id(),
+                'comment_id' => $comment_id,
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
         }
     }

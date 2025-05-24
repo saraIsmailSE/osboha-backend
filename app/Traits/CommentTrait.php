@@ -16,6 +16,7 @@ use App\Models\userWeekActivities;
 use App\Models\Week;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 trait CommentTrait
@@ -71,6 +72,59 @@ trait CommentTrait
         }
     }
 
+    protected function handleThesisCreate(CommentCreateRequest $request, Comment $comment, int $postId): array
+    {
+        $book = Book::findOrFail($request->book_id);
+        $thesis = [
+            'comment_id' => $comment->id,
+            'book_id' => $book->id,
+            'start_page' => $request->start_page,
+            'end_page' => $request->end_page,
+            'type_id' => $this->getThesisTypeIdFromBook($book)
+        ];
+
+        if ($request->has('body')) {
+            $thesis['max_length'] = Str::length(trim($request->body));
+        }
+
+        if ($request->has('screenShots')) {
+            $thesis['total_screenshots'] = count($request->screenShots);
+            $this->handleScreenshotsCreate($request, $comment, $postId, $book->id);
+        }
+
+        return $thesis;
+    }
+
+
+    protected function handleScreenshotsCreate(CommentCreateRequest|CommentUpdateRequest $request, Comment $comment, int $postId, int $book_id): void
+    {
+        $folderPath = 'theses/' . $book_id . '/' . Auth::id();
+
+        foreach ($request->screenShots as $index => $screenshot) {
+            if ($index === 0 && !$request->has('body')) {
+                $comment->update(['type' => 'screenshot']);
+                $mediaComment = $comment;
+            } else {
+                $mediaComment = $this->createScreenshotComment($comment->id, $postId);
+            }
+
+            $media = $this->createMedia($screenshot, $mediaComment->id, 'comment', $folderPath);
+
+            if (property_exists($this, 'addedImages')) {
+                $this->addedImages[] = $media->media;
+            }
+        }
+    }
+
+    protected function createScreenshotComment(int $commentId, int $postId): Comment
+    {
+        return Comment::create([
+            'user_id' => Auth::id(),
+            'post_id' => $postId,
+            'comment_id' => $commentId,
+            'type' => 'screenshot',
+        ]);
+    }
 
     #########UPDATE COMMENT########
 
@@ -83,15 +137,14 @@ trait CommentTrait
         }
 
         $thesis->comment_id = $comment->id;
-        $thesis->book_id = $comment->book_id;
         $thesis->start_page = $request->start_page;
         $thesis->end_page = $request->end_page;
         $thesis->status = 'pending';
         $thesis->max_length = $request->has('body') ? Str::length(trim($request->body)) : 0;
         $thesis->total_screenshots = $request->has('screenShots') ? count($request->screenShots) : 0;
 
-        $this->deletePreviousScreenshots($comment);
-        $this->handleScreenshotsUpdate($request, $comment, $thesis);
+        $this->deleteCommentScreenshots($comment);
+        $this->handleScreenshotsCreate($request, $comment, $comment->post_id, $thesis->book_id);
 
         return $thesis;
     }
@@ -102,15 +155,59 @@ trait CommentTrait
         $currentMedia = Media::where('comment_id', $comment->id)->first();
 
         if ($currentMedia) {
-            $this->updateMedia($request->image, $currentMedia->id, 'comments/' . Auth::id());
+            $oldPath = $currentMedia->media;
+            if (property_exists($this, 'updatedImages')) {
+                $fileContent = $this->getFileContent($oldPath);
+                if ($fileContent) {
+                    $this->updatedImages[$oldPath] = $fileContent;
+                }
+            }
+            $media =  $this->updateMedia($request->image, $currentMedia->id, 'comments/' . Auth::id());
+            if (property_exists($this, 'addedImages')) {
+                $this->addedImages[] = $media->media;
+            }
         } else {
-            $this->createMedia($request->image, $comment->id, 'comment', 'comments/' . Auth::id());
+            $media =  $this->createMedia($request->image, $comment->id, 'comment', 'comments/' . Auth::id());
+            if (property_exists($this, 'addedImages')) {
+                $this->addedImages[] = $media->media;
+            }
         }
+    }
+
+    protected function deleteCommentScreenshots(Comment $comment)
+    {
+        /**asmaa **/
+        //delete the previous screenshots
+        //because the user can't edit the screenshots, so if user kept the screenshots and added new ones,
+        //the old ones will be deleted and added again with the new ones
+        //if the user deleted all screenshots, the old ones will be deleted
+
+        $screenshots = Comment::where('type', 'screenshot')
+            ->where(function ($q) use ($comment) {
+                $q->where('comment_id', $comment->id)->orWhere('id', $comment->id);
+            })->get();
+
+        Media::whereIn('comment_id', $screenshots->pluck('id'))->each(function ($media) {
+            if (property_exists($this, 'updatedImages')) {
+                $fileContent = $this->getFileContent($media->media);
+                if ($fileContent) {
+                    $this->deletedImages[$media->media] = $fileContent;
+                }
+            }
+
+            $this->deleteMediaByMedia($media);
+        });
+
+        $screenshots->each(function ($c) use ($comment) {
+            if ($c->id !== $comment->id) {
+                $c->delete();
+            }
+        });
     }
 
     ########DELETE COMMENT########
 
-    protected function handleFridayThesis(Comment $comment, Week $currentWeek): void
+    protected function handleFridayThesisDelete(Comment $comment, Week $currentWeek): void
     {
         $post = Post::findOrFail($comment->post_id);
 
@@ -140,6 +237,12 @@ trait CommentTrait
     {
         $media = Media::where('comment_id', $comment->id)->first();
         if ($media) {
+            if (property_exists($this, 'updatedImages')) {
+                $fileContent = $this->getFileContent($media->media);
+                if ($fileContent) {
+                    $this->deletedImages[$media->media] = $fileContent;
+                }
+            }
             $this->deleteMediaByMedia($media);
         }
     }
@@ -163,5 +266,93 @@ trait CommentTrait
         $comment->reactions()?->detach();
         $comment->rate()?->delete();
         $comment->rates()?->delete();
+    }
+
+    protected function handleThesisDelete($comment, $currentWeek): array|null
+    {
+        if (!in_array($comment->type, ['thesis', 'screenshot'])) return null;
+
+        $commentId = $comment->type === 'thesis'
+            ? $comment->id
+            : ($comment->comment_id > 0 ? $comment->comment_id : $comment->id);
+
+        $thesis = Thesis::where('comment_id', $commentId)->first();
+
+        if ($thesis && $thesis->mark && $thesis->mark->week_id < $currentWeek->id) {
+            abort(500, 'لقد انتهى الوقت, لا يمكنك حذف الأطروحة');
+        }
+
+        // Delete screenshots and their media
+        $screenshotComments = Comment::where(function ($query) use ($commentId) {
+            $query->where('comment_id', $commentId)->orWhere('id', $commentId);
+        })->where('type', 'screenshot')->get();
+
+        Media::whereIn('comment_id', $screenshotComments->pluck('id'))->each(function ($media) {
+            if (property_exists($this, 'deletedImages')) {
+                $fileContent = $this->getFileContent($media->media);
+                if ($fileContent) {
+                    $this->deletedImages[$media->media] = $fileContent;
+                }
+            }
+            $this->deleteMediaByMedia($media);
+        });
+
+        return [
+            'thesis' => null,
+            'screenshots' => $screenshotComments
+        ];
+    }
+
+    //methods for handling images backup and restoration
+    public function deleteAddedImages(): void
+    {
+        foreach ($this->addedImages as $path) {
+            $this->deleteFile($path);
+        }
+
+        $this->addedImages = []; // Clear to avoid double deletes
+    }
+
+    protected function restoreImages(array $images): void
+    {
+        foreach ($images as $path => $fileContent) {
+            $filePath = public_path('assets/images/' . $path);
+
+            if (!File::exists($filePath)) {
+                File::put($filePath, $fileContent);
+            }
+        }
+    }
+
+    public function restoreUpdatedImages(): void
+    {
+        if (empty($this->updatedImages)) {
+            return; // No images to restore
+        }
+
+        $this->restoreImages($this->updatedImages);
+
+        $this->updatedImages = []; // Clear to avoid double restores
+    }
+
+    public function restoreDeletedImages(): void
+    {
+        if (empty($this->deletedImages)) {
+            return; // No images to restore
+        }
+
+        $this->restoreImages($this->deletedImages);
+
+        $this->deletedImages = []; // Clear to avoid double restores
+    }
+
+    public function getImagesPaths(array $images): array
+    {
+        $paths = [];
+        foreach ($images as $path => $content) {
+            $paths[] = $path;
+        }
+
+        return $paths;
     }
 }

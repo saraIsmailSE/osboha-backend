@@ -180,7 +180,7 @@ return [
         ],
         'Comments' => [
             'driver' => 'single',
-            'path' => storage_path('logs/MessagingBroadcasting.log'),
+            'path' => storage_path('logs/comments.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
         'Posts' => [
