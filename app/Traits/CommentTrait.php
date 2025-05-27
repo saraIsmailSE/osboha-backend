@@ -16,6 +16,7 @@ use App\Models\userWeekActivities;
 use App\Models\Week;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -89,6 +90,7 @@ trait CommentTrait
 
         if ($request->has('screenShots')) {
             $thesis['total_screenshots'] = count($request->screenShots);
+
             $this->handleScreenshotsCreate($request, $comment, $postId, $book->id);
         }
 
@@ -108,7 +110,7 @@ trait CommentTrait
                 $mediaComment = $this->createScreenshotComment($comment->id, $postId);
             }
 
-            $media = $this->createMedia($screenshot, $mediaComment->id, 'comment', $folderPath);
+            $media = $this->createTmpMedia($screenshot, $mediaComment->id, 'comment', $folderPath);
 
             if (property_exists($this, 'addedImages')) {
                 $this->addedImages[] = $media->media;
@@ -126,6 +128,15 @@ trait CommentTrait
         ]);
     }
 
+    public function storeCommentImage(CommentCreateRequest $request, Comment $comment): void
+    {
+        $folderPath = 'comments/' . Auth::id();
+        $media = $this->createTmpMedia($request->image, $comment->id, 'comment', $folderPath);
+
+        if (property_exists($this, 'addedImages')) {
+            $this->addedImages[] = $media->media;
+        }
+    }
     #########UPDATE COMMENT########
 
     public function handleThesisUpdate(CommentUpdateRequest $request, Comment $comment): Thesis
@@ -157,17 +168,24 @@ trait CommentTrait
         if ($currentMedia) {
             $oldPath = $currentMedia->media;
             if (property_exists($this, 'updatedImages')) {
-                $fileContent = $this->getFileContent($oldPath);
+                $fileContent = $this->getMediaContent($oldPath);
                 if ($fileContent) {
                     $this->updatedImages[$oldPath] = $fileContent;
                 }
             }
-            $media =  $this->updateMedia($request->image, $currentMedia->id, 'comments/' . Auth::id());
+
+            $currentMedia->delete();
+
+            DB::afterCommit(function () use ($oldPath) {
+                $this->deleteMediaFile($oldPath);
+            });
+
+            // $media =  $this->updateMedia($request->image, $currentMedia->id, 'comments/' . Auth::id());
             if (property_exists($this, 'addedImages')) {
-                $this->addedImages[] = $media->media;
+                $this->addedImages[] = $oldPath;
             }
         } else {
-            $media =  $this->createMedia($request->image, $comment->id, 'comment', 'comments/' . Auth::id());
+            $media =  $this->createTmpMedia($request->image, $comment->id, 'comment', 'comments/' . Auth::id());
             if (property_exists($this, 'addedImages')) {
                 $this->addedImages[] = $media->media;
             }
@@ -187,20 +205,27 @@ trait CommentTrait
                 $q->where('comment_id', $comment->id)->orWhere('id', $comment->id);
             })->get();
 
+        $filesToDelete = $screenshots->pluck('media.media')->toArray();
         Media::whereIn('comment_id', $screenshots->pluck('id'))->each(function ($media) {
             if (property_exists($this, 'updatedImages')) {
-                $fileContent = $this->getFileContent($media->media);
+                $fileContent = $this->getMediaContent($media->media);
                 if ($fileContent) {
                     $this->deletedImages[$media->media] = $fileContent;
                 }
             }
-
-            $this->deleteMediaByMedia($media);
+            // $this->deleteMediaByMedia($media);
+            $media->delete();
         });
 
         $screenshots->each(function ($c) use ($comment) {
             if ($c->id !== $comment->id) {
                 $c->delete();
+            }
+        });
+
+        DB::afterCommit(function () use ($filesToDelete) {
+            foreach ($filesToDelete as $file) {
+                $this->deleteMediaFile($file);
             }
         });
     }
@@ -238,12 +263,18 @@ trait CommentTrait
         $media = Media::where('comment_id', $comment->id)->first();
         if ($media) {
             if (property_exists($this, 'updatedImages')) {
-                $fileContent = $this->getFileContent($media->media);
+                $fileContent = $this->getMediaContent($media->media);
                 if ($fileContent) {
                     $this->deletedImages[$media->media] = $fileContent;
                 }
             }
-            $this->deleteMediaByMedia($media);
+            // $this->deleteMediaByMedia($media);
+            $file = $media->media;
+            $media->delete();
+
+            DB::afterCommit(function () use ($file) {
+                $this->deleteMediaFile($file);
+            });
         }
     }
 
@@ -268,15 +299,19 @@ trait CommentTrait
         $comment->rates()?->delete();
     }
 
-    protected function handleThesisDelete($comment, $currentWeek): array|null
+    protected function handleThesisDelete($comment, $currentWeek): void
     {
-        if (!in_array($comment->type, ['thesis', 'screenshot'])) return null;
+        if (!in_array($comment->type, ['thesis', 'screenshot'])) return;
 
         $commentId = $comment->type === 'thesis'
             ? $comment->id
             : ($comment->comment_id > 0 ? $comment->comment_id : $comment->id);
 
         $thesis = Thesis::where('comment_id', $commentId)->first();
+
+        if (!$thesis || !$thesis->mark) {
+            abort(500, 'الأطروحة غير موجودة');
+        }
 
         if ($thesis && $thesis->mark && $thesis->mark->week_id < $currentWeek->id) {
             abort(500, 'لقد انتهى الوقت, لا يمكنك حذف الأطروحة');
@@ -287,27 +322,37 @@ trait CommentTrait
             $query->where('comment_id', $commentId)->orWhere('id', $commentId);
         })->where('type', 'screenshot')->get();
 
+        $filesToDelete = $screenshotComments->pluck('media.media')->toArray();
         Media::whereIn('comment_id', $screenshotComments->pluck('id'))->each(function ($media) {
             if (property_exists($this, 'deletedImages')) {
-                $fileContent = $this->getFileContent($media->media);
+                $fileContent = $this->getMediaContent($media->media);
                 if ($fileContent) {
                     $this->deletedImages[$media->media] = $fileContent;
                 }
             }
-            $this->deleteMediaByMedia($media);
+            // $this->deleteMediaByMedia($media);
+            $media->delete();
         });
 
-        return [
-            'thesis' => null,
-            'screenshots' => $screenshotComments
-        ];
+        $this->deleteThesis($thesis);
+
+        $screenshotComments->each(function ($screenshot) {
+            $screenshot->delete();
+        });
+
+        DB::afterCommit(function () use ($filesToDelete) {
+            // dd("filesToDelete", $filesToDelete);
+            foreach ($filesToDelete as $file) {
+                $this->deleteMediaFile($file);
+            }
+        });
     }
 
     //methods for handling images backup and restoration
     public function deleteAddedImages(): void
     {
         foreach ($this->addedImages as $path) {
-            $this->deleteFile($path);
+            $this->deleteMediaFile($path);
         }
 
         $this->addedImages = []; // Clear to avoid double deletes

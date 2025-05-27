@@ -33,7 +33,7 @@ class CommentCreateRequest extends FormRequest
                 Rule::requiredIf(function () {
                     return $this->input('type') != "thesis"
                         && $this->input('type') != 'screenshot'
-                        && !$this->hasFile('image');
+                        && (!$this->has('image')); //use has not hasFile since the image could be base64 string
                 }),
 
                 // function ($attribute, $value, $fail) {

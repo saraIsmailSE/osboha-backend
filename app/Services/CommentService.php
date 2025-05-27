@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Week;
 use App\Traits\CommentTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CommentService
 {
@@ -34,10 +35,7 @@ class CommentService
         }
 
         if ($request->has('image')) {
-            $folderPath = 'comments/' . Auth::id();
-            $media = $this->createMedia($request->image, $comment->id, 'comment', $folderPath);
-
-            $this->addedImages[] = $media->media;
+            $this->storeCommentImage($request, $comment);
         }
 
         $this->notifyAddComment($comment, $post, $request);
@@ -50,6 +48,12 @@ class CommentService
                 'user.userBooks' => fn($query) => $query->where('book_id', $request->book_id)
             ]);
         }
+
+        //move images to actual path only after the transaction is committed, 
+        //otherwise delete the added images in the tmp path
+        DB::afterCommit(function () {
+            $this->moveImagesToActualPath();
+        });
 
         return $comment;
     }
@@ -76,7 +80,7 @@ class CommentService
                 abort(500, 'رقم الصفحة الأخيرة مطلوب');
             }
         } else {
-            if ((!$request->has('body') || !$request->filled('body')) && (!$request->hasFile('image'))) {
+            if ((!$request->has('body') || !$request->filled('body')) && (!$request->has('image'))) {
                 abort(500, 'النص مطلوب في حالة عدم وجود صورة');
             }
         }
@@ -110,6 +114,10 @@ class CommentService
             $comment->load('thesis');
         }
 
+        DB::afterCommit(function () {
+            $this->moveImagesToActualPath();
+        });
+
         return $comment;
     }
 
@@ -117,7 +125,7 @@ class CommentService
     {
         $comment = Comment::find($comment_id);
         if (!$comment) {
-            abort(404, 'Comment not found');
+            abort(404, 'التعليق غير موجود');
         }
 
         $user = Auth::user();
@@ -126,24 +134,24 @@ class CommentService
             !$user->can('delete comment') && $user->id !== $comment->user_id &&
             !$user->hasRole('admin')
         ) {
-            abort(403, 'You are not authorized to delete this comment');
+            abort(403, 'ليس لديك صلاحية لحذف هذا التعليق');
         }
 
         $currentWeek = Week::latest()->first();
 
         $this->handleFridayThesisDelete($comment, $currentWeek);
 
-        $data = $this->handleThesisDelete($comment, $currentWeek);
+        $this->handleThesisDelete($comment, $currentWeek);
+        // if ($data) {
+        //     dd("data", $data);
+        //     if ($data['thesis']) {
+        //         $this->deleteThesis($data['thesis']);
+        //     }
 
-        if ($data) {
-            if ($data['thesis']) {
-                $this->deleteThesis($data['thesis']);
-            }
-
-            if ($data['screenshots']) {
-                $data['screenshots']->each->delete();
-            }
-        }
+        //     if ($data['screenshots']) {
+        //         $data['screenshots']->each->delete();
+        //     }
+        // }
 
         $this->deleteCommentMedia($comment);
         $this->deleteCommentReplies($comment);
@@ -151,7 +159,6 @@ class CommentService
 
         $comment->delete();
     }
-
 
     //properties and methods for handling images backup and restoration
     public function getAddedImages(): array
@@ -215,5 +222,15 @@ class CommentService
         $this->clearAddedImages();
         $this->clearUpdatedImages();
         $this->clearDeletedImages();
+    }
+
+    public function moveImagesToActualPath()
+    {
+        $this->moveTmpMediaToActual('Comments');
+    }
+
+    public function clearTmpMedia()
+    {
+        $this->deleteTmpMedia('Comments');
     }
 }

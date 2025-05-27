@@ -13,10 +13,17 @@ use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image as Image;
 use Intervention\Image\Facades\Image as ResizeImage;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Constraint\FileExists;
 use Symfony\Component\Finder\Finder;
 
 trait MediaTraits
 {
+    use FileTrait;
+
+    protected $location = 'assets/images/';
+    protected $tmpLocation = 'assets/images/tmp/';
+
+
     function createMedia($media, $type_id, $type, $folderPath = null)
     {
         try {
@@ -34,7 +41,9 @@ trait MediaTraits
             $fileType = null;
 
 
-            if (is_string($media) && $this->isValidBase64Image($media)) {
+            if (is_string($media)
+                /**&& $this->isValidBase64Image($media)*/
+            ) {
                 $imageFile = $this->processBase64Image($media, $fullPath, $fileName);
                 $fileType = 'image';
             } elseif ($media instanceof \Illuminate\Http\UploadedFile) {
@@ -69,7 +78,6 @@ trait MediaTraits
             $mediaRecord->media = $folderPath ? $folderPath . '/' . $fileName : $fileName;
             $mediaRecord->type = $fileType;
             $mediaRecord->user_id = Auth::id();
-
             if (!$this->attachMediaToType($mediaRecord, $type, $type_id)) {
                 return response()->json(['error' => 'Invalid media type'], 400);
             }
@@ -84,12 +92,85 @@ trait MediaTraits
             return response()->json(['error' => 'Failed to save media'], 500);
         }
     }
+
+    /**
+     * Create temporary media file and save it to the database.
+     * Saved to a temp path that needs to be moved to the actual path later.
+     * use afterCommit to move the media to the actual path to avoid issues with transactions.
+     *
+     * @param mixed $media The media file or base64 string.
+     * @param int $type_id The ID of the type to attach the media to.
+     * @param string $type The type of the media (e.g., 'comment', 'post').
+     * @param string|null $folderPath Optional folder path to save the media.
+     * @return Media The created Media model instance.
+     */
+    function createTmpMedia($media, $type_id, $type, $folderPath = null)
+    {
+        $fullPath = $this->tmpLocation . $folderPath;
+        $directory = public_path($fullPath);
+
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0777, true, true);
+        }
+
+        $fileName = $this->generateFileName($media);
+
+        $videoFile = null;
+        $fileType = null;
+
+        if (is_string($media)
+            /**&& $this->isValidBase64Image($media)*/
+        ) {
+            $this->processBase64Image($media, $fullPath, $fileName);
+            $fileType = 'image';
+        } elseif ($media instanceof \Illuminate\Http\UploadedFile) {
+            $allowedMimeTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/gif',
+                'image/webp',
+                'image/heic',
+                'image/heif',
+                'video/mp4',
+                'video/quicktime',
+                'video/x-msvideo'
+            ];
+
+            $fileType = explode('/', $media->getClientMimeType())[0];
+            if (!in_array($media->getClientMimeType(), $allowedMimeTypes)) {
+                abort(400, 'Unsupported file type');
+            }
+
+            if ($fileType === 'video') {
+                $videoFile = $media;
+                $videoFile->move($directory, $fileName);
+            } else {
+                $this->processUploadedImage($media, $fullPath, $fileName);
+            }
+        } else {
+            abort(400, 'Invalid media format');
+        }
+        // Save to database
+        $mediaRecord = new Media();
+        $mediaRecord->media = $folderPath ? $folderPath . '/' . $fileName : $fileName;
+        $mediaRecord->type = $fileType;
+        $mediaRecord->user_id = Auth::id();
+
+        if (!$this->attachMediaToType($mediaRecord, $type, $type_id)) {
+            abort(400, 'Invalid media relation type');
+        }
+
+        $mediaRecord->save();
+
+        return $mediaRecord;
+    }
+
     function updateMedia($media, $media_id, $folderPath = null)
     {
         //get current media
         $currentMedia = Media::find($media_id);
         //delete current media
-        $this->deleteFile($currentMedia->media);
+        $this->deleteMediaFile($currentMedia->media);
 
         $fullPath = 'assets/images' . ($folderPath ? '/' . $folderPath : '');
         // upload new media
@@ -109,7 +190,7 @@ trait MediaTraits
     function deleteMedia($media_id)
     {
         $currentMedia = Media::find($media_id);
-        $this->deleteFile($currentMedia->media);
+        $this->deleteMediaFile($currentMedia->media);
         $currentMedia->delete();
     }
 
@@ -117,7 +198,7 @@ trait MediaTraits
     {
         $path = $media->media;
         //delete current media
-        $this->deleteFile($path);
+        $this->deleteMediaFile($path);
         $media->delete();
 
         return $path;
@@ -158,7 +239,7 @@ trait MediaTraits
     {
         $user = User::find($id);
         //delete current media
-        $this->deleteFile('temMedia/' . $user->picture);
+        $this->deleteMediaFile('temMedia/' . $user->picture);
         $user->picture = null;
         $user->save();
     }
@@ -228,7 +309,7 @@ trait MediaTraits
         foreach ($files as $file) {
             $filePath = public_path('assets/images/' . $file);
             try {
-                if ($this->deleteFile($file)) {
+                if ($this->deleteMediaFile($file)) {
                     $filesDeleted[] = $file;
                 }
             } catch (\Exception $e) {
@@ -244,7 +325,7 @@ trait MediaTraits
         try {
             $filePath = public_path('assets/images/' . $file);
 
-            if ($this->deleteFile($file)) {
+            if ($this->deleteMediaFile($file)) {
                 unset($file); // Free up the variable's memory
                 $status = 1; // File deleted successfully
             } else {
@@ -285,6 +366,10 @@ trait MediaTraits
 
     function cleanupEmptyDirectories($path)
     {
+        if (!File::exists($path)) {
+            return;
+        }
+
         $directories = File::directories($path);
         Log::channel('media')->info("Scanning empty directories: {$path}");
         Log::channel('media')->info("Directories found: " . count(File::directories($path)));
@@ -413,37 +498,60 @@ trait MediaTraits
     private function processBase64Image($media, $fullPath, $fileName)
     {
         $imageParts = explode(";base64,", $media);
-        $imageTypeAux = explode("image/", $imageParts[0]);
-        $imageType = $imageTypeAux[1];
+        if (count($imageParts) != 2) {
+            abort(400, "Invalid Base64 Image Format");
+        }
 
+        $imageTypeAux = explode("image/", $imageParts[0]);
+        if (!isset($imageTypeAux[1])) {
+            abort(400, "Invalid base64 format: missing image type.");
+        }
+
+        $imageType = $imageTypeAux[1];
         $imageBase64 = base64_decode($imageParts[1]);
 
         if (!$imageBase64 || !@getimagesizefromstring($imageBase64)) {
-            throw new \Exception("Invalid Base64 Image");
+            abort(400, "Invalid Base64 Image content");
+            // throw new \Exception("Invalid Base64 Image content");
         }
 
         $fileName .= $imageType;
-        $imagePath = storage_path('app/' . $fullPath . '/' . $fileName);
+        // $directory = storage_path('app/' . $fullPath); 
+        $directory = public_path($fullPath);
 
-        Image::make($imageBase64)->resize(500, null, function ($constraint) {
-            $constraint->aspectRatio();
-        })->save($imagePath, 90);
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0777, true);
+        }
+
+        $imagePath = $directory . '/' . $fileName;
+
+        try {
+            Image::make($imageBase64)->resize(500, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($imagePath, 90);
+        } catch (\Exception $e) {
+            abort(400, "Base64 Image processing failed: " . $e->getMessage());
+        }
 
         return $imagePath;
     }
 
     private function processUploadedImage($media, $fullPath, $fileName)
     {
-        $image = Image::make($media->getRealPath());
+        try {
+            $image = Image::make($media->getRealPath());
 
-        if ($image->width() > 1000) {
-            $image->resize(1000, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
+            if ($image->width() > 1000) {
+                $image->resize(1000, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+            }
+
+            $imagePath = public_path($fullPath . '/' . $fileName);
+            $image->save($imagePath, 90);
+        } catch (\Exception $e) {
+            abort(400, "Image processing failed: " . $e->getMessage());
         }
-
-        $imagePath = public_path($fullPath . '/' . $fileName);
-        $image->save($imagePath, 90);
 
         return $imagePath;
     }
@@ -503,22 +611,48 @@ trait MediaTraits
         }
     }
 
-    public function getFileContent($filePath)
+    public function getMediaContent($filePath)
     {
-        $fullPath = public_path('assets/images/' . $filePath);
-        if (File::exists($fullPath)) {
-            return File::get($fullPath);
-        }
-        return null;
+        $fullPath = public_path($this->location . $filePath);
+        return FileTrait::fileContents($fullPath);
     }
 
-    public function deleteFile($filePath)
+    public function deleteMediaFile($filePath)
     {
-        $fullPath = public_path('assets/images/' . $filePath);
-        if (File::exists($fullPath)) {
-            File::delete($fullPath);
-            return true;
+        $fullPath = public_path($this->location . $filePath);
+        return $this->deleteFile($fullPath);
+    }
+
+    public function moveTmpMediaToActual(string $logChannel = 'Comments')
+    {
+        $from = public_path($this->tmpLocation);
+        $to = public_path($this->location);
+
+        // dd($from, $to);
+        // try {
+        // FileTrait::copyDirectory($from, $to);
+        // Log::channel($logChannel)->info("Moving media from temporary to actual location: {$from} to {$to}");
+        FileTrait::moveDirectory($from, $to);
+
+        // Log::channel($logChannel)->info("Cleaning up empty directories in: {$to}");
+        $this->cleanupEmptyDirectories($to);
+        // } catch (\Exception $e) {
+        // Log::channel($logChannel)->error("Failed to move media from temporary to actual location: {$from} to {$to}. Error: " . $e->getMessage());
+
+        // }
+    }
+
+    public function deleteTmpMedia(string $logChannel = 'Comments')
+    {
+        $tmpPath = public_path($this->tmpLocation);
+
+        try {
+            FileTrait::deleteDirectory($tmpPath);
+            // $this->
+            // deleteDirectory($tmpPath);
+            Log::channel($logChannel)->info("Temporary media directory deleted: {$tmpPath}");
+        } catch (\Exception $e) {
+            Log::channel($logChannel)->error("Failed to delete temporary media directory: {$tmpPath}. Error: " . $e->getMessage());
         }
-        return false;
     }
 }
