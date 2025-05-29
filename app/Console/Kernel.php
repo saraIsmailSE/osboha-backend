@@ -46,11 +46,10 @@ class Kernel extends ConsoleKernel
         //delete old media
         ##########  30	20	*	*	7 ##########
         $schedule->command('media:deleteOld')->weekly()->sundays()->at('23:30');
+        // $schedule->command('media:deleteOld')->dailyAt('16:04');
 
         ########## 05	19	*	*	3	 ##########
         $schedule->command('ModifyTimer:Week')->weekly()->wednesdays()->at('22:05');
-
-
 
 
         ########## mondays ##########
@@ -82,6 +81,9 @@ class Kernel extends ConsoleKernel
 
         //remove old questions
         $schedule->command('questions:removeOld')->lastDayOfMonth('23:59');
+
+        // $schedule->command('posts:cleanup')->weekly()->sundays()->at('23:00');
+        // $schedule->command('posts:cleanup')->dailyAt('16:05');
     }
 
     /**

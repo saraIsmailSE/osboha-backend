@@ -6,18 +6,12 @@ use App\Exceptions\NotFound;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Media;
-use App\Models\Week;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use App\Traits\ResponseJson;
 use App\Traits\MediaTraits;
-use Illuminate\Support\Facades\File;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Termwind\Components\Dd;
+
 
 class MediaController extends Controller
 {
@@ -182,46 +176,6 @@ class MediaController extends Controller
             return response()->download($path, $_GET['fileName']);
         } else {
             return $this->sendError('file nout found');
-        }
-    }
-
-    /**
-     * Remove media files of the old records from the public folder.
-     * Keep the records of the current week and the last week.
-     * @return JsonResponse;
-     */
-    public function removeOldMedia()
-    {
-        try {
-            Log::channel('media')->info('START');
-            //get last week
-            $lastWeek = Week::orderBy('id', 'desc')
-                ->skip(2)
-                ->take(1)
-                ->first();
-
-            $cutoffDate = $lastWeek->created_at->timestamp;
-            $this->deleteUntrackedImagesFromThesesByWeek($lastWeek->created_at->timestamp);
-
-            // $created_at = $lastWeek->created_at;
-            // Log::channel('media')->info('Last Week Date: ' . $created_at);
-
-            // $matchingIds = Media::where('media', 'LIKE', "theses/%")
-            //     ->where('created_at', '<', $created_at)
-            //     ->chunkById(2000, function ($records) {
-            //         Log::channel('media')->info('Found media to delete: ' . count($records));
-
-            //         foreach ($records as $media) {
-            //             $deletedFiles = $this->deleteMedia_v2($media->media);
-            //         }
-            //     });
-
-            // $this->cleanupEmptyDirectories(public_path('assets/images/theses'));
-            Log::channel('media')->info('END');
-        } catch (\Throwable $th) {
-            Log::channel('media')->error('Error while deleting media files', [
-                'error' => $th->getMessage() . ' in ' . $th->getFile() . ' at line ' . $th->getLine(),
-            ]);
         }
     }
 }

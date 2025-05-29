@@ -2,9 +2,10 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class base64OrImageMaxSize implements InvokableRule
+class base64OrImageMaxSize implements ValidationRule
 {
     protected $maxSize;
 
@@ -26,7 +27,7 @@ class base64OrImageMaxSize implements InvokableRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      * @return void
      */
-    public function __invoke($attribute, $value, $fail)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (is_string($value)) {
             $image = $value;

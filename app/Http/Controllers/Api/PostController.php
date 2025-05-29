@@ -27,6 +27,7 @@ use App\Models\TimelineType;
 use App\Models\Week;
 use App\Rules\base64OrImage;
 use App\Rules\base64OrImageMaxSize;
+use App\Services\PostService;
 use App\Traits\PathTrait;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -82,7 +83,7 @@ class PostController extends Controller
                 'pending_path' => null
             ];
 
-            $result =  $this->processTimlineType($timeline, $request);
+            $result =  $this->processTimelineType($timeline, $request);
 
             $input = array_merge($input, $result['input']);
             $notificationData = array_merge($notificationData, $result['notificationData']);
@@ -203,76 +204,104 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function delete($post_id)
+    public function delete($post_id, PostService $postService)
     {
         $post = Post::find($post_id);
-        if ($post) {
-            if (Auth::user()->can('delete post') || Auth::id() == $post->user_id) {
-                DB::beginTransaction();
 
-                try {
+        if (!$post) throw new NotFound;
 
-                    //check Media
-                    $currentMedia = $post->media;
-                    // if exist, delete
-                    if ($currentMedia->isNotEmpty()) {
-                        foreach ($currentMedia as $media) {
-                            $this->deleteMedia($media->id, 'posts/' . $post->user_id);
-                        }
-                    }
+        if (!Auth::user()->can('delete post') && Auth::id() != $post->user_id) throw new NotAuthorized;
 
-                    //get tags
-                    $tags = $post->taggedUsers;
-                    //if exist, delete
-                    if ($tags->isNotEmpty()) {
-                        foreach ($tags as $tag) {
-                            $tag->delete();
-                        }
-                    }
+        if ($postService->deletePost($post)) {
 
-                    //delete reactions
-                    $post->reactions()->detach();
+            if (Auth::id() !== $post->id) {
+                $msg = "تم حذف منشورك  ";
 
-                    //delete comments and their media/reactions/replies/replies reactions
-                    $post->comments->each(function ($comment) {
-                        $comment->reactions()->detach();
-
-                        $media = $comment->media;
-                        if ($media) {
-                            $this->deleteMedia($media->id);
-                        }
-                    });
-
-                    $post->delete();
-
-                    DB::commit();
-
-                    if (Auth::id() !== $post->id) {
-                        $msg = "تم حذف منشورك  ";
-
-                        $path = null;
-                        if ($post->timeline->type->type === 'group') {
-                            $path = $this->getGroupPath($post->timeline->group->id);
-                            $msg .= "في المجموعة " . $post->timeline->group->name . " ";
-                        } else if ($post->timeline->type->type === 'profile') {
-                            $path = $this->getProfilePath($post->id);
-                            $msg .= "في صفحتك الشخصية ";
-                        }
-
-                        $msg .= "من قبل " . Auth::user()->name;
-                        (new NotificationController)->sendNotification($post->user_id, $msg, USER_POSTS, $path);
-                    }
-                    return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
-                } catch (\Exception $e) {
-                    DB::rollback();
-                    return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+                $path = null;
+                if ($post->timeline->type->type === 'group') {
+                    $path = $this->getGroupPath($post->timeline->group->id);
+                    $msg .= "في المجموعة " . $post->timeline->group->name . " ";
+                } else if ($post->timeline->type->type === 'profile') {
+                    $path = $this->getProfilePath($post->id);
+                    $msg .= "في صفحتك الشخصية ";
                 }
-            } else {
-                throw new NotAuthorized;
+
+                $msg .= "من قبل " . Auth::user()->name;
+                (new NotificationController)->sendNotification($post->user_id, $msg, USER_POSTS, $path);
             }
-        } else {
-            throw new NotFound;
+            return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
         }
+
+        return $this->jsonResponseWithoutMessage('Post deletion failed!', 'data', 500);
+
+
+        // if ($post) {
+        //     if (Auth::user()->can('delete post') || Auth::id() == $post->user_id) {
+        //         DB::beginTransaction();
+
+        //         try {
+
+        //             //check Media
+        //             $currentMedia = $post->media;
+        //             // if exist, delete
+        //             if ($currentMedia->isNotEmpty()) {
+        //                 foreach ($currentMedia as $media) {
+        //                     $this->deleteMedia($media->id, 'posts/' . $post->user_id);
+        //                 }
+        //             }
+
+        //             //get tags
+        //             $tags = $post->taggedUsers;
+        //             //if exist, delete
+        //             if ($tags->isNotEmpty()) {
+        //                 foreach ($tags as $tag) {
+        //                     $tag->delete();
+        //                 }
+        //             }
+
+        //             //delete reactions
+        //             $post->reactions()->detach();
+
+        //             //delete comments and their media/reactions/replies/replies reactions
+        //             $post->comments->each(function ($comment) {
+        //                 $comment->reactions()->detach();
+
+        //                 $media = $comment->media;
+        //                 if ($media) {
+        //                     $this->deleteMedia($media->id);
+        //                 }
+        //             });
+
+        //             $post->delete();
+
+        //             DB::commit();
+
+        //             if (Auth::id() !== $post->id) {
+        //                 $msg = "تم حذف منشورك  ";
+
+        //                 $path = null;
+        //                 if ($post->timeline->type->type === 'group') {
+        //                     $path = $this->getGroupPath($post->timeline->group->id);
+        //                     $msg .= "في المجموعة " . $post->timeline->group->name . " ";
+        //                 } else if ($post->timeline->type->type === 'profile') {
+        //                     $path = $this->getProfilePath($post->id);
+        //                     $msg .= "في صفحتك الشخصية ";
+        //                 }
+
+        //                 $msg .= "من قبل " . Auth::user()->name;
+        //                 (new NotificationController)->sendNotification($post->user_id, $msg, USER_POSTS, $path);
+        //             }
+        //             return $this->jsonResponseWithoutMessage("Post Deleted Successfully", 'data', 200);
+        //         } catch (\Exception $e) {
+        //             DB::rollback();
+        //             return $this->jsonResponseWithoutMessage($e->getMessage(), 'data', 500);
+        //         }
+        //     } else {
+        //         throw new NotAuthorized;
+        //     }
+        // } else {
+        //     throw new NotFound;
+        // }
     }
     /**
      * Return all posts that match requested timeline_id.
@@ -608,7 +637,7 @@ class PostController extends Controller
      * @param  Request  $request
      * @return jsonResponseWithoutMessage
      */
-    public function declinePost($post_id)
+    public function declinePost($post_id, PostService $postService)
     {
         $post = Post::find($post_id);
 
@@ -617,7 +646,14 @@ class PostController extends Controller
         }
 
         if ($post->is_approved == Null) {
-            $this->delete($post_id);
+            // $this->delete($post_id);
+
+            if (!Auth::user()->can('delete post')) throw new NotAuthorized;
+
+            if (!$postService->deletePost($post)) {
+                return $this->jsonResponseWithoutMessage('Post deletion failed!', 'data', 500);
+            }
+
             $msg = "تم رفض منشورك وحذفه من قبل " . Auth::user()->name;
 
             $path = "";
@@ -628,9 +664,9 @@ class PostController extends Controller
             }
             (new NotificationController)->sendNotification($post->user_id, $msg, USER_POSTS, $path);
             return $this->jsonResponseWithoutMessage("The post is deleted successfully", 'data', 200);
-        } else {
-            return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
         }
+
+        return $this->jsonResponseWithoutMessage("The post is already approved ", 'data', 200);
     }
     /**
      * user can control comments in the system (“control comments” permission is required)
@@ -650,7 +686,7 @@ class PostController extends Controller
                 if ($post->allow_comments == 0) {
                     $msg = "closed";
                 } else {
-                    $msg = "openned";
+                    $msg = "opened";
                 }
 
                 return $this->jsonResponseWithoutMessage($msg, 'data', 200);
@@ -680,7 +716,7 @@ class PostController extends Controller
                 if ($post->allow_votes == 0) {
                     $msg = "closed";
                 } else {
-                    $msg = "openned";
+                    $msg = "opened";
                 }
 
                 return $this->jsonResponseWithoutMessage($msg, 'data', 200);
@@ -981,7 +1017,7 @@ class PostController extends Controller
             ['group_id', $group->id],
             ['user_id', $user_id]
         ])->pluck('user_type')->toArray();
-        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin', 'special_care_leader','special_care_supervisor','special_care_coordinator','marathon_coordinator'];
+        $allowed_types = ['advisor', 'supervisor', 'leader', 'admin', 'special_care_leader', 'special_care_supervisor', 'special_care_coordinator', 'marathon_coordinator'];
         $pending_msg = '';
         $pending_userId = null;
         $pending_type = null;
@@ -1042,7 +1078,7 @@ class PostController extends Controller
         ];
     }
 
-    private function processTimlineType($timeline, $request)
+    private function processTimelineType($timeline, $request)
     {
         $input = [];
         $notificationData = [];

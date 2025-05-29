@@ -5,12 +5,9 @@ namespace App\Traits;
 use App\Constants\MarkConstants;
 use App\Constants\StatusConstants;
 use App\Constants\ThesisConstants;
-use App\Exceptions\NotFound;
 use App\Http\Resources\ThesisResource;
 use App\Models\Book;
-use App\Models\Comment;
 use App\Models\Mark;
-use App\Models\ModificationReason;
 use App\Models\RamadanDay;
 use App\Models\Thesis;
 use App\Models\ThesisType;
@@ -24,12 +21,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use PHPUnit\Framework\Error\Deprecated;
 
 trait ThesisTraits
 {
-    use ResponseJson;
+    use ResponseJson, MediaTraits;
 
     ##########ASMAA##########
 
@@ -41,7 +36,7 @@ trait ThesisTraits
 
         $this->ensureValidWeek($week->main_timer);
 
-        $userMark = $this->getUserMark($week->id);
+        $userMark = $this->getOrCreateMark($week->id);
 
         $this->ensureThesisNotDuplicated($thesisData, $userMark->id, $userId);
 
@@ -77,7 +72,7 @@ trait ThesisTraits
         $this->ensureValidWeek($week->main_timer);
 
         $thesis = $this->getThesis($thesisToUpdate['comment_id']);
-        $userMark = $this->getUserMark($week->id, $thesis->mark_id);
+        $userMark = $this->getOrCreateMark($week->id, $thesis->mark_id);
 
         $thesisDataToUpdate = $this->prepareThesisDataForUpdate($thesisToUpdate);
 
@@ -102,7 +97,7 @@ trait ThesisTraits
 
         $this->ensureValidWeek($week->main_timer);
 
-        $userMark = $this->getUserMark($week->id, $thesis->mark_id);
+        $userMark = $this->getOrCreateMark($week->id, $thesis->mark_id);
 
         $allTheses = $this->getAllUserTheses($userMark->user_id, $userMark->id, $thesis->id);
 
@@ -669,6 +664,11 @@ trait ThesisTraits
                 ];
             }
         }
+
+        return [
+            'reading_mark' => 0,
+            'writing_mark' => 0
+        ];
     }
 
     private function getAllUserTheses(int $userId, int $markId, ?int $excludeThesisId = null)
@@ -690,7 +690,7 @@ trait ThesisTraits
     private function ensureValidWeek($mainTimer)
     {
         if (!$this->isValidDate($mainTimer)) {
-            throw new \Exception('لا يمكنك تعديل الأطروحة إلا في الأسبوع المتاح لها');
+            throw new \Exception('لا يمكنك إضافة/تعديل/حذف الأطروحة إلا في الأسبوع المتاح');
         }
     }
 
@@ -703,7 +703,8 @@ trait ThesisTraits
     protected function checkRamadanStatus(): bool
     {
         $currentYear = now()->year;
-        return Cache::remember("is_ramadan_active", now()->addMonth(), function () use ($currentYear) {
+        $currentMonth = now()->month;
+        return Cache::remember("ramadan_active_$currentYear-$currentMonth", now()->endOfWeek()->addSecond(), function () use ($currentYear) {
             return RamadanDay::whereYear('created_at', $currentYear)
                 ->where('is_active', 1)
                 ->exists();
@@ -792,7 +793,7 @@ trait ThesisTraits
         return [$actualTotals, $filteredTotals];
     }
 
-    private function getUserMark(?int $weekId, ?int $markId = null): Mark
+    private function getOrCreateMark(?int $weekId, ?int $markId = null): Mark
     {
         if ($markId) {
             return Mark::findOrFail($markId);
@@ -877,5 +878,16 @@ trait ThesisTraits
         $writingParts = min($writingParts, $readingParts);
 
         return $writingParts;
+    }
+
+    public function getThesisTypeIdFromBook(Book $book): int
+    {
+        $type = $book->type->type === 'free' ? 'normal' : $book->type->type;
+
+        if ($type === 'ramadan' && !$this->checkRamadanStatus()) {
+            $type = 'normal';
+        }
+
+        return ThesisType::where('type', $type)->firstOrFail()->id;
     }
 }
