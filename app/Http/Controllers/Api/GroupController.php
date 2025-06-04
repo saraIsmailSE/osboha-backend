@@ -979,7 +979,7 @@ class GroupController extends Controller
                             }
                         }
 
-                        $logInfo = ' قام ' . Auth::user()->name . " بتعيين " . $user->name . ' على أفرقة ' . $groupName . ' بدور '  . $arabicRole;
+                        $logInfo = ' قام ' . Auth::user()->fullName . " بتعيين " . $user->name . " " . "$user->last_name " . ' على أفرقة ' . $groupName . ' بدور '  . $arabicRole;
                         Log::channel('community_edits')->info($logInfo);
 
                         return $this->jsonResponseWithoutMessage("تمت الاضافة", 'data', 200);
