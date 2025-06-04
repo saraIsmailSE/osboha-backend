@@ -52,6 +52,7 @@ use App\Http\Controllers\Api\{
     TeamsDischargeController,
     WorkingHourController,
     MarkNoteController,
+    DuplicateUserDeletionController,
 };
 
 use App\Http\Controllers\Api\Eligible\{
@@ -251,6 +252,14 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::get('/posts/{post_id}/users/{user_id?}', 'getPostReactionsUsers')
                     ->where('post_id', '[0-9]+')
                     ->where('user_id', '[0-9]+');
+            });
+        ########End Reaction########
+        ######## Duplicate User Deletion ########
+        Route::controller(DuplicateUserDeletionController::class)
+            ->prefix('duplicate-deletions')
+            ->group(function () {
+                Route::get('/{viewAsUserId?}', 'getDuplicateDeletions');
+                Route::post('/mark-duplicate', 'markAsDuplicate');
             });
         ########End Reaction########
 
