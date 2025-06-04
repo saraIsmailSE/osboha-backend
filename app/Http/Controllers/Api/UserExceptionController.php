@@ -992,13 +992,24 @@ class UserExceptionController extends Controller
                     $userGroup->termination_reason = 'withdrawn';
                     $userGroup->updated_at = $withdrawingDate;
                     $userGroup->save();
-                    $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
+                    $logInfo = ' قام ' . Auth::user()->fullName . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
                     Log::channel('community_edits')->info($logInfo);
 
 
                     //notify leader
                     $msg = "السفير:  " . $owner_of_exception->name . " طلب انسحاب مؤقت ";
                     (new NotificationController)->sendNotification($leader_id, $msg, LEADER_EXCEPTIONS);
+
+                    //notify supervisor
+                    $msg_to_supervisor = "السفير:  " . $owner_of_exception->name . " من فريق: " . $userGroup->group->name .  " طلب انسحاب مؤقت ";
+                    $supervisor = UserGroup::where('group_id', $userGroup->group->id)
+                        ->where('user_type', 'supervisor')
+                        ->whereNull('termination_reason')->first();
+                    if ($supervisor) {
+                        (new NotificationController)->sendNotification($supervisor->user_id, $msg_to_supervisor, LEADER_EXCEPTIONS, $this->getExceptionPath($userException->id));
+                    }
+
+                    //notify ambassador
                     $userToNotify->notify((new \App\Notifications\WithdrawnAccepted())->delay(now()->addMinutes(2)));
                 } else {
                     return $this->jsonResponseWithoutMessage("لم يتم التعديل - ليس سفيرا في اي مجموعة", 'data', 200);
