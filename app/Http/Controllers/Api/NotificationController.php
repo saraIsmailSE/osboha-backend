@@ -70,7 +70,6 @@ class NotificationController extends Controller
         $receiver = User::where('id', $receiver_id)->first();
         // $receiver->notify(new GeneralNotification($sender, $message, $type, $path));
 
-
         if ($delay) {
             $receiver->notify((new GeneralNotification($sender, $message, $type, $path))->delay($delay));
         } else {
