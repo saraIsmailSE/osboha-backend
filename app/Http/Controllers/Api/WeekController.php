@@ -314,8 +314,8 @@ class WeekController extends Controller
         User::where('is_excluded', 0)->where('is_hold', 0)
             ->chunk(100, function ($users) use ($notification) {
                 try {
-                    // $msg = 'إجازة عيد الأضحى المبارك السنوية 🐑';
-                    $msg = 'اجازة عيد الفطر السنوية 🌙';
+                    $msg = 'إجازة عيد الأضحى المبارك السنوية 🐑';
+                    // $msg = 'اجازة عيد الفطر السنوية 🌙';
                     foreach ($users as $user) {
                         $notification->sendNotification($user->id, $msg, NEW_WEEK);
                     }
