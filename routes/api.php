@@ -591,6 +591,8 @@ Route::group(['prefix' => 'v1'], function () {
                 Route::delete('/delete/{user_group_id}', 'delete');
                 Route::post('/withdrawn', 'withdrawnMember');
                 Route::get('/members-by-month/{group_id}/{month_filter}', 'membersByMonth');
+                Route::post('/delete-support-leader', 'deleteSupportLeader');
+
             });
         ######## End UserGroup ########
 

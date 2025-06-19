@@ -734,4 +734,38 @@ class UserGroupController extends Controller
         }
         return $this->jsonResponseWithoutMessage(null, 'data', 200);
     }
+
+    public function deleteSupportLeader(Request $request)
+    {
+        if (Auth::user()->hasanyrole('admin|consultant|advisor')) {
+            $validator = Validator::make($request->all(), [
+                'user_group_id' => 'required|exists:user_groups,id',
+            ]);
+            if ($validator->fails()) {
+                return $this->jsonResponseWithoutMessage($validator->errors(), 'data', 500);
+            }
+
+            $user_group = UserGroup::find($request->user_group_id);
+            if ($user_group) {
+                //asmaa - check if the deleted member is support_leader then remove the support_leader of the user
+                if ($user_group->user_type == 'support_leader') {
+                    $user = User::find($user_group->user_id);
+                    // $user->removeRole('support_leader');
+                    $logInfo = ' قام ' . Auth::user()->fullName . " بحذف قائد الدعم " . $user_group->user->name . ' من فريق ' . $user_group->group->name;
+                }
+
+                $user_group->update([
+                    'termination_reason' => 'end_of_support',
+                ]);
+                Log::channel('community_edits')->info($logInfo);
+
+                return $this->jsonResponseWithoutMessage('User Deleted', 'data', 200);
+            } else {
+                throw new NotFound();
+            }
+        }
+        else {
+            throw new NotAuthorized;
+        }
+    }
 }

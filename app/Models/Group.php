@@ -80,7 +80,7 @@ class Group extends Model
                 'marathon_supervisor',
                 'special_care_coordinator',
                 'special_care_leader'
-            ])->orderByRaw("FIELD(user_type,'leader', 'supervisor','advisor','consultant', 'admin') DESC");
+            ])->orderByRaw("FIELD(user_type,'support_leader','leader', 'supervisor','advisor','consultant', 'admin') DESC");
     }
     public function leaderAndAmbassadors()
     {
