@@ -102,6 +102,10 @@ trait CommentTrait
     {
         $folderPath = 'theses/' . $book_id . '/' . Auth::id();
 
+        if (!$request->has('screenShots') || count($request->screenShots) === 0) {
+            return; // No screenshots to handle
+        }
+
         foreach ($request->screenShots as $index => $screenshot) {
             if ($index === 0 && !$request->has('body')) {
                 $comment->update(['type' => 'screenshot']);
