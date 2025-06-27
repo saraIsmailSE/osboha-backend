@@ -371,15 +371,11 @@ trait MediaTraits
         }
 
         $directories = File::directories($path);
-        Log::channel('media')->info("Scanning empty directories: {$path}");
-        Log::channel('media')->info("Directories found: " . count(File::directories($path)));
-
         foreach ($directories as $dir) {
             $this->cleanupEmptyDirectories($dir);
 
             if (File::isDirectory($dir) && File::isEmptyDirectory($dir)) {
                 File::deleteDirectory($dir);
-                Log::info("Empty directory deleted: {$dir}");
             }
         }
     }
@@ -516,7 +512,7 @@ trait MediaTraits
         }
 
         $fileName .= $imageType;
-        // $directory = storage_path('app/' . $fullPath); 
+        // $directory = storage_path('app/' . $fullPath);
         $directory = public_path($fullPath);
 
         if (!File::exists($directory)) {
