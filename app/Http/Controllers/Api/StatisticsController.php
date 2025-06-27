@@ -525,18 +525,23 @@ class StatisticsController extends Controller
             ->whereBetween('created_at', [$previous_week->created_at, $previous_week->created_at->addDays(7)])->get()->count();
     }
 
-    private function excluded_and_withdraw($previous_week, $group_id)
+    
+    private function excluded_and_withdraw($current_week, $group_id)
     {
-        $current_week = Week::orderBy('created_at', 'desc')->first();
+        $next_week = Week::where('created_at', '>', $current_week->created_at)
+            ->where('is_vacation', 0)
+            ->orderBy('created_at', 'asc')
+            ->first();
 
         return UserGroup::where('group_id', $group_id)
-            ->where('updated_at', '>=', $previous_week->created_at)
-            ->where('updated_at', '<', $current_week->created_at)
+            ->where('updated_at', '>=', $current_week->created_at)
+            ->where('updated_at', '<', $next_week->created_at)
             ->where('user_type', 'ambassador')
             ->select(
                 DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'excluded' THEN 1 ELSE 0 END), 0) as excluded_members"),
-                DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'withdraw' THEN 1 ELSE 0 END), 0) as withdraw_members")
+                DB::raw("COALESCE(SUM(CASE WHEN termination_reason = 'withdrawn' THEN 1 ELSE 0 END), 0) as withdraw_members")
             )
             ->first();
+          
     }
 }
