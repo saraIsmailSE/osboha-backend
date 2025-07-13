@@ -120,6 +120,16 @@ class RolesAdministrationController extends Controller
         if ($user) {
 
             $arabicRole = SystemRole::translate($role->name);
+            if ($role->name == "ambassador") {
+                $hasChildren = User::where('parent_id', $user->id)->exists();
+
+                if (!$hasChildren) {
+                    $rolesToRemove = ['admin', 'consultant', 'advisor', 'supervisor', 'leader'];
+                    $user->roles()->whereIn('name', $rolesToRemove)->detach();
+                    return $this->jsonResponseWithoutMessage("تمت الترقية لـ " . $arabicRole, 'data', 200);
+                }
+                return $this->jsonResponseWithoutMessage("لا يمكن الترقية لـ " . $arabicRole . " لأن المستخدم مسؤول عن مستخدمين آخرين", 'data', 200);
+            }
             if ($user->hasRole($role->name)) {
                 return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
             } else {
