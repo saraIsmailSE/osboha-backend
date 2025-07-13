@@ -120,7 +120,7 @@ class RolesAdministrationController extends Controller
         if ($user) {
 
             $arabicRole = SystemRole::translate($role->name);
-            if ($role->name == "ambassador") {
+            if ($arabicRole == "سفير") {
                 $hasChildren = User::where('parent_id', $user->id)->exists();
 
                 if (!$hasChildren) {
