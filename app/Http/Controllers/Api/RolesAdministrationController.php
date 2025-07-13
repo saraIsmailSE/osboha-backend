@@ -126,6 +126,8 @@ class RolesAdministrationController extends Controller
                 if (!$hasChildren) {
                     $rolesToRemove = ['admin', 'consultant', 'advisor', 'supervisor', 'leader'];
                     $user->roles()->whereIn('name', $rolesToRemove)->detach();
+                    $logInfo = ' تمت إعادة ' . $user->fullName . " إلى دور " .  $arabicRole . " بواسطة ". Auth::user()->fullName;
+                    Log::channel('community_edits')->info($logInfo);
                     return $this->jsonResponseWithoutMessage("تمت الترقية لـ " . $arabicRole, 'data', 200);
                 }
                 return $this->jsonResponseWithoutMessage("لا يمكن الترقية لـ " . $arabicRole . " لأن المستخدم مسؤول عن مستخدمين آخرين", 'data', 200);
