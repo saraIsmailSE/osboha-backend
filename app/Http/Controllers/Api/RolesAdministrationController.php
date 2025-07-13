@@ -120,18 +120,6 @@ class RolesAdministrationController extends Controller
         if ($user) {
 
             $arabicRole = SystemRole::translate($role->name);
-            if ($arabicRole == "سفير") {
-                $hasChildren = User::where('parent_id', $user->id)->exists();
-
-                if (!$hasChildren) {
-                    $rolesToRemove = ['admin', 'consultant', 'advisor', 'supervisor', 'leader'];
-                    $user->roles()->whereIn('name', $rolesToRemove)->detach();
-                    $logInfo = ' تمت إعادة ' . $user->fullName . " إلى دور " .  $arabicRole . " بواسطة ". Auth::user()->fullName;
-                    Log::channel('community_edits')->info($logInfo);
-                    return $this->jsonResponseWithoutMessage("تمت الترقية لـ " . $arabicRole, 'data', 200);
-                }
-                return $this->jsonResponseWithoutMessage("لا يمكن الترقية لـ " . $arabicRole . " لأن المستخدم مسؤول عن مستخدمين آخرين", 'data', 200);
-            }
             if ($user->hasRole($role->name)) {
                 return $this->jsonResponseWithoutMessage("المستخدم موجود مسبقاً ك" . $arabicRole, 'data', 200);
             } else {
@@ -213,6 +201,21 @@ class RolesAdministrationController extends Controller
             $head_user = User::where('email', $request->head_user)->first();
             if ($head_user) {
                 $arabicRole = SystemRole::translate($role->name);
+
+                Log::channel('community_edits')->info('Role name is: [' . $role->name . ']');
+
+                if (trim($role->name) == "ambassador") {
+                    $hasChildren = User::where('parent_id', $user->id)->exists();
+
+                    if (!$hasChildren) {
+                        $rolesToRemove = ['admin', 'consultant', 'advisor', 'supervisor', 'leader'];
+                        $user->roles()->whereIn('name', $rolesToRemove)->detach();
+                        $logInfo = ' تمت إعادة ' . $user->fullName . " إلى دور " .  $arabicRole . " بواسطة " . Auth::user()->fullName;
+                        Log::channel('community_edits')->info($logInfo);
+                        return $this->jsonResponseWithoutMessage("تمت الترقية لـ " . $arabicRole, 'data', 200);
+                    }
+                    return $this->jsonResponseWithoutMessage("لا يمكن الترقية لـ " . $arabicRole . " لأن المستخدم مسؤول عن مستخدمين آخرين", 'data', 200);
+                }
 
                 //check if user has the role
                 if ($user->hasRole($role->name)) {
