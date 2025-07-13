@@ -30,7 +30,8 @@ class TeamsDischargeController extends Controller
             'reason' => 'required',
             'note' => 'required',
             'current_to' => 'required',
-            'leader_email' => 'required_if:current_to,ambassador'
+            'leader_email' => 'required_if:current_to,ambassador',
+            'supervisor_email' => 'required_if:current_to,leader'
 
         ]);
 
@@ -58,12 +59,37 @@ class TeamsDischargeController extends Controller
             if ($request->has('leader_email') && !is_null($request->leader_email)) {
                 $new_leader_email = $request->leader_email;
             }
+            $new_supervisor_email = null;
+            if ($request->has('supervisor_email') && !is_null($request->supervisor_email)) {
+                $new_supervisor_email = $request->supervisor_email;
+            }
 
             switch ($groupType) {
                 case "followup":
                     $leader_id = $this->handleFollowupDischarge($group->id);
                     if ($leader_id) {
-                        $this->updateCurrentStatus($request->current_to, $leader_id, $new_leader_email);
+                        $response = $this->updateCurrentStatus($request->current_to, $leader_id, $new_leader_email);
+                        if ($response) return $response;
+                    } else {
+                        return $this->jsonResponseWithoutMessage("لا يمكن التفريغ، القائد الحالي مسؤول عن سفراء آخرين", 'data', 200);
+                    }
+                    break;
+                case "supervising":
+                    $supervisor_id = $this->handleSupervisingDischarge($group->id, $request->current_to);
+                    if ($supervisor_id) {
+                        $response = $this->updateCurrentStatus($request->current_to, $supervisor_id, $new_leader_email, $new_supervisor_email);
+                        if ($response) return $response;
+                    } else {
+                        return $this->jsonResponseWithoutMessage("لا يمكن التفريغ، المراقب الحالي مسؤول عن قادة أو مستخدمين آخرين", 'data', 200);
+                    }
+                    break;
+                case "advising":
+                    $advisor_id = $this->handleAdvisingDischarge($group->id);
+                    if ($advisor_id) {
+                        $response = $this->updateCurrentStatus($request->current_to, $advisor_id, $new_leader_email);
+                        if ($response) return $response;
+                    } else {
+                        return $this->jsonResponseWithoutMessage("لا يمكن التفريغ لأن الموجه مسؤول عن مراقبين آخرين", 'data', 200);
                     }
                     break;
                 default:
@@ -85,17 +111,80 @@ class TeamsDischargeController extends Controller
         $currentLeaderInfo = UserGroup::where('user_type', 'leader')->where('group_id', $group_id)->whereNull('termination_reason')->first();
         if ($currentLeaderInfo) {
             $leader = User::find($currentLeaderInfo->user_id);
+            //check if leader is a parent or not
+            $hasChildren = User::where('parent_id', $leader->id)->exists();
+            if ($hasChildren) {
+                return false;
+            }
+
             //سحب رتبة القيادة من القائد الحالي
             $leader->removeRole('leader');
-
-            //check if leader is a parent or not
-
             return $currentLeaderInfo->user_id;
         }
 
         return false;
     }
-    public function updateCurrentStatus($current_to, $current_id, $new_leader_email = null)
+    public function handleSupervisingDischarge($group_id, $current_to)
+    {
+        $currentSupervisorInfo = UserGroup::where('user_type', 'supervisor')->where('group_id', $group_id)->whereNull('termination_reason')->first();
+        if ($currentSupervisorInfo) {
+            $supervisor = User::find($currentSupervisorInfo->user_id);
+            if ($current_to == 'ambassador') {
+                //check if supervisor is a parent or not
+                $hasChildren = User::where('parent_id', $supervisor->id)->exists();
+                if ($hasChildren) {
+                    return false;
+                }
+            }
+            //check if supervisor is a parent of leaders or not
+            $hasChildren = User::where('parent_id', $supervisor->id)
+                ->whereIn('id', function ($query) {
+                    $query->select('model_id')
+                        ->from('model_has_roles')
+                        ->where('role_id', 5)
+                        ->where('model_type', 'App\\Models\\User');
+                })
+                ->exists();
+            if ($hasChildren) {
+                return false;
+            }
+
+            //سحب رتبة الرقابة من المراقب الحالي
+            $supervisor->removeRole('supervisor');
+            if ($current_to == 'ambassador') {
+                $supervisor->removeRole('leader');
+            }
+            return $currentSupervisorInfo->user_id;
+        }
+
+        return false;
+    }
+    public function handleAdvisingDischarge($group_id)
+    {
+        $currentAdvisorInfo = UserGroup::where('user_type', 'advisor')->where('group_id', $group_id)->whereNull('termination_reason')->first();
+        if ($currentAdvisorInfo) {
+            $advisor = User::find($currentAdvisorInfo->user_id);
+            //check if supervisor is a parent of leaders or not
+            $hasChildren = User::where('parent_id', $advisor->id)
+                ->whereIn('id', function ($query) {
+                    $query->select('model_id')
+                        ->from('model_has_roles')
+                        ->where('role_id', 4)
+                        ->where('model_type', 'App\\Models\\User');
+                })
+                ->exists();
+            if ($hasChildren) {
+                return false;
+            }
+
+            //سحب رتبة الرقابة من المراقب الحالي
+            $advisor->removeRole('advisor');
+            return $currentAdvisorInfo->user_id;
+        }
+
+        return false;
+    }
+    public function updateCurrentStatus($current_to, $current_id, $new_leader_email = null, $new_supervisor_email = null)
     {
         //get where the current is ambassador
         $userGroup = UserGroup::where('user_id', $current_id)
@@ -113,10 +202,75 @@ class TeamsDischargeController extends Controller
                 if ($userGroup) {
                     $userGroup->termination_reason = 'withdrawn';
                     $userGroup->save();
-                    $logInfo = ' قام ' . Auth::user()->name . " بسحب السفير " . $userGroup->user->name . ' من فريق ' . $userGroup->group->name;
+                    $logInfo = ' قام ' . Auth::user()->fullName . " بسحب السفير " . $userGroup->user->fullName . ' من فريق ' . $userGroup->group->name;
                     Log::channel('community_edits')->info($logInfo);
                 }
 
+                break;
+            case "leader":
+                $newSupervisor = User::where('email', $new_supervisor_email)->first();
+                Log::channel('community_edits')->info($newSupervisor);
+
+                if ($newSupervisor) {
+                    //check if new supervisor has supervisor role
+                    if ($newSupervisor->hasRole('supervisor')) {
+                        $newSupervisorGroupId = UserGroup::where('user_id',  $newSupervisor->id)->where('user_type', 'supervisor')->whereNull('termination_reason')
+                            ->whereHas('group.type', function ($q) {
+                                $q->where('type', '=', 'supervising');
+                            })->pluck('group_id')->first();
+                        Log::channel('community_edits')->info($newSupervisorGroupId);
+
+                        if ($newSupervisorGroupId) {
+                            //المسؤول عن القائد الحالي هو المراقب الجديد
+
+                            User::where('id', $current_id)->update(['parent_id' => $newSupervisor->id]);
+                            //update user parent recored
+                            UserParent::where("user_id", $current_id)->update(["is_active" => 0]);
+                            UserParent::create([
+                                'user_id' => $current_id,
+                                'parent_id' =>  $newSupervisor->id,
+                                'is_active' => 1,
+                            ]);
+
+                            // deactive old ambassador recored
+                            if ($userGroup) {
+                                $userGroup->termination_reason = 'team_discharge';
+                                $userGroup->save();
+                            }
+
+                            // اضافة الحالي إلى مجموعة الرقابة الجديدة كـ سفير
+                            UserGroup::create(
+                                [
+                                    'user_id' => $current_id,
+                                    'user_type' => "ambassador",
+                                    'group_id' => $newSupervisorGroupId,
+                                    'termination_reason' => Null,
+                                ]
+                            );
+                            // اضافة المراقب الجديد كمراقب إلى مجموعة المتابعة
+                            $leaderGroup = UserGroup::where('user_id', $current_id)
+                                ->where('user_type', 'leader')
+                                ->whereNull('termination_reason')->first();
+                            if ($leaderGroup) {
+                                UserGroup::create(
+                                    [
+                                        'user_id' => $newSupervisor->id,
+                                        'user_type' => "supervisor",
+                                        'group_id' => $leaderGroup->group_id,
+                                        'termination_reason' => Null,
+                                    ]
+                                );
+                                // الغاء دور المراقب الحالي
+                                UserGroup::where("group_id", $leaderGroup->group_id)->where("user_type", "supervisor")->update(["termination_reason" => "supervisor_change"]);
+                            }
+                        } else {
+                            return $this->jsonResponseWithoutMessage("يجب أن يكون المراقب الجديد مسؤولا في فريق رقابي", 'data', 200);
+                        }
+                    } else {
+                        Log::channel('community_edits')->warning("المستخدم لا يحمل دور مراقب");
+                        return $this->jsonResponseWithoutMessage("يجب أن يكون مراقب الجديد  له دور مراقب أولاً", 'data', 200);
+                    }
+                }
                 break;
 
             default:
@@ -127,7 +281,7 @@ class TeamsDischargeController extends Controller
                     if ($newLeader->hasRole('leader')) {
                         $newLeaderGroupId = UserGroup::where('user_type', 'leader')->where('user_id',  $newLeader->id)->whereNull('termination_reason')->pluck('group_id')->first();
                         if ($newLeaderGroupId) {
-                            //المسؤول عن القائد الحالي هو القائد الجديد
+                            //المسؤول عن الحالي هو القائد الجديد
 
                             User::where('id', $current_id)->update(['parent_id' => $newLeader->id]);
                             //update user parent recored
@@ -162,7 +316,7 @@ class TeamsDischargeController extends Controller
                     }
                     break;
                 }
-                return true;
+                return null;
         }
     }
 
@@ -181,7 +335,7 @@ class TeamsDischargeController extends Controller
 
         UserGroup::where('group_id', $group_id)->whereNull('termination_reason')->update(['termination_reason' => 'team_discharge']);
 
-        $logInfo = ' قام ' . Auth::user()->name . " بتفريغ فريق  " . $group->name;
+        $logInfo = ' قام ' . Auth::user()->fullName . " بتفريغ فريق  " . $group->name;
         Log::channel('community_edits')->info($logInfo);
 
         return;
