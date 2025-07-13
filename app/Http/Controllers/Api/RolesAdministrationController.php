@@ -208,7 +208,9 @@ class RolesAdministrationController extends Controller
 
                 if ($role->name == "ambassador") {
                     $hasChildren = User::where('parent_id', $user->id)->exists();
-                    return $this->jsonResponseWithoutMessage("لا يمكن الترقية لـ " . $arabicRole . " لأن المستخدم مسؤول عن مستخدمين آخرين", 'data', 200);
+                    if ($hasChildren) {
+                        return $this->jsonResponseWithoutMessage("لا يمكن الترقية لـ " . $arabicRole . " لأن المستخدم مسؤول عن مستخدمين آخرين", 'data', 200);
+                    }
                 }
 
                 //check if head roles has a role greater that the greatest role of the user
