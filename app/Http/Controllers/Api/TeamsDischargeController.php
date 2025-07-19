@@ -67,6 +67,9 @@ class TeamsDischargeController extends Controller
             switch ($groupType) {
                 case "followup":
                     $leader_id = $this->handleFollowupDischarge($group->id);
+                    if ($leader_id === 0) {
+                        break;
+                    }
                     if ($leader_id) {
                         $response = $this->updateCurrentStatus($request->current_to, $leader_id, $new_leader_email);
                         if ($response) return $response;
@@ -76,6 +79,9 @@ class TeamsDischargeController extends Controller
                     break;
                 case "supervising":
                     $supervisor_id = $this->handleSupervisingDischarge($group->id, $request->current_to);
+                    if ($supervisor_id === 0) {
+                        break;
+                    }
                     if ($supervisor_id) {
                         $response = $this->updateCurrentStatus($request->current_to, $supervisor_id, $new_leader_email, $new_supervisor_email);
                         if ($response) return $response;
@@ -85,6 +91,9 @@ class TeamsDischargeController extends Controller
                     break;
                 case "advising":
                     $advisor_id = $this->handleAdvisingDischarge($group->id);
+                    if ($advisor_id === 0) {
+                        break;
+                    }
                     if ($advisor_id) {
                         $response = $this->updateCurrentStatus($request->current_to, $advisor_id, $new_leader_email);
                         if ($response) return $response;
@@ -122,7 +131,7 @@ class TeamsDischargeController extends Controller
             return $currentLeaderInfo->user_id;
         }
 
-        return false;
+        return 0;
     }
     public function handleSupervisingDischarge($group_id, $current_to)
     {
@@ -148,7 +157,6 @@ class TeamsDischargeController extends Controller
             if ($hasChildren) {
                 return false;
             }
-
             //سحب رتبة الرقابة من المراقب الحالي
             $supervisor->removeRole('supervisor');
             if ($current_to == 'ambassador') {
@@ -157,14 +165,14 @@ class TeamsDischargeController extends Controller
             return $currentSupervisorInfo->user_id;
         }
 
-        return false;
+        return 0;
     }
     public function handleAdvisingDischarge($group_id)
     {
         $currentAdvisorInfo = UserGroup::where('user_type', 'advisor')->where('group_id', $group_id)->whereNull('termination_reason')->first();
         if ($currentAdvisorInfo) {
             $advisor = User::find($currentAdvisorInfo->user_id);
-            //check if supervisor is a parent of leaders or not
+            //check if advisor is a parent of supervisors or not
             $hasChildren = User::where('parent_id', $advisor->id)
                 ->whereIn('id', function ($query) {
                     $query->select('model_id')
@@ -177,12 +185,12 @@ class TeamsDischargeController extends Controller
                 return false;
             }
 
-            //سحب رتبة الرقابة من المراقب الحالي
+            //سحب رتبة التوجيه من الموجه الحالي
             $advisor->removeRole('advisor');
             return $currentAdvisorInfo->user_id;
         }
 
-        return false;
+        return 0;
     }
     public function updateCurrentStatus($current_to, $current_id, $new_leader_email = null, $new_supervisor_email = null)
     {
@@ -209,7 +217,6 @@ class TeamsDischargeController extends Controller
                 break;
             case "leader":
                 $newSupervisor = User::where('email', $new_supervisor_email)->first();
-                Log::channel('community_edits')->info($newSupervisor);
 
                 if ($newSupervisor) {
                     //check if new supervisor has supervisor role
@@ -218,7 +225,6 @@ class TeamsDischargeController extends Controller
                             ->whereHas('group.type', function ($q) {
                                 $q->where('type', '=', 'supervising');
                             })->pluck('group_id')->first();
-                        Log::channel('community_edits')->info($newSupervisorGroupId);
 
                         if ($newSupervisorGroupId) {
                             //المسؤول عن القائد الحالي هو المراقب الجديد
@@ -297,7 +303,6 @@ class TeamsDischargeController extends Controller
                                 $userGroup->termination_reason = 'team_discharge';
                                 $userGroup->save();
                             }
-
 
                             // اضافة الحالي إلى مجموعة المتابعة الجديدة كـ سفير
                             UserGroup::create(
