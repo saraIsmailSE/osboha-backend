@@ -96,15 +96,13 @@ class NotificationController extends Controller
             throw new NotFound;
         }
     }
-    /**
-     * To show unread notifications for auth user.
-     *
-     * @return jsonResponseWithoutMessage
-     */
     public function listUnreadNotification()
     {
-        $unreadNotifications = auth()->user()->unreadNotifications()->get();
-
+        $unreadNotifications = auth()->user()
+            ->unreadNotifications()
+            ->latest()
+            ->take(10)
+            ->get();
         return $this->jsonResponseWithoutMessage($unreadNotifications, 'data', 200);
     }
     /**
