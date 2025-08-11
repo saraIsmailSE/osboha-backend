@@ -11,6 +11,7 @@ class UserException extends Model
 
     protected $fillable = [
         'user_id',
+        'requested_by',
         'week_id',
         'reason',
         'type_id',
@@ -30,11 +31,14 @@ class UserException extends Model
     {
         return $this->belongsTo(User::class, "user_id");
     }
+    public function requestedBy()
+    {
+        return $this->belongsTo(User::class, 'requested_by');
+    }
     public function reviewer()
     {
         return $this->belongsTo(User::class, "reviewer_id");
     }
-
     public function Week()
     {
         return $this->belongsTo(Week::class);
