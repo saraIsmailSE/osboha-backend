@@ -1122,6 +1122,7 @@ class RolesAdministrationController extends Controller
             'ambassadors' => 'required|array',
             'ambassadors.*.ambassador_email' => 'required|email',
             'leader_email' => 'required|email',
+            'target_group_id' => 'nullable|integer|exists:groups,id',
         ]);
 
         if ($validator->fails()) {
@@ -1135,10 +1136,13 @@ class RolesAdministrationController extends Controller
             if ($newLeader) {
                 // check if new leader has leader role
                 if ($newLeader->hasRole('leader')) {
-
                     //get the followup group id of new leader
-                    $newLeaderGroupId = UserGroup::whereIn('user_type', ['leader', 'special_care_leader'])
-                        ->whereNull('termination_reason')->where('user_id', $newLeader->id)->pluck('group_id')->first();
+                    if ($request->target_group_id) {
+                        $newLeaderGroupId = $request->target_group_id;
+                    } else {
+                        $newLeaderGroupId = UserGroup::whereIn('user_type', ['leader', 'special_care_leader'])
+                            ->whereNull('termination_reason')->where('user_id', $newLeader->id)->pluck('group_id')->first();
+                    }
 
                     if ($newLeaderGroupId) {
                         $response = [];
@@ -1178,13 +1182,16 @@ class RolesAdministrationController extends Controller
                         }
                         return $this->jsonResponseWithoutMessage($response, 'data', 200);
                     } else {
-                        return $this->jsonResponseWithoutMessage('فريق المتابعة الجديد غير موجود ', 'data', 200);
+                        $response['message'] = 'فريق المتابعة الجديد غير موجود';
+                        return $this->jsonResponseWithoutMessage($response, 'data', 200);
                     }
                 } else {
-                    return $this->jsonResponseWithoutMessage('يجب أن يكون القائد الجديد قائداً أولاً', 'data', 200);
+                    $response['message'] = 'يجب أن يكون القائد الجديد قائداً أولاً';
+                    return $this->jsonResponseWithoutMessage($response, 'data', 200);
                 }
             } else {
-                return $this->jsonResponseWithoutMessage('القائد الجديد غير موجود', 'data', 200);
+                $response['message'] = 'القائد الجديد غير موجود';
+                return $this->jsonResponseWithoutMessage($response, 'data', 200);
             }
         } else {
             throw new NotAuthorized;
