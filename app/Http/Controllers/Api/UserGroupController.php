@@ -376,12 +376,35 @@ class UserGroupController extends Controller
         }
 
         ########## check if Leader exists in another group as a leader ##########
-        $leaderInGroups = UserGroup::where('user_id', $user->id)
-            ->where('user_type', $role->name)
+        $groupType = $group->type->type;
+
+        // main query
+        $q = UserGroup::where('user_id', $user->id)
+            ->where('user_type', "leader")
             ->where('group_id', '!=', $group->id)
-            ->whereNull('termination_reason')->first();
-        if ($leaderInGroups) {
-            return $this->jsonResponseWithoutMessage("لا يمكنك إضافة هذا العضو ك" . $arabicRole . ", لأنه موجود ك" . $arabicRole . " في فريق آخر ", 'data', 200);
+            ->whereNull('termination_reason');
+
+        // check based on group type
+        if ($groupType === 'followup') {
+            // only one followup
+            $exists = $q->whereHas('group', function ($g) {
+                $g->whereHas('type', fn($t) => $t->where('type', 'followup'));
+            })->exists();
+
+            if ($exists) {
+                return $this->jsonResponseWithoutMessage('هذا المستخدم قائد بالفعل في فريق متابعة آخر.', 'data', 200);
+            }
+        }
+
+        if (in_array($groupType, ['advanced_followup', 'sophisticated_followup'])) {
+            // advanced or sophisticated
+            $exists = $q->whereHas('group', function ($g) {
+                $g->whereHas('type', fn($t) => $t->whereIn('type', ['advanced_followup', 'sophisticated_followup']));
+            })->exists();
+
+            if ($exists) {
+                return $this->jsonResponseWithoutMessage('هذا المستخدم قائد بالفعل في فريق متقدم/متطور آخر (لا يمكن الجمع بينهما).', 'data', 200);
+            }
         }
 
         ########## check if Leader is a supervisor ##########
@@ -763,9 +786,25 @@ class UserGroupController extends Controller
             } else {
                 throw new NotFound();
             }
-        }
-        else {
+        } else {
             throw new NotAuthorized;
+        }
+    }
+
+    function getLeaderGroupsByEmail(string $email)
+    {
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            $groups = UserGroup::query()
+                ->where('user_id', $user->id)
+                ->whereIn('user_type', ['leader', 'special_care_leader'])
+                ->whereNull('termination_reason')
+                ->with(['group:id,name'])
+                ->get()
+                ->pluck('group')
+                ->filter();
+            return $this->jsonResponseWithoutMessage($groups, 'data', 200);
         }
     }
 }
