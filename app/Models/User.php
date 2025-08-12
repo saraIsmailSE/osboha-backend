@@ -234,8 +234,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserExceptionNote::class, 'from_id');
     }
-
-
+    public function exceptionsRequested()
+    {
+        return $this->hasMany(UserException::class, 'requested_by');
+    }
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new \App\Notifications\MailResetPasswordNotification($token));

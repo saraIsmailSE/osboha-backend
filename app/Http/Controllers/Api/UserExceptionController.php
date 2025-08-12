@@ -111,6 +111,9 @@ class UserExceptionController extends Controller
             'reason' => 'required|string',
             'type_id' => 'required|int',
             'end_at' => 'date|after:yesterday',
+            'requested_by' => 'nullable|in:1,0,true,false',
+            'user_id'      => 'required_if:requested_by,1, true|integer|exists:users,id',
+
         ]);
 
         if ($validator->fails()) {
@@ -119,7 +122,14 @@ class UserExceptionController extends Controller
         $current_week = Week::latest()->first();
         $exception['reason'] = $request->reason;
         $exception['type_id'] =  $request->type_id;
-        $exception['user_id'] = Auth::id();
+
+        if ($request->requested_by) {
+            $exception['user_id'] = $request->user_id;
+            $exception['requested_by'] = Auth::id();
+        } else {
+            $exception['user_id'] = Auth::id();
+            $exception['requested_by'] = null;
+        }
 
         if ($request->has('desired_duration')) {
             $exception['desired_duration'] =  $request->desired_duration;
@@ -327,11 +337,17 @@ class UserExceptionController extends Controller
     {
         $successMessage = "";
 
-        if (!Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
+        if (
+            !Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])
+            || !empty($exception['requested_by'])
+        ) {
             $exception['status'] = 'pending';
-            $successMessage = "تم رفع طلبك للانسحاب انتظر الموافقة";
+            $successMessage = "تم رفع طلب الانسحاب انتظر الموافقة";
             $exception['desired_duration'] =  'مؤقت';
-            UserException::create($exception);
+            $test = UserException::create($exception);
+            Log::channel('community_edits')->info($test);
+
+
             return $this->jsonResponseWithoutMessage($successMessage, 'data', 200);
         } else {
             return $this->jsonResponseWithoutMessage('يرجى مراجعة المسؤول عنك', 'data', 200);
@@ -419,7 +435,7 @@ class UserExceptionController extends Controller
             $userException->fresh();
 
             // response msg
-            $successMessage = "تم طلب التجميد لغاية " . $exception['end_at'];
+            $successMessage = "تم رفع طلب التجميد لغاية " . $exception['end_at'];
 
 
             //Notify User
@@ -552,7 +568,7 @@ class UserExceptionController extends Controller
      */
     public function show($exception_id)
     {
-        $userException = UserException::with('assignees')->find($exception_id);
+        $userException = UserException::with(['assignees', 'requestedBy'])->find($exception_id);
 
         if ($userException) {
             if (Auth::id() == $userException->user_id || Auth::user()->hasRole(['leader', 'supervisor', 'advisor', 'consultant', 'admin'])) {
