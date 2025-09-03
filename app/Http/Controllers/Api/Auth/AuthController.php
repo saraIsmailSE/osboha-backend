@@ -25,6 +25,7 @@ use App\Models\Week;
 use App\Notifications\MailDowngradeRole;
 use App\Notifications\MailUpgradeRole;
 use App\Traits\ResponseJson;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -322,10 +323,15 @@ class AuthController extends Controller
                     $user->is_excluded = 0;
                     $user->is_hold = 0;
                     $user->save();
+
+                    $created_at = $this->determineWeekStartForCreation();
+
                     UserParent::create([
                         'user_id' => $user->id,
                         'parent_id' => $leader->user_id,
                         'is_active' => 1,
+                        'created_at' => $created_at,
+                        'updated_at' => $created_at,
                     ]);
                     UserGroup::updateOrCreate(
                         [
@@ -338,7 +344,10 @@ class AuthController extends Controller
                             'user_id' => $user->id,
                             'group_id' =>  $userGroup->group_id,
                             'user_type' => 'ambassador',
-                            'termination_reason' => null
+                            'termination_reason' => null,
+                            'created_at' => $created_at,
+                            'updated_at' => $created_at,
+
                         ]
                     );
                     DB::commit();
@@ -365,6 +374,30 @@ class AuthController extends Controller
         }
     }
 
+
+    private function determineWeekStartForCreation()
+    {
+        $today = now();
+        $dayOfWeek = $today->dayOfWeek; //Sunday is 0, Monday is 1, and so on, up to Saturday as 6.
+
+        //Sunday check before 12PM
+        $isSundayBeforeNoon = ($dayOfWeek === 0 && $today->lt($today->copy()->setHour(12)->setMinute(0)->setSecond(0)));
+
+        // Determine if we start next week
+        $goToNextWeek = in_array($dayOfWeek, [4, 5, 6]) || ($dayOfWeek === 0 && !$isSundayBeforeNoon);
+
+        if ($goToNextWeek) {
+            $yearWeeks = config('constants.YEAR_WEEKS');
+            foreach ($yearWeeks as $week) {
+                $weekStart = Carbon::parse($week['date'])->setHour(12)->setMinute(0)->setSecond(0);
+                if ($weekStart->greaterThan($today)) {
+                    return $weekStart->format('Y-m-d H:i:s');
+                }
+            }
+        } else {
+            return $today->format('Y-m-d H:i:s');
+        }
+    }
     /**
      *reset auth email.
      *

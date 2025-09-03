@@ -611,8 +611,8 @@ class UserExceptionController extends Controller
                     })
                     ->first();
 
-                //Data for the last four weeks
-                $weekIds = Week::latest()->take(4)->pluck('id');
+                //Data for the last SEVEN weeks
+                $weekIds = Week::latest()->take(7)->pluck('id');
                 $response['ambassadorMarks'] = $this->ambassadorWeekMark($userException->user_id, $weekIds);
 
                 return $this->jsonResponseWithoutMessage($response, 'data', 200);

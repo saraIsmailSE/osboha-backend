@@ -62,8 +62,8 @@ class UserController extends Controller
             $response['in_charge_of'] = User::where('parent_id', $response['user']->id)->get();
             $response['followup_team'] = UserGroup::with('group')->where('user_id', $response['user']->id)->where('user_type', 'ambassador')->whereNull('termination_reason')->first();
             $response['groups'] = UserGroup::with('group')->where('user_id', $response['user']->id)->get();
-            //Data for the last four weeks
-            $weekIds = Week::latest()->take(4)->pluck('id');
+            //Data for the last SEVEN weeks
+            $weekIds = Week::latest()->take(7)->pluck('id');
             $response['ambassadorMarks'] = $this->ambassadorWeekMark($response['user']->id, $weekIds);
 
             if (!Auth::user()->hasAnyRole(['admin'])) {

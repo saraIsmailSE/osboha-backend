@@ -12,6 +12,9 @@ class UserParent extends Model
         'user_id',
         'parent_id',
         'is_active',
+        'created_at',
+        'updated_at',
+
     ];
 
     public function child()
