@@ -180,7 +180,8 @@ class UserExceptionController extends Controller
                 ->whereIn('status', ['finished', 'accepted'])
                 ->whereHas('type', function ($query) {
                     $query->where('type', config('constants.FREEZE_THIS_WEEK_TYPE'))
-                        ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'));
+                        ->orWhere('type', config('constants.FREEZE_NEXT_WEEK_TYPE'))
+                        ->orWhere('type', config('constants.EXCEPTIONAL_FREEZING_TYPE'));
                 })->latest()->pluck('updated_at')->first();
 
             $dateAfter4Weeks = Carbon::parse($laseFreezing)->addWeeks(4)->format('Y-m-d');
