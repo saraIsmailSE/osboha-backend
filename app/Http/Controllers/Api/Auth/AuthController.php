@@ -389,7 +389,7 @@ class AuthController extends Controller
         if ($goToNextWeek) {
             $yearWeeks = config('constants.YEAR_WEEKS');
             foreach ($yearWeeks as $week) {
-                $weekStart = Carbon::parse($week['date'])->setHour(12)->setMinute(0)->setSecond(0);
+                $weekStart = Carbon::parse($week['date'])->setHour(12)->setMinute(1)->setSecond(0);
                 if ($weekStart->greaterThan($today)) {
                     return $weekStart->format('Y-m-d H:i:s');
                 }
